@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+
 try:
     from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, UniqueConstraint
     from sqlalchemy import Integer, Unicode, DateTime, Enum, func
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import synonym, relationship
+    from geoalchemy2 import Geometry
     import enum
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -28,6 +31,8 @@ class POI_address(Base):
     poi_addr_street = Column(Unicode(64))
     poi_addr_housenumber = Column(Unicode(16))
     poi_conscriptionnumber = Column(Unicode(16))
+    poi_geom = Column(Geometry('POINT'))
+    geom_hint = Column(Geometry('POINT'))
     original = Column(Unicode(128))
     poi_website = Column(Unicode(256))
     poi_ref = Column(Unicode(16))
