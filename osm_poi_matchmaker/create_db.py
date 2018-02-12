@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import osm_poi_matchmaker.libs.geo
 
 try:
     import requests
@@ -12,9 +13,10 @@ try:
     import logging, logging.config
     import hashlib
     from bs4 import BeautifulSoup
-    from osm_poi_matchmaker.libs import address
+    from osm_poi_matchmaker.libs import address, geo
     from osm_poi_matchmaker.dao.data_structure import Base, City, POI_address, POI_common
     from osm_poi_matchmaker.libs.file_output import save_csv_file
+    from geoalchemy2 import WKTElement
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -28,6 +30,7 @@ output_folder = '.'
 
 DOWNLOAD_CACHE = '../cache_url'
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
+PROJ = 4326
 
 
 def init_log():
@@ -260,8 +263,7 @@ class POI_Base:
                 poi_data['name'] = poi_data['name'].replace('SPAR', 'Spar')
                 ref_match = PATTERN_SPAR_REF.search(poi_data['name'])
                 ref = ref_match.group(1).strip() if ref_match is not None else None
-
-                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['zipCode'].strip(), poi_branch = poi_data['name'].split('(')[0].strip(), poi_website = poi_data['pageUrl'].strip(), original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = ref)
+                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['zipCode'].strip(), poi_branch = poi_data['name'].split('(')[0].strip(), poi_website = poi_data['pageUrl'].strip(), geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['latitude'], poi_data['longitude'], PROJ), original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = ref)
 
 
     def add_kh_bank(self, link_base, name = 'K&H bank'):
@@ -277,7 +279,8 @@ class POI_Base:
                     postcode, city, street, housenumber, conscriptionnumber = address.extract_all_address(poi_data[first_element]['address'])
                     insert(self.session, poi_code = code, poi_city=city, poi_name=name,
                            poi_postcode=postcode, poi_branch=None,
-                           poi_website=None, original=poi_data[first_element]['address'], poi_addr_street=street,
+                           poi_website=None, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data[first_element]['latitude'], poi_data[first_element]['longitude'], PROJ),
+                           original=poi_data[first_element]['address'], poi_addr_street=street,
                            poi_addr_housenumber=housenumber, poi_conscriptionnumber=conscriptionnumber, poi_ref=None)
 
     def add_cib_bank(self, link_base):
@@ -330,7 +333,10 @@ class POI_Base:
                 city = address.clean_city(poi_data['city'])
                 branch = poi_data['name']
                 website = None
-                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
+                lat = poi_data['lat']
+                lng = poi_data['lng']
+                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ)
+, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
 
 
     def add_foxpost(self, link_base, filename):
