@@ -237,7 +237,7 @@ class POI_Base:
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(
                     poi_data['addresses'][0]['address'])
                 name = 'Rossmann'
-                code = 'hurossmsch'
+                code = 'hurossmche'
                 insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['addresses'][0]['zip'].strip(), poi_branch = None, poi_website = None, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['addresses'][0]['position'][1], poi_data['addresses'][0]['position'][0], PROJ), original = poi_data['addresses'][0]['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
@@ -259,6 +259,7 @@ class POI_Base:
                     code = 'husparsup'
                 else:
                     name = 'Spar'
+                    code = 'husparsup'
                 poi_data['name'] = poi_data['name'].replace('INTERSPAR', 'Interspar')
                 poi_data['name'] = poi_data['name'].replace('SPAR', 'Spar')
                 ref_match = PATTERN_SPAR_REF.search(poi_data['name'])
@@ -275,7 +276,7 @@ class POI_Base:
                     if name == 'K&H bank':
                         code = 'hukhbank'
                     else:
-                        code = 'hukhbank'
+                        code = 'hukhatm'
                     postcode, city, street, housenumber, conscriptionnumber = address.extract_all_address(poi_data[first_element]['address'])
                     insert(self.session, poi_code = code, poi_city=city, poi_name=name,
                            poi_postcode=postcode, poi_branch=None,
