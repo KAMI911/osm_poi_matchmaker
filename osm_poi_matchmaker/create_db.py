@@ -216,7 +216,7 @@ class POI_Base:
                 branch = poi_data['P_NAME'].strip()
                 name = 'Príma' if 'Príma' in branch else 'CBA'
                 code = 'huprimacon'  if 'Príma' in branch else 'hucbacon'
-                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = None, original = poi_data['A_CIM'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
+                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = None, original = poi_data['A_CIM'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'], PROJ) )
 
 
     def add_rossmann(self, link_base):
@@ -238,7 +238,7 @@ class POI_Base:
                     poi_data['addresses'][0]['address'])
                 name = 'Rossmann'
                 code = 'hurossmsch'
-                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['addresses'][0]['zip'].strip(), poi_branch = None, poi_website = None, original = poi_data['addresses'][0]['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
+                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['addresses'][0]['zip'].strip(), poi_branch = None, poi_website = None, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['addresses'][0]['position'][1], poi_data['addresses'][0]['position'][0], PROJ), original = poi_data['addresses'][0]['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
     def add_spar(self, link_base):
@@ -302,7 +302,7 @@ class POI_Base:
                     branch = poi_data['title'].strip()
                 code = 'hubenupha'
                 website = poi_data['description'].strip() if poi_data['description'] is not None else None
-                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['postal_code'].strip(), poi_branch = branch, poi_website = website, original = poi_data['street'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
+                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['postal_code'].strip(), poi_branch = branch, poi_website = website, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ), original = poi_data['street'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
 
     def add_posta(self, link_base, filename):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, filename))
@@ -333,8 +333,6 @@ class POI_Base:
                 city = address.clean_city(poi_data['city'])
                 branch = poi_data['name']
                 website = None
-                lat = poi_data['lat']
-                lng = poi_data['lng']
                 insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ)
 , original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
 
@@ -359,7 +357,7 @@ class POI_Base:
                 fr = poi_data['open']['pentek'].strip() if poi_data['open']['pentek'] is not None else None
                 sa = poi_data['open']['szombat'].strip() if poi_data['open']['szombat'] is not None else None
                 su = poi_data['open']['vasarnap'].strip() if poi_data['open']['vasarnap'] is not None else None
-                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None, poi_opening_hours_mo = mo, poi_opening_hours_tu = tu, poi_opening_hours_we = we, poi_opening_hours_th = th, poi_opening_hours_fr = fr, poi_opening_hours_sa = sa, poi_opening_hours_su = su)
+                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['geolat'], poi_data['geolng'], PROJ), poi_opening_hours_mo = mo, poi_opening_hours_tu = tu, poi_opening_hours_we = we, poi_opening_hours_th = th, poi_opening_hours_fr = fr, poi_opening_hours_sa = sa, poi_opening_hours_su = su)
 
 
     def query_all_pd(self, table):
