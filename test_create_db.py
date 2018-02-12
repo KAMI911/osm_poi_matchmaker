@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 try:
     import unittest
     from test.test_address import TestAddressResolver, TestFullAddressResolver

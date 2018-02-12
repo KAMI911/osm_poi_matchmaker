@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 try:
     import unittest
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, extract_all_address

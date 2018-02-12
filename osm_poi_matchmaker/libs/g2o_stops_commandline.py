@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 try:
     import argparse, textwrap, os, sys, atexit, logging, logging.config
 
