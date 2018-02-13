@@ -320,7 +320,7 @@ class POI_Base:
                         code = 'hupostapo'
                 elif poi_data['type'] == 'csekkautomata':
                     name = 'Posta csekkautomata'
-                    code = 'hupostacsa'
+                    code = 'hupostacse'
                 elif poi_data['type'] == 'postaautomata':
                     name = 'Posta csomagautomata'
                     code = 'hupostacso'
