@@ -55,17 +55,23 @@ def extract_street_housenumber(clearable):
 
 def extract_all_address(clearable):
     clearable = clearable.strip()
-    pc_match = PATTERN_POSTCODE_CITY.search(clearable)
-    if pc_match is not None:
-        postcode = pc_match.group(1)
+    if clearable is not None and clearable != '':
+        pc_match = PATTERN_POSTCODE_CITY.search(clearable)
+        if pc_match is not None:
+            postcode = pc_match.group(1)
+        else:
+            postcode = None
+        if pc_match is not None:
+            city = pc_match.group(4)
+        else:
+            city = None
+        if len(clearable.split(',')) > 1:
+            street, housenumber, conscriptionnumber = extract_street_housenumber_better(clearable.split(',')[1].strip())
+            return (postcode, city, street, housenumber, conscriptionnumber)
+        else:
+            return postcode, city, None, None, None
     else:
-        postcode = None
-    if pc_match is not None:
-        city = pc_match.group(4)
-    else:
-        city = None
-    street, housenumber, conscriptionnumber = extract_street_housenumber_better(clearable.split(',')[1].strip())
-    return (postcode, city, street, housenumber, conscriptionnumber)
+        return None, None, None, None, None
 
 def extract_street_housenumber_better(clearable):
     '''Try to separate street and house number from a Hungarian style address string
@@ -74,69 +80,73 @@ def extract_street_housenumber_better(clearable):
     return: Separated street and housenumber
     '''
     # Split and clean up street
-    data = clearable.split('(')[0]
+    clearable = clearable.strip()
+    if clearable is not None and clearable != '':
+        data = clearable.split('(')[0]
 
-    cn_match_1 = PATTERN_CONSCRIPTIONNUMBER_1.search(data)
-    cn_match_2 = PATTERN_CONSCRIPTIONNUMBER_2.search(data)
-    if cn_match_1 is not None:
-        conscriptionnumber = cn_match_1.group(2) if cn_match_1.group(2) is not None else None
-        cnn_length = len(cn_match_1.group(0))
-        logging.debug('Matching conscription number with method 1: {} from {}'.format(conscriptionnumber, clearable))
-    elif cn_match_2 is not None:
-        conscriptionnumber = cn_match_2.group(2) if cn_match_2.group(2) is not None else None
-        cnn_length = len(cn_match_2.group(0))
-        logging.debug('Matching conscription number with method 2: {} from {}'.format(conscriptionnumber, clearable))
-    else:
-        conscriptionnumber = None
-        cnn_length = None
-    # Try to match street
-    street_match = PATTERN_STREET.search(data)
-    if street_match is None:
-        logging.debug('Non matching street: {}'.format(clearable))
-        street, housenumber = None, None
-    else:
-        # Normalize street
-        street = street_match.group(0)
-        street_length = len(street)
-        street = street.replace('Petőfi S.', 'Petőfi Sándor')
-        street = street.replace('Szt.István', 'Szent István')
-        street = street.replace('Kossuth L.', 'Kossuth Lajos')
-        street = street.replace('Kossuth L.u.', 'Kossuth Lajos utca')
-        street = street.replace('Ady E.', 'Ady Endre')
-        street = street.replace('Erkel F.', 'Erkel Ferenc')
-        street = street.replace('Bajcsy-Zs.', 'Bajcsy-Zsilinszky Endre')
-        street = street.replace('Bethlen G.', 'Bethlen Gábor')
-        street = street.replace('Dózsa Gy.', 'Dózsa György')
-        street = street.replace('Mammut', '')
-        street = street.replace('Jókai M.', 'Jókai Mór')
-        street = street.replace('Szabó D.', 'Szabó Dezső')
-        street = street.replace('Baross G.', 'Baross Gábor')
-        street = street.replace('Kossuth F.', 'Kossuth F.')
-        street = street.replace('Móricz Zs.', 'Móricz Zsigmond')
-        street = street.replace('BERCSÉNYI U.', 'Bercsényi utca')
-        street = street.replace(' u.',   ' utca')
-        street = street.replace('.u.',   ' utca')
-        street = street.replace(' krt.', ' körút')
-        street = street.replace(' ltp.', ' lakótelep')
-        street = street.replace(' ltp',  ' lakótelep')
-        street = street.replace(' sgt.', ' sugárút')
-
-        # Search for house number
-        if cnn_length is not None:
-            hn_match = PATTERN_HOUSENUMBER.search(data[street_length:-cnn_length])
+        cn_match_1 = PATTERN_CONSCRIPTIONNUMBER_1.search(data)
+        cn_match_2 = PATTERN_CONSCRIPTIONNUMBER_2.search(data)
+        if cn_match_1 is not None:
+            conscriptionnumber = cn_match_1.group(2) if cn_match_1.group(2) is not None else None
+            cnn_length = len(cn_match_1.group(0))
+            logging.debug('Matching conscription number with method 1: {} from {}'.format(conscriptionnumber, clearable))
+        elif cn_match_2 is not None:
+            conscriptionnumber = cn_match_2.group(2) if cn_match_2.group(2) is not None else None
+            cnn_length = len(cn_match_2.group(0))
+            logging.debug('Matching conscription number with method 2: {} from {}'.format(conscriptionnumber, clearable))
         else:
-            hn_match = PATTERN_HOUSENUMBER.search(data[street_length:])
-        if hn_match is not None:
-            # Split and clean up house number
-            housenumber = hn_match.group(0)
-            housenumber = housenumber.replace('.', '')
-            housenumber = housenumber.replace('–', '-')
-            housenumber = housenumber.lower()
+            conscriptionnumber = None
+            cnn_length = None
+        # Try to match street
+        street_match = PATTERN_STREET.search(data)
+        if street_match is None:
+            logging.debug('Non matching street: {}'.format(clearable))
+            street, housenumber = None, None
         else:
-            housenumber = None
+            # Normalize street
+            street = street_match.group(0)
+            street_length = len(street)
+            street = street.replace('Petőfi S.', 'Petőfi Sándor')
+            street = street.replace('Szt.István', 'Szent István')
+            street = street.replace('Kossuth L.', 'Kossuth Lajos')
+            street = street.replace('Kossuth L.u.', 'Kossuth Lajos utca')
+            street = street.replace('Ady E.', 'Ady Endre')
+            street = street.replace('Erkel F.', 'Erkel Ferenc')
+            street = street.replace('Bajcsy-Zs.', 'Bajcsy-Zsilinszky Endre')
+            street = street.replace('Bethlen G.', 'Bethlen Gábor')
+            street = street.replace('Dózsa Gy.', 'Dózsa György')
+            street = street.replace('Mammut', '')
+            street = street.replace('Jókai M.', 'Jókai Mór')
+            street = street.replace('Szabó D.', 'Szabó Dezső')
+            street = street.replace('Baross G.', 'Baross Gábor')
+            street = street.replace('Kossuth F.', 'Kossuth F.')
+            street = street.replace('Móricz Zs.', 'Móricz Zsigmond')
+            street = street.replace('BERCSÉNYI U.', 'Bercsényi utca')
+            street = street.replace(' u.',   ' utca')
+            street = street.replace('.u.',   ' utca')
+            street = street.replace(' krt.', ' körút')
+            street = street.replace(' ltp.', ' lakótelep')
+            street = street.replace(' ltp',  ' lakótelep')
+            street = street.replace(' sgt.', ' sugárút')
+
+            # Search for house number
+            if cnn_length is not None:
+                hn_match = PATTERN_HOUSENUMBER.search(data[street_length:-cnn_length])
+            else:
+                hn_match = PATTERN_HOUSENUMBER.search(data[street_length:])
+            if hn_match is not None:
+                # Split and clean up house number
+                housenumber = hn_match.group(0)
+                housenumber = housenumber.replace('.', '')
+                housenumber = housenumber.replace('–', '-')
+                housenumber = housenumber.lower()
+            else:
+                housenumber = None
 
 
-    return street, housenumber, conscriptionnumber
+        return street, housenumber, conscriptionnumber
+    else:
+        return None, None, None
 
 
 def clean_city(clearable):
@@ -145,5 +155,8 @@ def clean_city(clearable):
     :param clearable: Not clear cityname
     :return: Clear cityname
     '''
-    city = re.sub(PATTERN_CITY, '', clearable)
-    return city.strip()
+    if clearable is not None:
+        city = re.sub(PATTERN_CITY, '', clearable)
+        return city.strip()
+    else:
+        return None

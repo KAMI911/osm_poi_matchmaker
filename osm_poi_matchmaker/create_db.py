@@ -361,6 +361,31 @@ class POI_Base:
                 insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['geolat'], poi_data['geolng'], PROJ), poi_opening_hours_mo = mo, poi_opening_hours_tu = tu, poi_opening_hours_we = we, poi_opening_hours_th = th, poi_opening_hours_fr = fr, poi_opening_hours_sa = sa, poi_opening_hours_su = su)
 
 
+    def add_avia(self, link_base):
+        soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'avia.html'))
+        data = []
+        if soup != None:
+            # parse the html using beautiful soap and store in variable `soup`
+            #pattern = re.compile('var\s*markers\s*=\s*.*', re.MULTILINE)
+            pattern = re.compile('var\s*markers\s*=\s*((.*\n)*\]\;)', re.MULTILINE)
+            script = soup.find('script', text=pattern)
+            m = pattern.search(script.get_text())
+            data = m.group(0)
+            data = data.replace("'", '"')
+            data = address.clean_javascript_variable(data, 'markers')
+            text = json.loads(data)
+            for poi_data in text:
+                postcode, city, street, housenumber, conscriptionnumber = address.extract_all_address(poi_data['cim'])
+                name = 'Avia'
+                code = 'huaviafu'
+                branch = ''
+                ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
+                if (poi_data['lat'] is not None and poi_data['lat'] != '') and (poi_data['lng'] is not None and poi_data['lng'] != ''):
+                    geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ)
+                else:
+                    geom_hint = None
+                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = None, original = poi_data['cim'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, geom_hint = geom_hint, ref = ref)
+
     def query_all_pd(self, table):
         return pd.read_sql_table(table, self.engine)
 
@@ -370,7 +395,7 @@ def main():
     logging.info('Starting {0} ...'.format(__program__))
     db = POI_Base('postgresql://poi:poitest@localhost:5432')
     logging.info('Importing cities ...'.format())
-
+    '''
     db.add_city('../data/Iranyitoszam-Internet.XLS')
 
     logging.info('Importing {} stores ...'.format('Tesco'))
@@ -438,6 +463,12 @@ def main():
     data = [{'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_tags':"{'amenity': 'vending_machine', 'vending': 'parcel_pickup;parcel_mail_in', 'brand': 'Foxpost', operator: 'FoxPost Zrt.', 'contact:facebook': 'https://www.facebook.com/foxpostzrt', 'contact:youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w', 'contact:email': 'info@foxpost.hu', 'contact:phone': '+36 1 999 03 69', 'payment:debit_cards': 'yes', 'payment:cash': 'no'}", 'poi_url_base': 'https://www.foxpost.hu/'}]
     db.add_poi_types(data)
     db.add_foxpost('http://www.foxpost.hu/wp-content/themes/foxpost/googleapijson.php', 'foxpostautomata.json')
+    '''
+    logging.info('Importing {} stores ...'.format('Avia'))
+    data = [
+        {'poi_code': 'huaviafu', 'poi_name': 'Avia', 'poi_tags': "{'amenity': 'fuel', 'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}", 'poi_url_base': 'https://www.avia.hu'}]
+    db.add_poi_types(data)
+    db.add_avia('https://www.avia.hu/kapcsolat/toltoallomasok/')
 
     '''
     logging.info('Importing {} stores ...'.format('CIB Bank'))

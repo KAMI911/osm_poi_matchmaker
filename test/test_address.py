@@ -38,7 +38,9 @@ class TestFullAddressResolver(unittest.TestCase):
         self.addresses = [
             {'original': '9737 Bük, Petőfi utca 63. Fszt. 1.', 'postcode': '9737', 'city': 'Bük',
              'street': 'Petőfi utca', 'housenumber': '63',
-             'conscriptionnumber': None}]
+             'conscriptionnumber': None},
+            {'original': '5662 Csanádapáca','postcode': '5662', 'city': 'Csanádapáca',
+             'street': None, 'housenumber': None, 'conscriptionnumber': None}]
 
     def test_extract_all_address(self):
         for i in self.addresses:
