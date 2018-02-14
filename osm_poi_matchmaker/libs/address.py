@@ -15,9 +15,12 @@ PATTERN_HOUSENUMBER = re.compile('[0-9]{1,3}(\/[A-z]{1}|\-[0-9]{1,3}|)', re.IGNO
 PATTERN_STREET = re.compile(
     '\s*.*\s*(útgyűrű|útfél|sétány|lejtő|liget|aluljáró|lejtó|park|ltp\.|ltp|sarok|szél|sor|körönd|köz|tér|tere|utca|körút|lakótelep|krt\.|krt|út|rét|sgt.|u\.|u){1}',
     re.UNICODE | re.IGNORECASE)
-PATTERN_CONSCRIPTIONNUMBER = re.compile('(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}|\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})', re.IGNORECASE)
+PATTERN_CONSCRIPTIONNUMBER = re.compile(
+    '(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}|\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})',
+    re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER_1 = re.compile('(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1})', re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER_2 = re.compile('(\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})', re.IGNORECASE)
+
 
 def clean_javascript_variable(clearable, removable):
     """Remove javascript variable notation from the selected JSON variable.
@@ -73,6 +76,7 @@ def extract_all_address(clearable):
     else:
         return None, None, None, None, None
 
+
 def extract_street_housenumber_better(clearable):
     '''Try to separate street and house number from a Hungarian style address string
 
@@ -89,11 +93,13 @@ def extract_street_housenumber_better(clearable):
         if cn_match_1 is not None:
             conscriptionnumber = cn_match_1.group(2) if cn_match_1.group(2) is not None else None
             cnn_length = len(cn_match_1.group(0))
-            logging.debug('Matching conscription number with method 1: {} from {}'.format(conscriptionnumber, clearable))
+            logging.debug(
+                'Matching conscription number with method 1: {} from {}'.format(conscriptionnumber, clearable))
         elif cn_match_2 is not None:
             conscriptionnumber = cn_match_2.group(2) if cn_match_2.group(2) is not None else None
             cnn_length = len(cn_match_2.group(0))
-            logging.debug('Matching conscription number with method 2: {} from {}'.format(conscriptionnumber, clearable))
+            logging.debug(
+                'Matching conscription number with method 2: {} from {}'.format(conscriptionnumber, clearable))
         else:
             conscriptionnumber = None
             cnn_length = None
@@ -122,11 +128,11 @@ def extract_street_housenumber_better(clearable):
             street = street.replace('Kossuth F.', 'Kossuth F.')
             street = street.replace('Móricz Zs.', 'Móricz Zsigmond')
             street = street.replace('BERCSÉNYI U.', 'Bercsényi utca')
-            street = street.replace(' u.',   ' utca')
-            street = street.replace('.u.',   ' utca')
+            street = street.replace(' u.', ' utca')
+            street = street.replace('.u.', ' utca')
             street = street.replace(' krt.', ' körút')
             street = street.replace(' ltp.', ' lakótelep')
-            street = street.replace(' ltp',  ' lakótelep')
+            street = street.replace(' ltp', ' lakótelep')
             street = street.replace(' sgt.', ' sugárút')
 
             # Search for house number
@@ -142,7 +148,6 @@ def extract_street_housenumber_better(clearable):
                 housenumber = housenumber.lower()
             else:
                 housenumber = None
-
 
         return street, housenumber, conscriptionnumber
     else:

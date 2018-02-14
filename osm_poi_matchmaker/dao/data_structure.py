@@ -13,6 +13,7 @@ except ImportError as err:
 
 Base = declarative_base()
 
+
 class OSM_type(enum.Enum):
     node = 0
     way = 1
