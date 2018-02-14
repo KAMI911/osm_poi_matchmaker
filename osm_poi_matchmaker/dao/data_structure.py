@@ -32,7 +32,6 @@ class POI_address(Base):
     poi_addr_housenumber = Column(Unicode(16))
     poi_conscriptionnumber = Column(Unicode(16))
     poi_geom = Column(Geometry('POINT'))
-    geom_hint = Column(Geometry('POINT'))
     original = Column(Unicode(128))
     poi_website = Column(Unicode(256))
     poi_ref = Column(Unicode(16))
@@ -92,5 +91,6 @@ class POI_osm(Base):
     poi_osm_id = Column(Integer, unique=True, index=True)
     poi_osm_type = Column(Enum(OSM_type))
     poi_hash = Column(Unicode(128), nullable=True, unique=False, index=True)
+    geom_hint = Column(Geometry('POINT'))
 
     __table_args__ = (UniqueConstraint('poi_osm_id', 'poi_osm_type', name='uc_poi_osm_osm_type'),)

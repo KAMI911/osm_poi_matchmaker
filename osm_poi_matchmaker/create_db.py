@@ -216,7 +216,7 @@ class POI_Base:
                 branch = poi_data['P_NAME'].strip()
                 name = 'Príma' if 'Príma' in branch else 'CBA'
                 code = 'huprimacon'  if 'Príma' in branch else 'hucbacon'
-                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = None, original = poi_data['A_CIM'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'], PROJ) )
+                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = None, original = poi_data['A_CIM'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_geom = osm_poi_matchmaker.libs.geo.geom_point(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'], PROJ) )
 
 
     def add_rossmann(self, link_base):
@@ -238,7 +238,7 @@ class POI_Base:
                     poi_data['addresses'][0]['address'])
                 name = 'Rossmann'
                 code = 'hurossmche'
-                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['addresses'][0]['zip'].strip(), poi_branch = None, poi_website = None, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['addresses'][0]['position'][1], poi_data['addresses'][0]['position'][0], PROJ), original = poi_data['addresses'][0]['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
+                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['addresses'][0]['zip'].strip(), poi_branch = None, poi_website = None, poi_geom = osm_poi_matchmaker.libs.geo.geom_point(poi_data['addresses'][0]['position'][1], poi_data['addresses'][0]['position'][0], PROJ), original = poi_data['addresses'][0]['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
     def add_spar(self, link_base):
@@ -264,7 +264,7 @@ class POI_Base:
                 poi_data['name'] = poi_data['name'].replace('SPAR', 'Spar')
                 ref_match = PATTERN_SPAR_REF.search(poi_data['name'])
                 ref = ref_match.group(1).strip() if ref_match is not None else None
-                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['zipCode'].strip(), poi_branch = poi_data['name'].split('(')[0].strip(), poi_website = poi_data['pageUrl'].strip(), geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['latitude'], poi_data['longitude'], PROJ), original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = ref)
+                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['zipCode'].strip(), poi_branch = poi_data['name'].split('(')[0].strip(), poi_website = poi_data['pageUrl'].strip(), poi_geom = osm_poi_matchmaker.libs.geo.geom_point(poi_data['latitude'], poi_data['longitude'], PROJ), original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = ref)
 
 
     def add_kh_bank(self, link_base, name = 'K&H bank'):
@@ -280,7 +280,7 @@ class POI_Base:
                     postcode, city, street, housenumber, conscriptionnumber = address.extract_all_address(poi_data[first_element]['address'])
                     insert(self.session, poi_code = code, poi_city=city, poi_name=name,
                            poi_postcode=postcode, poi_branch=None,
-                           poi_website=None, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data[first_element]['latitude'], poi_data[first_element]['longitude'], PROJ),
+                           poi_website=None, poi_geom = osm_poi_matchmaker.libs.geo.geom_point(poi_data[first_element]['latitude'], poi_data[first_element]['longitude'], PROJ),
                            original=poi_data[first_element]['address'], poi_addr_street=street,
                            poi_addr_housenumber=housenumber, poi_conscriptionnumber=conscriptionnumber, poi_ref=None)
 
@@ -303,7 +303,7 @@ class POI_Base:
                     branch = poi_data['title'].strip()
                 code = 'hubenupha'
                 website = poi_data['description'].strip() if poi_data['description'] is not None else None
-                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['postal_code'].strip(), poi_branch = branch, poi_website = website, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ), original = poi_data['street'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
+                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['postal_code'].strip(), poi_branch = branch, poi_website = website, poi_geom = osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ), original = poi_data['street'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
 
     def add_posta(self, link_base, filename):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, filename))
@@ -334,7 +334,7 @@ class POI_Base:
                 city = address.clean_city(poi_data['city'])
                 branch = poi_data['name']
                 website = None
-                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ)
+                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, poi_geom = osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ)
 , original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
 
 
@@ -358,7 +358,7 @@ class POI_Base:
                 fr = poi_data['open']['pentek'].strip() if poi_data['open']['pentek'] is not None else None
                 sa = poi_data['open']['szombat'].strip() if poi_data['open']['szombat'] is not None else None
                 su = poi_data['open']['vasarnap'].strip() if poi_data['open']['vasarnap'] is not None else None
-                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None, geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['geolat'], poi_data['geolng'], PROJ), poi_opening_hours_mo = mo, poi_opening_hours_tu = tu, poi_opening_hours_we = we, poi_opening_hours_th = th, poi_opening_hours_fr = fr, poi_opening_hours_sa = sa, poi_opening_hours_su = su)
+                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None, poi_geom = osm_poi_matchmaker.libs.geo.geom_point(poi_data['geolat'], poi_data['geolng'], PROJ), poi_opening_hours_mo = mo, poi_opening_hours_tu = tu, poi_opening_hours_we = we, poi_opening_hours_th = th, poi_opening_hours_fr = fr, poi_opening_hours_sa = sa, poi_opening_hours_su = su)
 
 
     def add_avia(self, link_base):
@@ -381,10 +381,10 @@ class POI_Base:
                 branch = ''
                 ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
                 if (poi_data['lat'] is not None and poi_data['lat'] != '') and (poi_data['lng'] is not None and poi_data['lng'] != ''):
-                    geom_hint = osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ)
+                    poi_geom = osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ)
                 else:
-                    geom_hint = None
-                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = None, original = poi_data['cim'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, geom_hint = geom_hint, ref = ref)
+                    poi_geom = None
+                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = None, original = poi_data['cim'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_geom = poi_geom, poi_ref = ref)
 
     def query_all_pd(self, table):
         return pd.read_sql_table(table, self.engine)
@@ -395,7 +395,6 @@ def main():
     logging.info('Starting {0} ...'.format(__program__))
     db = POI_Base('postgresql://poi:poitest@localhost:5432')
     logging.info('Importing cities ...'.format())
-    '''
     db.add_city('../data/Iranyitoszam-Internet.XLS')
 
     logging.info('Importing {} stores ...'.format('Tesco'))
@@ -463,10 +462,8 @@ def main():
     data = [{'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_tags':"{'amenity': 'vending_machine', 'vending': 'parcel_pickup;parcel_mail_in', 'brand': 'Foxpost', operator: 'FoxPost Zrt.', 'contact:facebook': 'https://www.facebook.com/foxpostzrt', 'contact:youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w', 'contact:email': 'info@foxpost.hu', 'contact:phone': '+36 1 999 03 69', 'payment:debit_cards': 'yes', 'payment:cash': 'no'}", 'poi_url_base': 'https://www.foxpost.hu/'}]
     db.add_poi_types(data)
     db.add_foxpost('http://www.foxpost.hu/wp-content/themes/foxpost/googleapijson.php', 'foxpostautomata.json')
-    '''
     logging.info('Importing {} stores ...'.format('Avia'))
-    data = [
-        {'poi_code': 'huaviafu', 'poi_name': 'Avia', 'poi_tags': "{'amenity': 'fuel', 'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}", 'poi_url_base': 'https://www.avia.hu'}]
+    data = [{'poi_code': 'huaviafu', 'poi_name': 'Avia', 'poi_tags': "{'amenity': 'fuel', 'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}", 'poi_url_base': 'https://www.avia.hu'}]
     db.add_poi_types(data)
     db.add_avia('https://www.avia.hu/kapcsolat/toltoallomasok/')
 
