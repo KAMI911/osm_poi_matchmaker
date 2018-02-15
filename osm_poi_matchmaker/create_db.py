@@ -54,8 +54,20 @@ def get_or_create(session, model, **kwargs):
     else:
         instance = model(**kwargs)
         session.add(instance)
-        session.commit()
         return instance
+
+
+def insert_city_dataframe(session, city_df):
+    city_df.columns = ['city_post_code', 'city_name']
+    try:
+        for index, city_data in city_df.iterrows():
+            get_or_create(session, City, city_post_code=city_data['city_post_code'],
+                          city_name=address.clean_city(city_data['city_name']))
+    except Exception as e:
+        session.rollback()
+        print(e)
+    else:
+        session.commit()
 
 
 def insert_type(session, type_data):
@@ -114,15 +126,8 @@ class POI_Base:
     def add_city(self, link_base):
         xl = pd.ExcelFile(link_base)
         df = xl.parse("Települések")
-        for index, city_data in df.iterrows():
-            try:
-                get_or_create(self.session, City, city_post_code=city_data['IRSZ'],
-                              city_name=address.clean_city(city_data['Település']))
-                self.session.commit()
-            except Exception as e:
-                print(e)
-            finally:
-                self.session.close()
+        del df['Településrész']
+        insert_city_dataframe(self.session, df)
         big_cities = [['Budapest', 'Bp.u.'],
                       ['Miskolc', 'Miskolc u.'],
                       ['Debrecen', 'Debrecen u.'],
@@ -132,14 +137,11 @@ class POI_Base:
                       ]
         for city, sheet in big_cities:
             df = xl.parse(sheet)
-            for index, city_data in df.iterrows():
-                try:
-                    get_or_create(self.session, City, city_post_code=city_data[0], city_name=city)
-                    self.session.commit()
-                except Exception as e:
-                    print(e)
-                finally:
-                    self.session.close()
+            df.columns.values[0] = 'city_post_code'
+            df['city_name'] = city
+            df = df[['city_post_code', 'city_name']]
+            df.drop_duplicates('city_post_code', keep='first', inplace=True)
+            insert_city_dataframe(self.session, df)
 
     def add_tesco(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'tesco.html'))
