@@ -527,6 +527,8 @@ class POI_Base:
                 name = 'Avia'
                 code = 'huaviafu'
                 branch = ''
+                if city is None:
+                    city = poi_data['title']
                 ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
                 geom = check_geom(poi_data['lat'], poi_data['lng'])
                 website=None
