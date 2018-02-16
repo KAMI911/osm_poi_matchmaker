@@ -454,7 +454,6 @@ class POI_Base:
                 elif poi_data['type'] == 'postamachine':
                     name = 'Posta csomagautomata'
                     code = 'hupostacso'
-                    print(poi_data)
                 elif poi_data['type'] == 'postapoint':
                     name = 'PostaPont'
                     code = 'hupostapp'
