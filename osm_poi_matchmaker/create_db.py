@@ -451,7 +451,7 @@ class POI_Base:
                 elif poi_data['type'] == 'csekkautomata':
                     name = 'Posta csekkautomata'
                     code = 'hupostacse'
-                elif poi_data['type'] == 'postaautomata':
+                elif poi_data['type'] == 'postamachine':
                     name = 'Posta csomagautomata'
                     code = 'hupostacso'
                     print(poi_data)
@@ -655,7 +655,7 @@ def main():
         'postacsekkautomata.json')
     logging.info('Importing {} stores ...'.format('Magyar Posta - csomagautomata'))
     db.add_posta(
-        'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postaautomata',
+        'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postamachine',
         'postaautomata.json')
     logging.info('Importing {} stores ...'.format('Magyar Posta - postapont'))
     db.add_posta(
