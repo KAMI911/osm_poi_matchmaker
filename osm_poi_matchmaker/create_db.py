@@ -29,6 +29,9 @@ output_folder = '.'
 DOWNLOAD_CACHE = '../cache_url'
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
 PROJ = 4326
+POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
+            'poi_addr_street',
+            'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
 
 
 def init_log():
@@ -45,6 +48,13 @@ def save_downloaded_soup(link, file):
     with open(file, mode="w", encoding="utf8") as code:
         code.write(str(soup.prettify()))
     return soup
+
+
+def check_geom(latitude, longitude):
+    if (latitude is not None and latitude != '') and (longitude is not None and longitude != ''):
+        return osm_poi_matchmaker.libs.geo.geom_point(latitude, longitude, PROJ)
+    else:
+        return None
 
 
 def get_or_create(session, model, **kwargs):
@@ -67,6 +77,27 @@ def insert_city_dataframe(session, city_df):
         session.rollback()
         print(e)
     else:
+        session.commit()
+
+
+def insert_poi_dataframe(session, poi_df):
+    poi_df.columns = POI_COLS
+    poi_dict = poi_df.to_dict('records')
+    try:
+        for poi_data in poi_dict:
+            city_col = session.query(City.city_id).filter(City.city_name == poi_data['poi_city']).filter(
+                City.city_post_code == poi_data['poi_postcode']).first()
+            common_col = session.query(POI_common.pc_id).filter(POI_common.poi_code == poi_data['poi_code']).first()
+            poi_data['poi_addr_city'] = city_col
+            poi_data['poi_common_id'] = common_col
+            if 'poi_name' in poi_data: del poi_data['poi_name']
+            if 'poi_code' in poi_data: del poi_data['poi_code']
+            get_or_create(session, POI_address, **poi_data)
+    except Exception as e:
+        session.rollback()
+        print(e)
+    else:
+        logging.info('Successfully added the dataset.')
         session.commit()
 
 
@@ -146,6 +177,7 @@ class POI_Base:
     def add_tesco(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'tesco.html'))
         data = []
+        insert_data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             table = soup.find('table', attrs={'class': 'tescoce-table'})
@@ -161,8 +193,8 @@ class POI_Base:
                 cols.append(link)
                 data.append(cols)
             for poi_data in data:
-                insert_row = {}
                 # street, housenumobject does not support indexingber = address.extract_street_housenumber(poi_data[3])
+                # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data[3])
                 tesco_replace = re.compile('(expressz{0,1})', re.IGNORECASE)
                 poi_data[0] = tesco_replace.sub('Expressz', poi_data[0])
@@ -177,15 +209,27 @@ class POI_Base:
                     code = 'hutescosup'
                 poi_data[0] = poi_data[0].replace('TESCO', 'Tesco')
                 poi_data[0] = poi_data[0].replace('Bp.', 'Budapest')
-
-                insert(self.session, poi_code=code, poi_city=address.clean_city(poi_data[2].split(',')[0]),
-                       poi_name=name, poi_postcode=poi_data[1].strip(), poi_branch=poi_data[0], poi_website=poi_data[4],
-                       original=poi_data[3], poi_addr_street=street, poi_addr_housenumber=housenumber,
-                       poi_conscriptionnumber=conscriptionnumber)
+                postcode = poi_data[1].strip()
+                city = address.clean_city(poi_data[2].split(',')[0])
+                branch = poi_data[0]
+                website = poi_data[4]
+                original = poi_data[3]
+                geom = None
+                ref = None
+                insert_data.append(
+                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
+                     ref, geom])
+            if len(insert_data) < 1:
+                logging.warning('Resultset is empty. Skipping ...')
+            else:
+                df = pd.DataFrame(insert_data)
+                df.columns = POI_COLS
+                insert_poi_dataframe(self.session, df)
 
     def add_aldi(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'aldi.html'))
         data = []
+        insert_data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             table = soup.find('table', attrs={'class': 'contenttable is-header-top'})
@@ -196,17 +240,30 @@ class POI_Base:
                 cols = [element.text.strip() for element in cols]
                 data.append(cols)
             for poi_data in data:
+                # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data[2])
                 name = 'Aldi'
                 code = 'hualdisup'
-                insert(self.session, poi_code=code, poi_city=address.clean_city(poi_data[1]), poi_name=name,
-                       poi_postcode=poi_data[0].strip(), poi_branch=None, poi_website=None, original=poi_data[2],
-                       poi_addr_street=street, poi_addr_housenumber=housenumber,
-                       poi_conscriptionnumber=conscriptionnumber)
+                postcode = poi_data[0].strip()
+                city = address.clean_city(poi_data[1])
+                branch = None
+                website = None
+                original = poi_data[2]
+                geom = None
+                ref = None
+                insert_data.append(
+                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
+                     ref, geom])
+            if len(insert_data) < 1:
+                logging.warning('Resultset is empty. Skipping ...')
+            else:
+                df = pd.DataFrame(insert_data)
+                df.columns = POI_COLS
+                insert_poi_dataframe(self.session, df)
 
     def add_cba(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'cba.html'))
-        data = []
+        insert_data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             pattern = re.compile('^\s*var\s*boltok_nyers.*')
@@ -219,21 +276,30 @@ class POI_Base:
             # print ('postcode: {postcode}; city: {city}; address: {address}; alt_name: {alt_name}'.format(postcode=l['A_IRSZ'], city=l['A_VAROS'], address=l['A_CIM'], alt_name=l['P_NAME']))
 
             for poi_data in text:
+                # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data['A_CIM'])
                 city = address.clean_city(poi_data['A_VAROS'])
                 postcode = poi_data['A_IRSZ'].strip()
                 branch = poi_data['P_NAME'].strip()
                 name = 'Príma' if 'Príma' in branch else 'CBA'
                 code = 'huprimacon' if 'Príma' in branch else 'hucbacon'
-                insert(self.session, poi_code=code, poi_city=city, poi_name=name, poi_postcode=postcode,
-                       poi_branch=branch, poi_website=None, original=poi_data['A_CIM'], poi_addr_street=street,
-                       poi_addr_housenumber=housenumber, poi_conscriptionnumber=conscriptionnumber,
-                       poi_geom=osm_poi_matchmaker.libs.geo.geom_point(poi_data['PS_GPS_COORDS_LAT'],
-                                                                       poi_data['PS_GPS_COORDS_LNG'], PROJ))
+                website = None
+                original = poi_data['A_CIM']
+                geom = check_geom(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'])
+                ref = None
+                insert_data.append(
+                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
+                     ref, geom])
+            if len(insert_data) < 1:
+                logging.warning('Resultset is empty. Skipping ...')
+            else:
+                df = pd.DataFrame(insert_data)
+                df.columns = POI_COLS
+                insert_poi_dataframe(self.session, df)
 
     def add_rossmann(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'rossmann.html'))
-        data = []
+        insert_data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             pattern = re.compile('^\s*var\s*places.*')
@@ -246,23 +312,35 @@ class POI_Base:
             # print ('postcode: {postcode}; city: {city}; address: {address}; alt_name: {alt_name}'.format(postcode=l['A_IRSZ'], city=l['A_VAROS'], address=l['A_CIM'], alt_name=l['P_NAME']))
 
             for poi_data in text:
+                # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(
                     poi_data['addresses'][0]['address'])
                 name = 'Rossmann'
                 code = 'hurossmche'
-                insert(self.session, poi_code=code, poi_city=address.clean_city(poi_data['city']), poi_name=name,
-                       poi_postcode=poi_data['addresses'][0]['zip'].strip(), poi_branch=None, poi_website=None,
-                       poi_geom=osm_poi_matchmaker.libs.geo.geom_point(poi_data['addresses'][0]['position'][1],
-                                                                       poi_data['addresses'][0]['position'][0], PROJ),
-                       original=poi_data['addresses'][0]['address'], poi_addr_street=street,
-                       poi_addr_housenumber=housenumber, poi_conscriptionnumber=conscriptionnumber)
+                city = address.clean_city(poi_data['city'])
+                postcode = poi_data['addresses'][0]['zip'].strip()
+                branch = None
+                website = None,
+                geom = check_geom(poi_data['addresses'][0]['position'][1], poi_data['addresses'][0]['position'][0])
+                original = poi_data['addresses'][0]['address']
+                ref = None
+                insert_data.append(
+                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
+                     ref, geom])
+            if len(insert_data) < 1:
+                logging.warning('Resultset is empty. Skipping ...')
+            else:
+                df = pd.DataFrame(insert_data)
+                df.columns = POI_COLS
+                insert_poi_dataframe(self.session, df)
 
     def add_spar(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'spar.json'))
-        data = []
+        insert_data = []
         if soup != None:
             text = json.loads(soup.get_text())
             for poi_data in text:
+                # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data['address'])
                 if 'xpres' in poi_data['name']:
                     name = 'Spar Expressz'
@@ -280,17 +358,26 @@ class POI_Base:
                 poi_data['name'] = poi_data['name'].replace('SPAR', 'Spar')
                 ref_match = PATTERN_SPAR_REF.search(poi_data['name'])
                 ref = ref_match.group(1).strip() if ref_match is not None else None
-                insert(self.session, poi_code=code, poi_city=address.clean_city(poi_data['city']), poi_name=name,
-                       poi_postcode=poi_data['zipCode'].strip(), poi_branch=poi_data['name'].split('(')[0].strip(),
-                       poi_website=poi_data['pageUrl'].strip(),
-                       poi_geom=osm_poi_matchmaker.libs.geo.geom_point(poi_data['latitude'], poi_data['longitude'],
-                                                                       PROJ), original=poi_data['address'],
-                       poi_addr_street=street, poi_addr_housenumber=housenumber,
-                       poi_conscriptionnumber=conscriptionnumber, poi_ref=ref)
+                city = address.clean_city(poi_data['city'])
+                postcode = poi_data['zipCode'].strip()
+                branch = poi_data['name'].split('(')[0].strip()
+                website = poi_data['pageUrl'].strip()
+                geom = check_geom(poi_data['latitude'], poi_data['longitude'])
+                original = poi_data['address']
+                insert_data.append(
+                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
+                     ref, geom])
+            if len(insert_data) < 1:
+                logging.warning('Resultset is empty. Skipping ...')
+            else:
+                df = pd.DataFrame(insert_data)
+                df.columns = POI_COLS
+                insert_poi_dataframe(self.session, df)
 
     def add_kh_bank(self, link_base, name='K&H bank'):
         if link_base:
             with open(link_base, 'r') as f:
+                insert_data = []
                 text = json.load(f)
                 for poi_data in text['results']:
                     first_element = next(iter(poi_data))
@@ -300,20 +387,27 @@ class POI_Base:
                         code = 'hukhatm'
                     postcode, city, street, housenumber, conscriptionnumber = address.extract_all_address(
                         poi_data[first_element]['address'])
-                    insert(self.session, poi_code=code, poi_city=city, poi_name=name,
-                           poi_postcode=postcode, poi_branch=None,
-                           poi_website=None,
-                           poi_geom=osm_poi_matchmaker.libs.geo.geom_point(poi_data[first_element]['latitude'],
-                                                                           poi_data[first_element]['longitude'], PROJ),
-                           original=poi_data[first_element]['address'], poi_addr_street=street,
-                           poi_addr_housenumber=housenumber, poi_conscriptionnumber=conscriptionnumber, poi_ref=None)
+                    branch = None,
+                    website = None,
+                    geom = check_geom(poi_data[first_element]['latitude'], poi_data[first_element]['longitude'])
+                    original = poi_data[first_element]['address']
+                    ref = None
+                    insert_data.append(
+                        [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
+                         ref, geom])
+                if len(insert_data) < 1:
+                    logging.warning('Resultset is empty. Skipping ...')
+                else:
+                    df = pd.DataFrame(insert_data)
+                    df.columns = POI_COLS
+                    insert_poi_dataframe(self.session, df)
 
     def add_cib_bank(self, link_base):
         return True
 
     def add_benu(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'benu.json'))
-        data = []
+        insert_data = []
         if soup != None:
             text = json.loads(soup.get_text())
             for poi_data in text:
@@ -326,15 +420,24 @@ class POI_Base:
                     branch = poi_data['title'].strip()
                 code = 'hubenupha'
                 website = poi_data['description'].strip() if poi_data['description'] is not None else None
-                insert(self.session, poi_code=code, poi_city=address.clean_city(poi_data['city']), poi_name=name,
-                       poi_postcode=poi_data['postal_code'].strip(), poi_branch=branch, poi_website=website,
-                       poi_geom=osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ),
-                       original=poi_data['street'], poi_addr_street=street, poi_addr_housenumber=housenumber,
-                       poi_conscriptionnumber=conscriptionnumber, poi_ref=None)
+                city = address.clean_city(poi_data['city'])
+                postcode = poi_data['postal_code'].strip()
+                geom = check_geom(poi_data['lat'], poi_data['lng'])
+                original = poi_data['street']
+                ref = None
+                insert_data.append(
+                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
+                     ref, geom])
+            if len(insert_data) < 1:
+                logging.warning('Resultset is empty. Skipping ...')
+            else:
+                df = pd.DataFrame(insert_data)
+                df.columns = POI_COLS
+                insert_poi_dataframe(self.session, df)
 
     def add_posta(self, link_base, filename):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, filename))
-        data = []
+        insert_data = []
         if soup != None:
             text = json.loads(soup.get_text())
             for poi_data in text['items']:
@@ -351,6 +454,7 @@ class POI_Base:
                 elif poi_data['type'] == 'postaautomata':
                     name = 'Posta csomagautomata'
                     code = 'hupostacso'
+                    print(poi_data)
                 elif poi_data['type'] == 'postapoint':
                     name = 'PostaPont'
                     code = 'hupostapp'
@@ -361,15 +465,22 @@ class POI_Base:
                 city = address.clean_city(poi_data['city'])
                 branch = poi_data['name']
                 website = None
-                insert(self.session, poi_code=code, poi_city=city, poi_name=name, poi_postcode=postcode,
-                       poi_branch=branch, poi_website=website,
-                       poi_geom=osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ)
-                       , original=poi_data['address'], poi_addr_street=street, poi_addr_housenumber=housenumber,
-                       poi_conscriptionnumber=conscriptionnumber, poi_ref=None)
+                geom = check_geom(poi_data['lat'], poi_data['lng'])
+                original = poi_data['address']
+                ref = None
+                insert_data.append(
+                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
+                     ref, geom])
+            if len(insert_data) < 1:
+                logging.warning('Resultset is empty. Skipping ...')
+            else:
+                df = pd.DataFrame(insert_data)
+                df.columns = POI_COLS
+                insert_poi_dataframe(self.session, df)
 
     def add_foxpost(self, link_base, filename):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, filename))
-        data = []
+        insert_data = []
         if soup != None:
             text = json.loads(soup.get_text())
             for poi_data in text:
@@ -387,20 +498,24 @@ class POI_Base:
                 fr = poi_data['open']['pentek'].strip() if poi_data['open']['pentek'] is not None else None
                 sa = poi_data['open']['szombat'].strip() if poi_data['open']['szombat'] is not None else None
                 su = poi_data['open']['vasarnap'].strip() if poi_data['open']['vasarnap'] is not None else None
-                insert(self.session, poi_code=code, poi_city=city, poi_name=name, poi_postcode=postcode,
-                       poi_branch=branch, poi_website=website, original=poi_data['address'], poi_addr_street=street,
-                       poi_addr_housenumber=housenumber, poi_conscriptionnumber=conscriptionnumber, poi_ref=None,
-                       poi_geom=osm_poi_matchmaker.libs.geo.geom_point(poi_data['geolat'], poi_data['geolng'], PROJ),
-                       poi_opening_hours_mo=mo, poi_opening_hours_tu=tu, poi_opening_hours_we=we,
-                       poi_opening_hours_th=th, poi_opening_hours_fr=fr, poi_opening_hours_sa=sa,
-                       poi_opening_hours_su=su)
+                original = poi_data['address']
+                ref = None
+                geom = check_geom(poi_data['geolat'], poi_data['geolng'])
+                insert_data.append(
+                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
+                     ref, geom])
+            if len(insert_data) < 1:
+                logging.warning('Resultset is empty. Skipping ...')
+            else:
+                df = pd.DataFrame(insert_data)
+                df.columns = POI_COLS
+                insert_poi_dataframe(self.session, df)
 
     def add_avia(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'avia.html'))
-        data = []
+        insert_data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
-            # pattern = re.compile('var\s*markers\s*=\s*.*', re.MULTILINE)
             pattern = re.compile('var\s*markers\s*=\s*((.*\n)*\]\;)', re.MULTILINE)
             script = soup.find('script', text=pattern)
             m = pattern.search(script.get_text())
@@ -414,15 +529,18 @@ class POI_Base:
                 code = 'huaviafu'
                 branch = ''
                 ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
-                if (poi_data['lat'] is not None and poi_data['lat'] != '') and (
-                        poi_data['lng'] is not None and poi_data['lng'] != ''):
-                    poi_geom = osm_poi_matchmaker.libs.geo.geom_point(poi_data['lat'], poi_data['lng'], PROJ)
-                else:
-                    poi_geom = None
-                insert(self.session, poi_code=code, poi_city=city, poi_name=name, poi_postcode=postcode,
-                       poi_branch=branch, poi_website=None, original=poi_data['cim'], poi_addr_street=street,
-                       poi_addr_housenumber=housenumber, poi_conscriptionnumber=conscriptionnumber, poi_geom=poi_geom,
-                       poi_ref=ref)
+                geom = check_geom(poi_data['lat'], poi_data['lng'])
+                website=None
+                original=poi_data['cim']
+                insert_data.append(
+                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
+                     ref, geom])
+            if len(insert_data) < 1:
+                logging.warning('Resultset is empty. Skipping ...')
+            else:
+                df = pd.DataFrame(insert_data)
+                df.columns = POI_COLS
+                insert_poi_dataframe(self.session, df)
 
     def query_all_pd(self, table):
         return pd.read_sql_table(table, self.engine)
@@ -527,15 +645,19 @@ def main():
              'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}",
              'poi_url_base': 'https://www.posta.hu'}]
     db.add_poi_types(data)
+    logging.info('Importing {} stores ...'.format('Magyar Posta - posta'))
     db.add_posta(
         'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=posta',
         'posta.json')
+    logging.info('Importing {} stores ...'.format('Magyar Posta - csekkautomata'))
     db.add_posta(
         'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
         'postacsekkautomata.json')
+    logging.info('Importing {} stores ...'.format('Magyar Posta - csomagautomata'))
     db.add_posta(
         'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postaautomata',
         'postaautomata.json')
+    logging.info('Importing {} stores ...'.format('Magyar Posta - postapont'))
     db.add_posta(
         'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postapoint',
         'postapoint.json')
