@@ -12,3 +12,10 @@ def geom_point(latitude, longitude, projection):
         return WKTElement('POINT({} {})'.format(latitude, longitude), srid=projection)
     else:
         return None
+
+
+def check_geom(latitude, longitude, proj=4326):
+    if (latitude is not None and latitude != '') and (longitude is not None and longitude != ''):
+        return geom_point(latitude, longitude, proj)
+    else:
+        return None

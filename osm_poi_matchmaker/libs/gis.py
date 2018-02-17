@@ -7,6 +7,7 @@ except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
 
+
 def closest_point(point, points):
     # Find closest point from a list of points
     pt = points[distance.cdist([point], points).argmin()]
@@ -36,5 +37,3 @@ def finding_closest(data1, data2):
     logging.info('Selecting matching name')
     data2['stop_name'] = [match_value(data1, 'point', x, 'stop_name') for x in data2['closest']]
     return data2
-
-

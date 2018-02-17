@@ -8,6 +8,7 @@ except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
 
+
 def get_area_id(area):
     # Query Nominatom
     nominatim = Nominatim()

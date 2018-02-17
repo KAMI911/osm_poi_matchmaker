@@ -67,7 +67,7 @@ class POI_common(Base):
     poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
 
     def __repr__(self):
-        return '<POI common {}: {}>'.format(self.poi_id, self.poi_name)
+        return '<POI common {}: {}>'.format(self.pc_id, self.poi_name)
 
 
 class City(Base):
