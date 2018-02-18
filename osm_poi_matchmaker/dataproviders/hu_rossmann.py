@@ -23,11 +23,13 @@ POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'p
 
 class hu_rossmann():
 
-    def __init__(self, session, link, download_cache, filename='hu_rossmann.html'):
+    def __init__(self, session, link, download_cache, filename='hu_rossmann.html', **kwargs):
         self.session = session
         self.link = link
         self.download_cache = download_cache
         self.filename = filename
+        if 'verify_link' in kwargs:
+            self.verify_link = kwargs['verify_link']
 
     def types(self):
         data = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann',
@@ -36,7 +38,7 @@ class hu_rossmann():
         return data
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), self.verify_link)
         insert_data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`

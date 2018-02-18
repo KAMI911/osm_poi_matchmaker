@@ -32,10 +32,10 @@ class hu_cib_bank():
     def types(self):
         data = [{'poi_code': 'hucibbank', 'poi_name': 'CIB bank',
                  'poi_tags': "{'amenity': 'bank', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.', bic': 'CIBHHUHB', 'atm': 'yes'}",
-                 'poi_url_base': 'https://www.cib.hu/elerhetosegek/fiokok_bankautomatak/index'},
+                 'poi_url_base': 'https://www.cib.hu'},
                 {'poi_code': 'hucibatm', 'poi_name': 'CIB',
                  'poi_tags': "{'amenity': 'atm', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.'}",
-                 'poi_url_base': 'https://www.cib.hu/elerhetosegek/fiokok_bankautomatak/index'}]
+                 'poi_url_base': 'https://www.cib.hu'}]
         return data
 
     def process(self):
