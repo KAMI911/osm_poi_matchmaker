@@ -48,7 +48,7 @@ KEY_DATABASE_WRITE_USERNAME = 'db.write.username'
 KEY_DATABASE_WRITE_PASSWORD = 'db.write.password'
 KEY_GEO_DEFAULT_PROJECTION = 'geo.default.projection'
 KEY_DOWNLOAD_VERIFY_LINK = 'download.verify.link'
-
+KEY_DOWNLOAD_USE_CACHED_DATA = 'download.use.cached.data'
 
 def get_config(key):
     if key in currentConfig:
@@ -147,6 +147,13 @@ def get_geo_default_projection():
 
 def get_download_verify_link():
     setting = get_config_bool(KEY_DOWNLOAD_VERIFY_LINK)
+    if None != setting:
+        return setting
+    else:
+        return True
+
+def get_download_use_cached_data():
+    setting = get_config_bool(KEY_DOWNLOAD_USE_CACHED_DATA)
     if None != setting:
         return setting
     else:

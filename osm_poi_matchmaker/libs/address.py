@@ -162,6 +162,11 @@ def clean_city(clearable):
     '''
     if clearable is not None:
         city = re.sub(PATTERN_CITY, '', clearable)
-        return city.strip()
+        city = city.split('-')[0]
+        city = city.split(',')[0]
+        city = city.split('/')[0]
+        city = city.split('/')[0]
+        city = city.split('(')[0]
+        return city.title().strip()
     else:
         return None

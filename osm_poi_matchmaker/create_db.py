@@ -25,7 +25,7 @@ except ImportError as err:
     exit(128)
 
 __program__ = 'create_db'
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 
 POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
@@ -69,9 +69,16 @@ def main():
     db = POI_Base('{}://{}:{}@{}:{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                             config.get_database_writer_password(), config.get_database_writer_host(),
                                             config.get_database_writer_port()))
+
+    '''
     logging.info('Importing cities ...'.format())
     from osm_poi_matchmaker.dataproviders.hu_city_postcode import hu_city_postcode
     work = hu_city_postcode(db.session, '../data/Iranyitoszam-Internet.XLS')
+    work.process()
+    '''
+    logging.info('Importing cities ...'.format())
+    from osm_poi_matchmaker.dataproviders.hu_city_postcode import hu_city_postcode_from_xml
+    work = hu_city_postcode_from_xml(db.session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml', config.get_directory_cache_url())
     work.process()
 
     logging.info('Importing {} stores ...'.format('Tesco'))
@@ -180,7 +187,6 @@ def main():
     for i in targets:
         data = db.query_all_pd(i)
         save_csv_file(config.get_directory_output(), '{}.csv'.format(i), data, i)
-
 
 if __name__ == '__main__':
     config.set_mode(config.Mode.matcher)

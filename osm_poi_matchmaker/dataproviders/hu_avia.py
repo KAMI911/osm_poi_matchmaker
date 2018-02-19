@@ -7,7 +7,7 @@ try:
     import re
     import json
     import pandas as pd
-    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
+    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe, search_for_postcode
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_all_address, clean_city, clean_javascript_variable
     from osm_poi_matchmaker.libs.geo import check_geom
@@ -48,8 +48,13 @@ class hu_avia():
             data = clean_javascript_variable(data, 'markers')
             text = json.loads(data)
             for poi_data in text:
-                postcode, city, street, housenumber, conscriptionnumber = extract_all_address(
-                    poi_data['cim'])
+                if poi_data['cim'] is not None and poi_data['cim'] != '':
+                    postcode, city, street, housenumber, conscriptionnumber = extract_all_address(poi_data['cim'])
+                if city is None:
+                    logging.info('There is no city name. Matching is hardly possible.')
+                    if postcode is None:
+                        city = clean_city(poi_data['title'])
+                        postcode = search_for_postcode(self.session, city)
                 name = 'Avia'
                 code = 'huaviafu'
                 branch = ''

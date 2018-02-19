@@ -56,6 +56,15 @@ def insert_common_dataframe(session, common_df):
         session.commit()
 
 
+def search_for_postcode(session, city_name):
+    city_col = session.query(City.city_post_code).filter(City.city_name == city_name).all()
+    if len(city_col) == 1:
+        return city_col
+    else:
+        logging.info('Cannot determine the post code from city name ({}).'.format(city_name))
+        return None
+
+
 def insert_poi_dataframe(session, poi_df):
     poi_df.columns = POI_COLS
     poi_dict = poi_df.to_dict('records')
