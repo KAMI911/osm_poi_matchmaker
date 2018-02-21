@@ -186,6 +186,8 @@ def main():
         os.makedirs(config.get_directory_output())
     for i in targets:
         data = db.query_all_pd(i)
+        if i == 'poi_address':
+            data[['poi_addr_city', 'poi_postcode']] = data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
         save_csv_file(config.get_directory_output(), '{}.csv'.format(i), data, i)
 
 if __name__ == '__main__':
