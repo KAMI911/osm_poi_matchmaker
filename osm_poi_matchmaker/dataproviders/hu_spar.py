@@ -33,13 +33,13 @@ class hu_spar():
 
     def types(self):
         data = [{'poi_code': 'husparexp', 'poi_name': 'Spar Expressz',
-                 'poi_tags': "{'shop': 'convenience', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'convenience', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment':'cash', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.spar.hu'},
                 {'poi_code': 'husparint', 'poi_name': 'Interspar',
-                 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment':'cash', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.spar.hu'},
                 {'poi_code': 'husparsup', 'poi_name': 'Spar',
-                 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment':'cash', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.spar.hu'}]
         return data
 

@@ -31,7 +31,7 @@ class hu_benu():
 
     def types(self):
         data = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár',
-                 'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes'}", 'poi_url_base': 'https://www.benu.hu'}]
+                 'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.benu.hu'}]
         return data
 
     def process(self):

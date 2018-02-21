@@ -29,7 +29,7 @@ class hu_aldi():
 
     def types(self):
         data = [{'poi_code': 'hualdisup', 'poi_name': 'Aldi',
-                 'poi_tags': "{'shop': 'supermarket', 'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'supermarket', 'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.aldi.hu'}]
         return data
 

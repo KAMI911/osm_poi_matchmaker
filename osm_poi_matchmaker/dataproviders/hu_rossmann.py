@@ -33,7 +33,7 @@ class hu_rossmann():
 
     def types(self):
         data = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann',
-                 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.rossmann.hu'}]
         return data
 
