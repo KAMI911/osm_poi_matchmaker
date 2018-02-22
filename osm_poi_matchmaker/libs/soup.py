@@ -23,7 +23,7 @@ def download_soup(link, verify_link=config.get_download_verify_link()):
 
 
 def save_downloaded_soup(link, file, verify=config.get_download_verify_link()):
-    if config.get_download_use_cached_data() == True:
+    if config.get_download_use_cached_data() == True and os.path.isfile(file):
         with open(file, 'r') as content_file:
              soup = BeautifulSoup(content_file.read(), 'html.parser')
     else:

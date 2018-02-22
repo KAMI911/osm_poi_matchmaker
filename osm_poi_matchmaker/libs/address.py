@@ -9,11 +9,12 @@ except ImportError as err:
 
 # Patterns for re
 PATTERN_POSTCODE_CITY = re.compile('^((\d){4})([.\s]{0,2})([a-zA-ZáÁéÉíÍóÓúÚüÜöÖőŐűŰ]{3,40})')
+PATTERN_CITY_ADDRESS = re.compile('^([a-zA-ZáÁéÉíÍóÓúÚüÜöÖőŐűŰ]{3,40})')
 PATTERN_CITY = re.compile('\s?[XVI]{1,5}[.:,]{0,3}\s*$')
 PATTERN_JS_2 = re.compile('\s*;\s*$')
 PATTERN_HOUSENUMBER = re.compile('[0-9]{1,3}(\/[A-z]{1}|\-[0-9]{1,3}|)', re.IGNORECASE)
 PATTERN_STREET = re.compile(
-    '\s*.*\s*(útgyűrű|útfél|sétány|lejtő|liget|aluljáró|lejtó|park|ltp\.|ltp|sarok|szél|sor|körönd|köz|tér|tere|utca|körút|lakótelep|krt\.|krt|út|rét|sgt.|u\.|u){1}',
+    '\s*.*\s*(útgyűrű|útfél|sétány|lejtő|liget|aluljáró|lejtó|park|ltp\.|ltp|sarok|szél|sor|körönd|köz|tér|tere|utca|körút|lakótelep|krt\.|krt|útja|út|rét|sgt\.|u\.|Vám){1}',
     re.UNICODE | re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER = re.compile(
     '(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}|\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})',
@@ -57,8 +58,8 @@ def extract_street_housenumber(clearable):
 
 
 def extract_all_address(clearable):
-    clearable = clearable.strip()
     if clearable is not None and clearable != '':
+        clearable = clearable.strip()
         pc_match = PATTERN_POSTCODE_CITY.search(clearable)
         if pc_match is not None:
             postcode = pc_match.group(1)
@@ -76,6 +77,22 @@ def extract_all_address(clearable):
     else:
         return None, None, None, None, None
 
+
+def extract_city_street_housenumber_address(clearable):
+    if clearable is not None and clearable != '':
+        clearable = clearable.strip()
+        pc_match = PATTERN_CITY_ADDRESS.search(clearable)
+        if pc_match is not None:
+            city = pc_match.group(1)
+        else:
+            city = None
+        if len(clearable.split(',')) > 1:
+            street, housenumber, conscriptionnumber = extract_street_housenumber_better(clearable.split(',')[1].strip())
+            return (city, street, housenumber, conscriptionnumber)
+        else:
+            return city, None, None, None
+    else:
+        return None, None, None, None, None
 
 def extract_street_housenumber_better(clearable):
     '''Try to separate street and house number from a Hungarian style address string

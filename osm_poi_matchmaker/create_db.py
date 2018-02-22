@@ -179,7 +179,14 @@ def main():
     work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'), 'CIB bank')
     insert_type(db.session, work.types())
     work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.html'), 'CIB')
-
+    '''
+    logging.info('Importing {} stores ...'.format('Tom Market'))
+    from osm_poi_matchmaker.dataproviders.hu_tommarket import hu_tom_market
+    work = hu_tom_market(db.session, 'http://tommarket.hu/shops', config.get_directory_cache_url(),
+                   'hu_tom_market.html')
+    insert_type(db.session, work.types())
+    work.process()
+    '''
     logging.info('Exporting CSV files ...')
     targets = ['poi_address', 'poi_common']
     if not os.path.exists(config.get_directory_output()):
