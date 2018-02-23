@@ -23,16 +23,17 @@ def download_xml(link, verify_link=config.get_download_verify_link()):
 
 
 def save_downloaded_xml(link, file, verify=config.get_download_verify_link()):
-    if config.get_download_use_cached_data() == True:
+    if config.get_download_use_cached_data() == True and os.path.isfile(file):
         with open(file, 'r') as content_file:
              page = content_file.read()
+        page = str.encode(page)
     else:
         page = download_xml(link, verify)
-    if page != None:
-        if not os.path.exists(config.get_directory_cache_url()):
-            os.makedirs(config.get_directory_cache_url())
-        with open(file, mode='wb') as code:
-            code.write(page)
-    else:
-        logging.warning('Skipping dataset.')
+        if page != None:
+            if not os.path.exists(config.get_directory_cache_url()):
+                os.makedirs(config.get_directory_cache_url())
+            with open(file, mode='wb') as code:
+                code.write(page)
+        else:
+            logging.warning('Skipping dataset.')
     return page

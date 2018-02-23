@@ -28,11 +28,11 @@ def save_downloaded_soup(link, file, verify=config.get_download_verify_link()):
              soup = BeautifulSoup(content_file.read(), 'html.parser')
     else:
         soup = download_soup(link, verify)
-    if soup != None:
-        if not os.path.exists(config.get_directory_cache_url()):
-            os.makedirs(config.get_directory_cache_url())
-        with open(file, mode="w", encoding="utf8") as code:
-            code.write(str(soup.prettify()))
-    else:
-        logging.warning('Skipping dataset.')
+        if soup != None:
+            if not os.path.exists(config.get_directory_cache_url()):
+                os.makedirs(config.get_directory_cache_url())
+            with open(file, mode="w", encoding="utf8") as code:
+                code.write(str(soup.prettify()))
+        else:
+            logging.warning('Skipping dataset.')
     return soup
