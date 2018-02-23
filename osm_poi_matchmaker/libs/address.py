@@ -14,7 +14,7 @@ PATTERN_CITY = re.compile('\s?[XVI]{1,5}[.:,]{0,3}\s*$')
 PATTERN_JS_2 = re.compile('\s*;\s*$')
 PATTERN_HOUSENUMBER = re.compile('[0-9]{1,3}(\/[A-z]{1}|\-[0-9]{1,3}|)', re.IGNORECASE)
 PATTERN_STREET = re.compile(
-    '\s*.*\s*(útgyűrű|útfél|sétány|lejtő|liget|aluljáró|lejtó|park|ltp\.|ltp|sarok|szél|sor|körönd|köz|tér|tere|utca|körút|lakótelep|krt\.|krt|útja|út|rét|sgt\.|u\.|Vám){1}',
+    '\s*.*\s+(útgyűrű|útfél|sétány|lejtő|liget|aluljáró|lejtó|park|ltp\.|ltp|sarok|szél|sor|körönd|körtér|köz|tér|tere|utca|körút|lakótelep|krt\.|krt|útja|út|rét|sgt\.|sugárút|tanya|telep|fasor|u\.|Vám| u ){1}',
     re.UNICODE | re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER = re.compile(
     '(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}|\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})',
