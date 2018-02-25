@@ -14,7 +14,7 @@ PATTERN_CITY = re.compile('\s?[XVI]{1,5}[.:,]{0,3}\s*$')
 PATTERN_JS_2 = re.compile('\s*;\s*$')
 PATTERN_HOUSENUMBER = re.compile('[0-9]{1,3}(\/[A-z]{1}|\-[0-9]{1,3}|)', re.IGNORECASE)
 PATTERN_STREET = re.compile(
-    '\s*.*\s+(útgyűrű|útfél|sétány|lejtő|liget|aluljáró|lejtó|park|ltp\.|ltp|sarok|szél|sor|körönd|körtér|köz|tér|tere|utca|körút|lakótelep|krt\.|krt|útja|út|rét|sgt\.|sugárút|tanya|telep|fasor|u\.|Vám| u ){1}',
+    '\s*.*\s+(útgyűrű|útfél|sétány|lejtő|liget|aluljáró|lejtó|park|ltp\.|ltp|sarok|szél|sor|körönd|körtér|köz|tér|tere|utca|körút|lakótelep|krt\.|krt|útja|út|rét|sgt\.|sugárút|tanya|telep|fasor|u\.|Vám|u\s+){1}',
     re.UNICODE | re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER = re.compile(
     '(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}|\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})',
@@ -53,6 +53,7 @@ def extract_street_housenumber(clearable):
     street = clearable.split('(')[0]
     street = street.rsplit(' ', 1)[0]
     street = street.replace(' u.', ' utca')
+    street = street.replace(' u ', ' utca')
     street = street.replace(' krt.', ' körút')
     return street, housenumber
 
@@ -145,8 +146,10 @@ def extract_street_housenumber_better(clearable):
             street = street.replace('Kossuth F.', 'Kossuth F.')
             street = street.replace('Móricz Zs.', 'Móricz Zsigmond')
             street = street.replace('BERCSÉNYI U.', 'Bercsényi utca')
+            street = street.replace('Hunyadi J', 'Hunyadi János')
             street = street.replace(' u.', ' utca')
             street = street.replace('.u.', ' utca')
+            street = street.replace(' u ', ' utca')
             street = street.replace(' krt.', ' körút')
             street = street.replace(' ltp.', ' lakótelep')
             street = street.replace(' ltp', ' lakótelep')

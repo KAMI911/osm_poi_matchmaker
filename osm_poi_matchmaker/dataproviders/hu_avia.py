@@ -57,7 +57,7 @@ class hu_avia():
                         postcode = search_for_postcode(self.session, city)
                 name = 'Avia'
                 code = 'huaviafu'
-                branch = ''
+                branch = None
                 if city is None:
                     city = poi_data['title']
                 ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None

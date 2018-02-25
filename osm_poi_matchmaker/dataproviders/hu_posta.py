@@ -31,19 +31,19 @@ class hu_posta():
 
     def types(self):
         data = [{'poi_code': 'hupostapo', 'poi_name': 'Posta',
-                 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}",
+                 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'},
                 {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkautomata',
-                 'poi_tags': "{'amenity': 'vending_machine', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}",
+                 'poi_tags': "{'amenity': 'vending_machine', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'},
                 {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata',
-                 'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}",
+                 'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'},
                 {'poi_code': 'hupostapp', 'poi_name': 'PostaPont',
-                 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}",
+                 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'},
                 {'poi_code': 'hupostamp', 'poi_name': 'Mobilposta',
-                 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}",
+                 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'}]
         return data
 

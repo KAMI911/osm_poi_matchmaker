@@ -30,7 +30,7 @@ class hu_kh_bank():
 
     def types(self):
         data = [{'poi_code': 'hukhbank', 'poi_name': 'K&H bank',
-                 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', bic': 'OKHBHUHB', 'atm': 'yes'}",
+                 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', 'bic': 'OKHBHUHB', 'atm': 'yes'}",
                  'poi_url_base': 'https://www.kh.hu'},
                 {'poi_code': 'hukhatm', 'poi_name': 'K&H',
                  'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.'}",

@@ -4,7 +4,7 @@ try:
     import traceback
     import hashlib
     import logging
-    from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address
+    from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, Street_type
     from osm_poi_matchmaker.libs import address
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -30,12 +30,46 @@ def get_or_create(session, model, **kwargs):
             raise (e)
 
 
+def get_or_create_poi(session, model, **kwargs):
+    if kwargs['poi_common_id'] is not None:
+        if kwargs['poi_common_id'] is not None and kwargs['poi_addr_city'] is not None and (( kwargs['poi_addr_street'] and kwargs['poi_addr_housenumber'] is not None) or (kwargs['poi_conscriptionnumber'] is not None)):
+            logging.debug('Fully filled basic data record')
+        else:
+            logging.warning('Missing record data: {}'.format(kwargs))
+    instance = session.query(model).filter_by(poi_common_id = kwargs['poi_common_id']).filter_by(poi_addr_city = kwargs['poi_addr_city']).filter_by(poi_addr_street = kwargs['poi_addr_street']).filter_by(
+poi_addr_housenumber = kwargs['poi_addr_housenumber']).filter_by(poi_conscriptionnumber = kwargs['poi_conscriptionnumber']).first()
+    if instance:
+        logging.info('Updates available: {}'.format(instance))
+        return instance
+    else:
+        try:
+            instance = model(**kwargs)
+            session.add(instance)
+            return instance
+        except Exception as e:
+            traceback.print_exc()
+            raise (e)
+
+
 def insert_city_dataframe(session, city_df):
     city_df.columns = ['city_post_code', 'city_name']
     try:
         for index, city_data in city_df.iterrows():
             get_or_create(session, City, city_post_code=city_data['city_post_code'],
                           city_name=address.clean_city(city_data['city_name']))
+    except Exception as e:
+        logging.error(city_data)
+        session.rollback()
+        print(e)
+    else:
+        session.commit()
+
+
+def insert_street_type_dataframe(session, city_df):
+    city_df.columns = [ 'street_type' ]
+    try:
+        for index, city_data in city_df.iterrows():
+            get_or_create(session, Street_type, street_type=city_data['street_type'])
     except Exception as e:
         logging.error(city_data)
         session.rollback()
@@ -79,10 +113,13 @@ def insert_poi_dataframe(session, poi_df):
             poi_data['poi_common_id'] = common_col
             if 'poi_name' in poi_data: del poi_data['poi_name']
             if 'poi_code' in poi_data: del poi_data['poi_code']
-            get_or_create(session, POI_address, **poi_data)
+            get_or_create_poi(session, POI_address, **poi_data)
     except Exception as e:
+        logging.warning(poi_data)
+        logging.warning(e)
+        logging.warning(traceback.print_exc())
         session.rollback()
-        print(e)
+        logging.info('Rolled back.')
     else:
         logging.info('Successfully added the dataset.')
         session.commit()

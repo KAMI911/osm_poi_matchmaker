@@ -20,47 +20,40 @@ POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'p
             'poi_addr_street',
             'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
 
+POST_DATA = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'QRY': '|'}
 
-class hu_rossmann():
 
-    def __init__(self, session, link, download_cache, filename='hu_rossmann.html', **kwargs):
+class hu_omv():
+
+    def __init__(self, session, link, download_cache, filename='hu_mol.json'):
         self.session = session
         self.link = link
         self.download_cache = download_cache
         self.filename = filename
-        if 'verify_link' in kwargs:
-            self.verify_link = kwargs['verify_link']
 
     def types(self):
-        data = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann',
-                 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
-                 'poi_url_base': 'https://www.rossmann.hu'}]
+        data = [{'poi_code': 'huomvfu', 'poi_name': 'OMV',
+                 'poi_tags': "{'amenity': 'fuel', 'brand': 'OMV', 'operator': 'OMV Hungária Kft.', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
+                 'poi_url_base': 'https://www.omv.hu'}]
         return data
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), None, self.verify_link)
+        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), POST_DATA)
         insert_data = []
         if soup != None:
-            # parse the html using beautiful soap and store in variable `soup`
-            pattern = re.compile('^\s*var\s*places.*')
-            script = soup.find('script', text=pattern)
-            m = pattern.match(script.get_text())
-            data = m.group(0)
-            data = clean_javascript_variable(data, 'places')
-            text = json.loads(data)
-            for poi_data in text:
-                # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
+            text = json.loads(soup.get_text())
+            for poi_data in text['results']:
+                name = 'OMV'
+                code = 'huomvfu'
+                postcode = poi_data['postcode'].strip()
                 street, housenumber, conscriptionnumber = extract_street_housenumber_better(
-                    poi_data['addresses'][0]['address'])
-                name = 'Rossmann'
-                code = 'hurossmche'
-                city = clean_city(poi_data['city'])
-                postcode = poi_data['addresses'][0]['zip'].strip()
+                    poi_data['address_l'])
+                city = clean_city(poi_data['town_l'])
                 branch = None
-                website = None,
-                geom = check_geom(poi_data['addresses'][0]['position'][0], poi_data['addresses'][0]['position'][1])
-                original = poi_data['addresses'][0]['address']
+                website = None
+                original = poi_data['address_l']
                 ref = None
+                geom = check_geom(poi_data['y'], poi_data['x'])
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
                      ref, geom])

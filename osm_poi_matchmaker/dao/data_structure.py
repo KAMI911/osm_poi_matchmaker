@@ -52,8 +52,8 @@ class POI_address(Base):
                           backref='poi_address')
     city = relationship('City', primaryjoin='POI_address.poi_addr_city == City.city_id', backref='poi_address')
 
-    def __repr__(self):
-        return '<POI address {}: {}>'.format(self.pa_id, self.poi_name)
+    #def __repr__(self):
+    #  return '<POI address {}: {}>'.format(self.pa_id, self.poi_name)
 
 
 class POI_common(Base):
@@ -82,6 +82,17 @@ class City(Base):
 
     def __repr__(self):
         return '<City {}: {} ({})>'.format(self.city_id, self.city_name, self.city_post_code)
+
+
+class Street_type(Base):
+    __tablename__ = 'street_type'
+    _plural_name_ = 'street_type'
+    st_id = Column(Integer, primary_key=True, index=True)
+    id = synonym('st_id')
+    street_type = Column(Unicode(20))
+
+    def __repr__(self):
+        return '<Street type {}: {}>'.format(self.street_type_id, self.street_type)
 
 
 class POI_osm(Base):

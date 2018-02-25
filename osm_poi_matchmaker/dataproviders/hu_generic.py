@@ -6,7 +6,7 @@ try:
     import os
     import pandas as pd
     from lxml import etree
-    from osm_poi_matchmaker.dao.data_handlers import insert_city_dataframe
+    from osm_poi_matchmaker.dao.data_handlers import insert_city_dataframe, insert_street_type_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
 except ImportError as err:
@@ -14,7 +14,8 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-POI_COLS = [ 'city_post_code', 'city_name' ]
+POI_COLS_CITY = ['city_post_code', 'city_name']
+POI_COLS_STREET_TYPE = [ 'street_type' ]
 
 class hu_city_postcode():
 
@@ -60,5 +61,25 @@ class hu_city_postcode_from_xml():
             for i in cities.split('|'):
                 insert_data.append( [postcode, i.strip()] )
         df = pd.DataFrame(insert_data)
-        df.columns = POI_COLS
+        df.columns = POI_COLS_CITY
         insert_city_dataframe(self.session, df)
+
+class hu_street_types_from_xml():
+
+    def __init__(self, session, link, download_cache, filename='hu_street_types.xml'):
+        self.session = session
+        self.link = link
+        self.download_cache = download_cache
+        self.filename = filename
+
+    def process(self):
+        xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+        insert_data = []
+        root = etree.fromstring(xml)
+        for e in root.findall('streetType'):
+            if e.text is not None:
+                street_type = e.text.strip()
+                insert_data.append( street_type )
+        df = pd.DataFrame(insert_data)
+        df.columns = POI_COLS_STREET_TYPE
+        insert_street_type_dataframe(self.session, df)

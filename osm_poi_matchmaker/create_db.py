@@ -8,6 +8,7 @@ try:
     import sqlalchemy
     import sqlalchemy.orm
     import pandas as pd
+    import geopandas as gpd
     import re
     import os
     import json
@@ -15,7 +16,7 @@ try:
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs import address, geo
     from osm_poi_matchmaker.dao.data_structure import Base, City, POI_address, POI_common
-    from osm_poi_matchmaker.libs.file_output import save_csv_file
+    from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
     from geoalchemy2 import WKTElement
     import osm_poi_matchmaker.libs.geo
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe, insert_type
@@ -25,7 +26,7 @@ except ImportError as err:
     exit(128)
 
 __program__ = 'create_db'
-__version__ = '0.4.1'
+__version__ = '0.4.5'
 
 
 POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
@@ -63,6 +64,12 @@ class POI_Base:
     def query_all_pd(self, table):
         return pd.read_sql_table(table, self.engine)
 
+    def query_all_gpd(self, table):
+        query = sqlalchemy.text('select * from {} where poi_geom is not NULL'.format(table))
+        data =  gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='poi_geom')
+        data['poi_lat'] = data['poi_geom'].x
+        data['poi_lon'] = data['poi_geom'].y
+        return data
 
 def main():
     logging.info('Starting {0} ...'.format(__program__))
@@ -76,9 +83,15 @@ def main():
     work = hu_city_postcode(db.session, '../data/Iranyitoszam-Internet.XLS')
     work.process()
     '''
+    '''
     logging.info('Importing cities ...'.format())
-    from osm_poi_matchmaker.dataproviders.hu_city_postcode import hu_city_postcode_from_xml
+    from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(db.session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml', config.get_directory_cache_url())
+    work.process()
+
+    logging.info('Importing street types ...'.format())
+    from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
+    work = hu_street_types_from_xml(db.session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml', config.get_directory_cache_url())
     work.process()
 
     logging.info('Importing {} stores ...'.format('Tesco'))
@@ -106,7 +119,7 @@ def main():
                    config.get_directory_cache_url())
     insert_type(db.session, work.types())
     work.process()
-
+    '''
     logging.info('Importing {} stores ...'.format('Rossmann'))
     from osm_poi_matchmaker.dataproviders.hu_rossmann import hu_rossmann
     work = hu_rossmann(db.session, 'https://www.rossmann.hu/uzletkereso', config.get_directory_cache_url(), verify_link = False)
@@ -126,6 +139,12 @@ def main():
     work = hu_benu(db.session,
                    'https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1',
                    config.get_directory_cache_url())
+    insert_type(db.session, work.types())
+    work.process()
+
+    logging.info('Importing {} stores ...'.format('Kulcs patika'))
+    from osm_poi_matchmaker.dataproviders.hu_kulcs_patika import hu_kulcs_patika
+    work = hu_kulcs_patika(db.session, 'http://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399', os.path.join(config.get_directory_cache_url()))
     insert_type(db.session, work.types())
     work.process()
 
@@ -174,28 +193,54 @@ def main():
     insert_type(db.session, work.types())
     work.process()
 
+    logging.info('Importing {} stores ...'.format('MOL'))
+    from osm_poi_matchmaker.dataproviders.hu_mol import hu_mol
+    work = hu_mol(db.session, 'http://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json', config.get_directory_cache_url(),
+                   'hu_mol.json')
+    insert_type(db.session, work.types())
+    work.process()
+
+    logging.info('Importing {} stores ...'.format('OMV'))
+    from osm_poi_matchmaker.dataproviders.hu_omv import hu_omv
+    work = hu_omv(db.session, 'http://webgispu.wigeogis.com/kunden/omvpetrom/backend/getFsForCountry.php', config.get_directory_cache_url(),
+                   'hu_omv.json')
+    insert_type(db.session, work.types())
+    work.process()
+
+    logging.info('Importing {} stores ...'.format('Shell'))
+    from osm_poi_matchmaker.dataproviders.hu_shell import hu_shell
+    work = hu_shell(db.session, 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL', config.get_directory_cache_url(),
+                   'hu_shell.csv')
+    insert_type(db.session, work.types())
+    work.process()
+
     logging.info('Importing {} stores ...'.format('CIB Bank'))
     from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
     work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'), 'CIB bank')
     insert_type(db.session, work.types())
     work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.html'), 'CIB')
-    '''
+
     logging.info('Importing {} stores ...'.format('Tom Market'))
     from osm_poi_matchmaker.dataproviders.hu_tommarket import hu_tom_market
     work = hu_tom_market(db.session, 'http://tommarket.hu/shops', config.get_directory_cache_url(),
                    'hu_tom_market.html')
     insert_type(db.session, work.types())
+    '''
     work.process()
     '''
     logging.info('Exporting CSV files ...')
-    targets = ['poi_address', 'poi_common']
+    targets = ['poi_common', 'poi_address']
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
-    for i in targets:
-        data = db.query_all_pd(i)
-        if i == 'poi_address':
-            data[['poi_addr_city', 'poi_postcode']] = data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
-        save_csv_file(config.get_directory_output(), '{}.csv'.format(i), data, i)
+    addr_data = db.query_all_gpd('poi_address')
+    addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
+    comm_data = db.query_all_pd('poi_common')
+    save_csv_file(config.get_directory_output(), 'poi_common.csv', comm_data, 'poi_common')
+    data = pd.merge(addr_data, comm_data, left_on='poi_common_id', right_on='pc_id', how='inner')
+    save_csv_file(config.get_directory_output(), 'poi_address.csv', data, 'poi_address')
+    with open(os.path.join(config.get_directory_output(), 'poi_address.osm'), 'wb') as oxf:
+        oxf.write(generate_osm_xml(data))
+
 
 if __name__ == '__main__':
     config.set_mode(config.Mode.matcher)
