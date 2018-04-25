@@ -3,13 +3,10 @@
 try:
     import traceback
     import logging
-    import os
-    import re
     import json
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_city, clean_javascript_variable
+    from osm_poi_matchmaker.libs.address import extract_all_address, clean_javascript_variable
     from osm_poi_matchmaker.libs.geo import check_geom
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -29,6 +26,7 @@ class hu_cib_bank():
         self.download_cache = download_cache
         self.name = name
 
+    @staticmethod
     def types(self):
         data = [{'poi_code': 'hucibbank', 'poi_name': 'CIB bank',
                  'poi_tags': "{'amenity': 'bank', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.', bic': 'CIBHHUHB', 'atm': 'yes'}",

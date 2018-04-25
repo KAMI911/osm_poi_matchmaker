@@ -4,7 +4,6 @@ try:
     import traceback
     import logging
     import os
-    import re
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
@@ -27,6 +26,7 @@ class hu_aldi():
         self.download_cache = download_cache
         self.filename = filename
 
+    @staticmethod
     def types(self):
         data = [{'poi_code': 'hualdisup', 'poi_name': 'Aldi',
                  'poi_tags': "{'shop': 'supermarket', 'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",

@@ -27,6 +27,7 @@ class hu_tesco():
         self.download_cache = download_cache
         self.filename = filename
 
+    @staticmethod
     def types(self):
         data = [{'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz',
                  'poi_tags': "{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'contact:website': 'https://www.tesco.hu', 'contact:facebook':'https://www.facebook.com/tescoaruhazak/', 'contact:youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",

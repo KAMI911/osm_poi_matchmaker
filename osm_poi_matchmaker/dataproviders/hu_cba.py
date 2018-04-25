@@ -29,6 +29,7 @@ class hu_cba():
         self.download_cache = download_cache
         self.filename = filename
 
+    @staticmethod
     def types(self):
         data = [
             {'poi_code': 'hucbacon', 'poi_name': 'CBA',

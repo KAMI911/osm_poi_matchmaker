@@ -9,7 +9,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -29,6 +29,7 @@ class hu_benu():
         self.download_cache = download_cache
         self.filename = filename
 
+    @staticmethod
     def types(self):
         data = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár',
                  'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.benu.hu'}]

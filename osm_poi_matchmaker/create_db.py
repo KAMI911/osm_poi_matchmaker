@@ -2,24 +2,18 @@
 # -*- coding: utf-8 -*-
 
 try:
+    import os
     import traceback
-    import logging, logging.config
-    import requests
+    import logging
+    import logging.config
     import sqlalchemy
     import sqlalchemy.orm
     import pandas as pd
     import geopandas as gpd
-    import re
-    import os
-    import json
-    import hashlib
     from osm_poi_matchmaker.utils import config
-    from osm_poi_matchmaker.libs import address, geo
-    from osm_poi_matchmaker.dao.data_structure import Base, City, POI_address, POI_common
+    from osm_poi_matchmaker.dao.data_structure import Base
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
-    from geoalchemy2 import WKTElement
-    import osm_poi_matchmaker.libs.geo
-    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe, insert_type
+    from osm_poi_matchmaker.dao.data_handlers import insert_type
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
@@ -38,7 +32,7 @@ def init_log():
     logging.config.fileConfig('log.conf')
 
 
-class POI_Base:
+class POIBase:
     """Represents the full database.
 
     :param db_conection: Either a sqlalchemy database url or a filename to be used with sqlite.
@@ -66,23 +60,22 @@ class POI_Base:
 
     def query_all_gpd(self, table):
         query = sqlalchemy.text('select * from {} where poi_geom is not NULL'.format(table))
-        data =  gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='poi_geom')
+        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='poi_geom')
         data['poi_lat'] = data['poi_geom'].x
         data['poi_lon'] = data['poi_geom'].y
         return data
 
 def main():
     logging.info('Starting {0} ...'.format(__program__))
-    db = POI_Base('{}://{}:{}@{}:{}'.format(config.get_database_type(), config.get_database_writer_username(),
-                                            config.get_database_writer_password(), config.get_database_writer_host(),
-                                            config.get_database_writer_port()))
+    db = POIBase('{}://{}:{}@{}:{}'.format(config.get_database_type(), config.get_database_writer_username(),
+                                           config.get_database_writer_password(), config.get_database_writer_host(),
+                                           config.get_database_writer_port()))
 
     '''
     logging.info('Importing cities ...'.format())
     from osm_poi_matchmaker.dataproviders.hu_city_postcode import hu_city_postcode
     work = hu_city_postcode(db.session, '../data/Iranyitoszam-Internet.XLS')
     work.process()
-    '''
     '''
     logging.info('Importing cities ...'.format())
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
@@ -119,10 +112,11 @@ def main():
                    config.get_directory_cache_url())
     insert_type(db.session, work.types())
     work.process()
-    '''
+
     logging.info('Importing {} stores ...'.format('Rossmann'))
     from osm_poi_matchmaker.dataproviders.hu_rossmann import hu_rossmann
-    work = hu_rossmann(db.session, 'https://www.rossmann.hu/uzletkereso', config.get_directory_cache_url(), verify_link = False)
+    work = hu_rossmann(db.session, 'https://www.rossmann.hu/uzletkereso', config.get_directory_cache_url(),
+                       verify_link=False)
     insert_type(db.session, work.types())
     work.process()
 
@@ -196,21 +190,21 @@ def main():
     logging.info('Importing {} stores ...'.format('MOL'))
     from osm_poi_matchmaker.dataproviders.hu_mol import hu_mol
     work = hu_mol(db.session, 'http://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json', config.get_directory_cache_url(),
-                   'hu_mol.json')
+                  'hu_mol.json')
     insert_type(db.session, work.types())
     work.process()
 
     logging.info('Importing {} stores ...'.format('OMV'))
     from osm_poi_matchmaker.dataproviders.hu_omv import hu_omv
     work = hu_omv(db.session, 'http://webgispu.wigeogis.com/kunden/omvpetrom/backend/getFsForCountry.php', config.get_directory_cache_url(),
-                   'hu_omv.json')
+                  'hu_omv.json')
     insert_type(db.session, work.types())
     work.process()
 
     logging.info('Importing {} stores ...'.format('Shell'))
     from osm_poi_matchmaker.dataproviders.hu_shell import hu_shell
     work = hu_shell(db.session, 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL', config.get_directory_cache_url(),
-                   'hu_shell.csv')
+                    'hu_shell.csv')
     insert_type(db.session, work.types())
     work.process()
 
@@ -223,13 +217,12 @@ def main():
     logging.info('Importing {} stores ...'.format('Tom Market'))
     from osm_poi_matchmaker.dataproviders.hu_tommarket import hu_tom_market
     work = hu_tom_market(db.session, 'http://tommarket.hu/shops', config.get_directory_cache_url(),
-                   'hu_tom_market.html')
+                         'hu_tom_market.html')
     insert_type(db.session, work.types())
     '''
     work.process()
     '''
     logging.info('Exporting CSV files ...')
-    targets = ['poi_common', 'poi_address']
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
     addr_data = db.query_all_gpd('poi_address')
