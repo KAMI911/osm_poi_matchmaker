@@ -213,9 +213,8 @@ def main():
     work = hu_tom_market(db.session, 'http://tommarket.hu/shops', config.get_directory_cache_url(),
                          'hu_tom_market.html')
     insert_type(db.session, work.types())
-    '''
-    work.process()
-    '''
+    #work.process()
+
     logging.info('Exporting CSV files ...')
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
