@@ -4,7 +4,6 @@ try:
     import traceback
     import logging
     import os
-    import re
     import json
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe

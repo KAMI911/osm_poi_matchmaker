@@ -6,7 +6,7 @@ try:
     import json
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_javascript_variable
+    from osm_poi_matchmaker.libs.address import extract_all_address
     from osm_poi_matchmaker.libs.geo import check_geom
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
