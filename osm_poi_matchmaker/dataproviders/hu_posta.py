@@ -4,7 +4,6 @@ try:
     import traceback
     import logging
     import os
-    import re
     import json
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
@@ -29,7 +28,8 @@ class hu_posta():
         self.download_cache = download_cache
         self.filename = filename
 
-    def types(self):
+    @staticmethod
+    def types():
         data = [{'poi_code': 'hupostapo', 'poi_name': 'Posta',
                  'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'},

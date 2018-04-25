@@ -27,7 +27,7 @@ class hu_cib_bank():
         self.name = name
 
     @staticmethod
-    def types(self):
+    def types():
         data = [{'poi_code': 'hucibbank', 'poi_name': 'CIB bank',
                  'poi_tags': "{'amenity': 'bank', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.', bic': 'CIBHHUHB', 'atm': 'yes'}",
                  'poi_url_base': 'https://www.cib.hu'},

@@ -31,7 +31,8 @@ class hu_rossmann():
         if 'verify_link' in kwargs:
             self.verify_link = kwargs['verify_link']
 
-    def types(self):
+    @staticmethod
+    def types():
         data = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann',
                  'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.rossmann.hu'}]

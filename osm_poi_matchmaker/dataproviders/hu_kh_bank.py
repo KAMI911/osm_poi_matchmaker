@@ -3,13 +3,10 @@
 try:
     import traceback
     import logging
-    import os
-    import re
     import json
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_city, clean_javascript_variable
+    from osm_poi_matchmaker.libs.address import extract_all_address, clean_javascript_variable
     from osm_poi_matchmaker.libs.geo import check_geom
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -28,7 +25,8 @@ class hu_kh_bank():
         self.link = link
         self.name = name
 
-    def types(self):
+    @staticmethod
+    def types():
         data = [{'poi_code': 'hukhbank', 'poi_name': 'K&H bank',
                  'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', 'bic': 'OKHBHUHB', 'atm': 'yes'}",
                  'poi_url_base': 'https://www.kh.hu'},

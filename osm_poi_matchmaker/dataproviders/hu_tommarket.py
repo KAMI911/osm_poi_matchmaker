@@ -32,7 +32,8 @@ class hu_tom_market():
         self.download_cache = download_cache
         self.filename = filename
 
-    def types(self):
+    @staticmethod
+    def types():
         data = [
             {'poi_code': 'hutommacon', 'poi_name': 'Tom Market',
              'poi_tags': "{'shop': 'convenience', 'brand': 'Tom Market', 'payment:debit_cards': 'yes'}",

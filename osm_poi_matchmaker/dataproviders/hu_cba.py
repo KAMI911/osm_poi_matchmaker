@@ -30,7 +30,7 @@ class hu_cba():
         self.filename = filename
 
     @staticmethod
-    def types(self):
+    def types():
         data = [
             {'poi_code': 'hucbacon', 'poi_name': 'CBA',
              'poi_tags': "{'shop': 'convenience', 'brand': 'CBA', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",

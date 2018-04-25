@@ -4,7 +4,6 @@ try:
     import traceback
     import logging
     import os
-    import re
     import json
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
@@ -29,7 +28,8 @@ class hu_foxpost():
         self.download_cache = download_cache
         self.filename = filename
 
-    def types(self):
+    @staticmethod
+    def types():
         data = [{'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup;parcel_mail_in', 'brand': 'Foxpost', 'operator': 'FoxPost Zrt.', 'contact:facebook': 'https://www.facebook.com/foxpostzrt', 'contact:youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w', 'contact:email': 'info@foxpost.hu', 'contact:phone': '+36 1 999 03 69', 'payment:debit_cards': 'yes', 'payment:cash': 'no'}",
                  'poi_url_base': 'https://www.foxpost.hu'}]
@@ -49,6 +49,7 @@ class hu_foxpost():
                 city = clean_city(poi_data['city'])
                 branch = poi_data['name']
                 website = None
+                '''
                 mo = poi_data['open']['hetfo'].strip() if poi_data['open']['hetfo'] is not None else None
                 th = poi_data['open']['kedd'].strip() if poi_data['open']['kedd'] is not None else None
                 we = poi_data['open']['szerda'].strip() if poi_data['open']['szerda'] is not None else None
@@ -56,6 +57,7 @@ class hu_foxpost():
                 fr = poi_data['open']['pentek'].strip() if poi_data['open']['pentek'] is not None else None
                 sa = poi_data['open']['szombat'].strip() if poi_data['open']['szombat'] is not None else None
                 su = poi_data['open']['vasarnap'].strip() if poi_data['open']['vasarnap'] is not None else None
+                '''
                 original = poi_data['address']
                 ref = None
                 geom = check_geom(poi_data['geolat'], poi_data['geolng'])

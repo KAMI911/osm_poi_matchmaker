@@ -4,9 +4,7 @@ try:
     import traceback
     import logging
     import os
-    import re
     import json
-    from math import isnan
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.pandas import save_downloaded_pd
@@ -30,7 +28,8 @@ class hu_shell():
         self.download_cache = download_cache
         self.filename = filename
 
-    def types(self):
+    @staticmethod
+    def types():
         data = [{'poi_code': 'hushellfu', 'poi_name': 'Shell',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'Shell', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
                  'poi_url_base': 'https://www.shell.hu'},

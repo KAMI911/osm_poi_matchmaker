@@ -29,7 +29,8 @@ class hu_avia():
         self.download_cache = download_cache
         self.filename = filename
 
-    def types(self):
+    @staticmethod
+    def types():
         data = [{'poi_code': 'huaviafu', 'poi_name': 'Avia',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
                  'poi_url_base': 'https://www.avia.hu'}]

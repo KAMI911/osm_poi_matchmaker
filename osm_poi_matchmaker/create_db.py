@@ -71,12 +71,6 @@ def main():
                                            config.get_database_writer_password(), config.get_database_writer_host(),
                                            config.get_database_writer_port()))
 
-    '''
-    logging.info('Importing cities ...'.format())
-    from osm_poi_matchmaker.dataproviders.hu_city_postcode import hu_city_postcode
-    work = hu_city_postcode(db.session, '../data/Iranyitoszam-Internet.XLS')
-    work.process()
-    '''
     logging.info('Importing cities ...'.format())
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(db.session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml', config.get_directory_cache_url())

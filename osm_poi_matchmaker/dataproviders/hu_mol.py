@@ -31,7 +31,8 @@ class hu_mol():
         self.download_cache = download_cache
         self.filename = filename
 
-    def types(self):
+    @staticmethod
+    def types():
         data = [{'poi_code': 'humolfu', 'poi_name': 'MOL',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'MOL', 'operator': 'MOL Nyrt.', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
                  'poi_url_base': 'https://www.mol.hu'}]

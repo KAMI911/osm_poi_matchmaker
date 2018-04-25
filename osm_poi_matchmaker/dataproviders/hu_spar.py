@@ -32,7 +32,7 @@ class hu_spar():
         self.filename = filename
 
     @staticmethod
-    def types(self):
+    def types():
         data = [{'poi_code': 'husparexp', 'poi_name': 'Spar Expressz',
                  'poi_tags': "{'shop': 'convenience', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment':'cash', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.spar.hu'},
