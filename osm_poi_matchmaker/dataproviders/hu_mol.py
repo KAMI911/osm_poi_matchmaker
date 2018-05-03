@@ -10,14 +10,15 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
-            'poi_addr_street',
-            'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
+
+POI_COLS = poi_array_structure.POI_COLS
+
 
 POST_DATA = {'country': 'Magyarország', 'lat': '47.162494', 'lng': '19.503304100000037', 'radius': 20}
 
@@ -32,7 +33,7 @@ class hu_mol():
 
     @staticmethod
     def types():
-        data = [{'poi_code': 'humolfu', 'poi_name': 'MOL',
+        data = [{'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'MOL', 'operator': 'MOL Nyrt.', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
                  'poi_url_base': 'https://www.mol.hu'}]
         return data
@@ -51,12 +52,27 @@ class hu_mol():
                 city = clean_city(poi_data['city'])
                 branch = None
                 website = None
+                nonstop = None
+                mo_o = None
+                th_o = None
+                we_o = None
+                tu_o = None
+                fr_o = None
+                sa_o = None
+                su_o = None
+                mo_c = None
+                th_c = None
+                we_c = None
+                tu_c = None
+                fr_c = None
+                sa_c = None
+                su_c = None
                 original = poi_data['address']
                 ref = None
                 geom = check_geom(poi_data['lat'], poi_data['lng'])
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, geom])
+                     ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:

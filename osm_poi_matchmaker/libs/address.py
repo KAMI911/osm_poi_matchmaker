@@ -190,3 +190,22 @@ def clean_city(clearable):
         return city.title().strip()
     else:
         return None
+
+def clean_opening_hours(oh_from_to):
+    tmp = oh_from_to.strip().split(' ')[0]
+    # We expect exactly two parts, for example: 09:40
+    if len(tmp.split('-')) == 2:
+        tmf = tmp.split('-')[0].zfill(5)
+        tmt = tmp.split('-')[1].zfill(5)
+    else:
+        tmf, tmt = None, None
+    return tmf, tmt
+
+
+def clean_opening_hours_2(oh):
+    if oh == '-1':
+        return None
+    else:
+        tmp = oh.strip().zfill(4)
+        fmt = '{}:{}'.format(tmp[:2], tmp[-2:])
+    return fmt

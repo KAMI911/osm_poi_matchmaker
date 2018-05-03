@@ -8,9 +8,10 @@ try:
     import logging.config
     import sqlalchemy
     import sqlalchemy.orm
+    import numpy as np
     import pandas as pd
     import geopandas as gpd
-    from osm_poi_matchmaker.utils import config
+    from osm_poi_matchmaker.utils import config, timing
     from osm_poi_matchmaker.dao.data_structure import Base
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
     from osm_poi_matchmaker.dao.data_handlers import insert_type
@@ -20,7 +21,7 @@ except ImportError as err:
     exit(128)
 
 __program__ = 'create_db'
-__version__ = '0.4.5'
+__version__ = '0.4.7'
 
 
 POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
@@ -65,11 +66,45 @@ class POIBase:
         data['poi_lon'] = data['poi_geom'].y
         return data
 
+    def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop'):
+        if ptype == 'shop':
+            query_type = "shop='convenience' OR shop='supermarket'"
+        elif ptype == 'fuel':
+            query_type = "amenity='fuel'"
+        elif ptype == 'bank':
+            query_type = "amenity='bank'"
+        elif ptype == 'atm':
+            query_type = "amenity='atm'"
+        elif ptype == 'post_office':
+            query_type = "amenity='post_office'"
+        elif ptype == 'vending_machine':
+            query_type = "amenity='vending_machine'"
+        elif ptype == 'pharmacy':
+            query_type = "amenity='vending_machine'"
+        elif ptype == 'chemist':
+            query_type = "shop='chemist'"
+        query = sqlalchemy.text('''
+            SELECT name,osm_id, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
+            WHERE ({type})
+                AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,900913), :distance)
+            ORDER BY distance ASC;'''.format(type=query_type))
+        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'distance': config.get_geo_default_poi_distance()})
+        query = sqlalchemy.text('''
+            SELECT name,osm_id, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
+            FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
+            WHERE ({type})
+                AND ST_DWithin(way,ST_Transform(point.geom,900913), :distance)
+            ORDER BY distance ASC;'''.format(type=query_type))
+        data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'type': query_type, 'distance': config.get_geo_default_poi_distance()})
+        data = data.append(data2)
+        return data.sort_values(by=['distance'])
+
 def main():
     logging.info('Starting {0} ...'.format(__program__))
-    db = POIBase('{}://{}:{}@{}:{}'.format(config.get_database_type(), config.get_database_writer_username(),
-                                           config.get_database_writer_password(), config.get_database_writer_host(),
-                                           config.get_database_writer_port()))
+    db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
+                                              config.get_database_writer_password(), config.get_database_writer_host(),
+                                              config.get_database_writer_port(), config.get_database_poi_database()))
 
     logging.info('Importing cities ...'.format())
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
@@ -226,9 +261,24 @@ def main():
     save_csv_file(config.get_directory_output(), 'poi_address.csv', data, 'poi_address')
     with open(os.path.join(config.get_directory_output(), 'poi_address.osm'), 'wb') as oxf:
         oxf.write(generate_osm_xml(data))
-
+    logging.info('Merging OSM datasets ...')
+    addr_data['osm_id'] = None
+    counter = 0
+    for i, data in addr_data.iterrows():
+        print ('--------------')
+        print(data)
+        common_row = comm_data.loc[comm_data['pc_id'] == data['poi_common_id']]
+        osm_query = (db.query_osm_shop_poi_gpd(data['poi_lon'], data['poi_lat'], common_row['poi_type'].item()))
+        if not osm_query.empty:
+            print(osm_query)
+            #print(osm_query.iloc[0]['osm_id'].item())
+            counter +=1
+        #print(addr_data[i:i+1])
+    print (counter)
 
 if __name__ == '__main__':
     config.set_mode(config.Mode.matcher)
     init_log()
+    timer = timing.Timing()
     main()
+    logging.info('Total duration of process: {}. Finished, exiting and go home ...'.format(timer.end()))

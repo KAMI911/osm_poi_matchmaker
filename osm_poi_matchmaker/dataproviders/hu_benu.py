@@ -10,14 +10,13 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
-            'poi_addr_street',
-            'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
+POI_COLS = poi_array_structure.POI_COLS
 
 
 class hu_benu():
@@ -30,7 +29,7 @@ class hu_benu():
 
     @staticmethod
     def types():
-        data = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár',
+        data = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
                  'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.benu.hu'}]
         return data
 
@@ -50,6 +49,21 @@ class hu_benu():
                     branch = poi_data['title'].strip()
                 code = 'hubenupha'
                 website = poi_data['description'].strip() if poi_data['description'] is not None else None
+                nonstop = None
+                mo_o = None
+                th_o = None
+                we_o = None
+                tu_o = None
+                fr_o = None
+                sa_o = None
+                su_o = None
+                mo_c = None
+                th_c = None
+                we_c = None
+                tu_c = None
+                fr_c = None
+                sa_c = None
+                su_c = None
                 city = clean_city(poi_data['city'])
                 postcode = poi_data['postal_code'].strip()
                 geom = check_geom(poi_data['lat'], poi_data['lng'])
@@ -57,7 +71,7 @@ class hu_benu():
                 ref = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, geom])
+                     ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:

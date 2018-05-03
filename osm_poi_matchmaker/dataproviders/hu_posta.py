@@ -10,14 +10,14 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
-            'poi_addr_street',
-            'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
+
+POI_COLS = poi_array_structure.POI_COLS
 
 
 class hu_posta():
@@ -30,19 +30,19 @@ class hu_posta():
 
     @staticmethod
     def types():
-        data = [{'poi_code': 'hupostapo', 'poi_name': 'Posta',
+        data = [{'poi_code': 'hupostapo', 'poi_name': 'Posta', 'poi_type': 'post_office',
                  'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'},
-                {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkautomata',
+                {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkautomata', 'poi_type': 'vending_machine',
                  'poi_tags': "{'amenity': 'vending_machine', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'},
-                {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata',
+                {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata', 'poi_type': 'vending_machine',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'},
-                {'poi_code': 'hupostapp', 'poi_name': 'PostaPont',
+                {'poi_code': 'hupostapp', 'poi_name': 'PostaPont', 'poi_type': 'post_office',
                  'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'},
-                {'poi_code': 'hupostamp', 'poi_name': 'Mobilposta',
+                {'poi_code': 'hupostamp', 'poi_name': 'Mobilposta', 'poi_type': 'post_office',
                  'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'}]
         return data
@@ -77,12 +77,28 @@ class hu_posta():
                 city = clean_city(poi_data['city'])
                 branch = poi_data['name']
                 website = None
+                nonstop = None
+                mo_o = None
+                th_o = None
+                we_o = None
+                tu_o = None
+                fr_o = None
+                sa_o = None
+                su_o = None
+                mo_c = None
+                th_c = None
+                we_c = None
+                tu_c = None
+                fr_c = None
+                sa_c = None
+                su_c = None
+
                 geom = check_geom(poi_data['lat'], poi_data['lng'])
                 original = poi_data['address']
                 ref = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, geom])
+                     ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:

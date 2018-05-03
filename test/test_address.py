@@ -2,7 +2,7 @@
 
 try:
     import unittest
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, extract_all_address
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, extract_all_address, clean_opening_hours, clean_opening_hours_2
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -61,3 +61,36 @@ class TestFullAddressResolver(unittest.TestCase):
                 self.assertEqual(housenumber, d)
             with self.subTest():
                 self.assertEqual(conscriptionnumber, e)
+
+
+class OpeningHoursClener(unittest.TestCase):
+    def setUp(self):
+        self.opening_hours = [
+            {'original': '05:20-19:38', 'opening_hours_open': '05:20', 'opening_hours_close': '19:38'},
+            {'original': '6:44-21:00', 'opening_hours_open': '06:44', 'opening_hours_close': '21:00'},
+            {'original': '05:20-19:38 Reggel nyolctól bejárat az üzleten át', 'opening_hours_open': '05:20', 'opening_hours_close': '19:38'},]
+
+    def test_clean_opening_hours(self):
+        for i in self.opening_hours:
+            original, oho, ohc = i['original'], i['opening_hours_open'], i['opening_hours_close']
+            a, b = clean_opening_hours(original)
+            with self.subTest():
+                self.assertEqual(oho, a)
+            with self.subTest():
+                self.assertEqual(ohc, b)
+
+class OpeningHoursClener2(unittest.TestCase):
+    def setUp(self):
+        self.opening_hours = [
+            {'original': '600', 'converted': '06:00'},
+            {'original': '0644', 'converted': '06:44'},
+            {'original': '2359', 'converted': '23:59'},
+            {'original': '-1', 'converted': None},
+        ]
+
+    def test_clean_opening_hours(self):
+        for i in self.opening_hours:
+            original, oho = i['original'], i['converted']
+            a = clean_opening_hours_2(original)
+            with self.subTest():
+                self.assertEqual(oho, a)

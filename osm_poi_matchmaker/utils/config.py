@@ -46,7 +46,9 @@ KEY_DATABASE_WRITE_HOST = 'db.write.host'
 KEY_DATABASE_WRITE_PORT = 'db.write.port'
 KEY_DATABASE_WRITE_USERNAME = 'db.write.username'
 KEY_DATABASE_WRITE_PASSWORD = 'db.write.password'
+KEY_DATABASE_POI_DATABASE = 'db.poi.database'
 KEY_GEO_DEFAULT_PROJECTION = 'geo.default.projection'
+KEY_GEO_DEFAULT_POI_DISTANCE = 'geo.default.poi.distance'
 KEY_DOWNLOAD_VERIFY_LINK = 'download.verify.link'
 KEY_DOWNLOAD_USE_CACHED_DATA = 'download.use.cached.data'
 
@@ -94,7 +96,7 @@ def get_database_type():
     if None != setting:
         return setting
     else:
-        return os.path.join('postgresql')
+        return 'postgresql'
 
 
 def get_database_writer_host():
@@ -104,7 +106,7 @@ def get_database_writer_host():
         return setting
     else:
         logging.info('Using localhost for database host.')
-        return os.path.join('localhost')
+        return 'localhost'
 
 
 def get_database_writer_port():
@@ -112,7 +114,7 @@ def get_database_writer_port():
     if None != setting:
         return setting
     else:
-        return os.path.join('5432')
+        return '5432'
 
 
 def get_database_writer_username():
@@ -123,7 +125,7 @@ def get_database_writer_username():
         if None != setting:
             return setting
     else:
-        return os.path.join('poi')
+        return 'poi'
 
 
 def get_database_writer_password():
@@ -134,7 +136,15 @@ def get_database_writer_password():
     if None != setting:
         return setting
     else:
-        return os.path.join('poitest')
+        return 'poitest'
+
+
+def get_database_poi_database():
+    setting = get_config_string(KEY_DATABASE_POI_DATABASE)
+    if None != setting:
+        return setting
+    else:
+        return 'poi'
 
 
 def get_geo_default_projection():
@@ -142,8 +152,15 @@ def get_geo_default_projection():
     if None != setting:
         return setting
     else:
-        return '4326'
+        return 4326
 
+
+def get_geo_default_poi_distance():
+    setting = get_config_int(KEY_GEO_DEFAULT_POI_DISTANCE)
+    if None != setting:
+        return setting
+    else:
+        return 70
 
 def get_download_verify_link():
     setting = get_config_bool(KEY_DOWNLOAD_VERIFY_LINK)

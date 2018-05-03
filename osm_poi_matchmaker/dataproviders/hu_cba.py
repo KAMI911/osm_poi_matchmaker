@@ -9,16 +9,16 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable, clean_opening_hours_2
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
-            'poi_addr_street',
-            'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
+
+POI_COLS = poi_array_structure.POI_COLS
 
 
 class hu_cba():
@@ -32,16 +32,16 @@ class hu_cba():
     @staticmethod
     def types():
         data = [
-            {'poi_code': 'hucbacon', 'poi_name': 'CBA',
+            {'poi_code': 'hucbacon', 'poi_name': 'CBA', 'poi_type': 'shop',
              'poi_tags': "{'shop': 'convenience', 'brand': 'CBA', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.cba.hu'},
-            {'poi_code': 'hucbasup', 'poi_name': 'CBA',
+            {'poi_code': 'hucbasup', 'poi_name': 'CBA', 'poi_type': 'shop',
              'poi_tags': "{'shop': 'supermarket', 'brand': 'CBA', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.cba.hu'},
-            {'poi_code': 'huprimacon', 'poi_name': 'Príma',
+            {'poi_code': 'huprimacon', 'poi_name': 'Príma', 'poi_type': 'shop',
              'poi_tags': "{'shop': 'convenience', 'brand': 'Príma', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.prima.hu'},
-            {'poi_code': 'huprimasup', 'poi_name': 'Príma',
+            {'poi_code': 'huprimasup', 'poi_name': 'Príma', 'poi_type': 'shop',
              'poi_tags': "{'shop': 'supermarket', 'brand': 'Príma', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.prima.hu'}]
         return data
@@ -70,12 +70,27 @@ class hu_cba():
                 name = 'Príma' if 'Príma' in branch else 'CBA'
                 code = 'huprimacon' if 'Príma' in branch else 'hucbacon'
                 website = None
+                nonstop = None
+                mo_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_1']) if poi_data['PS_OPEN_FROM_1'] is not None else None
+                th_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_2']) if poi_data['PS_OPEN_FROM_2'] is not None else None
+                we_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_3']) if poi_data['PS_OPEN_FROM_3'] is not None else None
+                tu_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_4']) if poi_data['PS_OPEN_FROM_4'] is not None else None
+                fr_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_5']) if poi_data['PS_OPEN_FROM_5'] is not None else None
+                sa_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_6']) if poi_data['PS_OPEN_FROM_6'] is not None else None
+                su_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_7']) if poi_data['PS_OPEN_FROM_7'] is not None else None
+                mo_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_1']) if poi_data['PS_OPEN_TO_1'] is not None else None
+                th_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_2']) if poi_data['PS_OPEN_TO_2'] is not None else None
+                we_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_3']) if poi_data['PS_OPEN_TO_3'] is not None else None
+                tu_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_4']) if poi_data['PS_OPEN_TO_4'] is not None else None
+                fr_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_5']) if poi_data['PS_OPEN_TO_5'] is not None else None
+                sa_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_6']) if poi_data['PS_OPEN_TO_6'] is not None else None
+                su_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_7']) if poi_data['PS_OPEN_TO_7'] is not None else None
                 original = poi_data['A_CIM']
                 geom = check_geom(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'])
                 ref = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, geom])
+                     ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:

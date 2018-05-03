@@ -6,14 +6,14 @@ try:
     import logging
     from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, Street_type
     from osm_poi_matchmaker.libs import address
+    from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
-            'poi_addr_street',
-            'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
+
+POI_COLS = poi_array_structure.POI_COLS
 
 
 def get_or_create(session, model, **kwargs):
@@ -107,7 +107,7 @@ def insert_poi_dataframe(session, poi_df):
     try:
         for poi_data in poi_dict:
             city_col = session.query(City.city_id).filter(City.city_name == poi_data['poi_city']).filter(
-                City.city_post_code == poi_data['poi_postcode']).first()
+                    City.city_post_code == poi_data['poi_postcode']).first()
             common_col = session.query(POI_common.pc_id).filter(POI_common.poi_code == poi_data['poi_code']).first()
             poi_data['poi_addr_city'] = city_col
             poi_data['poi_common_id'] = common_col
