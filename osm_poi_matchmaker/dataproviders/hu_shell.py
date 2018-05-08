@@ -60,10 +60,7 @@ class hu_shell():
                 steet_tmp = poi_data['Address'].lower().split()
                 for i in range(0, len(steet_tmp)-2):
                     steet_tmp[i] = steet_tmp[i].capitalize()
-                print(steet_tmp)
-                print(steet_tmp)
                 steet_tmp = ' '.join(steet_tmp)
-                print(steet_tmp)
                 street, housenumber, conscriptionnumber = extract_street_housenumber_better(
                     steet_tmp)
                 if poi_data['City'] != '':
@@ -75,7 +72,6 @@ class hu_shell():
                         city = None
                 branch = poi_data['Name'].strip()
                 website = None
-                print(poi_data)
                 if poi_data['24 Hour'] == True:
                     nonstop = True
                     mo_o = None

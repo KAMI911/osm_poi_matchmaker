@@ -6,8 +6,9 @@ try:
     import os
     import json
     import pandas as pd
+    from lxml import etree
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
+    from osm_poi_matchmaker.libs.xml import save_downloaded_xml
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom
     from osm_poi_matchmaker.dao import poi_array_structure
@@ -21,12 +22,13 @@ POI_COLS = poi_array_structure.POI_COLS
 
 
 class hu_posta():
-
-    def __init__(self, session, link, download_cache, filename='hu_posta.json'):
+    # Processing http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml file
+    def __init__(self, session, link, download_cache, filename='PostInfo.xml'):
         self.session = session
         self.link = link
         self.download_cache = download_cache
         self.filename = filename
+
 
     @staticmethod
     def types():
@@ -47,61 +49,68 @@ class hu_posta():
                  'poi_url_base': 'https://www.posta.hu'}]
         return data
 
-    def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        insert_data = []
-        if soup != None:
-            text = json.loads(soup.get_text())
-            for poi_data in text['items']:
-                if poi_data['type'] == 'posta':
-                    if 'mobilposta' in poi_data['name']:
-                        name = 'Mobilposta'
-                        code = 'hupostamp'
-                    else:
-                        name = 'Posta'
-                        code = 'hupostapo'
-                elif poi_data['type'] == 'csekkautomata':
-                    name = 'Posta csekkautomata'
-                    code = 'hupostacse'
-                elif poi_data['type'] == 'postamachine':
-                    name = 'Posta csomagautomata'
-                    code = 'hupostacso'
-                elif poi_data['type'] == 'postapoint':
-                    name = 'PostaPont'
-                    code = 'hupostapp'
-                else:
-                    logging.error('Non existing Posta type.')
-                postcode = poi_data['zipCode'].strip()
-                street, housenumber, conscriptionnumber = extract_street_housenumber_better(
-                    poi_data['address'])
-                city = clean_city(poi_data['city'])
-                branch = poi_data['name']
-                website = None
-                nonstop = None
-                mo_o = None
-                th_o = None
-                we_o = None
-                tu_o = None
-                fr_o = None
-                sa_o = None
-                su_o = None
-                mo_c = None
-                th_c = None
-                we_c = None
-                tu_c = None
-                fr_c = None
-                sa_c = None
-                su_c = None
 
-                geom = check_geom(poi_data['lat'], poi_data['lng'])
-                original = poi_data['address']
-                ref = None
-                insert_data.append(
-                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
-            if len(insert_data) < 1:
-                logging.warning('Resultset is empty. Skipping ...')
+    def process(self):
+        xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+        insert_data = []
+        root = etree.fromstring(xml)
+        for e in root.findall('post'):
+            if e.find('ServicePointType').text == 'PM':
+                name = 'Posta'
+                code = 'hupostapo'
+            elif e.find('ServicePointType').text == 'CS':
+                name = 'Posta csomagautomata'
+                code = 'hupostacso'
+            elif e.find('ServicePointType').text == 'PP':
+                name = 'PostaPont'
+                code = 'hupostapp'
             else:
-                df = pd.DataFrame(insert_data)
-                df.columns = POI_COLS
-                insert_poi_dataframe(self.session, df)
+                logging.error('Non existing Posta type.')
+            postcode = e.get('zipCode')
+            street_tmp_1 = e.find('street/name').text.strip() if e.find('street/name').text is not None else None
+            street_tmp_2 = e.find('street/type').text.strip() if e.find('street/type').text is not None else None
+            if street_tmp_1 is None:
+                street = None
+            elif street_tmp_2 is None:
+                street = street_tmp_1
+            elif street_tmp_1 is not None and street_tmp_2 is not None:
+                street = '{} {}'.format(street_tmp_1, street_tmp_2)
+            else:
+                logging.error('Non handled state!')
+            housenumber = e.find('street/houseNumber').text.strip().lower() if e.find('street/houseNumber').text is not None else None
+            conscriptionnumber = None
+            city = clean_city(e.find('city').text)
+            branch = e.find('name').text if e.find('name').text is not None else None
+            website = None
+            nonstop = None
+            mo_o = None
+            th_o = None
+            we_o = None
+            tu_o = None
+            fr_o = None
+            sa_o = None
+            su_o = None
+            mo_c = None
+            th_c = None
+            we_c = None
+            tu_c = None
+            fr_c = None
+            sa_c = None
+            su_c = None
+            # This is a workaround because original datasource may contains swapped lat / lon parameters
+            lon = e.find('gpsData/WGSLon').text.replace(',', '.')
+            lat = e.find('gpsData/WGSLat').text.replace(',', '.')
+            if float(lat) < 46:
+                lon, lat = lat, lon
+            geom = check_geom(lon, lat)
+            original = None
+            ref = None
+            insert_data.append(
+                [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
+                 ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
+        if len(insert_data) < 1:
+            logging.warning('Resultset is empty. Skipping ...')
+        else:
+            df = pd.DataFrame(insert_data)
+            df.columns = POI_COLS
+            insert_poi_dataframe(self.session, df)

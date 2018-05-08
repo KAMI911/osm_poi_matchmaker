@@ -105,7 +105,6 @@ def main():
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                               config.get_database_writer_password(), config.get_database_writer_host(),
                                               config.get_database_writer_port(), config.get_database_poi_database()))
-
     logging.info('Importing cities ...'.format())
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(db.session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml', config.get_directory_cache_url())
@@ -173,27 +172,40 @@ def main():
 
     logging.info('Importing {} stores ...'.format('Magyar Posta'))
     from osm_poi_matchmaker.dataproviders.hu_posta import hu_posta
-    logging.info('Importing {} stores ...'.format('Magyar Posta - posta'))
     work = hu_posta(db.session,
+                    'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml',
+                    config.get_directory_cache_url())
+    insert_type(db.session, work.types())
+    work.process()
+
+    # Old code that uses JSON files
+    from osm_poi_matchmaker.dataproviders.hu_posta_json import hu_posta_json
+    '''
+    logging.info('Importing {} stores ...'.format('Magyar Posta - posta'))
+    work = hu_posta_json(db.session,
                     'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=posta',
                     config.get_directory_cache_url())
     insert_type(db.session, work.types())
     work.process()
+    '''
+    # We only using csekkautomata since there is no XML from another data source
     logging.info('Importing {} stores ...'.format('Magyar Posta - csekkautomata'))
-    work = hu_posta(db.session,
+    work = hu_posta_json(db.session,
                     'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
                     config.get_directory_cache_url(), 'hu_postacsekkautomata.json')
     work.process()
+    '''
     logging.info('Importing {} stores ...'.format('Magyar Posta - csomagautomata'))
-    work = hu_posta(db.session,
+    work = hu_posta_json(db.session,
                     'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postamachine',
                     config.get_directory_cache_url(), 'hu_postaautomata.json')
     work.process()
     logging.info('Importing {} stores ...'.format('Magyar Posta - postapont'))
-    work = hu_posta(db.session,
+    work = hu_posta_json(db.session,
                     'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postapoint',
                     config.get_directory_cache_url(), 'hu_postapoint.json')
     work.process()
+    '''
 
     logging.info('Importing {} stores ...'.format('Penny Market'))
     from osm_poi_matchmaker.dataproviders.hu_penny_market import hu_penny_market
