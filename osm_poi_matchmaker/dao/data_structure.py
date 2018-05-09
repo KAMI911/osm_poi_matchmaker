@@ -29,6 +29,7 @@ class POI_type(enum.Enum):
     vending_machine = 5
     pharmacy = 6
     chemist = 7
+    bicycle_rental = 8
 
 
 class POI_address(Base):

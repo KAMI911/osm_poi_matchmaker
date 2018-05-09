@@ -120,6 +120,7 @@ def insert_poi_dataframe(session, poi_df):
         logging.warning(traceback.print_exc())
         session.rollback()
         logging.info('Rolled back.')
+        raise(e)
     else:
         logging.info('Successfully added the dataset.')
         session.commit()

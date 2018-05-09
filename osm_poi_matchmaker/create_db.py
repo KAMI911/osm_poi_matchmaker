@@ -83,6 +83,8 @@ class POIBase:
             query_type = "amenity='vending_machine'"
         elif ptype == 'chemist':
             query_type = "shop='chemist'"
+        elif ptype == 'bicycle_rental':
+            query_type = "amenity='bicycle_rental'"
         query = sqlalchemy.text('''
             SELECT name,osm_id, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
@@ -100,11 +102,13 @@ class POIBase:
         data = data.append(data2)
         return data.sort_values(by=['distance'])
 
+
 def main():
     logging.info('Starting {0} ...'.format(__program__))
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                               config.get_database_writer_password(), config.get_database_writer_host(),
                                               config.get_database_writer_port(), config.get_database_poi_database()))
+
     logging.info('Importing cities ...'.format())
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(db.session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml', config.get_directory_cache_url())
@@ -206,7 +210,6 @@ def main():
                     config.get_directory_cache_url(), 'hu_postapoint.json')
     work.process()
     '''
-
     logging.info('Importing {} stores ...'.format('Penny Market'))
     from osm_poi_matchmaker.dataproviders.hu_penny_market import hu_penny_market
     work = hu_penny_market(db.session, '', config.get_directory_cache_url(), 'penny_market.json')
@@ -261,6 +264,14 @@ def main():
                          'hu_tom_market.html')
     insert_type(db.session, work.types())
     #work.process()
+
+    logging.info('Importing {} stores ...'.format('MOL Bubi'))
+    from osm_poi_matchmaker.dataproviders.hu_mol_bubi import hu_mol_bubi
+    work = hu_mol_bubi(db.session, db.engine,
+                    'https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb',
+                    config.get_directory_cache_url())
+    insert_type(db.session, work.types())
+    work.process()
 
     logging.info('Exporting CSV files ...')
     if not os.path.exists(config.get_directory_output()):
