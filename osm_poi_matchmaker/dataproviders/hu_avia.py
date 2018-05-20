@@ -11,6 +11,7 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_all_address, clean_city, clean_javascript_variable
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.osm import query_osm_postcode_gpd
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -62,7 +63,14 @@ class hu_avia():
                 if city is None:
                     city = poi_data['title']
                 ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
-                geom = check_geom(poi_data['lat'], poi_data['lng'])
+                lat = poi_data['lat']
+                lon = poi_data['lng']
+                geom = check_geom(lat, lon)
+                query_postcode = query_osm_postcode_gpd(self.session, lon, lat)
+                if query_postcode is not None:
+                    postcode = query_postcode
+                else:
+                    logging.warning('This poi has not got postcode: {} ({}/{})'.format(name, lon, lat))
                 website = None
                 nonstop = None
                 mo_o = None

@@ -101,11 +101,14 @@ class hu_posta():
             lat = e.find('gpsData/WGSLat').text.replace(',', '.')
             # This is a workaround because original datasource may contains swapped lat / lon parameters
             if float(lat) < 46:
+                logging.warning('Replaced coordinates. ({}, {}'.format(branch, city))
                 lon, lat = lat, lon
             # Another workaround to insert missing decimal point
             if float(lon) > 200:
+                logging.warning('Missing lon decimal separator. ({}, {}'.format(branch, city))
                 lon = '{}.{}'.format(lon[:2], lon[3:])
             if float(lat) > 200:
+                logging.warning('Missing lat decimal separator. ({}, {}'.format(branch, city))
                 lat = '{}.{}'.format(lat[:2], lat[3:])
             geom = check_geom(lon, lat)
             original = None

@@ -120,8 +120,14 @@ def main():
     work.process()
 
     logging.info('Importing {} stores ...'.format('Tesco'))
+    '''
     from osm_poi_matchmaker.dataproviders.hu_tesco import hu_tesco
     work = hu_tesco(db.session, 'http://tesco.hu/aruhazak/nyitvatartas/', config.get_directory_cache_url())
+    insert_type(db.session, work.types())
+    work.process()
+    '''
+    from osm_poi_matchmaker.dataproviders.hu_tesco import hu_tesco
+    work = hu_tesco(db.session, 'https://tesco.hu/aruhazak/', config.get_directory_cache_url())
     insert_type(db.session, work.types())
     work.process()
 

@@ -23,6 +23,7 @@ def query_overpass(area_id, query_statement, element_type='node'):
     return overpass.query(query)
 
 def query_osm_postcode_gpd(session, lon, lat):
+    if lat is None or lat == '' or lon == '' or lon is None: return None
     query = sqlalchemy.text('''
         SELECT name
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
