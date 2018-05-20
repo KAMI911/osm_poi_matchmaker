@@ -294,15 +294,12 @@ def main():
     addr_data['osm_id'] = None
     counter = 0
     for i, data in addr_data.iterrows():
-        print ('--------------')
-        print(data)
+        # print(data)
         common_row = comm_data.loc[comm_data['pc_id'] == data['poi_common_id']]
         osm_query = (db.query_osm_shop_poi_gpd(data['poi_lon'], data['poi_lat'], common_row['poi_type'].item()))
         if not osm_query.empty:
-            print(osm_query)
-            #print(osm_query.iloc[0]['osm_id'].item())
+            # print(osm_query)
             counter +=1
-        #print(addr_data[i:i+1])
     print (counter)
 
 if __name__ == '__main__':
