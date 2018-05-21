@@ -19,17 +19,20 @@ except ImportError as err:
 
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_DATA = 'https://www.rossmann.hu/uzletkereso'
 
 
 class hu_rossmann():
 
-    def __init__(self, session, link, download_cache, filename='hu_rossmann.html', **kwargs):
+    def __init__(self, session, download_cache, filename='hu_rossmann.html', **kwargs):
         self.session = session
-        self.link = link
+        self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
         if 'verify_link' in kwargs:
             self.verify_link = kwargs['verify_link']
+        else:
+            self.verify_link = None
 
     @staticmethod
     def types():

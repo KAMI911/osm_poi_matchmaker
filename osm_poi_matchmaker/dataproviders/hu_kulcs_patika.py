@@ -17,15 +17,16 @@ except ImportError as err:
 
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_DATA = 'http://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
 
 
 POST_DATA = {'kepnelkul': 'true', 'latitude': '47.498', 'longitude': '19.0399', 'tipus': 'patika'}
 
 class hu_kulcs_patika():
 
-    def __init__(self, session, link, download_cache, filename='hu_kulcs_patika.json'):
+    def __init__(self, session, download_cache, filename='hu_kulcs_patika.json'):
         self.session = session
-        self.link = link
+        self.link = 'http://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
         self.download_cache = download_cache
         self.filename = filename
 

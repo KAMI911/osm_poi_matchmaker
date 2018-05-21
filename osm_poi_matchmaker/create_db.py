@@ -11,7 +11,7 @@ try:
     import numpy as np
     import pandas as pd
     import geopandas as gpd
-    from osm_poi_matchmaker.utils import config, timing
+    from osm_poi_matchmaker.utils import config, timing, dataproviders_loader
     from osm_poi_matchmaker.dao.data_structure import Base
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
     from osm_poi_matchmaker.dao.data_handlers import insert_type
@@ -108,7 +108,6 @@ def main():
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                               config.get_database_writer_password(), config.get_database_writer_host(),
                                               config.get_database_writer_port(), config.get_database_poi_database()))
-
     logging.info('Importing cities ...'.format())
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(db.session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml', config.get_directory_cache_url())
@@ -119,44 +118,14 @@ def main():
     work = hu_street_types_from_xml(db.session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml', config.get_directory_cache_url())
     work.process()
 
-    logging.info('Importing {} stores ...'.format('Tesco'))
-    '''
-    from osm_poi_matchmaker.dataproviders.hu_tesco import hu_tesco
-    work = hu_tesco(db.session, 'http://tesco.hu/aruhazak/nyitvatartas/', config.get_directory_cache_url())
-    insert_type(db.session, work.types())
-    work.process()
-    '''
-    from osm_poi_matchmaker.dataproviders.hu_tesco import hu_tesco
-    work = hu_tesco(db.session, 'https://tesco.hu/aruhazak/', config.get_directory_cache_url())
-    insert_type(db.session, work.types())
-    work.process()
+    for module in config.get_dataproviders_modules_enable():
+        module = module.strip()
+        logging.info('Processing {} module ...'.format(module))
+        mo = dataproviders_loader.import_module('osm_poi_matchmaker.dataproviders.{0}'.format(module), module)
+        work = mo(db.session, config.get_directory_cache_url())
+        insert_type(db.session, work.types())
+        work.process()
 
-    logging.info('Importing {} stores ...'.format('Aldi'))
-    from osm_poi_matchmaker.dataproviders.hu_aldi import hu_aldi
-    work = hu_aldi(db.session, 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/',
-                   config.get_directory_cache_url())
-    insert_type(db.session, work.types())
-    work.process()
-
-    logging.info('Importing {} stores ...'.format('CBA'))
-    from osm_poi_matchmaker.dataproviders.hu_cba import hu_cba
-    work = hu_cba(db.session, 'http://www.cba.hu/uzletlista/', config.get_directory_cache_url())
-    insert_type(db.session, work.types())
-    work.process()
-
-    logging.info('Importing {} stores ...'.format('Spar'))
-    from osm_poi_matchmaker.dataproviders.hu_spar import hu_spar
-    work = hu_spar(db.session, 'https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU',
-                   config.get_directory_cache_url())
-    insert_type(db.session, work.types())
-    work.process()
-
-    logging.info('Importing {} stores ...'.format('Rossmann'))
-    from osm_poi_matchmaker.dataproviders.hu_rossmann import hu_rossmann
-    work = hu_rossmann(db.session, 'https://www.rossmann.hu/uzletkereso', config.get_directory_cache_url(),
-                       verify_link=False)
-    insert_type(db.session, work.types())
-    work.process()
 
     logging.info('Importing {} stores ...'.format('KH Bank'))
     from osm_poi_matchmaker.dataproviders.hu_kh_bank import hu_kh_bank
@@ -164,28 +133,6 @@ def main():
     insert_type(db.session, work.types())
     work.process()
     work = hu_kh_bank(db.session, os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H')
-    work.process()
-
-    logging.info('Importing {} stores ...'.format('BENU'))
-    from osm_poi_matchmaker.dataproviders.hu_benu import hu_benu
-    work = hu_benu(db.session,
-                   'https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1',
-                   config.get_directory_cache_url())
-    insert_type(db.session, work.types())
-    work.process()
-
-    logging.info('Importing {} stores ...'.format('Kulcs patika'))
-    from osm_poi_matchmaker.dataproviders.hu_kulcs_patika import hu_kulcs_patika
-    work = hu_kulcs_patika(db.session, 'http://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399', os.path.join(config.get_directory_cache_url()))
-    insert_type(db.session, work.types())
-    work.process()
-
-    logging.info('Importing {} stores ...'.format('Magyar Posta'))
-    from osm_poi_matchmaker.dataproviders.hu_posta import hu_posta
-    work = hu_posta(db.session,
-                    'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml',
-                    config.get_directory_cache_url())
-    insert_type(db.session, work.types())
     work.process()
 
     # Old code that uses JSON files
@@ -216,68 +163,12 @@ def main():
                     config.get_directory_cache_url(), 'hu_postapoint.json')
     work.process()
     '''
-    logging.info('Importing {} stores ...'.format('Penny Market'))
-    from osm_poi_matchmaker.dataproviders.hu_penny_market import hu_penny_market
-    work = hu_penny_market(db.session, '', config.get_directory_cache_url(), 'penny_market.json')
-    insert_type(db.session, work.types())
-
-    logging.info('Importing {} stores ...'.format('Foxpost'))
-    from osm_poi_matchmaker.dataproviders.hu_foxpost import hu_foxpost
-    work = hu_foxpost(db.session,
-                      'http://www.foxpost.hu/wp-content/themes/foxpost/googleapijson.php',
-                      config.get_directory_cache_url(),
-                      'hu_foxpostautomata.json')
-    insert_type(db.session, work.types())
-    work.process()
-
-    logging.info('Importing {} stores ...'.format('Avia'))
-    from osm_poi_matchmaker.dataproviders.hu_avia import hu_avia
-    work = hu_avia(db.session, 'https://www.avia.hu/kapcsolat/toltoallomasok/', config.get_directory_cache_url(),
-                   'hu_avia.html')
-    insert_type(db.session, work.types())
-    work.process()
-
-    logging.info('Importing {} stores ...'.format('MOL'))
-    from osm_poi_matchmaker.dataproviders.hu_mol import hu_mol
-    work = hu_mol(db.session, 'http://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json', config.get_directory_cache_url(),
-                  'hu_mol.json')
-    insert_type(db.session, work.types())
-    work.process()
-
-    logging.info('Importing {} stores ...'.format('OMV'))
-    from osm_poi_matchmaker.dataproviders.hu_omv import hu_omv
-    work = hu_omv(db.session, 'http://webgispu.wigeogis.com/kunden/omvpetrom/backend/getFsForCountry.php', config.get_directory_cache_url(),
-                  'hu_omv.json')
-    insert_type(db.session, work.types())
-    work.process()
-
-    logging.info('Importing {} stores ...'.format('Shell'))
-    from osm_poi_matchmaker.dataproviders.hu_shell import hu_shell
-    work = hu_shell(db.session, 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL', config.get_directory_cache_url(),
-                    'hu_shell.csv')
-    insert_type(db.session, work.types())
-    work.process()
 
     logging.info('Importing {} stores ...'.format('CIB Bank'))
     from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
     work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'), 'CIB bank')
     insert_type(db.session, work.types())
     work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.html'), 'CIB')
-
-    logging.info('Importing {} stores ...'.format('Tom Market'))
-    from osm_poi_matchmaker.dataproviders.hu_tommarket import hu_tom_market
-    work = hu_tom_market(db.session, 'http://tommarket.hu/shops', config.get_directory_cache_url(),
-                         'hu_tom_market.html')
-    insert_type(db.session, work.types())
-    #work.process()
-
-    logging.info('Importing {} stores ...'.format('MOL Bubi'))
-    from osm_poi_matchmaker.dataproviders.hu_mol_bubi import hu_mol_bubi
-    work = hu_mol_bubi(db.session, db.engine,
-                    'https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb',
-                    config.get_directory_cache_url())
-    insert_type(db.session, work.types())
-    work.process()
 
     logging.info('Exporting CSV files ...')
     if not os.path.exists(config.get_directory_output()):

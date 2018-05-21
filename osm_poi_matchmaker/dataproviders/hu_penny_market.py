@@ -13,13 +13,14 @@ except ImportError as err:
 
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_DATA = ''
 
 
 class hu_penny_market():
 
-    def __init__(self, session, link, download_cache, filename='hu_penny_market.json'):
+    def __init__(self, session, download_cache, filename='hu_penny_market.json'):
         self.session = session
-        self.link = link
+        self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
 

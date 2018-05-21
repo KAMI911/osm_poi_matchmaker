@@ -19,13 +19,14 @@ except ImportError as err:
 
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_DATA = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
 
 
 class hu_posta():
     # Processing http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml file
-    def __init__(self, session, link, download_cache, filename='PostInfo.xml'):
+    def __init__(self, session, download_cache, filename='PostInfo.xml'):
         self.session = session
-        self.link = link
+        self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
 

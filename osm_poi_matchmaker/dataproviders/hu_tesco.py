@@ -5,10 +5,13 @@ try:
     import logging
     import os
     import re
+    import json
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable, clean_opening_hours_2
+    from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.osm import query_osm_postcode_gpd
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -17,7 +20,7 @@ except ImportError as err:
 
 
 POI_COLS = poi_array_structure.POI_COLS
-POI_DATA = 'http://tesco.hu/aruhazak/nyitvatartas/'
+POI_DATA = 'https://tesco.hu/aruhazak/'
 
 
 class hu_tesco():
@@ -43,59 +46,53 @@ class hu_tesco():
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        data = []
         insert_data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
-            table = soup.find('table', attrs={'class': 'tescoce-table'})
-            table_body = table.find('tbody')
-            rows = table_body.find_all('tr')
-            for row in rows:
-                cols = row.find_all('td')
-                link = cols[0].find('a').get('href') if cols[0].find('a') != None else []
-                cols = [element.text.strip() for element in cols]
-                cols[0] = cols[0].split('\n')[0]
-                del cols[-1]
-                del cols[-1]
-                cols.append(link)
-                data.append(cols)
-            for poi_data in data:
+            #script = soup.find('div', attrs={'data-stores':True})
+            script = soup.find(attrs={'data-stores': True})
+            text = json.loads(script['data-stores'])
+            for poi_data in text:
                 # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                street, housenumber, conscriptionnumber = extract_street_housenumber_better(poi_data[3])
-                tesco_replace = re.compile('(expressz{0,1})', re.IGNORECASE)
-                poi_data[0] = tesco_replace.sub('Expressz', poi_data[0])
-                if 'xpres' in poi_data[0]:
+                street, housenumber, conscriptionnumber = extract_street_housenumber_better(
+                    poi_data['address'])
+                city = clean_city(poi_data['city'])
+                lat = poi_data['gpslat']
+                lon = poi_data['gpslng']
+                geom = check_geom(lat, lon)
+                query_postcode = query_osm_postcode_gpd(self.session, lon, lat)
+                if query_postcode is not None:
+                    postcode = query_postcode
+                else:
+                    logging.warning('This poi has not got postcode: {} ({}/{})'.format(name, lon, lat))
+                branch = poi_data['name']
+                if 'xpres' in poi_data['name']:
                     name = 'Tesco Expressz'
                     code = 'hutescoexp'
-                elif 'xtra' in poi_data[0]:
+                elif 'xtra' in poi_data['name']:
                     name = 'Tesco Extra'
                     code = 'hutescoext'
                 else:
                     name = 'Tesco'
                     code = 'hutescosup'
-                poi_data[0] = poi_data[0].replace('TESCO', 'Tesco')
-                poi_data[0] = poi_data[0].replace('Bp.', 'Budapest')
-                postcode = poi_data[1].strip()
-                city = clean_city(poi_data[2].split(',')[0])
-                branch = poi_data[0]
-                website = poi_data[4]
+                website = poi_data['url']
                 nonstop = None
-                mo_o = None
-                th_o = None
-                we_o = None
-                tu_o = None
-                fr_o = None
-                sa_o = None
-                su_o = None
-                mo_c = None
-                th_c = None
-                we_c = None
-                tu_c = None
-                fr_c = None
-                sa_c = None
-                su_c = None
-                original = poi_data[3]
-                geom = None
+                opening = json.loads(poi_data['opening'])
+                mo_o = opening['1'][0]
+                th_o = opening['2'][0]
+                we_o = opening['3'][0]
+                tu_o = opening['4'][0]
+                fr_o = opening['5'][0]
+                sa_o = opening['6'][0]
+                su_o = opening['0'][0]
+                mo_c = opening['1'][1]
+                th_c = opening['2'][1]
+                we_c = opening['3'][1]
+                tu_c = opening['4'][1]
+                fr_c = opening['5'][1]
+                sa_c = opening['6'][1]
+                su_c = opening['0'][1]
+                original = poi_data['address']
                 ref = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,

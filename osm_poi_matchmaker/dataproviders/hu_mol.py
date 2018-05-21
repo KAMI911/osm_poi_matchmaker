@@ -18,16 +18,16 @@ except ImportError as err:
 
 
 POI_COLS = poi_array_structure.POI_COLS
-
+POI_DATA = 'http://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json'
 
 POST_DATA = {'country': 'Magyarország', 'lat': '47.162494', 'lng': '19.503304100000037', 'radius': 20}
 
 
 class hu_mol():
 
-    def __init__(self, session, link, download_cache, filename='hu_mol.json'):
+    def __init__(self, session, download_cache, filename='hu_mol.json'):
         self.session = session
-        self.link = link
+        self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
 

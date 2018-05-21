@@ -17,13 +17,14 @@ except ImportError as err:
 
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_DATA = 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL'
 
 
 class hu_shell():
 
-    def __init__(self, session, link, download_cache, filename='hu_mol.json'):
+    def __init__(self, session, download_cache, filename='hu_shell.csv'):
         self.session = session
-        self.link = link
+        self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
 

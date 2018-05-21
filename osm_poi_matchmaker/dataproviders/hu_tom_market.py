@@ -17,16 +17,16 @@ except ImportError as err:
 
 
 POI_COLS = poi_array_structure.POI_COLS
-
+POI_DATA = 'http://tommarket.hu/shops'
 
 PATTERN_TOM_MARKET = re.compile("title: '(.*)'")
 
 
 class hu_tom_market():
 
-    def __init__(self, session, link, download_cache, filename='hu_tom_market.html'):
+    def __init__(self, session, download_cache, filename='hu_tom_market.html'):
         self.session = session
-        self.link = link
+        self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
 
@@ -87,4 +87,4 @@ class hu_tom_market():
             else:
                 df = pd.DataFrame(insert_data)
                 df.columns = POI_COLS
-                insert_poi_dataframe(self.session, df)
+                # insert_poi_dataframe(self.session, df)

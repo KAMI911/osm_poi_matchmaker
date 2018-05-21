@@ -20,14 +20,14 @@ except ImportError as err:
 
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_DATA = 'https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb'
 
 
 class hu_mol_bubi():
     # Processing https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb file
-    def __init__(self, session, engine, link, download_cache, filename='hu_mol_bubi.xml'):
+    def __init__(self, session, download_cache, filename='hu_mol_bubi.xml'):
         self.session = session
-        self.engine = engine
-        self.link = link
+        self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
 

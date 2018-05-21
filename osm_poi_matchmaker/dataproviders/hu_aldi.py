@@ -16,13 +16,13 @@ except ImportError as err:
 
 
 POI_COLS = poi_array_structure.POI_COLS
-
+POI_DATA = 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/'
 
 class hu_aldi():
 
-    def __init__(self, session, link, download_cache, filename='hu_aldi.html'):
+    def __init__(self, session, download_cache, filename='hu_aldi.html'):
         self.session = session
-        self.link = link
+        self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
 

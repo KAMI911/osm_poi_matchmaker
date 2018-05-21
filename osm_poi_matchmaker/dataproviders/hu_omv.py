@@ -18,16 +18,16 @@ except ImportError as err:
 
 
 POI_COLS = poi_array_structure.POI_COLS
-
+POI_DATA = 'http://webgispu.wigeogis.com/kunden/omvpetrom/backend/getFsForCountry.php'
 
 POST_DATA = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'QRY': '|'}
 
 
 class hu_omv():
 
-    def __init__(self, session, link, download_cache, filename='hu_mol.json'):
+    def __init__(self, session, download_cache, filename='hu_mol.json'):
         self.session = session
-        self.link = link
+        self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
 

@@ -17,13 +17,14 @@ except ImportError as err:
     exit(128)
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_DATA = 'http://www.foxpost.hu/wp-content/themes/foxpost/googleapijson.php'
 
 
 class hu_foxpost():
 
-    def __init__(self, session, link, download_cache, filename='hu_foxpost.json'):
+    def __init__(self, session, download_cache, filename='hu_foxpost.json'):
         self.session = session
-        self.link = link
+        self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
 

@@ -51,6 +51,9 @@ KEY_GEO_DEFAULT_PROJECTION = 'geo.default.projection'
 KEY_GEO_DEFAULT_POI_DISTANCE = 'geo.default.poi.distance'
 KEY_DOWNLOAD_VERIFY_LINK = 'download.verify.link'
 KEY_DOWNLOAD_USE_CACHED_DATA = 'download.use.cached.data'
+KEY_DATAPROVIDERS_MODULES_AVAILABLE = 'dataproviders.modules.available'
+KEY_DATAPROVIDERS_MODULES_ENABLE = 'dataproviders.modules.enable'
+
 
 def get_config(key):
     if key in currentConfig:
@@ -69,6 +72,10 @@ def get_config_int(key):
 
 def get_config_string(key):
     return config.get(__mode.name, key)
+
+
+def get_config_list(key):
+    return config.get(__mode.name, key).split(',')
 
 
 def init_log():
@@ -171,6 +178,20 @@ def get_download_verify_link():
 
 def get_download_use_cached_data():
     setting = get_config_bool(KEY_DOWNLOAD_USE_CACHED_DATA)
+    if None != setting:
+        return setting
+    else:
+        return True
+
+def get_dataproviders_modules_available():
+    setting = get_config_list(KEY_DATAPROVIDERS_MODULES_AVAILABLE)
+    if None != setting:
+        return setting
+    else:
+        return True
+
+def get_dataproviders_modules_enable():
+    setting = get_config_list(KEY_DATAPROVIDERS_MODULES_ENABLE)
     if None != setting:
         return setting
     else:

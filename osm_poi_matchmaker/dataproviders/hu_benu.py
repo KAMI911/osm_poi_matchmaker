@@ -18,13 +18,14 @@ except ImportError as err:
     exit(128)
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_DATA = 'https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1'
 
 
 class hu_benu():
 
-    def __init__(self, session, link, download_cache, filename='hu_benu.json'):
+    def __init__(self, session, download_cache, filename='hu_benu.json'):
         self.session = session
-        self.link = link
+        self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
 
