@@ -11,6 +11,7 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable, clean_opening_hours_2
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -24,10 +25,11 @@ POI_DATA = 'http://www.cba.hu/uzletlista/'
 
 class hu_cba():
 
-    def __init__(self, session, download_cache, filename='hu_cba.html'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_cba.html'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
     @staticmethod
@@ -87,7 +89,10 @@ class hu_cba():
                 sa_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_6']) if poi_data['PS_OPEN_TO_6'] is not None else None
                 su_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_7']) if poi_data['PS_OPEN_TO_7'] is not None else None
                 original = poi_data['A_CIM']
-                geom = check_geom(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'])
+                lat = poi_data['PS_GPS_COORDS_LAT']
+                lon = poi_data['PS_GPS_COORDS_LNG']
+                geom = check_geom(lat, lon)
+                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                 ref = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,

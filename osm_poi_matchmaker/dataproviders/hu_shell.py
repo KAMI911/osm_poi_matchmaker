@@ -9,6 +9,7 @@ try:
     from osm_poi_matchmaker.libs.pandas import save_downloaded_pd
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -22,10 +23,11 @@ POI_DATA = 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=c
 
 class hu_shell():
 
-    def __init__(self, session, download_cache, filename='hu_shell.csv'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_shell.csv'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
     @staticmethod
@@ -107,7 +109,10 @@ class hu_shell():
                     su_c = '22:00'
                 original = poi_data['Address']
                 ref = None
-                geom = check_geom(poi_data['GPS Latitude'], poi_data['GPS Longitude'])
+                lat = poi_data['GPS Latitude']
+                lon = poi_data['GPS Longitude']
+                geom = check_geom(lat, lon)
+                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
                      ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])

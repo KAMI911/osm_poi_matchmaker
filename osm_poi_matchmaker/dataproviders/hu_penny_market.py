@@ -5,6 +5,7 @@ try:
     import logging
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import clean_city, clean_javascript_variable
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -18,10 +19,11 @@ POI_DATA = ''
 
 class hu_penny_market():
 
-    def __init__(self, session, download_cache, filename='hu_penny_market.json'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_penny_market.json'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
     @staticmethod

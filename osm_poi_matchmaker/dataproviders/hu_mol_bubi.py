@@ -11,7 +11,7 @@ try:
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom
-    from osm_poi_matchmaker.libs.osm import query_osm_postcode_gpd
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -25,10 +25,11 @@ POI_DATA = 'https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb'
 
 class hu_mol_bubi():
     # Processing https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb file
-    def __init__(self, session, download_cache, filename='hu_mol_bubi.xml'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_mol_bubi.xml'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
 
@@ -73,7 +74,7 @@ class hu_mol_bubi():
             lon = e.attrib['lng'].replace(',', '.')
             lat = e.attrib['lat'].replace(',', '.')
             # This is a workaround because original datasource may contains swapped lat / lon parameters
-            if float(lat) < 46:
+            if float(lon) < 46:
                 lon, lat = lat, lon
             # Another workaround to insert missing decimal point
             if float(lon) > 200:
@@ -81,11 +82,7 @@ class hu_mol_bubi():
             if float(lat) > 200:
                 lat = '{}.{}'.format(lat[:2], lat[3:])
             geom = check_geom(lon, lat)
-            query_postcode = query_osm_postcode_gpd(self.session, lon, lat)
-            if query_postcode is not None:
-                postcode = query_postcode
-            else:
-                logging.warning('This poi has not got postcode: {} ({}/{})'.format(name, lon, lat))
+            postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, None)
             original = None
             ref = None
             insert_data.append(

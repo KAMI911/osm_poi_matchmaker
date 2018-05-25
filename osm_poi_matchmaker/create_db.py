@@ -122,53 +122,32 @@ def main():
         module = module.strip()
         logging.info('Processing {} module ...'.format(module))
         mo = dataproviders_loader.import_module('osm_poi_matchmaker.dataproviders.{0}'.format(module), module)
-        work = mo(db.session, config.get_directory_cache_url())
+        work = mo(db.session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode())
         insert_type(db.session, work.types())
         work.process()
 
-
     logging.info('Importing {} stores ...'.format('KH Bank'))
     from osm_poi_matchmaker.dataproviders.hu_kh_bank import hu_kh_bank
-    work = hu_kh_bank(db.session, os.path.join(config.get_directory_cache_url(), 'hu_kh_bank.json'), 'K&H bank')
+    work = hu_kh_bank(db.session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(), os.path.join(config.get_directory_cache_url(), 'hu_kh_bank.json'), 'K&H bank')
     insert_type(db.session, work.types())
     work.process()
-    work = hu_kh_bank(db.session, os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H')
+    work = hu_kh_bank(db.session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(), os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H')
     work.process()
 
     # Old code that uses JSON files
     from osm_poi_matchmaker.dataproviders.hu_posta_json import hu_posta_json
-    '''
-    logging.info('Importing {} stores ...'.format('Magyar Posta - posta'))
-    work = hu_posta_json(db.session,
-                    'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=posta',
-                    config.get_directory_cache_url())
-    insert_type(db.session, work.types())
-    work.process()
-    '''
     # We only using csekkautomata since there is no XML from another data source
     logging.info('Importing {} stores ...'.format('Magyar Posta - csekkautomata'))
     work = hu_posta_json(db.session,
                     'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
                     config.get_directory_cache_url(), 'hu_postacsekkautomata.json')
     work.process()
-    '''
-    logging.info('Importing {} stores ...'.format('Magyar Posta - csomagautomata'))
-    work = hu_posta_json(db.session,
-                    'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postamachine',
-                    config.get_directory_cache_url(), 'hu_postaautomata.json')
-    work.process()
-    logging.info('Importing {} stores ...'.format('Magyar Posta - postapont'))
-    work = hu_posta_json(db.session,
-                    'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postapoint',
-                    config.get_directory_cache_url(), 'hu_postapoint.json')
-    work.process()
-    '''
 
     logging.info('Importing {} stores ...'.format('CIB Bank'))
     from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
-    work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'), 'CIB bank')
+    work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'), config.get_geo_prefer_osm_postcode(), 'CIB bank')
     insert_type(db.session, work.types())
-    work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.html'), 'CIB')
+    work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.html'), config.get_geo_prefer_osm_postcode(), 'CIB')
 
     logging.info('Exporting CSV files ...')
     if not os.path.exists(config.get_directory_output()):

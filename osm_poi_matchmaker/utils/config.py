@@ -49,6 +49,7 @@ KEY_DATABASE_WRITE_PASSWORD = 'db.write.password'
 KEY_DATABASE_POI_DATABASE = 'db.poi.database'
 KEY_GEO_DEFAULT_PROJECTION = 'geo.default.projection'
 KEY_GEO_DEFAULT_POI_DISTANCE = 'geo.default.poi.distance'
+KEY_GEO_PREFER_OSM_POSTCODE = 'geo.perfer.osm.postcode'
 KEY_DOWNLOAD_VERIFY_LINK = 'download.verify.link'
 KEY_DOWNLOAD_USE_CACHED_DATA = 'download.use.cached.data'
 KEY_DATAPROVIDERS_MODULES_AVAILABLE = 'dataproviders.modules.available'
@@ -168,6 +169,13 @@ def get_geo_default_poi_distance():
         return setting
     else:
         return 70
+
+def get_geo_prefer_osm_postcode():
+    setting = get_config_bool(KEY_GEO_PREFER_OSM_POSTCODE)
+    if None != setting:
+        return setting
+    else:
+        return True
 
 def get_download_verify_link():
     setting = get_config_bool(KEY_DOWNLOAD_VERIFY_LINK)

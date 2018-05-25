@@ -11,6 +11,7 @@ try:
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -24,10 +25,11 @@ POI_DATA = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
 
 class hu_posta():
     # Processing http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml file
-    def __init__(self, session, download_cache, filename='PostInfo.xml'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='PostInfo.xml'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
 
@@ -101,7 +103,7 @@ class hu_posta():
             lon = e.find('gpsData/WGSLon').text.replace(',', '.')
             lat = e.find('gpsData/WGSLat').text.replace(',', '.')
             # This is a workaround because original datasource may contains swapped lat / lon parameters
-            if float(lat) < 46:
+            if float(lon) < 46:
                 logging.warning('Replaced coordinates. ({}, {}'.format(branch, city))
                 lon, lat = lat, lon
             # Another workaround to insert missing decimal point
@@ -112,6 +114,7 @@ class hu_posta():
                 logging.warning('Missing lat decimal separator. ({}, {}'.format(branch, city))
                 lat = '{}.{}'.format(lat[:2], lat[3:])
             geom = check_geom(lon, lat)
+            postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
             original = None
             ref = None
             insert_data.append(

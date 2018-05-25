@@ -11,7 +11,7 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_all_address, clean_city, clean_javascript_variable
     from osm_poi_matchmaker.libs.geo import check_geom
-    from osm_poi_matchmaker.libs.osm import query_osm_postcode_gpd
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -25,10 +25,11 @@ POI_DATA = 'https://www.avia.hu/kapcsolat/toltoallomasok/'
 
 class hu_avia():
 
-    def __init__(self, session, download_cache, filename='hu_avia.json'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_avia.json'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
     @staticmethod
@@ -53,11 +54,6 @@ class hu_avia():
             for poi_data in text:
                 if poi_data['cim'] is not None and poi_data['cim'] != '':
                     postcode, city, street, housenumber, conscriptionnumber = extract_all_address(poi_data['cim'])
-                if city is None:
-                    logging.info('There is no city name. Matching is hardly possible.')
-                    if postcode is None:
-                        city = clean_city(poi_data['title'])
-                        postcode = search_for_postcode(self.session, city)
                 name = 'Avia'
                 code = 'huaviafu'
                 branch = None
@@ -67,11 +63,7 @@ class hu_avia():
                 lat = poi_data['lat']
                 lon = poi_data['lng']
                 geom = check_geom(lat, lon)
-                query_postcode = query_osm_postcode_gpd(self.session, lon, lat)
-                if query_postcode is not None:
-                    postcode = query_postcode
-                else:
-                    logging.warning('This poi has not got postcode: {} ({}/{})'.format(name, lon, lat))
+                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                 website = None
                 nonstop = None
                 mo_o = None

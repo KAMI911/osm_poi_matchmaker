@@ -9,6 +9,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -24,10 +25,11 @@ POST_DATA = {'kepnelkul': 'true', 'latitude': '47.498', 'longitude': '19.0399', 
 
 class hu_kulcs_patika():
 
-    def __init__(self, session, download_cache, filename='hu_kulcs_patika.json'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_kulcs_patika.json'):
         self.session = session
         self.link = 'http://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
     @staticmethod
@@ -74,8 +76,10 @@ class hu_kulcs_patika():
                 sa_c = None
                 su_c = None
                 city = clean_city(poi_data['helyseg'])
-                postcode = poi_data['irsz'].strip()
-                geom = check_geom(poi_data['marker_position']['latitude'], poi_data['marker_position']['longitude'])
+                lat = poi_data['marker_position']['latitude']
+                lon = poi_data['marker_position']['longitude']
+                geom = check_geom(lat, lon)
+                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, poi_data['irsz'].strip())
                 original = poi_data['cim']
                 ref = None
                 insert_data.append(

@@ -11,7 +11,7 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable, clean_opening_hours_2
     from osm_poi_matchmaker.libs.geo import check_geom
-    from osm_poi_matchmaker.libs.osm import query_osm_postcode_gpd
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -25,10 +25,11 @@ POI_DATA = 'https://tesco.hu/aruhazak/'
 
 class hu_tesco():
 
-    def __init__(self, session, download_cache, filename='hu_tesco.html'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_tesco.html'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
     @staticmethod
@@ -57,14 +58,6 @@ class hu_tesco():
                 street, housenumber, conscriptionnumber = extract_street_housenumber_better(
                     poi_data['address'])
                 city = clean_city(poi_data['city'])
-                lat = poi_data['gpslat']
-                lon = poi_data['gpslng']
-                geom = check_geom(lat, lon)
-                query_postcode = query_osm_postcode_gpd(self.session, lon, lat)
-                if query_postcode is not None:
-                    postcode = query_postcode
-                else:
-                    logging.warning('This poi has not got postcode: {} ({}/{})'.format(name, lon, lat))
                 branch = poi_data['name']
                 if 'xpres' in poi_data['name']:
                     name = 'Tesco Expressz'
@@ -92,6 +85,10 @@ class hu_tesco():
                 fr_c = opening['5'][1]
                 sa_c = opening['6'][1]
                 su_c = opening['0'][1]
+                lat = poi_data['gpslat']
+                lon = poi_data['gpslng']
+                geom = check_geom(lat, lon)
+                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, None)
                 original = poi_data['address']
                 ref = None
                 insert_data.append(

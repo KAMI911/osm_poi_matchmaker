@@ -10,7 +10,7 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom
-    from osm_poi_matchmaker.libs.osm import query_osm_postcode_gpd
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -23,10 +23,11 @@ POI_DATA = 'https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_lo
 
 class hu_benu():
 
-    def __init__(self, session, download_cache, filename='hu_benu.json'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_benu.json'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
     @staticmethod
@@ -71,11 +72,7 @@ class hu_benu():
                 lat = poi_data['lat']
                 lon = poi_data['lng']
                 geom = check_geom(lat, lon)
-                query_postcode = query_osm_postcode_gpd(self.session, lon, lat)
-                if query_postcode is not None:
-                    postcode = query_postcode
-                else:
-                    logging.warning('This poi has not got postcode: {} ({}/{})'.format(name, lon, lat))
+                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                 original = poi_data['street']
                 ref = None
                 insert_data.append(

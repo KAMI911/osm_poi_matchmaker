@@ -10,6 +10,7 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_opening_hours
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -22,10 +23,11 @@ POI_DATA = 'http://www.foxpost.hu/wp-content/themes/foxpost/googleapijson.php'
 
 class hu_foxpost():
 
-    def __init__(self, session, download_cache, filename='hu_foxpost.json'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_foxpost.json'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
     @staticmethod
@@ -80,7 +82,10 @@ class hu_foxpost():
                     su_o, su_c = None, None
                 original = poi_data['address']
                 ref = None
-                geom = check_geom(poi_data['geolat'], poi_data['geolng'])
+                lat = poi_data['geolat']
+                lon = poi_data['geolng']
+                geom = check_geom(lat, lon)
+                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
                      ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c,

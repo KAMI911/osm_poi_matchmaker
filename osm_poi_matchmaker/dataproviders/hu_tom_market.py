@@ -9,6 +9,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe, search_for_postcode
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_city_street_housenumber_address, clean_city
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -24,10 +25,11 @@ PATTERN_TOM_MARKET = re.compile("title: '(.*)'")
 
 class hu_tom_market():
 
-    def __init__(self, session, download_cache, filename='hu_tom_market.html'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_tom_market.html'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
     @staticmethod
@@ -75,7 +77,6 @@ class hu_tom_market():
                 fr_c = None
                 sa_c = None
                 su_c = None
-
                 original = poi_data
                 ref = None
                 geom = None

@@ -11,6 +11,7 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -24,10 +25,11 @@ POI_DATA = 'https://www.rossmann.hu/uzletkereso'
 
 class hu_rossmann():
 
-    def __init__(self, session, download_cache, filename='hu_rossmann.html', **kwargs):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_rossmann.html', **kwargs):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
         if 'verify_link' in kwargs:
             self.verify_link = kwargs['verify_link']
@@ -77,7 +79,10 @@ class hu_rossmann():
                 fr_c = None
                 sa_c = None
                 su_c = None
-                geom = check_geom(poi_data['addresses'][0]['position'][0], poi_data['addresses'][0]['position'][1])
+                lat = poi_data['addresses'][0]['position'][0]
+                lon = poi_data['addresses'][0]['position'][1]
+                geom = check_geom(lat, lon)
+                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                 original = poi_data['addresses'][0]['address']
                 ref = None
                 insert_data.append(

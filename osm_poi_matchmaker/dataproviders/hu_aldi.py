@@ -20,10 +20,11 @@ POI_DATA = 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitv
 
 class hu_aldi():
 
-    def __init__(self, session, download_cache, filename='hu_aldi.html'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_aldi.html'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
     @staticmethod
