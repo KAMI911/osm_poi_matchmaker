@@ -21,7 +21,7 @@ PATTERN_CONSCRIPTIONNUMBER = re.compile(
     re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER_1 = re.compile('(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1})', re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER_2 = re.compile('(\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})', re.IGNORECASE)
-
+PATTERN_OPENING_HOURS = re.compile('0*[0-9]{1,2}\:0*[0-9]{1,2}\s*-\s*0*[0-9]{1,2}:0*[0-9]{1,2}')
 
 def clean_javascript_variable(clearable, removable):
     """Remove javascript variable notation from the selected JSON variable.
@@ -105,7 +105,6 @@ def extract_street_housenumber_better(clearable):
     clearable = clearable.strip()
     if clearable is not None and clearable != '':
         data = clearable.split('(')[0]
-
         cn_match_1 = PATTERN_CONSCRIPTIONNUMBER_1.search(data)
         cn_match_2 = PATTERN_CONSCRIPTIONNUMBER_2.search(data)
         if cn_match_1 is not None:
@@ -192,7 +191,14 @@ def clean_city(clearable):
         return None
 
 def clean_opening_hours(oh_from_to):
-    tmp = oh_from_to.strip().split(' ')[0]
+    oh_match = PATTERN_OPENING_HOURS.search(oh_from_to)
+    if oh_match is not None:
+        tmp = oh_match.group(0)
+    else:
+        # No match return None
+        return None, None
+    # Remove all whitespaces
+    tmp = ''.join(tmp.split())
     # We expect exactly two parts, for example: 09:40
     if len(tmp.split('-')) == 2:
         tmf = tmp.split('-')[0].zfill(5)

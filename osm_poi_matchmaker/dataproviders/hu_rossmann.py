@@ -9,7 +9,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable, clean_opening_hours
     from osm_poi_matchmaker.libs.geo import check_geom
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
@@ -55,35 +55,50 @@ class hu_rossmann():
             data = clean_javascript_variable(data, 'places')
             text = json.loads(data)
             for poi_data in text:
+                poi_data = poi_data['addresses'][0]
                 # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                 street, housenumber, conscriptionnumber = extract_street_housenumber_better(
-                    poi_data['addresses'][0]['address'])
+                    poi_data['address'])
                 name = 'Rossmann'
                 code = 'hurossmche'
                 city = clean_city(poi_data['city'])
-                postcode = poi_data['addresses'][0]['zip'].strip()
+                postcode = poi_data['zip'].strip()
                 branch = None
                 website = None
-                nonstop = None
-                mo_o = None
-                th_o = None
-                we_o = None
-                tu_o = None
-                fr_o = None
-                sa_o = None
-                su_o = None
-                mo_c = None
-                th_c = None
-                we_c = None
-                tu_c = None
-                fr_c = None
-                sa_c = None
-                su_c = None
-                lat = poi_data['addresses'][0]['position'][0]
-                lon = poi_data['addresses'][0]['position'][1]
+                nonstop = False
+                if poi_data['business_hours']['monday'] is not None:
+                    mo_o, mo_c = clean_opening_hours(poi_data['business_hours']['monday'])
+                else:
+                    mo_o, mo_c = None, None
+                if poi_data['business_hours']['tuesday'] is not None:
+                    th_o, th_c = clean_opening_hours(poi_data['business_hours']['tuesday'])
+                else:
+                    th_o, th_c = None, None
+                if poi_data['business_hours']['wednesday'] is not None:
+                    we_o, we_c = clean_opening_hours(poi_data['business_hours']['wednesday'])
+                else:
+                    we_o, we_c = None, None
+                if poi_data['business_hours']['thursday'] is not None:
+                    tu_o, tu_c = clean_opening_hours(poi_data['business_hours']['thursday'])
+                else:
+                    tu_o, tu_c = None, None
+                if poi_data['business_hours']['friday'] is not None:
+                    fr_o, fr_c = clean_opening_hours(poi_data['business_hours']['friday'])
+                else:
+                    fr_o, fr_c = None, None
+                if poi_data['business_hours']['saturday'] is not None:
+                    sa_o, sa_c = clean_opening_hours(poi_data['business_hours']['saturday'])
+                else:
+                    sa_o, sa_c = None, None
+                if poi_data['business_hours']['sunday'] is not None:
+                    su_o, su_c = clean_opening_hours(poi_data['business_hours']['sunday'])
+                else:
+                    su_o, su_c = None, None
+                lat = poi_data['position'][0]
+                lon = poi_data['position'][1]
                 geom = check_geom(lat, lon)
                 postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
-                original = poi_data['addresses'][0]['address']
+                original = poi_data['address']
                 ref = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,

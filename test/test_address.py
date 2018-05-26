@@ -68,7 +68,10 @@ class OpeningHoursClener(unittest.TestCase):
         self.opening_hours = [
             {'original': '05:20-19:38', 'opening_hours_open': '05:20', 'opening_hours_close': '19:38'},
             {'original': '6:44-21:00', 'opening_hours_open': '06:44', 'opening_hours_close': '21:00'},
-            {'original': '05:20-19:38 Reggel nyolctól bejárat az üzleten át', 'opening_hours_open': '05:20', 'opening_hours_close': '19:38'},]
+            {'original': '05:20-19:38 Reggel nyolctól bejárat az üzleten át', 'opening_hours_open': '05:20', 'opening_hours_close': '19:38'},
+            {'original': '   7:41 - 22:30    ', 'opening_hours_open': '07:41', 'opening_hours_close': '22:30'},
+            {'original': '  05:30  -  23:00 ', 'opening_hours_open': '05:30', 'opening_hours_close': '23:00'},
+            {'original': '  -       ', 'opening_hours_open': None, 'opening_hours_close': None},]
 
     def test_clean_opening_hours(self):
         for i in self.opening_hours:
