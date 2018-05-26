@@ -55,27 +55,20 @@ class hu_mol():
                 branch = None
                 website = None
                 nonstop = None
-                if poi_data['open_hours'] is not None:
-                    oho, ohc = clean_opening_hours(poi_data['open_hours'])
-                    if oho == '00:00' and ohc == '24:00':
-                        nonstop = True
-                        oho, ohc = None, None
-                else:
-                    oho, ohc = None, None
-                mo_o = oho
-                th_o = oho
-                we_o = oho
-                tu_o = oho
-                fr_o = oho
-                sa_o = oho
-                su_o = oho
-                mo_c = ohc
-                th_c = ohc
-                we_c = ohc
-                tu_c = ohc
-                fr_c = ohc
-                sa_c = ohc
-                su_c = ohc
+                mo_o = None
+                th_o = None
+                we_o = None
+                tu_o = None
+                fr_o = None
+                sa_o = None
+                su_o = None
+                mo_c = None
+                th_c = None
+                we_c = None
+                tu_c = None
+                fr_c = None
+                sa_c = None
+                su_c = None
                 original = poi_data['address']
                 ref = None
                 lat = poi_data['lat']
