@@ -85,9 +85,12 @@ class hu_mol_bubi():
             postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, None)
             original = None
             ref = None
+            phone = None
+            email = None
             insert_data.append(
                 [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                 ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
+                 ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c,
+                 fr_c, sa_c, su_c])
         print(insert_data)
         if len(insert_data) < 1:
             logging.warning('Resultset is empty. Skipping ...')

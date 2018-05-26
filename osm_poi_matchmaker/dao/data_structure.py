@@ -49,6 +49,8 @@ class POI_address(Base):
     original = Column(Unicode(128))
     poi_website = Column(Unicode(256))
     poi_ref = Column(Unicode(16))
+    poi_phone = Column(Integer)
+    poi_email = Column(Unicode(64))
     poi_opening_hours_nonstop = Column(Boolean)
     poi_opening_hours_mo_open = Column(Time)
     poi_opening_hours_tu_open = Column(Time)

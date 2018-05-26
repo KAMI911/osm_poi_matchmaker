@@ -46,6 +46,8 @@ class hu_penny_market():
         fr_c = None
         sa_c = None
         su_c = None
+        phone = None
+        email = None
         return data
 
     def process(self):
