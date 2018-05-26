@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    import math
     import logging
     import os
 except ImportError as err:
@@ -56,10 +57,14 @@ def generate_osm_xml(pd):
             tags = etree.SubElement(data, 'tag', k='addr:conscriptionnumber', v='{}'.format(row['poi_conscriptionnumber']))
         if row['poi_branch'] is not None:
             tags = etree.SubElement(data, 'tag', k='branch', v='{}'.format(row['poi_branch']))
+        if row['poi_email'] is not None:
+            tags = etree.SubElement(data, 'tag', k='email', v='{}'.format(row['poi_email']))
+        if row['poi_phone'] is not None and not math.isnan(row['poi_phone']):
+            tags = etree.SubElement(data, 'tag', k='phone', v='+{:d}'.format(int(row['poi_phone'])))
         if row['poi_url_base'] is not None and row['poi_website'] is not None:
-            tags = etree.SubElement(data, 'tag', k='contact:website', v='{}{}'.format(row['poi_url_base'], row['poi_website']))
+            tags = etree.SubElement(data, 'tag', k='website', v='{}{}'.format(row['poi_url_base'], row['poi_website']))
         elif row['poi_url_base'] is not None:
-            tags = etree.SubElement(data, 'tag', k='contact:website', v='{}'.format(row['poi_url_base']))
+            tags = etree.SubElement(data, 'tag', k='website', v='{}'.format(row['poi_url_base']))
         osm_xml_data.append(data)
         id -= 1
         try:
