@@ -103,6 +103,10 @@ class PhoneClener(unittest.TestCase):
         self.phones = [
             {'original': '0684/330-734, 0630/2374-712', 'converted': '3684330734'},
             {'original': '06-20-200-4000', 'converted': '36202004000'},
+            {'original': '62464024', 'converted': '3662464024'},
+            {'original': ' 3684330 - 734', 'converted': '3684330734'},
+            {'original': '06205089009(Központi Telszám: Benzinkút, Motel, Kávézó, Szobafoglalás)', 'converted': '36205089009'},
+            {'original': '  ', 'converted': None},
         ]
 
     def test_clean_phone(self):

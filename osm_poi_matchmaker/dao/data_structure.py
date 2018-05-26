@@ -2,7 +2,7 @@
 
 try:
     from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, UniqueConstraint
-    from sqlalchemy import Boolean, Integer, Unicode, DateTime, Time, Enum, func
+    from sqlalchemy import Boolean, Integer, BigInteger, Unicode, DateTime, Time, Enum, func
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import synonym, relationship
     from geoalchemy2 import Geometry
@@ -49,7 +49,7 @@ class POI_address(Base):
     original = Column(Unicode(128))
     poi_website = Column(Unicode(256))
     poi_ref = Column(Unicode(16))
-    poi_phone = Column(Integer)
+    poi_phone = Column(BigInteger)
     poi_email = Column(Unicode(64))
     poi_opening_hours_nonstop = Column(Boolean)
     poi_opening_hours_mo_open = Column(Time)

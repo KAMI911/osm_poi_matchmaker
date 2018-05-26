@@ -8,8 +8,8 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
-    from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_phone
+    from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
@@ -69,13 +69,15 @@ class hu_benu():
                 su_c = None
                 city = clean_city(poi_data['city'])
                 postcode = poi_data['postal_code'].strip()
-                lat = poi_data['lat']
-                lon = poi_data['lng']
+                lat, lon = check_hu_boundary( poi_data['lat'], poi_data['lng'])
                 geom = check_geom(lat, lon)
                 postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                 original = poi_data['street']
                 ref = None
-                phone = None
+                if 'phone' in poi_data  and poi_data['phone'] != '':
+                    phone = clean_phone(poi_data['phone'])
+                else:
+                    phone = None
                 email = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,

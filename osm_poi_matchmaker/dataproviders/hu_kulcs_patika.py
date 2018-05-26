@@ -8,7 +8,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
-    from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
@@ -76,8 +76,7 @@ class hu_kulcs_patika():
                 sa_c = None
                 su_c = None
                 city = clean_city(poi_data['helyseg'])
-                lat = poi_data['marker_position']['latitude']
-                lon = poi_data['marker_position']['longitude']
+                lat, lon = check_hu_boundary(poi_data['marker_position']['latitude'], poi_data['marker_position']['longitude'])
                 geom = check_geom(lat, lon)
                 postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, poi_data['irsz'].strip())
                 original = poi_data['cim']

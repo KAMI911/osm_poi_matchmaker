@@ -7,7 +7,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.address import extract_all_address
-    from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
@@ -70,8 +70,7 @@ class hu_cib_bank():
                     fr_c = None
                     sa_c = None
                     su_c = None
-                    lat = poi_data[first_element]['latitude']
-                    lon = poi_data[first_element]['longitude']
+                    lat, lon = check_hu_boundary(poi_data[first_element]['latitude'], poi_data[first_element]['longitude'])
                     geom = check_geom(lat, lon)
                     postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                     original = poi_data[first_element]['address']

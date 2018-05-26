@@ -9,8 +9,8 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable, clean_opening_hours_2
-    from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable, clean_opening_hours_2, clean_phone
+    from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
@@ -85,13 +85,15 @@ class hu_tesco():
                 fr_c = opening['5'][1]
                 sa_c = opening['6'][1]
                 su_c = opening['0'][1]
-                lat = poi_data['gpslat']
-                lon = poi_data['gpslng']
+                lat, lon = check_hu_boundary(poi_data['gpslat'], poi_data['gpslng'])
                 geom = check_geom(lat, lon)
                 postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, None)
                 original = poi_data['address']
                 ref = None
-                phone = None
+                if 'phone' in poi_data and poi_data['phone'] != '':
+                    phone = clean_phone(poi_data['phone'])
+                else:
+                    phone = None
                 email = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,

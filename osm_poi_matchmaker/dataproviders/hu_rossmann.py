@@ -10,7 +10,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable, clean_opening_hours
-    from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
@@ -94,8 +94,7 @@ class hu_rossmann():
                     su_o, su_c = clean_opening_hours(poi_data['business_hours']['sunday'])
                 else:
                     su_o, su_c = None, None
-                lat = poi_data['position'][0]
-                lon = poi_data['position'][1]
+                lat, lon = check_hu_boundary( poi_data['position'][0], poi_data['position'][1])
                 geom = check_geom(lat, lon)
                 postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                 original = poi_data['address']

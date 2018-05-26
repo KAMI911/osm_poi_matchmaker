@@ -9,8 +9,8 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable, clean_opening_hours_2
-    from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable, clean_opening_hours_2, clean_phone
+    from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
@@ -89,13 +89,18 @@ class hu_cba():
                 sa_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_6']) if poi_data['PS_OPEN_TO_6'] is not None else None
                 su_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_7']) if poi_data['PS_OPEN_TO_7'] is not None else None
                 original = poi_data['A_CIM']
-                lat = poi_data['PS_GPS_COORDS_LAT']
-                lon = poi_data['PS_GPS_COORDS_LNG']
+                lat, lon = check_hu_boundary(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'])
                 geom = check_geom(lat, lon)
                 postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                 ref = None
-                phone = None
-                email = None
+                if 'PS_PUBLIC_TEL' in poi_data and poi_data['PS_PUBLIC_TEL'] != '':
+                    phone = clean_phone(poi_data['PS_PUBLIC_TEL'])
+                else:
+                    phone = None
+                if 'PS_PUBLIC_EMAIL' in poi_data and poi_data['PS_PUBLIC_EMAIL'] != '':
+                    email = poi_data['PS_PUBLIC_EMAIL']
+                else:
+                    email = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
                      ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])

@@ -9,7 +9,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_opening_hours
-    from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
@@ -82,8 +82,7 @@ class hu_foxpost():
                     su_o, su_c = None, None
                 original = poi_data['address']
                 ref = None
-                lat = poi_data['geolat']
-                lon = poi_data['geolng']
+                lat, lon = check_hu_boundary(poi_data['geolat'], poi_data['geolng'])
                 geom = check_geom(lat, lon)
                 postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                 phone = None

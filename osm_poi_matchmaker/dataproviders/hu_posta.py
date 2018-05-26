@@ -10,7 +10,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
-    from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
@@ -100,20 +100,8 @@ class hu_posta():
             fr_c = None
             sa_c = None
             su_c = None
-            lon = e.find('gpsData/WGSLon').text.replace(',', '.')
-            lat = e.find('gpsData/WGSLat').text.replace(',', '.')
-            # This is a workaround because original datasource may contains swapped lat / lon parameters
-            if float(lon) < 46:
-                logging.warning('Replaced coordinates. ({}, {}'.format(branch, city))
-                lon, lat = lat, lon
-            # Another workaround to insert missing decimal point
-            if float(lon) > 200:
-                logging.warning('Missing lon decimal separator. ({}, {}'.format(branch, city))
-                lon = '{}.{}'.format(lon[:2], lon[3:])
-            if float(lat) > 200:
-                logging.warning('Missing lat decimal separator. ({}, {}'.format(branch, city))
-                lat = '{}.{}'.format(lat[:2], lat[3:])
-            geom = check_geom(lon, lat)
+            lat, lon = check_hu_boundary(e.find('gpsData/WGSLat').text.replace(',', '.'), e.find('gpsData/WGSLon').text.replace(',', '.'))
+            geom = check_geom(lat, lon)
             postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
             original = None
             ref = None
