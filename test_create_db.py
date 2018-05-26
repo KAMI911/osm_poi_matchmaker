@@ -3,7 +3,7 @@
 
 try:
     import unittest
-    from test.test_address import TestAddressResolver, TestFullAddressResolver, OpeningHoursClener, OpeningHoursClener2
+    from test.test_address import TestAddressResolver, TestFullAddressResolver, OpeningHoursClener, OpeningHoursClener2, PhoneClener
 
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -15,8 +15,9 @@ def testing_create_db():
     address_full_resolver = unittest.TestLoader().loadTestsFromTestCase(TestFullAddressResolver)
     opening_hours_cleaner = unittest.TestLoader().loadTestsFromTestCase(OpeningHoursClener)
     opening_hours_cleaner2 = unittest.TestLoader().loadTestsFromTestCase(OpeningHoursClener2)
+    phone_cleaner = unittest.TestLoader().loadTestsFromTestCase(PhoneClener)
     suite = unittest.TestSuite(
-        [address_resolver, address_full_resolver, opening_hours_cleaner, opening_hours_cleaner2])
+        [address_resolver, address_full_resolver, opening_hours_cleaner, opening_hours_cleaner2, phone_cleaner])
     return unittest.TextTestRunner(verbosity=2).run(suite)
 
 

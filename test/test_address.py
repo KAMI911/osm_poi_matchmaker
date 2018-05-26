@@ -2,7 +2,7 @@
 
 try:
     import unittest
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, extract_all_address, clean_opening_hours, clean_opening_hours_2
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, extract_all_address, clean_opening_hours, clean_opening_hours_2, clean_phone
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -97,3 +97,19 @@ class OpeningHoursClener2(unittest.TestCase):
             a = clean_opening_hours_2(original)
             with self.subTest():
                 self.assertEqual(oho, a)
+
+class PhoneClener(unittest.TestCase):
+    def setUp(self):
+        self.phones = [
+            {'original': '0684/330-734, 0630/2374-712', 'converted': '3684330734'},
+            {'original': '06-20-200-4000', 'converted': '36202004000'},
+        ]
+
+    def test_clean_phone(self):
+        for i in self.phones:
+            original, ph = i['original'], i['converted']
+            a = clean_phone(original)
+            with self.subTest():
+                self.assertEqual(ph, a)
+
+

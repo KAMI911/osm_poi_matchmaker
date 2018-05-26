@@ -22,7 +22,7 @@ PATTERN_CONSCRIPTIONNUMBER = re.compile(
 PATTERN_CONSCRIPTIONNUMBER_1 = re.compile('(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1})', re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER_2 = re.compile('(\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})', re.IGNORECASE)
 PATTERN_OPENING_HOURS = re.compile('0*[0-9]{1,2}\:0*[0-9]{1,2}\s*-\s*0*[0-9]{1,2}:0*[0-9]{1,2}')
-
+PATTERN_PHONE = re.compile ('[\/\\\(\)-]')
 def clean_javascript_variable(clearable, removable):
     """Remove javascript variable notation from the selected JSON variable.
 
@@ -215,3 +215,13 @@ def clean_opening_hours_2(oh):
         tmp = oh.strip().zfill(4)
         fmt = '{}:{}'.format(tmp[:2], tmp[-2:])
     return fmt
+
+def clean_phone(phone):
+    # Remove all whitespaces
+    if ',' in phone:
+        phone = phone.split(',')[0]
+    phone = ''.join(phone.split())
+    ph_match = PATTERN_PHONE.sub('', phone)
+    if ph_match[:2] == '06':
+        ph_match = '36{}'.format(ph_match[2:])
+    return ph_match
