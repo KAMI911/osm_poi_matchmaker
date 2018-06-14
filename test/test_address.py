@@ -31,6 +31,8 @@ class TestAddressResolver(unittest.TestCase):
              'conscriptionnumber': None},
             {'original': 'Várkerület 41.', 'street': None, 'housenumber': None,
              'conscriptionnumber': None}, # TODO: this is wrong
+            {'original': 'Bajcsy-Zs. E. u. 31.', 'street': 'Bajcsy-Zsilinszky Endre utca', 'housenumber': '31',
+             'conscriptionnumber': None}, # TODO: this is wrong
         ]
 
 
