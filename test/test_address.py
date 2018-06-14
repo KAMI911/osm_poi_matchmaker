@@ -2,7 +2,7 @@
 
 try:
     import unittest
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, extract_street_housenumber_better_2, extract_all_address, clean_opening_hours, clean_opening_hours_2, clean_phone
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address, clean_opening_hours, clean_opening_hours_2, clean_phone
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -32,21 +32,12 @@ class TestAddressResolver(unittest.TestCase):
             {'original': 'Várkerület 41.', 'street': None, 'housenumber': None,
              'conscriptionnumber': None}, # TODO: this is wrong
             {'original': 'Bajcsy-Zs. E. u. 31.', 'street': 'Bajcsy-Zsilinszky Endre utca', 'housenumber': '31',
-             'conscriptionnumber': None}, # TODO: this is wrong
+             'conscriptionnumber': None},
+            {'original': 'Bajcsy Zs.u. 77.', 'street': 'Bajcsy-Zsilinszky Endre utca', 'housenumber': '77',
+             'conscriptionnumber': None},
+            {'original': 'Dózsa Gy.u.6.', 'street': 'Dózsa György utca', 'housenumber': '6',
+             'conscriptionnumber': None},
         ]
-
-
-    def test_extract_street_housenumber_better(self):
-        for i in self.addresses:
-            original, street, housenumber, conscriptionnumber = i['original'], i['street'], i['housenumber'], i[
-                'conscriptionnumber']
-            a, b, c = extract_street_housenumber_better(original)
-            with self.subTest():
-                self.assertEqual(street, a)
-            with self.subTest():
-                self.assertEqual(housenumber, b)
-            with self.subTest():
-                self.assertEqual(conscriptionnumber, c)
 
 
     def test_extract_street_housenumber_better_2(self):
