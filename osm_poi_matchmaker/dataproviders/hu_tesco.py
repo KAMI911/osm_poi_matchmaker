@@ -9,7 +9,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_javascript_variable, clean_opening_hours_2, clean_phone
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_javascript_variable, clean_opening_hours_2, clean_phone
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
@@ -55,7 +55,7 @@ class hu_tesco():
             text = json.loads(script['data-stores'])
             for poi_data in text:
                 # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                street, housenumber, conscriptionnumber = extract_street_housenumber_better(
+                street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['address'])
                 city = clean_city(poi_data['city'])
                 branch = poi_data['name']

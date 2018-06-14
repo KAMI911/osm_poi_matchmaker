@@ -8,7 +8,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_phone
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
@@ -42,7 +42,7 @@ class hu_benu():
         if soup != None:
             text = json.loads(soup.get_text())
             for poi_data in text:
-                street, housenumber, conscriptionnumber = extract_street_housenumber_better(
+                street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['street'])
                 if 'BENU Gyógyszertár' not in poi_data['title']:
                     name = poi_data['title'].strip()

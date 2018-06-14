@@ -8,7 +8,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_opening_hours, clean_phone
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, clean_phone
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
@@ -47,8 +47,8 @@ class hu_dm():
                 name = 'dm'
                 code = 'hudmche'
                 postcode = poi_data['address']['plz'].strip()
-                street, housenumber, conscriptionnumber = extract_street_housenumber_better(
-                    poi_data['address']['street'])
+                street_tmp = poi_data['address']['street'].split(',')[0]
+                street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(street_tmp.title())
                 city = clean_city(poi_data['address']['city'])
                 branch = None #poi_data['title']
                 website = None

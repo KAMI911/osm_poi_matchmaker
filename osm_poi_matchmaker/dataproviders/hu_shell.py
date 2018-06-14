@@ -7,7 +7,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.pandas import save_downloaded_pd
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city, clean_phone
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
@@ -64,7 +64,7 @@ class hu_shell():
                 for i in range(0, len(steet_tmp)-2):
                     steet_tmp[i] = steet_tmp[i].capitalize()
                 steet_tmp = ' '.join(steet_tmp)
-                street, housenumber, conscriptionnumber = extract_street_housenumber_better(
+                street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
                     steet_tmp)
                 if poi_data['City'] != '':
                     city = clean_city(poi_data['City'].title())

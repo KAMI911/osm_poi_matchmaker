@@ -7,7 +7,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, clean_city
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -49,7 +49,7 @@ class hu_aldi():
                 data.append(cols)
             for poi_data in data:
                 # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                street, housenumber, conscriptionnumber = extract_street_housenumber_better(poi_data[2])
+                street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(poi_data[2])
                 name = 'Aldi'
                 code = 'hualdisup'
                 postcode = poi_data[0].strip()

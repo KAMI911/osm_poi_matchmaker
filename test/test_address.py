@@ -2,7 +2,7 @@
 
 try:
     import unittest
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, extract_all_address, clean_opening_hours, clean_opening_hours_2, clean_phone
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better, extract_street_housenumber_better_2, extract_all_address, clean_opening_hours, clean_opening_hours_2, clean_phone
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -20,7 +20,18 @@ class TestAddressResolver(unittest.TestCase):
             {'original': 'Palotai út 6. (Fehér Palota Üzletközpont)', 'street': 'Palotai út',
              'housenumber': '6', 'conscriptionnumber': None},
             {'original': 'Budai Vám 1.', 'street': 'Budai Vám',
-             'housenumber': '1', 'conscriptionnumber': None}]
+             'housenumber': '1', 'conscriptionnumber': None},
+            {'original': 'Kaszás u. 2.-Dózsa György út 87.', 'street': 'Kaszás utca 2.-Dózsa György út', 'housenumber': '87',
+             'conscriptionnumber': None}, # TODO: this is wrong
+            {'original': 'Bajcsy Zs. út 11.', 'street': 'Bajcsy-Zsilinszky Endre út', 'housenumber': '11',
+             'conscriptionnumber': None},
+            {'original': 'Hunyadi János út 19. - Savoya Park', 'street': 'Hunyadi János út', 'housenumber': '19',
+             'conscriptionnumber': None},
+            {'original': 'Kölcsey F. utca 1.', 'street': 'Kölcsey Ferenc utca', 'housenumber': '1',
+             'conscriptionnumber': None},
+            {'original': 'Várkerület 41.', 'street': None, 'housenumber': None,
+             'conscriptionnumber': None}, # TODO: this is wrong
+        ]
 
 
     def test_extract_street_housenumber_better(self):
@@ -28,6 +39,19 @@ class TestAddressResolver(unittest.TestCase):
             original, street, housenumber, conscriptionnumber = i['original'], i['street'], i['housenumber'], i[
                 'conscriptionnumber']
             a, b, c = extract_street_housenumber_better(original)
+            with self.subTest():
+                self.assertEqual(street, a)
+            with self.subTest():
+                self.assertEqual(housenumber, b)
+            with self.subTest():
+                self.assertEqual(conscriptionnumber, c)
+
+
+    def test_extract_street_housenumber_better_2(self):
+        for i in self.addresses:
+            original, street, housenumber, conscriptionnumber = i['original'], i['street'], i['housenumber'], i[
+                'conscriptionnumber']
+            a, b, c = extract_street_housenumber_better_2(original)
             with self.subTest():
                 self.assertEqual(street, a)
             with self.subTest():
