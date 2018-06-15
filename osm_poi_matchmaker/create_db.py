@@ -57,9 +57,19 @@ class POIBase:
 
 
     def query_all_pd(self, table):
+        '''
+        Load all POI data from SQL
+        :param table: Name of table where POI data is stored
+        :return: Full table read from SQL database table
+        '''
         return pd.read_sql_table(table, self.engine)
 
     def query_all_gpd(self, table):
+        '''
+        Load all POI data from SQL that contains gometry
+        :param table: Name of table where POI data is stored
+        :return: Full table with poi_lat and poi_long fileds read from SQL database table
+        '''
         query = sqlalchemy.text('select * from {} where poi_geom is not NULL'.format(table))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='poi_geom')
         data['poi_lat'] = data['poi_geom'].x
@@ -67,6 +77,13 @@ class POIBase:
         return data
 
     def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop'):
+        '''
+        Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
+        :param lon:
+        :param lat:
+        :param ptype:
+        :return:
+        '''
         if ptype == 'shop':
             query_type = "shop='convenience' OR shop='supermarket'"
         elif ptype == 'fuel':
