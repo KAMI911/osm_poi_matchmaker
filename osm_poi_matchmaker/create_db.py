@@ -261,7 +261,7 @@ def main():
             oxf.write(generate_osm_xml(data[data.poi_code == c]))
     with open(os.path.join(config.get_directory_output(), 'poi_address_merge.osm'), 'wb') as oxf:
         oxf.write(generate_osm_xml(data))
-    print (counter)
+    logging.info('{} objects found in OSM dataset.'.format(counter))
 
 if __name__ == '__main__':
     config.set_mode(config.Mode.matcher)
