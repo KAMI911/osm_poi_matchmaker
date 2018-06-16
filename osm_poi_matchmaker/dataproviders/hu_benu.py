@@ -52,6 +52,7 @@ class hu_benu():
                     branch = poi_data['title'].strip()
                 code = 'hubenupha'
                 website = poi_data['description'].strip() if poi_data['description'] is not None else None
+                website = website[19:]
                 nonstop = None
                 mo_o = None
                 th_o = None

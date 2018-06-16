@@ -31,6 +31,7 @@ def generate_osm_xml(pd):
     import lxml
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
     id = -1
+    current_id = id
     for index, row in pd.iterrows():
         '''
         data = etree.SubElement(osm_xml_data, 'node', action='new', id='{}'.format(row['osm_id']),
@@ -39,8 +40,22 @@ def generate_osm_xml(pd):
                                 uid='{}'.format(row['osm_uid']), changeset='{}'.format(row['osm_changeset']),
                                 version='{}'.format(row['osm_version']))
         '''
-        data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(id),
-                                lat='{}'.format(row['poi_lat']), lon='{}'.format(row['poi_lon']))
+        current_id = id if row['osm_id'] is None else row['osm_id']
+        osm_timestamp = '' if row['osm_timestamp'] is None else row['osm_timestamp']
+        osm_changeset = '99999' if row['osm_changeset'] is None else row['osm_changeset'] + 1
+        osm_version = '99999' if row['osm_version'] is None else row['osm_version']
+        if row['node'] is None or (row['node'] == True or math.isnan(row['node'])):
+            data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(current_id),
+                                lat='{}'.format(row['poi_lat']), lon='{}'.format(row['poi_lon']),
+                                user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
+                                uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
+                                version='{}'.format(osm_version))
+        elif row['node'] is not None and row['node'] == False:
+            data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_id),
+                                    lat='{}'.format(row['poi_lat']), lon='{}'.format(row['poi_lon']),
+                                    user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
+                                    uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
+                                    version='{}'.format(osm_version))
         # comment = etree.Comment(' Stop name: {0}, ID: {1} '.format(row['stop_name'], row['osm_merged_refs']))
         # data.append(comment)
         if row['poi_name'] is not None:

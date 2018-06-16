@@ -106,18 +106,69 @@ class POIBase:
             SELECT name,osm_id, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({type})
-                AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,900913), :distance)
+                AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(type=query_type))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'distance': config.get_geo_default_poi_distance()})
         query = sqlalchemy.text('''
             SELECT name,osm_id, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({type})
-                AND ST_DWithin(way,ST_Transform(point.geom,900913), :distance)
+                AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(type=query_type))
         data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'type': query_type, 'distance': config.get_geo_default_poi_distance()})
         data = data.append(data2)
         return data.sort_values(by=['distance'])
+
+
+    def query_osm_shop_poi_gpd_with_metadata(self, lon, lat, ptype='shop'):
+        '''
+        Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
+        :param lon:
+        :param lat:
+        :param ptype:
+        :return:
+        '''
+        if ptype == 'shop':
+            query_type = "shop='convenience' OR shop='supermarket'"
+        elif ptype == 'fuel':
+            query_type = "amenity='fuel'"
+        elif ptype == 'bank':
+            query_type = "amenity='bank'"
+        elif ptype == 'atm':
+            query_type = "amenity='atm'"
+        elif ptype == 'post_office':
+            query_type = "amenity='post_office'"
+        elif ptype == 'vending_machine':
+            query_type = "amenity='vending_machine'"
+        elif ptype == 'pharmacy':
+            query_type = "amenity='vending_machine'"
+        elif ptype == 'chemist':
+            query_type = "shop='chemist'"
+        elif ptype == 'bicycle_rental':
+            query_type = "amenity='bicycle_rental'"
+        query = sqlalchemy.text('''
+            SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
+            WHERE ({type})
+                AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
+            ORDER BY distance ASC;'''.format(type=query_type))
+        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'distance': config.get_geo_default_poi_distance()})
+        query = sqlalchemy.text('''
+            SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
+            FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
+            WHERE ({type})
+                AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
+            ORDER BY distance ASC;'''.format(type=query_type))
+        data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'type': query_type, 'distance': config.get_geo_default_poi_distance()})
+        if data2.empty == False:
+            if data.empty == False:
+                data = data.append(data2)
+                return data.sort_values(by=['distance'])
+            else:
+                return data2
+        else:
+            if data.empty == False:
+                return data
 
 
 def main():
@@ -169,24 +220,47 @@ def main():
     logging.info('Exporting CSV files ...')
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
+    # Build Dataframe from our POI database
     addr_data = db.query_all_gpd('poi_address')
     addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
     comm_data = db.query_all_pd('poi_common')
+    # And merge and them into one Dataframe and save it to a CSV file
     save_csv_file(config.get_directory_output(), 'poi_common.csv', comm_data, 'poi_common')
     data = pd.merge(addr_data, comm_data, left_on='poi_common_id', right_on='pc_id', how='inner')
     save_csv_file(config.get_directory_output(), 'poi_address.csv', data, 'poi_address')
+    # Generating CSV files group by poi_code
+    poi_codes = data.poi_code.unique()
+    # Adding additional empty fields
+    data['osm_id'] = None
+    data['node'] = None
+    data['osm_version'] = None
+    data['osm_changeset'] = None
+    data['osm_timestamp'] = None
+    for c in poi_codes:
+        save_csv_file(config.get_directory_output(), 'poi_address_{}.csv'.format(c), data[data.poi_code == c], 'poi_address')
+        with open(os.path.join(config.get_directory_output(), 'poi_address_{}.osm'.format(c)), 'wb') as oxf:
+            oxf.write(generate_osm_xml(data[data.poi_code == c]))
     with open(os.path.join(config.get_directory_output(), 'poi_address.osm'), 'wb') as oxf:
         oxf.write(generate_osm_xml(data))
-    logging.info('Merging OSM datasets ...')
-    addr_data['osm_id'] = None
+
+    logging.info('Merging with OSM datasets ...')
     counter = 0
-    for i, data in addr_data.iterrows():
-        # print(data)
-        common_row = comm_data.loc[comm_data['pc_id'] == data['poi_common_id']]
-        osm_query = (db.query_osm_shop_poi_gpd(data['poi_lon'], data['poi_lat'], common_row['poi_type'].item()))
-        if not osm_query.empty:
-            # print(osm_query)
+    for i, row in data.iterrows():
+        common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
+        osm_query = (db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
+        if osm_query is not None:
+            data.loc[[i], 'osm_id'] = osm_query['osm_id'].values[0]
+            data.loc[[i], 'node'] = osm_query['node'].values[0]
+            data.loc[[i], 'osm_version'] = osm_query['osm_version'].values[0]
+            data.loc[[i], 'osm_changeset'] = osm_query['osm_changeset'].values[0]
+            data.loc[[i], 'osm_timestamp'] = osm_query['osm_timestamp'].values[0]
             counter +=1
+    for c in poi_codes:
+        save_csv_file(config.get_directory_output(), 'poi_address_merge_{}.csv'.format(c), data[data.poi_code == c], 'poi_address')
+        with open(os.path.join(config.get_directory_output(), 'poi_address_merge_{}.osm'.format(c)), 'wb') as oxf:
+            oxf.write(generate_osm_xml(data[data.poi_code == c]))
+    with open(os.path.join(config.get_directory_output(), 'poi_address_merge.osm'), 'wb') as oxf:
+        oxf.write(generate_osm_xml(data))
     print (counter)
 
 if __name__ == '__main__':
