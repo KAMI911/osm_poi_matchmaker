@@ -33,6 +33,51 @@ def init_log():
     logging.config.fileConfig('log.conf')
 
 
+def import_basic_data(session):
+    logging.info('Importing cities ...'.format())
+    from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
+    work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml', config.get_directory_cache_url())
+    work.process()
+
+    logging.info('Importing street types ...'.format())
+    from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
+    work = hu_street_types_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml', config.get_directory_cache_url())
+    work.process()
+
+
+def import_poi_data(session):
+    for module in config.get_dataproviders_modules_enable():
+        module = module.strip()
+        logging.info('Processing {} module ...'.format(module))
+        mo = dataproviders_loader.import_module('osm_poi_matchmaker.dataproviders.{0}'.format(module), module)
+        work = mo(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode())
+        insert_type(session, work.types())
+        work.process()
+
+    logging.info('Importing {} stores ...'.format('KH Bank'))
+    from osm_poi_matchmaker.dataproviders.hu_kh_bank import hu_kh_bank
+    work = hu_kh_bank(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(), os.path.join(config.get_directory_cache_url(), 'hu_kh_bank.json'), 'K&H bank')
+    insert_type(session, work.types())
+    work.process()
+    work = hu_kh_bank(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(), os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H')
+    work.process()
+
+    # Old code that uses JSON files
+    from osm_poi_matchmaker.dataproviders.hu_posta_json import hu_posta_json
+    # We only using csekkautomata since there is no XML from another data source
+    logging.info('Importing {} stores ...'.format('Magyar Posta - csekkautomata'))
+    work = hu_posta_json(session,
+                    'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
+                    config.get_directory_cache_url(), 'hu_postacsekkautomata.json')
+    work.process()
+
+    logging.info('Importing {} stores ...'.format('CIB Bank'))
+    from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
+    work = hu_cib_bank(session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'), config.get_geo_prefer_osm_postcode(), 'CIB bank')
+    insert_type(session, work.types())
+    work = hu_cib_bank(session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.html'), config.get_geo_prefer_osm_postcode(), 'CIB')
+
+
 class POIBase:
     """Represents the full database.
 
@@ -120,11 +165,12 @@ class POIBase:
         return data.sort_values(by=['distance'])
 
     def query_ways_nodes(self, way_id):
-        # select * from planet_osm_ways where id = 78342617
-        query = sqlalchemy.text('select nodes from planet_osm_ways where id = :way_id')
-        data = pd.read_sql(query, self.engine, params={'way_id': int(way_id)})
-        return data
-
+        if way_id > 0:
+            query = sqlalchemy.text('select nodes from planet_osm_ways where id = :way_id limit 1')
+            data = pd.read_sql(query, self.engine, params={'way_id': int(way_id)})
+            return data.values.tolist()[0][0]
+        else:
+            return None
 
     def query_osm_shop_poi_gpd_with_metadata(self, lon, lat, ptype='shop'):
         '''
@@ -182,46 +228,9 @@ def main():
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                               config.get_database_writer_password(), config.get_database_writer_host(),
                                               config.get_database_writer_port(), config.get_database_poi_database()))
-    logging.info('Importing cities ...'.format())
-    from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
-    work = hu_city_postcode_from_xml(db.session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml', config.get_directory_cache_url())
-    work.process()
 
-    logging.info('Importing street types ...'.format())
-    from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
-    work = hu_street_types_from_xml(db.session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml', config.get_directory_cache_url())
-    work.process()
-
-    for module in config.get_dataproviders_modules_enable():
-        module = module.strip()
-        logging.info('Processing {} module ...'.format(module))
-        mo = dataproviders_loader.import_module('osm_poi_matchmaker.dataproviders.{0}'.format(module), module)
-        work = mo(db.session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode())
-        insert_type(db.session, work.types())
-        work.process()
-
-    logging.info('Importing {} stores ...'.format('KH Bank'))
-    from osm_poi_matchmaker.dataproviders.hu_kh_bank import hu_kh_bank
-    work = hu_kh_bank(db.session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(), os.path.join(config.get_directory_cache_url(), 'hu_kh_bank.json'), 'K&H bank')
-    insert_type(db.session, work.types())
-    work.process()
-    work = hu_kh_bank(db.session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(), os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H')
-    work.process()
-
-    # Old code that uses JSON files
-    from osm_poi_matchmaker.dataproviders.hu_posta_json import hu_posta_json
-    # We only using csekkautomata since there is no XML from another data source
-    logging.info('Importing {} stores ...'.format('Magyar Posta - csekkautomata'))
-    work = hu_posta_json(db.session,
-                    'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
-                    config.get_directory_cache_url(), 'hu_postacsekkautomata.json')
-    work.process()
-
-    logging.info('Importing {} stores ...'.format('CIB Bank'))
-    from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
-    work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'), config.get_geo_prefer_osm_postcode(), 'CIB bank')
-    insert_type(db.session, work.types())
-    work = hu_cib_bank(db.session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.html'), config.get_geo_prefer_osm_postcode(), 'CIB')
+    #import_basic_data(db.session)
+    #import_poi_data(db.session)
 
     logging.info('Exporting CSV files ...')
     if not os.path.exists(config.get_directory_output()):
@@ -251,6 +260,7 @@ def main():
 
     logging.info('Merging with OSM datasets ...')
     counter = 0
+    data['osm_nodes'] = None
     for i, row in data.iterrows():
         common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
         osm_query = (db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
@@ -265,10 +275,13 @@ def main():
             # For OSM way also query node points
             if osm_query['node'].values[0] ==  False:
                 logging.info('This is an OSM way looking for id {} nodes.'.format(osm_id))
-                data.loc[[i], 'osm_nodes'] = db.query_ways_nodes(osm_id)
-            else:
-                data.loc[[i], 'osm_nodes'] = None
+                # Add list of nodes to the dataframe
+                nodes = db.query_ways_nodes(osm_id)
+                data.at[i, 'osm_nodes'] = nodes
+            if osm_id == 209570435:
+                print(data.loc[i])
             counter +=1
+    print(data[data.pa_id == 140])
     for c in poi_codes:
         save_csv_file(config.get_directory_output(), 'poi_address_merge_{}.csv'.format(c), data[data.poi_code == c], 'poi_address')
         with open(os.path.join(config.get_directory_output(), 'poi_address_merge_{}.osm'.format(c)), 'wb') as oxf:

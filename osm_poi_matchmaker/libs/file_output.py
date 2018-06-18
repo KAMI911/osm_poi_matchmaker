@@ -26,68 +26,59 @@ def save_csv_file(path, file, data, message):
     logging.info('The {0} was sucessfully saved'.format(file))
 
 
-def generate_osm_xml(pd):
+def generate_osm_xml(df):
     from lxml import etree
     import lxml
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
     id = -1
     current_id = id
-    for index, row in pd.iterrows():
-        '''
-        data = etree.SubElement(osm_xml_data, 'node', action='new', id='{}'.format(row['osm_id']),
-                                lat='{}'.format(row['poi_lat']), lon='{}'.format(row['poi_lon']),
-                                user='{}'.format(row['osm_user']), timestamp='{}'.format(row['osm_timestamp']),
-                                uid='{}'.format(row['osm_uid']), changeset='{}'.format(row['osm_changeset']),
-                                version='{}'.format(row['osm_version']))
-        '''
+    for index, row in df.iterrows():
         current_id = id if row['osm_id'] is None else row['osm_id']
         osm_timestamp = '' if row['osm_timestamp'] is None else row['osm_timestamp']
         osm_changeset = '99999' if row['osm_changeset'] is None else row['osm_changeset'] + 1
         osm_version = '99999' if row['osm_version'] is None else row['osm_version']
         if row['node'] is None or (row['node'] == True or math.isnan(row['node'])):
-            data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(current_id),
+            main_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(current_id),
                                 lat='{}'.format(row['poi_lat']), lon='{}'.format(row['poi_lon']),
                                 user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
                                 uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
                                 version='{}'.format(osm_version))
         elif row['node'] is not None and row['node'] == False:
-            data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_id),
+            main_data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_id),
                                     user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
                                     uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
                                     version='{}'.format(osm_version))
             # Add way nodes without any modification)
             for n in row['osm_nodes']:
-                data = etree.SubElement(osm_xml_data, 'nd', ref=n)
-        # comment = etree.Comment(' Stop name: {0}, ID: {1} '.format(row['stop_name'], row['osm_merged_refs']))
-        # data.append(comment)
+                data = etree.SubElement(main_data, 'nd', ref=str(n))
         if row['poi_name'] is not None:
-            tags = etree.SubElement(data, 'tag', k='name', v='{}'.format(row['poi_name']))
+            tags = etree.SubElement(main_data, 'tag', k='name', v='{}'.format(row['poi_name']))
         if row['poi_city'] is not None:
-            tags = etree.SubElement(data, 'tag', k='addr:city', v='{}'.format(row['poi_city']))
+            tags = etree.SubElement(main_data, 'tag', k='addr:city', v='{}'.format(row['poi_city']))
         if row['poi_postcode'] is not None:
-            tags = etree.SubElement(data, 'tag', k='addr:postcode', v='{}'.format(row['poi_postcode']))
+            tags = etree.SubElement(main_data, 'tag', k='addr:postcode', v='{}'.format(row['poi_postcode']))
         if row['poi_addr_street'] is not None:
-            tags = etree.SubElement(data, 'tag', k='addr:street', v='{}'.format(row['poi_addr_street']))
+            tags = etree.SubElement(main_data, 'tag', k='addr:street', v='{}'.format(row['poi_addr_street']))
         if row['poi_addr_housenumber'] is not None:
-            tags = etree.SubElement(data, 'tag', k='addr:housenumber', v='{}'.format(row['poi_addr_housenumber']))
+            tags = etree.SubElement(main_data, 'tag', k='addr:housenumber', v='{}'.format(row['poi_addr_housenumber']))
         if row['poi_conscriptionnumber'] is not None:
-            tags = etree.SubElement(data, 'tag', k='addr:conscriptionnumber', v='{}'.format(row['poi_conscriptionnumber']))
+            tags = etree.SubElement(main_data, 'tag', k='addr:conscriptionnumber', v='{}'.format(row['poi_conscriptionnumber']))
         if row['poi_branch'] is not None:
-            tags = etree.SubElement(data, 'tag', k='branch', v='{}'.format(row['poi_branch']))
+            tags = etree.SubElement(main_data, 'tag', k='branch', v='{}'.format(row['poi_branch']))
         if row['poi_email'] is not None:
-            tags = etree.SubElement(data, 'tag', k='email', v='{}'.format(row['poi_email']))
+            tags = etree.SubElement(main_data, 'tag', k='email', v='{}'.format(row['poi_email']))
         if row['poi_phone'] is not None and not math.isnan(row['poi_phone']):
-            tags = etree.SubElement(data, 'tag', k='phone', v='+{:d}'.format(int(row['poi_phone'])))
+            tags = etree.SubElement(main_data, 'tag', k='phone', v='+{:d}'.format(int(row['poi_phone'])))
         if row['poi_url_base'] is not None and row['poi_website'] is not None:
-            tags = etree.SubElement(data, 'tag', k='website', v='{}{}'.format(row['poi_url_base'], row['poi_website']))
+            tags = etree.SubElement(main_data, 'tag', k='website', v='{}{}'.format(row['poi_url_base'], row['poi_website']))
         elif row['poi_url_base'] is not None:
-            tags = etree.SubElement(data, 'tag', k='website', v='{}'.format(row['poi_url_base']))
-        osm_xml_data.append(data)
+            tags = etree.SubElement(main_data, 'tag', k='website', v='{}'.format(row['poi_url_base']))
+        osm_xml_data.append(main_data)
         id -= 1
         try:
             for k, v in eval(row['poi_tags']).items():
-                tags = etree.SubElement(data, 'tag', k='{}'.format(k), v='{}'.format(v))
-                osm_xml_data.append(data)
+                tags = etree.SubElement(main_data, 'tag', k='{}'.format(k), v='{}'.format(v))
+                osm_xml_data.append(main_data)
         except NameError as err:
             logging.warning('Unable to eval tags: {}'.format(row['poi_tags']))
     return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")
