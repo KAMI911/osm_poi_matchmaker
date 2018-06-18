@@ -278,10 +278,8 @@ def main():
                 # Add list of nodes to the dataframe
                 nodes = db.query_ways_nodes(osm_id)
                 data.at[i, 'osm_nodes'] = nodes
-            if osm_id == 209570435:
-                print(data.loc[i])
+
             counter +=1
-    print(data[data.pa_id == 140])
     for c in poi_codes:
         save_csv_file(config.get_directory_output(), 'poi_address_merge_{}.csv'.format(c), data[data.poi_code == c], 'poi_address')
         with open(os.path.join(config.get_directory_output(), 'poi_address_merge_{}.osm'.format(c)), 'wb') as oxf:
