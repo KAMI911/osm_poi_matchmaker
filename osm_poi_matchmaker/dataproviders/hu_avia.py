@@ -63,7 +63,7 @@ class hu_avia():
                 lat, lon = check_hu_boundary( poi_data['lat'], poi_data['lng'])
                 geom = check_geom(lat, lon)
                 postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
-                website = None
+                website = '/toltoallomas/?id={}'.format(str(poi_data['kutid'])) if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
                 nonstop = None
                 mo_o = None
                 th_o = None
