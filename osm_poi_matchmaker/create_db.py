@@ -119,6 +119,12 @@ class POIBase:
         data = data.append(data2)
         return data.sort_values(by=['distance'])
 
+    def query_ways_nodes(self, way_id):
+        # select * from planet_osm_ways where id = 78342617
+        query = sqlalchemy.text('select nodes from planet_osm_ways where id = :way_id')
+        data = pd.read_sql(query, self.engine, params={'way_id': int(way_id)})
+        return data
+
 
     def query_osm_shop_poi_gpd_with_metadata(self, lon, lat, ptype='shop'):
         '''
@@ -249,11 +255,19 @@ def main():
         common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
         osm_query = (db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
         if osm_query is not None:
-            data.loc[[i], 'osm_id'] = osm_query['osm_id'].values[0]
+            # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
+            osm_id = osm_query['osm_id'].values[0]
+            data.loc[[i], 'osm_id'] = osm_id
             data.loc[[i], 'node'] = osm_query['node'].values[0]
             data.loc[[i], 'osm_version'] = osm_query['osm_version'].values[0]
             data.loc[[i], 'osm_changeset'] = osm_query['osm_changeset'].values[0]
             data.loc[[i], 'osm_timestamp'] = osm_query['osm_timestamp'].values[0]
+            # For OSM way also query node points
+            if osm_query['node'].values[0] ==  False:
+                logging.info('This is an OSM way looking for id {} nodes.'.format(osm_id))
+                data.loc[[i], 'osm_nodes'] = db.query_ways_nodes(osm_id)
+            else:
+                data.loc[[i], 'osm_nodes'] = None
             counter +=1
     for c in poi_codes:
         save_csv_file(config.get_directory_output(), 'poi_address_merge_{}.csv'.format(c), data[data.poi_code == c], 'poi_address')

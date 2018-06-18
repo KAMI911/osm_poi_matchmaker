@@ -52,10 +52,12 @@ def generate_osm_xml(pd):
                                 version='{}'.format(osm_version))
         elif row['node'] is not None and row['node'] == False:
             data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_id),
-                                    lat='{}'.format(row['poi_lat']), lon='{}'.format(row['poi_lon']),
                                     user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
                                     uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
                                     version='{}'.format(osm_version))
+            # Add way nodes without any modification)
+            for n in row['osm_nodes']:
+                data = etree.SubElement(osm_xml_data, 'nd', ref=n)
         # comment = etree.Comment(' Stop name: {0}, ID: {1} '.format(row['stop_name'], row['osm_merged_refs']))
         # data.append(comment)
         if row['poi_name'] is not None:
