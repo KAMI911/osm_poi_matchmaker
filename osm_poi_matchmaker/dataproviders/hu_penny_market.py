@@ -12,7 +12,6 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = ''
 
@@ -52,4 +51,3 @@ class hu_penny_market():
 
     def process(self):
         logging.warning('Not implemented. Skipping ...')
-

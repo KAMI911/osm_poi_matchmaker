@@ -8,7 +8,8 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, clean_phone
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
+        clean_phone
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
@@ -16,7 +17,6 @@ except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
-
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json'
@@ -78,7 +78,8 @@ class hu_mol():
                 email = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
+                     ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c,
+                     fr_c, sa_c, su_c])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:

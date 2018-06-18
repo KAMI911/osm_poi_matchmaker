@@ -16,12 +16,11 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
 
-
 POST_DATA = {'kepnelkul': 'true', 'latitude': '47.498', 'longitude': '19.0399', 'tipus': 'patika'}
+
 
 class hu_kulcs_patika():
 
@@ -35,7 +34,8 @@ class hu_kulcs_patika():
     @staticmethod
     def types():
         data = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs patika', 'poi_type': 'pharmacy',
-                 'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.kulcspatika.hu'}]
+                 'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+                 'poi_url_base': 'https://www.kulcspatika.hu'}]
         return data
 
     def process(self):
@@ -76,16 +76,19 @@ class hu_kulcs_patika():
                 sa_c = None
                 su_c = None
                 city = clean_city(poi_data['helyseg'])
-                lat, lon = check_hu_boundary(poi_data['marker_position']['latitude'], poi_data['marker_position']['longitude'])
+                lat, lon = check_hu_boundary(poi_data['marker_position']['latitude'],
+                                             poi_data['marker_position']['longitude'])
                 geom = check_geom(lat, lon)
-                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, poi_data['irsz'].strip())
+                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon,
+                                                       poi_data['irsz'].strip())
                 original = poi_data['cim']
                 ref = None
                 phone = None
                 email = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
+                     ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c,
+                     fr_c, sa_c, su_c])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:

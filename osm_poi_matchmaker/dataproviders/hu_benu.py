@@ -33,7 +33,8 @@ class hu_benu():
     @staticmethod
     def types():
         data = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
-                 'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes', 'facebook':'https://www.facebook.com/BENUgyogyszertar', 'youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg'}", 'poi_url_base': 'https://www.benu.hu'}]
+                 'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes', 'facebook':'https://www.facebook.com/BENUgyogyszertar', 'youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg'}",
+                 'poi_url_base': 'https://www.benu.hu'}]
         return data
 
     def process(self):
@@ -70,19 +71,20 @@ class hu_benu():
                 su_c = None
                 city = clean_city(poi_data['city'])
                 postcode = poi_data['postal_code'].strip()
-                lat, lon = check_hu_boundary( poi_data['lat'], poi_data['lng'])
+                lat, lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
                 geom = check_geom(lat, lon)
                 postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                 original = poi_data['street']
                 ref = None
-                if 'phone' in poi_data  and poi_data['phone'] != '':
+                if 'phone' in poi_data and poi_data['phone'] != '':
                     phone = clean_phone(poi_data['phone'])
                 else:
                     phone = None
                 email = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
+                     ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c,
+                     fr_c, sa_c, su_c])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:

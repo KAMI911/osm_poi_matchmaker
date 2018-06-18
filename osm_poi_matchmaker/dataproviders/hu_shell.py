@@ -16,7 +16,6 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL'
 
@@ -61,7 +60,7 @@ class hu_shell():
                     code = 'humobpefu'
                 postcode = poi_data['Post code']
                 steet_tmp = poi_data['Address'].lower().split()
-                for i in range(0, len(steet_tmp)-2):
+                for i in range(0, len(steet_tmp) - 2):
                     steet_tmp[i] = steet_tmp[i].capitalize()
                 steet_tmp = ' '.join(steet_tmp)
                 street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
@@ -119,7 +118,8 @@ class hu_shell():
                 email = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
+                     ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c,
+                     fr_c, sa_c, su_c])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:

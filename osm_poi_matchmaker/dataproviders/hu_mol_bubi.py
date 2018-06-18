@@ -18,7 +18,6 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb'
 
@@ -32,14 +31,12 @@ class hu_mol_bubi():
         self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
-
     @staticmethod
     def types():
         data = [{'poi_code': 'hububibir', 'poi_name': 'MOL Bubi', 'poi_type': 'bicycle_rental',
                  'poi_tags': "{'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'operator': 'BKK MOL Bubi', 'network': 'bubi', 'payment:credit_cards': 'yes'}",
                  'poi_url_base': 'https://molbubi.bkk.hu/'}]
         return data
-
 
     def process(self):
         xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))

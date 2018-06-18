@@ -18,7 +18,6 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
 
@@ -31,7 +30,6 @@ class hu_posta():
         self.download_cache = download_cache
         self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
-
 
     @staticmethod
     def types():
@@ -51,7 +49,6 @@ class hu_posta():
                  'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.'}",
                  'poi_url_base': 'https://www.posta.hu'}]
         return data
-
 
     def process(self):
         xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
@@ -80,7 +77,8 @@ class hu_posta():
                 street = '{} {}'.format(street_tmp_1, street_tmp_2)
             else:
                 logging.error('Non handled state!')
-            housenumber = e.find('street/houseNumber').text.strip().lower() if e.find('street/houseNumber').text is not None else None
+            housenumber = e.find('street/houseNumber').text.strip().lower() if e.find(
+                'street/houseNumber').text is not None else None
             conscriptionnumber = None
             city = clean_city(e.find('city').text)
             branch = e.find('name').text if e.find('name').text is not None else None
@@ -100,7 +98,8 @@ class hu_posta():
             fr_c = None
             sa_c = None
             su_c = None
-            lat, lon = check_hu_boundary(e.find('gpsData/WGSLat').text.replace(',', '.'), e.find('gpsData/WGSLon').text.replace(',', '.'))
+            lat, lon = check_hu_boundary(e.find('gpsData/WGSLat').text.replace(',', '.'),
+                                         e.find('gpsData/WGSLon').text.replace(',', '.'))
             geom = check_geom(lat, lon)
             postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
             original = None

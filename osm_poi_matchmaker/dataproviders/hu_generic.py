@@ -13,7 +13,8 @@ except ImportError as err:
     exit(128)
 
 POI_COLS_CITY = ['city_post_code', 'city_name']
-POI_COLS_STREET_TYPE = [ 'street_type' ]
+POI_COLS_STREET_TYPE = ['street_type']
+
 
 class hu_city_postcode():
 
@@ -41,6 +42,7 @@ class hu_city_postcode():
             df.drop_duplicates('city_post_code', keep='first', inplace=True)
             insert_city_dataframe(self.session, df)
 
+
 class hu_city_postcode_from_xml():
 
     def __init__(self, session, link, download_cache, filename='hu_city_postcode.xml'):
@@ -57,10 +59,11 @@ class hu_city_postcode_from_xml():
             cities = e[1].text
             postcode = e[0].text.strip()
             for i in cities.split('|'):
-                insert_data.append( [postcode, i.strip()] )
+                insert_data.append([postcode, i.strip()])
         df = pd.DataFrame(insert_data)
         df.columns = POI_COLS_CITY
         insert_city_dataframe(self.session, df)
+
 
 class hu_street_types_from_xml():
 
@@ -77,7 +80,7 @@ class hu_street_types_from_xml():
         for e in root.findall('streetType'):
             if e.text is not None:
                 street_type = e.text.strip()
-                insert_data.append( street_type )
+                insert_data.append(street_type)
         df = pd.DataFrame(insert_data)
         df.columns = POI_COLS_STREET_TYPE
         insert_street_type_dataframe(self.session, df)

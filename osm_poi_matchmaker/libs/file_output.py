@@ -49,8 +49,11 @@ def generate_osm_xml(df):
                                     uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
                                     version='{}'.format(osm_version))
             # Add way nodes without any modification)
-            for n in row['osm_nodes']:
-                data = etree.SubElement(main_data, 'nd', ref=str(n))
+            try:
+                for n in row['osm_nodes']:
+                    data = etree.SubElement(main_data, 'nd', ref=str(n))
+            except TypeError as err:
+                logging.warning('Missing nodes on this way: {}.'.format(row['osm_id']))
         if row['poi_name'] is not None:
             tags = etree.SubElement(main_data, 'tag', k='name', v='{}'.format(row['poi_name']))
         if row['poi_city'] is not None:

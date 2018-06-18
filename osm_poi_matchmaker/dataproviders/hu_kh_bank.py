@@ -15,7 +15,6 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-
 POI_COLS = poi_array_structure.POI_COLS
 
 
@@ -73,7 +72,8 @@ class hu_kh_bank():
                     fr_c = None
                     sa_c = None
                     su_c = None
-                    lat, lon = check_hu_boundary(poi_data[first_element]['latitude'], poi_data[first_element]['longitude'])
+                    lat, lon = check_hu_boundary(poi_data[first_element]['latitude'],
+                                                 poi_data[first_element]['longitude'])
                     geom = check_geom(lat, lon)
                     postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
                     original = poi_data[first_element]['address']

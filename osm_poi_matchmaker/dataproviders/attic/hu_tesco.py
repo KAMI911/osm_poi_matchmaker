@@ -15,7 +15,6 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://tesco.hu/aruhazak/nyitvatartas/'
 
@@ -31,13 +30,13 @@ class hu_tesco():
     @staticmethod
     def types():
         data = [{'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'website': 'https://www.tesco.hu', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.tesco.hu'},
                 {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'website': 'https://www.tesco.hu', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.tesco.hu'},
                 {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'website': 'https://www.tesco.hu', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.tesco.hu'}]
         return data
 
@@ -99,7 +98,8 @@ class hu_tesco():
                 ref = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c])
+                     ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c,
+                     su_c])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:
