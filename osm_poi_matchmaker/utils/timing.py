@@ -12,10 +12,10 @@ __author__ = 'kszalai'
 
 class Timing:
     def __init__(self):
-        self.start = time.clock()
+        self.start = time.time()
 
     def end(self):
-        elapsed = time.clock() - self.start
+        elapsed = time.time() - self.start
         # return self.__seconds_to_str(elapsed)
         return str(datetime.timedelta(seconds=elapsed))
 
