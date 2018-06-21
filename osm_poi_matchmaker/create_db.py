@@ -150,14 +150,14 @@ class POIBase:
         query = sqlalchemy.text('''
             SELECT name,osm_id, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-            WHERE ({type})
+            WHERE ({type}) AND osm_id > 0
                 AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(type=query_type))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'distance': config.get_geo_default_poi_distance()})
         query = sqlalchemy.text('''
             SELECT name,osm_id, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-            WHERE ({type})
+            WHERE ({type}) AND osm_id > 0
                 AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(type=query_type))
         data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'type': query_type, 'distance': config.get_geo_default_poi_distance()})
