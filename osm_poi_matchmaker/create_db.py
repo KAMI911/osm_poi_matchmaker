@@ -261,6 +261,7 @@ def main():
     logging.info('Merging with OSM datasets ...')
     counter = 0
     data['osm_nodes'] = None
+    from datetime import datetime
     for i, row in data.iterrows():
         common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
         osm_query = (db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
@@ -271,7 +272,8 @@ def main():
             data.loc[[i], 'node'] = osm_query['node'].values[0]
             data.loc[[i], 'osm_version'] = osm_query['osm_version'].values[0]
             data.loc[[i], 'osm_changeset'] = osm_query['osm_changeset'].values[0]
-            data.loc[[i], 'osm_timestamp'] = osm_query['osm_timestamp'].values[0]
+            osm_timestamp = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
+            data.loc[[i], 'osm_timestamp'] = '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M%S')
             # For OSM way also query node points
             if osm_query['node'].values[0] ==  False:
                 logging.info('This is an OSM way looking for id {} nodes.'.format(osm_id))
