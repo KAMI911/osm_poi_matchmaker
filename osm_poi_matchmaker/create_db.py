@@ -232,15 +232,17 @@ def main():
     import_basic_data(db.session)
     import_poi_data(db.session)
 
-    logging.info('Exporting CSV files ...')
+    logging.info('Loading data from database ...')
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
     # Build Dataframe from our POI database
     addr_data = db.query_all_gpd('poi_address')
     addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
     comm_data = db.query_all_pd('poi_common')
+    logging.info('Exporting CSV files ...')
     # And merge and them into one Dataframe and save it to a CSV file
     save_csv_file(config.get_directory_output(), 'poi_common.csv', comm_data, 'poi_common')
+    logging.info('Merging dataframes ...')
     data = pd.merge(addr_data, comm_data, left_on='poi_common_id', right_on='pc_id', how='inner')
     save_csv_file(config.get_directory_output(), 'poi_address.csv', data, 'poi_address')
     # Generating CSV files group by poi_code
@@ -251,17 +253,16 @@ def main():
     data['osm_version'] = None
     data['osm_changeset'] = None
     data['osm_timestamp'] = None
+    logging.info('Saving separated files ...')
     for c in poi_codes:
         save_csv_file(config.get_directory_output(), 'poi_address_{}.csv'.format(c), data[data.poi_code == c], 'poi_address')
         with open(os.path.join(config.get_directory_output(), 'poi_address_{}.osm'.format(c)), 'wb') as oxf:
             oxf.write(generate_osm_xml(data[data.poi_code == c]))
     with open(os.path.join(config.get_directory_output(), 'poi_address.osm'), 'wb') as oxf:
         oxf.write(generate_osm_xml(data))
-
     logging.info('Merging with OSM datasets ...')
     counter = 0
     data['osm_nodes'] = None
-    from datetime import datetime
     for i, row in data.iterrows():
         common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
         osm_query = (db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
@@ -280,7 +281,6 @@ def main():
                 # Add list of nodes to the dataframe
                 nodes = db.query_ways_nodes(osm_id)
                 data.at[i, 'osm_nodes'] = nodes
-
             counter +=1
     for c in poi_codes:
         save_csv_file(config.get_directory_output(), 'poi_address_merge_{}.csv'.format(c), data[data.poi_code == c], 'poi_address')
