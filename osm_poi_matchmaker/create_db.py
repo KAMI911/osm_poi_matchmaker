@@ -11,6 +11,7 @@ try:
     import numpy as np
     import pandas as pd
     import geopandas as gpd
+    from osmapi import OsmApi
     from osm_poi_matchmaker.utils import config, timing, dataproviders_loader
     from osm_poi_matchmaker.dao.data_structure import Base
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
@@ -253,6 +254,7 @@ def main():
     data['osm_version'] = None
     data['osm_changeset'] = None
     data['osm_timestamp'] = None
+    data['osm_live_tags'] = None
     logging.info('Saving separated files ...')
     for c in poi_codes:
         save_csv_file(config.get_directory_output(), 'poi_address_{}.csv'.format(c), data[data.poi_code == c], 'poi_address')
@@ -263,24 +265,34 @@ def main():
     logging.info('Merging with OSM datasets ...')
     counter = 0
     data['osm_nodes'] = None
+    osm_live_query = OsmApi()
     for i, row in data.iterrows():
         common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
         osm_query = (db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
         if osm_query is not None:
             # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
             osm_id = osm_query['osm_id'].values[0]
+            osm_node = osm_query['node'].values[0]
             data.loc[[i], 'osm_id'] = osm_id
-            data.loc[[i], 'node'] = osm_query['node'].values[0]
+            data.loc[[i], 'node'] = osm_node
             data.loc[[i], 'osm_version'] = osm_query['osm_version'].values[0]
             data.loc[[i], 'osm_changeset'] = osm_query['osm_changeset'].values[0]
             osm_timestamp = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
             data.loc[[i], 'osm_timestamp'] = '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M%S')
             # For OSM way also query node points
-            if osm_query['node'].values[0] ==  False:
+            if osm_node ==  False:
                 logging.info('This is an OSM way looking for id {} nodes.'.format(osm_id))
                 # Add list of nodes to the dataframe
                 nodes = db.query_ways_nodes(osm_id)
                 data.at[i, 'osm_nodes'] = nodes
+            try:
+                if osm_node == False:
+                    data.at[i, 'osm_live_tags'] = osm_live_query.WayGet(osm_id)['tag']
+                else:
+                    data.at[i, 'osm_live_tags'] = osm_live_query.NodeGet(osm_id)['tag']
+            except Exception as err:
+                logging.warning('There was an error during OSM request: {}.'.format(err))
+            print(data.loc[[i], 'osm_live_tags'])
             counter +=1
     for c in poi_codes:
         save_csv_file(config.get_directory_output(), 'poi_address_merge_{}.csv'.format(c), data[data.poi_code == c], 'poi_address')

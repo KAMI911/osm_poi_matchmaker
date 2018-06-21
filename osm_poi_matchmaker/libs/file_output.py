@@ -54,6 +54,12 @@ def generate_osm_xml(df):
                     data = etree.SubElement(main_data, 'nd', ref=str(n))
             except TypeError as err:
                 logging.warning('Missing nodes on this way: {}.'.format(row['osm_id']))
+        if row['osm_live_tags'] is not None:
+            try:
+                for k, v in row['osm_live_tags'].items():
+                    tags = etree.SubElement(main_data, 'tag', k='{}'.format(k), v='{}'.format(v))
+            except NameError as err:
+                logging.warning('Unable to eval tags: {}'.format(row['poi_tags']))
         if row['poi_name'] is not None:
             tags = etree.SubElement(main_data, 'tag', k='name', v='{}'.format(row['poi_name']))
         if row['poi_city'] is not None:
