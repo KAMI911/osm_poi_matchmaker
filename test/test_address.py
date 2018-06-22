@@ -2,7 +2,8 @@
 
 try:
     import unittest
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address, clean_opening_hours, clean_opening_hours_2, clean_phone
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address, \
+        clean_opening_hours, clean_opening_hours_2, clean_phone
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -21,8 +22,9 @@ class TestAddressResolver(unittest.TestCase):
              'housenumber': '6', 'conscriptionnumber': None},
             {'original': 'Budai Vám 1.', 'street': 'Budai Vám',
              'housenumber': '1', 'conscriptionnumber': None},
-            {'original': 'Kaszás u. 2.-Dózsa György út 87.', 'street': 'Kaszás utca 2.-Dózsa György út', 'housenumber': '87',
-             'conscriptionnumber': None}, # TODO: this is wrong
+            {'original': 'Kaszás u. 2.-Dózsa György út 87.', 'street': 'Kaszás utca 2.-Dózsa György út',
+             'housenumber': '87',
+             'conscriptionnumber': None},  # TODO: this is wrong
             {'original': 'Bajcsy Zs. út 11.', 'street': 'Bajcsy-Zsilinszky Endre út', 'housenumber': '11',
              'conscriptionnumber': None},
             {'original': 'Hunyadi János út 19. - Savoya Park', 'street': 'Hunyadi János út', 'housenumber': '19',
@@ -30,7 +32,7 @@ class TestAddressResolver(unittest.TestCase):
             {'original': 'Kölcsey F. utca 1.', 'street': 'Kölcsey Ferenc utca', 'housenumber': '1',
              'conscriptionnumber': None},
             {'original': 'Várkerület 41.', 'street': None, 'housenumber': None,
-             'conscriptionnumber': None}, # TODO: this is wrong
+             'conscriptionnumber': None},  # TODO: this is wrong
             {'original': 'Bajcsy-Zs. E. u. 31.', 'street': 'Bajcsy-Zsilinszky Endre utca', 'housenumber': '31',
              'conscriptionnumber': None},
             {'original': 'Bajcsy Zs.u. 77.', 'street': 'Bajcsy-Zsilinszky Endre utca', 'housenumber': '77',
@@ -38,7 +40,6 @@ class TestAddressResolver(unittest.TestCase):
             {'original': 'Dózsa Gy.u.6.', 'street': 'Dózsa György utca', 'housenumber': '6',
              'conscriptionnumber': None},
         ]
-
 
     def test_extract_street_housenumber_better_2(self):
         for i in self.addresses:
@@ -85,10 +86,11 @@ class OpeningHoursClener(unittest.TestCase):
         self.opening_hours = [
             {'original': '05:20-19:38', 'opening_hours_open': '05:20', 'opening_hours_close': '19:38'},
             {'original': '6:44-21:00', 'opening_hours_open': '06:44', 'opening_hours_close': '21:00'},
-            {'original': '05:20-19:38 Reggel nyolctól bejárat az üzleten át', 'opening_hours_open': '05:20', 'opening_hours_close': '19:38'},
+            {'original': '05:20-19:38 Reggel nyolctól bejárat az üzleten át', 'opening_hours_open': '05:20',
+             'opening_hours_close': '19:38'},
             {'original': '   7:41 - 22:30    ', 'opening_hours_open': '07:41', 'opening_hours_close': '22:30'},
             {'original': '  05:30  -  23:00 ', 'opening_hours_open': '05:30', 'opening_hours_close': '23:00'},
-            {'original': '  -       ', 'opening_hours_open': None, 'opening_hours_close': None},]
+            {'original': '  -       ', 'opening_hours_open': None, 'opening_hours_close': None}, ]
 
     def test_clean_opening_hours(self):
         for i in self.opening_hours:
@@ -98,6 +100,7 @@ class OpeningHoursClener(unittest.TestCase):
                 self.assertEqual(oho, a)
             with self.subTest():
                 self.assertEqual(ohc, b)
+
 
 class OpeningHoursClener2(unittest.TestCase):
     def setUp(self):
@@ -115,6 +118,7 @@ class OpeningHoursClener2(unittest.TestCase):
             with self.subTest():
                 self.assertEqual(oho, a)
 
+
 class PhoneClener(unittest.TestCase):
     def setUp(self):
         self.phones = [
@@ -122,7 +126,8 @@ class PhoneClener(unittest.TestCase):
             {'original': '06-20-200-4000', 'converted': '36202004000'},
             {'original': '62464024', 'converted': '3662464024'},
             {'original': ' 3684330 - 734', 'converted': '3684330734'},
-            {'original': '06205089009(Központi Telszám: Benzinkút, Motel, Kávézó, Szobafoglalás)', 'converted': '36205089009'},
+            {'original': '06205089009(Központi Telszám: Benzinkút, Motel, Kávézó, Szobafoglalás)',
+             'converted': '36205089009'},
             {'original': '  ', 'converted': None},
         ]
 
@@ -132,5 +137,3 @@ class PhoneClener(unittest.TestCase):
             a = clean_phone(original)
             with self.subTest():
                 self.assertEqual(ph, a)
-
-

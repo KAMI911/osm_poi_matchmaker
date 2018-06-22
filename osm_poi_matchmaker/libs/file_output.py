@@ -39,15 +39,15 @@ def generate_osm_xml(df):
         osm_version = '99999' if row['osm_version'] is None else row['osm_version']
         if row['node'] is None or (row['node'] == True or math.isnan(row['node'])):
             main_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(current_id),
-                                lat='{}'.format(row['poi_lat']), lon='{}'.format(row['poi_lon']),
-                                user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
-                                uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
-                                version='{}'.format(osm_version))
+                                         lat='{}'.format(row['poi_lat']), lon='{}'.format(row['poi_lon']),
+                                         user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
+                                         uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
+                                         version='{}'.format(osm_version))
         elif row['node'] is not None and row['node'] == False:
             main_data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_id),
-                                    user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
-                                    uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
-                                    version='{}'.format(osm_version))
+                                         user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
+                                         uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
+                                         version='{}'.format(osm_version))
             # Add way nodes without any modification)
             try:
                 for n in row['osm_nodes']:
@@ -92,4 +92,3 @@ def generate_osm_xml(df):
         osm_xml_data.append(main_data)
         id -= 1
     return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")
-

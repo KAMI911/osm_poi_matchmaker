@@ -24,7 +24,6 @@ except ImportError as err:
 __program__ = 'create_db'
 __version__ = '0.4.7'
 
-
 POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
             'poi_addr_street',
             'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
@@ -37,12 +36,14 @@ def init_log():
 def import_basic_data(session):
     logging.info('Importing cities ...'.format())
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
-    work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml', config.get_directory_cache_url())
+    work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',
+                                     config.get_directory_cache_url())
     work.process()
 
     logging.info('Importing street types ...'.format())
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
-    work = hu_street_types_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml', config.get_directory_cache_url())
+    work = hu_street_types_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml',
+                                    config.get_directory_cache_url())
     work.process()
 
 
@@ -57,10 +58,12 @@ def import_poi_data(session):
 
     logging.info('Importing {} stores ...'.format('KH Bank'))
     from osm_poi_matchmaker.dataproviders.hu_kh_bank import hu_kh_bank
-    work = hu_kh_bank(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(), os.path.join(config.get_directory_cache_url(), 'hu_kh_bank.json'), 'K&H bank')
+    work = hu_kh_bank(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(),
+                      os.path.join(config.get_directory_cache_url(), 'hu_kh_bank.json'), 'K&H bank')
     insert_type(session, work.types())
     work.process()
-    work = hu_kh_bank(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(), os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H')
+    work = hu_kh_bank(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(),
+                      os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H')
     work.process()
 
     # Old code that uses JSON files
@@ -68,15 +71,17 @@ def import_poi_data(session):
     # We only using csekkautomata since there is no XML from another data source
     logging.info('Importing {} stores ...'.format('Magyar Posta - csekkautomata'))
     work = hu_posta_json(session,
-                    'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
-                    config.get_directory_cache_url(), 'hu_postacsekkautomata.json')
+                         'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
+                         config.get_directory_cache_url(), 'hu_postacsekkautomata.json')
     work.process()
 
     logging.info('Importing {} stores ...'.format('CIB Bank'))
     from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
-    work = hu_cib_bank(session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'), config.get_geo_prefer_osm_postcode(), 'CIB bank')
+    work = hu_cib_bank(session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'),
+                       config.get_geo_prefer_osm_postcode(), 'CIB bank')
     insert_type(session, work.types())
-    work = hu_cib_bank(session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.html'), config.get_geo_prefer_osm_postcode(), 'CIB')
+    work = hu_cib_bank(session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.html'),
+                       config.get_geo_prefer_osm_postcode(), 'CIB')
 
 
 class POIBase:
@@ -100,7 +105,6 @@ class POIBase:
     @property
     def session(self):
         return self.Session()
-
 
     def query_all_pd(self, table):
         '''
@@ -154,14 +158,17 @@ class POIBase:
             WHERE ({type}) AND osm_id > 0
                 AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(type=query_type))
-        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'distance': config.get_geo_default_poi_distance()})
+        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
+                                                                                         'distance': config.get_geo_default_poi_distance()})
         query = sqlalchemy.text('''
             SELECT name,osm_id, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({type}) AND osm_id > 0
                 AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(type=query_type))
-        data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'type': query_type, 'distance': config.get_geo_default_poi_distance()})
+        data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way',
+                                              params={'lon': lon, 'lat': lat, 'type': query_type,
+                                                      'distance': config.get_geo_default_poi_distance()})
         data = data.append(data2)
         return data.sort_values(by=['distance'])
 
@@ -205,14 +212,17 @@ class POIBase:
             WHERE ({type}) AND osm_id > 0
                 AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(type=query_type))
-        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'distance': config.get_geo_default_poi_distance()})
+        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
+                                                                                         'distance': config.get_geo_default_poi_distance()})
         query = sqlalchemy.text('''
             SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({type}) AND osm_id > 0
                 AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(type=query_type))
-        data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat, 'type': query_type, 'distance': config.get_geo_default_poi_distance()})
+        data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way',
+                                              params={'lon': lon, 'lat': lat, 'type': query_type,
+                                                      'distance': config.get_geo_default_poi_distance()})
         if data2.empty == False:
             if data.empty == False:
                 data = data.append(data2)
@@ -257,7 +267,8 @@ def main():
     data['osm_live_tags'] = None
     logging.info('Saving separated files ...')
     for c in poi_codes:
-        save_csv_file(config.get_directory_output(), 'poi_address_{}.csv'.format(c), data[data.poi_code == c], 'poi_address')
+        save_csv_file(config.get_directory_output(), 'poi_address_{}.csv'.format(c), data[data.poi_code == c],
+                      'poi_address')
         with open(os.path.join(config.get_directory_output(), 'poi_address_{}.osm'.format(c)), 'wb') as oxf:
             oxf.write(generate_osm_xml(data[data.poi_code == c]))
     with open(os.path.join(config.get_directory_output(), 'poi_address.osm'), 'wb') as oxf:
@@ -268,7 +279,8 @@ def main():
     osm_live_query = OsmApi()
     for i, row in data.iterrows():
         common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
-        osm_query = (db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
+        osm_query = (
+            db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
         if osm_query is not None:
             # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
             osm_id = osm_query['osm_id'].values[0]
@@ -280,7 +292,7 @@ def main():
             osm_timestamp = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
             data.loc[[i], 'osm_timestamp'] = '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M%S')
             # For OSM way also query node points
-            if osm_node ==  False:
+            if osm_node == False:
                 logging.info('This is an OSM way looking for id {} nodes.'.format(osm_id))
                 # Add list of nodes to the dataframe
                 nodes = db.query_ways_nodes(osm_id)
@@ -293,14 +305,16 @@ def main():
             except Exception as err:
                 logging.warning('There was an error during OSM request: {}.'.format(err))
             print(data.loc[[i], 'osm_live_tags'])
-            counter +=1
+            counter += 1
     for c in poi_codes:
-        save_csv_file(config.get_directory_output(), 'poi_address_merge_{}.csv'.format(c), data[data.poi_code == c], 'poi_address')
+        save_csv_file(config.get_directory_output(), 'poi_address_merge_{}.csv'.format(c), data[data.poi_code == c],
+                      'poi_address')
         with open(os.path.join(config.get_directory_output(), 'poi_address_merge_{}.osm'.format(c)), 'wb') as oxf:
             oxf.write(generate_osm_xml(data[data.poi_code == c]))
     with open(os.path.join(config.get_directory_output(), 'poi_address_merge.osm'), 'wb') as oxf:
         oxf.write(generate_osm_xml(data))
     logging.info('{} objects found in OSM dataset.'.format(counter))
+
 
 if __name__ == '__main__':
     config.set_mode(config.Mode.matcher)

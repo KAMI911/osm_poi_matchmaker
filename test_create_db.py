@@ -3,7 +3,8 @@
 
 try:
     import unittest
-    from test.test_address import TestAddressResolver, TestFullAddressResolver, OpeningHoursClener, OpeningHoursClener2, PhoneClener
+    from test.test_address import TestAddressResolver, TestFullAddressResolver, OpeningHoursClener, OpeningHoursClener2, \
+        PhoneClener
     from test.test_timing import Timing
 
 except ImportError as err:

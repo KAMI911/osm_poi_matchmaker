@@ -24,7 +24,7 @@ class POI_type(enum.Enum):
     shop = 0
     fuel = 1
     bank = 2
-    atm  = 3
+    atm = 3
     post_office = 4
     vending_machine = 5
     pharmacy = 6
@@ -75,7 +75,7 @@ class POI_address(Base):
                           backref='poi_address')
     city = relationship('City', primaryjoin='POI_address.poi_addr_city == City.city_id', backref='poi_address')
 
-    #def __repr__(self):
+    # def __repr__(self):
     #  return '<POI address {}: {}>'.format(self.pa_id, self.poi_name)
 
 

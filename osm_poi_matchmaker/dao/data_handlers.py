@@ -12,7 +12,6 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-
 POI_COLS = poi_array_structure.POI_COLS
 
 
@@ -32,12 +31,16 @@ def get_or_create(session, model, **kwargs):
 
 def get_or_create_poi(session, model, **kwargs):
     if kwargs['poi_common_id'] is not None:
-        if kwargs['poi_common_id'] is not None and kwargs['poi_addr_city'] is not None and (( kwargs['poi_addr_street'] and kwargs['poi_addr_housenumber'] is not None) or (kwargs['poi_conscriptionnumber'] is not None)):
+        if kwargs['poi_common_id'] is not None and kwargs['poi_addr_city'] is not None and (
+                (kwargs['poi_addr_street'] and kwargs['poi_addr_housenumber'] is not None) or (
+                kwargs['poi_conscriptionnumber'] is not None)):
             logging.debug('Fully filled basic data record')
         else:
             logging.warning('Missing record data: {}'.format(kwargs))
-    instance = session.query(model).filter_by(poi_common_id = kwargs['poi_common_id']).filter_by(poi_addr_city = kwargs['poi_addr_city']).filter_by(poi_addr_street = kwargs['poi_addr_street']).filter_by(
-poi_addr_housenumber = kwargs['poi_addr_housenumber']).filter_by(poi_conscriptionnumber = kwargs['poi_conscriptionnumber']).first()
+    instance = session.query(model).filter_by(poi_common_id=kwargs['poi_common_id']).filter_by(
+        poi_addr_city=kwargs['poi_addr_city']).filter_by(poi_addr_street=kwargs['poi_addr_street']).filter_by(
+        poi_addr_housenumber=kwargs['poi_addr_housenumber']).filter_by(
+        poi_conscriptionnumber=kwargs['poi_conscriptionnumber']).first()
     if instance:
         logging.info('Updates available: {}'.format(instance))
         return instance
@@ -66,7 +69,7 @@ def insert_city_dataframe(session, city_df):
 
 
 def insert_street_type_dataframe(session, city_df):
-    city_df.columns = [ 'street_type' ]
+    city_df.columns = ['street_type']
     try:
         for index, city_data in city_df.iterrows():
             get_or_create(session, Street_type, street_type=city_data['street_type'])
@@ -107,7 +110,7 @@ def insert_poi_dataframe(session, poi_df):
     try:
         for poi_data in poi_dict:
             city_col = session.query(City.city_id).filter(City.city_name == poi_data['poi_city']).filter(
-                    City.city_post_code == poi_data['poi_postcode']).first()
+                City.city_post_code == poi_data['poi_postcode']).first()
             common_col = session.query(POI_common.pc_id).filter(POI_common.poi_code == poi_data['poi_code']).first()
             poi_data['poi_addr_city'] = city_col
             poi_data['poi_common_id'] = common_col
@@ -120,7 +123,7 @@ def insert_poi_dataframe(session, poi_df):
         logging.warning(traceback.print_exc())
         session.rollback()
         logging.info('Rolled back.')
-        raise(e)
+        raise (e)
     else:
         logging.info('Successfully added the dataset.')
         session.commit()

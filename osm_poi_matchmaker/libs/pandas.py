@@ -18,7 +18,7 @@ def save_downloaded_pd(link, file, verify=config.get_download_verify_link()):
         df = pd.read_csv(file)
     else:
         df = pd.read_csv(link, encoding='UTF-16', sep='\t')
-        if df is not  None:
+        if df is not None:
             if not os.path.exists(config.get_directory_cache_url()):
                 os.makedirs(config.get_directory_cache_url())
             df.to_csv(file)

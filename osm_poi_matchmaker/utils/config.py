@@ -170,12 +170,14 @@ def get_geo_default_poi_distance():
     else:
         return 70
 
+
 def get_geo_prefer_osm_postcode():
     setting = get_config_bool(KEY_GEO_PREFER_OSM_POSTCODE)
     if None != setting:
         return setting
     else:
         return True
+
 
 def get_download_verify_link():
     setting = get_config_bool(KEY_DOWNLOAD_VERIFY_LINK)
@@ -184,6 +186,7 @@ def get_download_verify_link():
     else:
         return True
 
+
 def get_download_use_cached_data():
     setting = get_config_bool(KEY_DOWNLOAD_USE_CACHED_DATA)
     if None != setting:
@@ -191,12 +194,14 @@ def get_download_use_cached_data():
     else:
         return True
 
+
 def get_dataproviders_modules_available():
     setting = get_config_list(KEY_DATAPROVIDERS_MODULES_AVAILABLE)
     if None != setting:
         return setting
     else:
         return True
+
 
 def get_dataproviders_modules_enable():
     setting = get_config_list(KEY_DATAPROVIDERS_MODULES_ENABLE)

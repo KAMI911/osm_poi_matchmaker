@@ -1,4 +1,3 @@
-
 try:
     import traceback
     import logging
@@ -10,15 +9,8 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
+
 def import_module(module_name, class_name):
     module = importlib.import_module(module_name)
     load_class = getattr(module, class_name)
     return load_class
-
-
-
-
-
-
-
-
