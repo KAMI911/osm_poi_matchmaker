@@ -86,7 +86,7 @@ def generate_osm_xml(df):
         # Adding POI common tags
         if row['poi_tags'] is not None:
             tags.update(eval(row['poi_tags']))
-        # Rendering tags to XML file
+        # Rendering tags to the XML file
         for k, v in tags.items():
             xml_tags = etree.SubElement(main_data, 'tag', k=k, v='{}'.format(v))
         osm_xml_data.append(main_data)
