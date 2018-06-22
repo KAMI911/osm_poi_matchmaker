@@ -84,7 +84,6 @@ def generate_osm_xml(df):
             tags['website'] = row['poi_url_base']
         # Adding POI common tags
         if row['poi_tags'] is not None:
-            print(eval(row['poi_tags']))
             tags.update(eval(row['poi_tags']))
         # Rendering tags to XML file
         for k, v in tags.items():
