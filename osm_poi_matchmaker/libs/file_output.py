@@ -54,41 +54,42 @@ def generate_osm_xml(df):
                     data = etree.SubElement(main_data, 'nd', ref=str(n))
             except TypeError as err:
                 logging.warning('Missing nodes on this way: {}.'.format(row['osm_id']))
+        # Using already definied OSM tags if exists
         if row['osm_live_tags'] is not None:
-            try:
-                for k, v in row['osm_live_tags'].items():
-                    tags = etree.SubElement(main_data, 'tag', k='{}'.format(k), v='{}'.format(v))
-            except NameError as err:
-                logging.warning('Unable to eval tags: {}'.format(row['poi_tags']))
+            tags = row['osm_live_tags']
+        else:
+            tags = {}
+        # Overwriting with data from data providers
         if row['poi_name'] is not None:
-            tags = etree.SubElement(main_data, 'tag', k='name', v='{}'.format(row['poi_name']))
+            tags['name'] = row['poi_name']
         if row['poi_city'] is not None:
-            tags = etree.SubElement(main_data, 'tag', k='addr:city', v='{}'.format(row['poi_city']))
+            tags['addr:city'] = row['poi_city']
         if row['poi_postcode'] is not None:
-            tags = etree.SubElement(main_data, 'tag', k='addr:postcode', v='{}'.format(row['poi_postcode']))
+            tags['addr:postcode'] = row['poi_postcode']
         if row['poi_addr_street'] is not None:
-            tags = etree.SubElement(main_data, 'tag', k='addr:street', v='{}'.format(row['poi_addr_street']))
+            tags['addr:street'] = row['poi_addr_street']
         if row['poi_addr_housenumber'] is not None:
-            tags = etree.SubElement(main_data, 'tag', k='addr:housenumber', v='{}'.format(row['poi_addr_housenumber']))
+            tags['addr:housenumber'] = row['poi_addr_housenumber']
         if row['poi_conscriptionnumber'] is not None:
-            tags = etree.SubElement(main_data, 'tag', k='addr:conscriptionnumber', v='{}'.format(row['poi_conscriptionnumber']))
+            tags['addr:conscriptionnumber'] = row['poi_conscriptionnumber']
         if row['poi_branch'] is not None:
-            tags = etree.SubElement(main_data, 'tag', k='branch', v='{}'.format(row['poi_branch']))
+            tags['branch'] = row['poi_branch']
         if row['poi_email'] is not None:
-            tags = etree.SubElement(main_data, 'tag', k='email', v='{}'.format(row['poi_email']))
+            tags['email'] = row['poi_email']
         if row['poi_phone'] is not None and not math.isnan(row['poi_phone']):
-            tags = etree.SubElement(main_data, 'tag', k='phone', v='+{:d}'.format(int(row['poi_phone'])))
+            tags['phone'] = '+{:d}'.format(int(row['poi_phone']))
         if row['poi_url_base'] is not None and row['poi_website'] is not None:
-            tags = etree.SubElement(main_data, 'tag', k='website', v='{}{}'.format(row['poi_url_base'], row['poi_website']))
+            tags['website'] = '{}{}'.format(row['poi_url_base'], row['poi_website'])
         elif row['poi_url_base'] is not None:
-            tags = etree.SubElement(main_data, 'tag', k='website', v='{}'.format(row['poi_url_base']))
+            tags['website'] = row['poi_url_base']
+        # Adding POI common tags
+        if row['poi_tags'] is not None:
+            print(eval(row['poi_tags']))
+            tags.update(eval(row['poi_tags']))
+        # Rendering tags to XML file
+        for k, v in tags.items():
+            xml_tags = etree.SubElement(main_data, 'tag', k=k, v='{}'.format(v))
         osm_xml_data.append(main_data)
         id -= 1
-        try:
-            for k, v in eval(row['poi_tags']).items():
-                tags = etree.SubElement(main_data, 'tag', k='{}'.format(k), v='{}'.format(v))
-                osm_xml_data.append(main_data)
-        except NameError as err:
-            logging.warning('Unable to eval tags: {}'.format(row['poi_tags']))
     return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")
 
