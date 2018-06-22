@@ -82,6 +82,7 @@ def generate_osm_xml(df):
             tags['website'] = '{}{}'.format(row['poi_url_base'], row['poi_website'])
         elif row['poi_url_base'] is not None:
             tags['website'] = row['poi_url_base']
+        tags['source'] = 'website'
         # Adding POI common tags
         if row['poi_tags'] is not None:
             tags.update(eval(row['poi_tags']))
