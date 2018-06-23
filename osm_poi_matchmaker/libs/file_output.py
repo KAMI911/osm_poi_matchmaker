@@ -43,6 +43,9 @@ def generate_osm_xml(df):
                                          user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
                                          uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
                                          version='{}'.format(osm_version))
+            if current_id > 0:
+                comment = etree.Comment(' OSM link: https://osm.org/node/{} '.format(str(current_id)))
+                osm_xml_data.append(comment)
         elif row['node'] is not None and row['node'] == False:
             main_data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_id),
                                          user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
@@ -54,6 +57,11 @@ def generate_osm_xml(df):
                     data = etree.SubElement(main_data, 'nd', ref=str(n))
             except TypeError as err:
                 logging.warning('Missing nodes on this way: {}.'.format(row['osm_id']))
+            if current_id > 0:
+                comment = etree.Comment(' OSM link: https://osm.org/way/{} '.format(str(current_id)))
+                osm_xml_data.append(comment)
+        comment = etree.Comment(' Original coordinates: {} '.format(row['poi_geom']))
+        osm_xml_data.append(comment)
         # Using already definied OSM tags if exists
         if row['osm_live_tags'] is not None:
             tags = row['osm_live_tags']
