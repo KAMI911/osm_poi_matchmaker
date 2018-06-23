@@ -304,7 +304,6 @@ def main():
                     data.at[i, 'osm_live_tags'] = osm_live_query.NodeGet(osm_id)['tag']
             except Exception as err:
                 logging.warning('There was an error during OSM request: {}.'.format(err))
-            print(data.loc[[i], 'osm_live_tags'])
             counter += 1
     for c in poi_codes:
         save_csv_file(config.get_directory_output(), 'poi_address_merge_{}.csv'.format(c), data[data.poi_code == c],
