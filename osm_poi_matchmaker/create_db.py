@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+__author__ = 'kami911'
 
 try:
     import os
@@ -22,7 +23,7 @@ except ImportError as err:
     exit(128)
 
 __program__ = 'create_db'
-__version__ = '0.4.7'
+__version__ = '0.5.0'
 
 POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
             'poi_addr_street',
