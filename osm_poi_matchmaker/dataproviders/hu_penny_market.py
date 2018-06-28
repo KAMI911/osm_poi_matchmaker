@@ -60,7 +60,7 @@ class hu_penny_market():
         summer_sa_c = None
         summer_su_c = None
         lunch_break_start = None
-        lunck_break_stop = None
+        lunch_break_stop = None
         opening_hours = None
         phone = None
         email = None
