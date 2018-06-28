@@ -95,6 +95,23 @@ class hu_cba():
                 fr_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_5']) if poi_data['PS_OPEN_TO_5'] is not None else None
                 sa_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_6']) if poi_data['PS_OPEN_TO_6'] is not None else None
                 su_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_7']) if poi_data['PS_OPEN_TO_7'] is not None else None
+                summer_mo_o = None
+                summer_th_o = None
+                summer_we_o = None
+                summer_tu_o = None
+                summer_fr_o = None
+                summer_sa_o = None
+                summer_su_o = None
+                summer_mo_c = None
+                summer_th_c = None
+                summer_we_c = None
+                summer_tu_c = None
+                summer_fr_c = None
+                summer_sa_c = None
+                summer_su_c = None
+                lunch_break_start = None
+                lunck_break_stop = None
+                opening_hours = None
                 original = poi_data['A_CIM']
                 lat, lon = check_hu_boundary(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'])
                 geom = check_geom(lat, lon)
@@ -111,7 +128,8 @@ class hu_cba():
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
                      ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c,
-                     fr_c, sa_c, su_c])
+                     fr_c, sa_c, su_c, summer_mo_o, summer_th_o, summer_we_o, summer_tu_o, summer_fr_o, summer_sa_o, summer_su_o, summer_mo_c, summer_th_c, summer_we_c, summer_tu_c,
+                     fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunck_break_stop, opening_hours])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:

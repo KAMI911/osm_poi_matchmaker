@@ -45,6 +45,23 @@ class hu_penny_market():
         fr_c = None
         sa_c = None
         su_c = None
+        summer_mo_o = None
+        summer_th_o = None
+        summer_we_o = None
+        summer_tu_o = None
+        summer_fr_o = None
+        summer_sa_o = None
+        summer_su_o = None
+        summer_mo_c = None
+        summer_th_c = None
+        summer_we_c = None
+        summer_tu_c = None
+        summer_fr_c = None
+        summer_sa_c = None
+        summer_su_c = None
+        lunch_break_start = None
+        lunck_break_stop = None
+        opening_hours = None
         phone = None
         email = None
         return data
