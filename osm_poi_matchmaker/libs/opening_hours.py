@@ -21,7 +21,7 @@ class OpeningHours(object):
                               'fr': [fr_o, fr_c, summer_fr_o, summer_fr_c, 4],
                               'sa': [sa_o, sa_c, summer_sa_o, summer_sa_c, 5],
                               'su': [su_o, su_c, summer_su_o, summer_su_c, 6]}
-        self.week_days = ( 'mo', 'tu', 'we', 'th', 'fr', 'sa', 'su')
+        self.week_days = { 0: 'mo', 1: 'tu', 2: 'we', 3: 'th', 4: 'fr', 5: 'sa', 6: 'su'}
         self.oh_types = ('open', 'close', 'summer_open', 'summer_close', 'did')
         self.df_oh = pd.DataFrame.from_dict(self.opening_hours, orient = 'index', columns=self.oh_types)
         self.df_dup = self.df_oh.sort_values('did').drop_duplicates(['open', 'close'], keep='first')
