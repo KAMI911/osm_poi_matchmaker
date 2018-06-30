@@ -12,6 +12,7 @@ try:
         clean_phone
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
+    from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -83,7 +84,8 @@ class hu_dm():
                 summer_su_c = None
                 lunch_break_start = None
                 lunch_break_stop = None
-                opening_hours = None
+                t = OpeningHours(nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c, summer_mo_o, summer_th_o, summer_we_o, summer_tu_o, summer_fr_o, summer_sa_o, summer_su_o, summer_mo_c, summer_th_c, summer_we_c, summer_tu_c, summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop)
+                opening_hours = t.process()
                 original = poi_data['address']['street']
                 ref = None
                 lat, lon = check_hu_boundary(poi_data['location'][0], poi_data['location'][1])
