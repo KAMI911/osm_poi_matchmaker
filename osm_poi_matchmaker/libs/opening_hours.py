@@ -52,22 +52,11 @@ class OpeningHours(object):
         oh_list = []
         if self.non_stop == True:
             return '24/7'
-        last_d = ''
-        if True:
-            for k, v in self.df_dup.iterrows():
-                if v['open'] is not None and v['close'] is not None:
-                    days = ','.join(sorted(v['same']))
-                    oh_list.append('{} {}-{}'.format(days.title(), self.df_dup.at[k, 'open'], self.df_dup.at[k, 'close']))
-                    oh = ';'.join(oh_list)
-            if oh_list == []:
-                oh = None
-        else:
-            for d in self.week_days:
-                if (self.df_oh.at[d, 'open']) is not None and self.df_oh.at[d, 'close'] is not None:
-                    if d in self.df_dup.sort_index(inplace=False).index:
-                        oh_list.append('{} {}-{}'.format(d.title(), self.df_oh.at[d, 'open'], self.df_oh.at[d, 'close']))
-            if oh_list == []:
-                return None
-            else:
+        for k, v in self.df_dup.iterrows():
+            if v['open'] is not None and v['close'] is not None:
+                days = ','.join(sorted(v['same']))
+                oh_list.append('{} {}-{}'.format(days.title(), self.df_dup.at[k, 'open'], self.df_dup.at[k, 'close']))
                 oh = ';'.join(oh_list)
+        if oh_list == []:
+            oh = None
         return oh
