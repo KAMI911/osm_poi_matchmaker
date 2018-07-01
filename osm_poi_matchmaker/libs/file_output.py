@@ -57,11 +57,14 @@ def generate_osm_xml(df):
                     data = etree.SubElement(main_data, 'nd', ref=str(n))
             except TypeError as err:
                 logging.warning('Missing nodes on this way: {}.'.format(row['osm_id']))
+            # Add node reference as comment for existing POI
             if current_id > 0:
                 comment = etree.Comment(' OSM link: https://osm.org/way/{} '.format(str(current_id)))
                 osm_xml_data.append(comment)
+        # Add original POI coodrinates as comment
         comment = etree.Comment(' Original coordinates: {} '.format(row['poi_geom']))
         osm_xml_data.append(comment)
+        # Add original POI tags as comment
         if row['osm_live_tags'] is not None:
             for k, v in row['osm_live_tags'].items():
                 # do something with value
