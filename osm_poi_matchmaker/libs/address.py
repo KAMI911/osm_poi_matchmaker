@@ -157,6 +157,7 @@ def extract_street_housenumber_better_2(clearable):
         street = street.replace('BERCSÉNYI U.', 'Bercsényi utca ')
         street = street.replace('Hunyadi J ', 'Hunyadi János')
         street = street.replace('Szilágyi E ', 'Szilágyi Erzsébet fasor')
+        street = street.replace('Erzsébet Királyné út', 'Erzsébet királyné útja')
         street = street.replace('Szt. ', 'Szent ')
         street = street.replace(' u.', ' utca')
         street = street.replace('.u.', ' utca')
