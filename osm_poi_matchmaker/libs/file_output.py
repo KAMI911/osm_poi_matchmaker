@@ -8,6 +8,10 @@ except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
 
+POI_TAGS = {'poi_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:postcode',
+            'poi_addr_street': 'addr:street', 'poi_addr_housenumber': 'addr:housenumber',
+            'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email',
+            'poi_opening_hours': 'opening_hours'}
 
 def ascii_numcoder(text):
     output = ''
@@ -78,30 +82,15 @@ def generate_osm_xml(df):
         else:
             tags = {}
         # Overwriting with data from data providers
-        if row['poi_name'] is not None:
-            tags['name'] = row['poi_name']
-        if row['poi_city'] is not None:
-            tags['addr:city'] = row['poi_city']
-        if row['poi_postcode'] is not None:
-            tags['addr:postcode'] = row['poi_postcode']
-        if row['poi_addr_street'] is not None:
-            tags['addr:street'] = row['poi_addr_street']
-        if row['poi_addr_housenumber'] is not None:
-            tags['addr:housenumber'] = row['poi_addr_housenumber']
-        if row['poi_conscriptionnumber'] is not None:
-            tags['addr:conscriptionnumber'] = row['poi_conscriptionnumber']
-        if row['poi_branch'] is not None:
-            tags['branch'] = row['poi_branch']
-        if row['poi_email'] is not None:
-            tags['email'] = row['poi_email']
+        for k,v in POI_TAGS.items():
+            if row[k] is not None:
+                tags[v] = row[k]
         if row['poi_phone'] is not None and not math.isnan(row['poi_phone']):
             tags['phone'] = '+{:d}'.format(int(row['poi_phone']))
         if row['poi_url_base'] is not None and row['poi_website'] is not None:
             tags['website'] = '{}{}'.format(row['poi_url_base'], row['poi_website'])
         elif row['poi_url_base'] is not None:
             tags['website'] = row['poi_url_base']
-        if row['poi_opening_hours'] is not None:
-            tags['opening_hours'] = row['poi_opening_hours']
         tags['source'] = 'website'
         # Adding POI common tags
         if row['poi_tags'] is not None:
