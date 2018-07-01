@@ -49,6 +49,8 @@ KEY_DATABASE_WRITE_PASSWORD = 'db.write.password'
 KEY_DATABASE_POI_DATABASE = 'db.poi.database'
 KEY_GEO_DEFAULT_PROJECTION = 'geo.default.projection'
 KEY_GEO_DEFAULT_POI_DISTANCE = 'geo.default.poi.distance'
+KEY_GEO_AMENITY_ATM_POI_DISTANCE = 'geo.amenity.atm.poi.distance'
+KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE = 'geo.shop.conveience.poi.distance'
 KEY_GEO_PREFER_OSM_POSTCODE = 'geo.prefer.osm.postcode'
 KEY_DOWNLOAD_VERIFY_LINK = 'download.verify.link'
 KEY_DOWNLOAD_USE_CACHED_DATA = 'download.use.cached.data'
@@ -170,6 +172,19 @@ def get_geo_default_poi_distance():
     else:
         return 70
 
+def get_geo_amenity_atm_poi_distance():
+    setting = get_config_int(KEY_GEO_AMENITY_ATM_POI_DISTANCE)
+    if None != setting:
+        return setting
+    else:
+        return 20
+
+def get_geo_shop_poi_distance():
+    setting = get_config_int(KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE)
+    if None != setting:
+        return setting
+    else:
+        return 50
 
 def get_geo_prefer_osm_postcode():
     setting = get_config_bool(KEY_GEO_PREFER_OSM_POSTCODE)

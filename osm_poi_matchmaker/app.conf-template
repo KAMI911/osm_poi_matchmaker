@@ -12,7 +12,9 @@ dir.output=output
 dir.cache_url=cache_url
 
 geo.default.projection=3857
-geo.default.poi.distance=30
+geo.default.poi.distance=70
+geo.amenity.atm.poi.distance=20
+geo.shop.conveience.poi.distance=50
 geo.prefer.osm.postcode=True
 
 download.verify.link=True

@@ -137,22 +137,31 @@ class POIBase:
         '''
         if ptype == 'shop':
             query_type = "shop='convenience' OR shop='supermarket'"
+            distance = config.get_geo_shop_poi_distance()
         elif ptype == 'fuel':
             query_type = "amenity='fuel'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'bank':
             query_type = "amenity='bank'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'atm':
             query_type = "amenity='atm'"
+            distance = config.get_geo_amenity_atm_poi_distance()
         elif ptype == 'post_office':
             query_type = "amenity='post_office'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'vending_machine':
             query_type = "amenity='vending_machine'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'pharmacy':
             query_type = "amenity='vending_machine'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'chemist':
             query_type = "shop='chemist'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'bicycle_rental':
             query_type = "amenity='bicycle_rental'"
+            distance = config.get_geo_default_poi_distance()
         query = sqlalchemy.text('''
             SELECT name,osm_id, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
@@ -160,7 +169,7 @@ class POIBase:
                 AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(type=query_type))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
-                                                                                         'distance': config.get_geo_default_poi_distance()})
+                                                                                         'distance': distance})
         query = sqlalchemy.text('''
             SELECT name,osm_id, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
@@ -169,7 +178,7 @@ class POIBase:
             ORDER BY distance ASC;'''.format(type=query_type))
         data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way',
                                               params={'lon': lon, 'lat': lat, 'type': query_type,
-                                                      'distance': config.get_geo_default_poi_distance()})
+                                                      'distance': distance})
         data = data.append(data2)
         return data.sort_values(by=['distance'])
 
@@ -191,22 +200,31 @@ class POIBase:
         '''
         if ptype == 'shop':
             query_type = "shop='convenience' OR shop='supermarket'"
+            distance = config.get_geo_shop_poi_distance()
         elif ptype == 'fuel':
             query_type = "amenity='fuel'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'bank':
             query_type = "amenity='bank'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'atm':
             query_type = "amenity='atm'"
+            distance = config.get_geo_amenity_atm_poi_distance()
         elif ptype == 'post_office':
             query_type = "amenity='post_office'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'vending_machine':
             query_type = "amenity='vending_machine'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'pharmacy':
             query_type = "amenity='vending_machine'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'chemist':
             query_type = "shop='chemist'"
+            distance = config.get_geo_default_poi_distance()
         elif ptype == 'bicycle_rental':
             query_type = "amenity='bicycle_rental'"
+            distance = config.get_geo_default_poi_distance()
         query = sqlalchemy.text('''
             SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
@@ -214,7 +232,7 @@ class POIBase:
                 AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(type=query_type))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
-                                                                                         'distance': config.get_geo_default_poi_distance()})
+                                                                                         'distance': distance})
         query = sqlalchemy.text('''
             SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
@@ -223,7 +241,7 @@ class POIBase:
             ORDER BY distance ASC;'''.format(type=query_type))
         data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way',
                                               params={'lon': lon, 'lat': lat, 'type': query_type,
-                                                      'distance': config.get_geo_default_poi_distance()})
+                                                      'distance': distance})
         if data2.empty == False:
             if data.empty == False:
                 data = data.append(data2)
