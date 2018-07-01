@@ -65,7 +65,7 @@ def generate_osm_xml(df):
             if current_id > 0:
                 comment = etree.Comment(' OSM link: https://osm.org/way/{} '.format(str(current_id)))
                 osm_xml_data.append(comment)
-        # Add original POI coodrinates as comment
+        # Add original POI coordinates as comment
         comment = etree.Comment(' Original coordinates: {} '.format(row['poi_geom']))
         osm_xml_data.append(comment)
         # Add original POI tags as comment
