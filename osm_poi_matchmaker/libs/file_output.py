@@ -62,6 +62,13 @@ def generate_osm_xml(df):
                 osm_xml_data.append(comment)
         comment = etree.Comment(' Original coordinates: {} '.format(row['poi_geom']))
         osm_xml_data.append(comment)
+        if row['osm_live_tags'] is not None:
+            for k, v in row['osm_live_tags'].items():
+                # do something with value
+                if isinstance(v, str):
+                    row['osm_live_tags'][k] = v.replace('--', '\-\-')
+        comment = etree.Comment(' Original tags: {} '.format(row['osm_live_tags']))
+        osm_xml_data.append(comment)
         # Using already definied OSM tags if exists
         if row['osm_live_tags'] is not None:
             tags = row['osm_live_tags']
