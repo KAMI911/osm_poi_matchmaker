@@ -154,7 +154,7 @@ class POIBase:
             query_type = "amenity='vending_machine'"
             distance = config.get_geo_default_poi_distance()
         elif ptype == 'pharmacy':
-            query_type = "amenity='vending_machine'"
+            query_type = "amenity='pharmacy'"
             distance = config.get_geo_default_poi_distance()
         elif ptype == 'chemist':
             query_type = "shop='chemist'"
@@ -217,7 +217,7 @@ class POIBase:
             query_type = "amenity='vending_machine'"
             distance = config.get_geo_default_poi_distance()
         elif ptype == 'pharmacy':
-            query_type = "amenity='vending_machine'"
+            query_type = "amenity='pharmacy'"
             distance = config.get_geo_default_poi_distance()
         elif ptype == 'chemist':
             query_type = "shop='chemist'"
