@@ -73,7 +73,7 @@ def generate_osm_xml(df):
             for k, v in row['osm_live_tags'].items():
                 # do something with value
                 if isinstance(v, str):
-                    row['osm_live_tags'][k] = v.replace('--', '\-\-')
+                    row['osm_live_tags'][k] = v.replace('--', '\-\-').replace('\n', '')
         comment = etree.Comment(' Original tags: {} '.format(row['osm_live_tags']))
         osm_xml_data.append(comment)
         # Using already definied OSM tags if exists
