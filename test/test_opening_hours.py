@@ -53,7 +53,17 @@ class TestOpeningHours(unittest.TestCase):
              'summer_fr_o': None, 'summer_sa_o': None, 'summer_su_o': None, 'summer_mo_c': None, 'summer_th_c': None,
              'summer_we_c': None, 'summer_tu_c': None, 'summer_fr_c': None, 'summer_sa_c': None, 'summer_su_c': None,
              'lunch_break_start': None, 'lunch_break_stop': None, 'processed': 'Mo,Su 08:00-16:00;Tu-We 09:00-16:00;Th-Fr 10:00-16:00;Sa 11:20-16:00'},
-            ]
+            {'nonstop': None, 'mo_o': '08:00', 'th_o': '09:00', 'we_o': '09:00', 'tu_o': '10:00', 'fr_o': '10:00',
+             'sa_o': '11:20',
+             'su_o': '08:00', 'mo_c': '16:00', 'th_c': '16:00', 'we_c': '16:00', 'tu_c': '16:00', 'fr_c': '16:00',
+             'sa_c': '16:00',
+             'su_c': '16:00', 'summer_mo_o': None, 'summer_th_o': None, 'summer_we_o': None, 'summer_tu_o': None,
+             'summer_fr_o': None, 'summer_sa_o': None, 'summer_su_o': None, 'summer_mo_c': None, 'summer_th_c': None,
+             'summer_we_c': None, 'summer_tu_c': None, 'summer_fr_c': None, 'summer_sa_c': None, 'summer_su_c': None,
+             'lunch_break_start': '12:00', 'lunch_break_stop': '12:30',
+             'processed': 'Mo,Su 08:00-12:00,12:30-16:00;Tu-We 09:00-12:00,12:30-16:00;Th-Fr 10:00-12:00,12:30-16:00;Sa 11:20-12:00,12:30-16:00'},
+        ]
+
     def test_extract_opening_hours(self):
         for i in self.opening_hours:
             p = OpeningHours(i['nonstop'], i['mo_o'], i['th_o'], i['we_o'], i['tu_o'], i['fr_o'], i['sa_o'],

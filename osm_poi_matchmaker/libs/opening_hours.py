@@ -21,6 +21,7 @@ class OpeningHours(object):
                               'fr': [fr_o, fr_c, summer_fr_o, summer_fr_c, 4],
                               'sa': [sa_o, sa_c, summer_sa_o, summer_sa_c, 5],
                               'su': [su_o, su_c, summer_su_o, summer_su_c, 6]}
+        self.lunchbreak = { 'start': lunch_break_start, 'stop': lunch_break_stop}
         self.week_days = { 0: 'mo', 1: 'tu', 2: 'we', 3: 'th', 4: 'fr', 5: 'sa', 6: 'su'}
         self.oh_types = ('open', 'close', 'summer_open', 'summer_close', 'did')
         self.df_oh = pd.DataFrame.from_dict(self.opening_hours, orient = 'index', columns=self.oh_types)
@@ -43,11 +44,11 @@ class OpeningHours(object):
 
     @property
     def lunch_break(self):
-        return (self.lunch_break)
+        return (self.lunchbreak)
 
     @lunch_break.setter
     def lunch_break(self, lunch_break_start, lunch_break_stop):
-        self.lunch_break = { 'start': self.lunck_break_start, 'stop': self.lunch_break_stop}
+        self.lunchbreak = { 'start': lunch_break_start, 'stop': lunch_break_stop}
 
     def process(self):
         oh = ''
@@ -71,7 +72,13 @@ class OpeningHours(object):
                 # Make list of days
                 else:
                     days = ','.join(same_sorted)
-                oh_list.append('{} {}-{}'.format(days.title(), self.df_dup.at[k, 'open'], self.df_dup.at[k, 'close']))
+                if self.lunchbreak['start'] is None and self.lunchbreak['stop'] is None:
+                    oh_list.append(
+                        '{} {}-{}'.format(days.title(), self.df_dup.at[k, 'open'], self.df_dup.at[k, 'close']))
+                else:
+                    oh_list.append(
+                        '{} {}-{},{}-{}'.format(days.title(), self.df_dup.at[k, 'open'], self.lunchbreak['start'],
+                                                self.lunchbreak['stop'], self.df_dup.at[k, 'close']))
                 oh = ';'.join(oh_list)
         if oh_list == []:
             oh = None
