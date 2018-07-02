@@ -27,7 +27,7 @@ def check_hu_boundary(latitude, longitude):
     if (latitude is not None and latitude != '') and (longitude is not None and longitude != ''):
         # This is a workaround because original datasource may contains swapped lat / lon parameters
         if float(latitude) < 44:
-            logging.warning('Lat-long repace')
+            logging.warning('Latitude-longitude replacement. Originally was: latitude: {}, longitude: {}.'.format(latitude,longitude))
             longitude, latitude = latitude, longitude
         # Another workaround to insert missing decimal point
         if float(longitude) > 200:
