@@ -9,7 +9,7 @@ try:
     from lxml import etree
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
@@ -21,7 +21,12 @@ except ImportError as err:
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
+DAYS = {0: 'Hétfő', 1: 'Kedd', 2: 'Szerda', 3: 'Csütörtök', 4: 'Péntek', 5: 'Szombat', 6: 'Vasárnap'}
 
+def dict_search(my_dict, lookup):
+    for key, value in my_dict.items():
+        if lookup in value:
+            return key
 
 class hu_posta():
     # Processing http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml file
@@ -86,38 +91,77 @@ class hu_posta():
             website = None
             nonstop = None
             mo_o = None
-            th_o = None
-            we_o = None
             tu_o = None
+            we_o = None
+            th_o = None
             fr_o = None
             sa_o = None
             su_o = None
             mo_c = None
-            th_c = None
-            we_c = None
             tu_c = None
+            we_c = None
+            th_c = None
             fr_c = None
             sa_c = None
             su_c = None
+            lunch_break_start = None
+            lunch_break_stop = None
+            day = e.findall('workingHours/days') if e.findall('workingHours/days') is not None else None
+            oh_table = []
+            for d in day:
+                if len(d) != 0:
+                    dict_key = dict_search (DAYS, d[0].text)
+                    if len(d) == 5:
+                        oh_table.append([dict_key, d[1].text, d[4].text, d[2].text, d[3].text])
+                    elif len(d) == 3:
+                        oh_table.append([dict_key, d[1].text, d[2].text, None, None])
+                    else:
+                        logging.warning('Errorous state.')
+            if oh_table is not None:
+                try:
+                    if oh_table[0][3] is not None and oh_table[0][4] is not None:
+                        lunch_break_start = oh_table[0][3].replace('-', ':')
+                        lunch_break_stop = oh_table[0][4].replace('-', ':')
+                    if oh_table[0] is not None:
+                        mo_o = oh_table[0][1].replace('-', ':')
+                        mo_c = oh_table[0][2].replace('-', ':')
+                    if oh_table[1] is not None:
+                        tu_o = oh_table[1][1].replace('-', ':')
+                        tu_c = oh_table[1][2].replace('-', ':') 
+                    if oh_table[2] is not None:
+                        we_o = oh_table[2][1].replace('-', ':')
+                        we_c = oh_table[2][2].replace('-', ':')
+                    if oh_table[3] is not None:
+                        th_o = oh_table[3][1].replace('-', ':')
+                        th_c = oh_table[3][2].replace('-', ':')
+                    if oh_table[4] is not None:
+                        fr_o = oh_table[4][1].replace('-', ':')
+                        fr_c = oh_table[4][2].replace('-', ':')
+                    if oh_table[5] is not None:
+                        sa_o = oh_table[5][1].replace('-', ':')
+                        sa_c = oh_table[5][2].replace('-', ':')
+                    if oh_table[6] is not None:
+                        su_o = oh_table[6][1].replace('-', ':')
+                        su_c = oh_table[6][2].replace('-', ':')
+                except IndexError:
+                    pass
             summer_mo_o = None
-            summer_th_o = None
-            summer_we_o = None
             summer_tu_o = None
+            summer_we_o = None
+            summer_th_o = None
             summer_fr_o = None
             summer_sa_o = None
             summer_su_o = None
             summer_mo_c = None
-            summer_th_c = None
-            summer_we_c = None
             summer_tu_c = None
+            summer_we_c = None
+            summer_th_c = None
             summer_fr_c = None
             summer_sa_c = None
             summer_su_c = None
-            lunch_break_start = None
-            lunch_break_stop = None
-            t = OpeningHours(nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c,
-                             su_c, summer_mo_o, summer_th_o, summer_we_o, summer_tu_o, summer_fr_o, summer_sa_o,
-                             summer_su_o, summer_mo_c, summer_th_c, summer_we_c, summer_tu_c, summer_fr_c, summer_sa_c,
+            t = OpeningHours(nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c, fr_c, sa_c,
+                             su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
+                             summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c, summer_fr_c, summer_sa_c,
                              summer_su_c, lunch_break_start, lunch_break_stop)
             opening_hours = t.process()
             lat, lon = check_hu_boundary(e.find('gpsData/WGSLat').text.replace(',', '.'),
@@ -126,13 +170,13 @@ class hu_posta():
             postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
             original = None
             ref = None
-            phone = None
-            email = None
+            phone = clean_phone(e.find('phoneArea').text) if e.find('phoneArea') is not None else None
+            email = e.find('email').text.strip() if e.find('email') is not None else None
             insert_data.append(
                 [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                 ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c,
-                 fr_c, sa_c, su_c, summer_mo_o, summer_th_o, summer_we_o, summer_tu_o, summer_fr_o, summer_sa_o,
-                 summer_su_o, summer_mo_c, summer_th_c, summer_we_c, summer_tu_c,
+                 ref, phone, email, geom, nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c,
+                 fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
+                 summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c,
                  summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop, opening_hours])
         if len(insert_data) < 1:
             logging.warning('Resultset is empty. Skipping ...')
