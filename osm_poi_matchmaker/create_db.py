@@ -326,7 +326,7 @@ def main():
             data.loc[[i], 'osm_version'] = osm_query['osm_version'].values[0]
             data.loc[[i], 'osm_changeset'] = osm_query['osm_changeset'].values[0]
             osm_timestamp = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
-            data.loc[[i], 'osm_timestamp'] = '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M%S')
+            data.loc[[i], 'osm_timestamp'] = '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M:%S')
             # For OSM way also query node points
             if osm_node == False:
                 logging.info('This is an OSM way looking for id {} nodes.'.format(osm_id))
