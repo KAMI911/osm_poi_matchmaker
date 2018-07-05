@@ -30,6 +30,13 @@ class POI_type(enum.Enum):
     pharmacy = 6
     chemist = 7
     bicycle_rental = 8
+    vending_machine_cheques = 9
+    vending_machine_parcel_pickup = 10
+    vending_machine_parcel_mail_in = 11
+    vending_machine_parcel_pickup_and_mail_in = 12
+    vending_machine_parking_tickets = 13
+
+
 
 
 class POI_address(Base):
