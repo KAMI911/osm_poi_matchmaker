@@ -127,7 +127,7 @@ class hu_posta():
                         mo_c = oh_table[0][2].replace('-', ':')
                     if oh_table[1] is not None:
                         tu_o = oh_table[1][1].replace('-', ':')
-                        tu_c = oh_table[1][2].replace('-', ':') 
+                        tu_c = oh_table[1][2].replace('-', ':')
                     if oh_table[2] is not None:
                         we_o = oh_table[2][1].replace('-', ':')
                         we_c = oh_table[2][2].replace('-', ':')

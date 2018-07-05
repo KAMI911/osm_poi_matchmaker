@@ -73,36 +73,36 @@ class hu_tesco():
                 nonstop = None
                 opening = json.loads(poi_data['opening'])
                 mo_o = opening['1'][0]
-                th_o = opening['2'][0]
+                tu_o = opening['2'][0]
                 we_o = opening['3'][0]
-                tu_o = opening['4'][0]
+                th_o = opening['4'][0]
                 fr_o = opening['5'][0]
                 sa_o = opening['6'][0]
                 su_o = opening['0'][0]
                 mo_c = opening['1'][1]
-                th_c = opening['2'][1]
+                tu_c = opening['2'][1]
                 we_c = opening['3'][1]
-                tu_c = opening['4'][1]
+                th_c = opening['4'][1]
                 fr_c = opening['5'][1]
                 sa_c = opening['6'][1]
                 su_c = opening['0'][1]
                 summer_mo_o = None
-                summer_th_o = None
-                summer_we_o = None
                 summer_tu_o = None
+                summer_we_o = None
+                summer_th_o = None
                 summer_fr_o = None
                 summer_sa_o = None
                 summer_su_o = None
                 summer_mo_c = None
-                summer_th_c = None
-                summer_we_c = None
                 summer_tu_c = None
+                summer_we_c = None
+                summer_th_c = None
                 summer_fr_c = None
                 summer_sa_c = None
                 summer_su_c = None
                 lunch_break_start = None
                 lunch_break_stop = None
-                t = OpeningHours(nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c, su_c, summer_mo_o, summer_th_o, summer_we_o, summer_tu_o, summer_fr_o, summer_sa_o, summer_su_o, summer_mo_c, summer_th_c, summer_we_c, summer_tu_c, summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop)
+                t = OpeningHours(nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c, fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o, summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c, summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop)
                 opening_hours = t.process()
                 lat, lon = check_hu_boundary(poi_data['gpslat'], poi_data['gpslng'])
                 geom = check_geom(lat, lon)
@@ -116,8 +116,8 @@ class hu_tesco():
                 email = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, phone, email, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c,
-                     fr_c, sa_c, su_c, summer_mo_o, summer_th_o, summer_we_o, summer_tu_o, summer_fr_o, summer_sa_o, summer_su_o, summer_mo_c, summer_th_c, summer_we_c, summer_tu_c,
+                     ref, phone, email, geom, nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c,
+                     fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o, summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c,
                      summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop, opening_hours])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')

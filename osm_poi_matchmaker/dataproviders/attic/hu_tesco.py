@@ -98,7 +98,7 @@ class hu_tesco():
                 ref = None
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, geom, nonstop, mo_o, th_o, we_o, tu_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c,
+                     ref, geom, nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, th_c, we_c, tu_c, fr_c, sa_c,
                      su_c])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')
