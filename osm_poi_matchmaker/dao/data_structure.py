@@ -89,7 +89,7 @@ class POI_address(Base):
     poi_opening_hours_summer_su_close = Column(Time)
     poi_opening_hours_lunch_break_start = Column(Time)
     poi_opening_hours_lunch_break_stop = Column(Time)
-    poi_opening_hours = Column(Unicode(128), nullable=True, unique=False, index=True)
+    poi_opening_hours = Column(Unicode(256), nullable=True, unique=False, index=True)
     poi_hash = Column(Unicode(128), nullable=True, unique=False, index=True)
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_updated = Column(DateTime(True))
