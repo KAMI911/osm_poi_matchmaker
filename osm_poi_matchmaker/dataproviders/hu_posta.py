@@ -112,12 +112,17 @@ class hu_posta():
                 if len(d) != 0:
                     dict_key = dict_search (DAYS, d[0].text)
                     if len(d) == 5:
-                        oh_table.append([dict_key, d[1].text, d[4].text, d[2].text, d[3].text])
+                        # Avoid duplicated values of opening and close
+                        if d[1].text != d[2].text and d[3].text != d[4].text:
+                            oh_table.append([dict_key, d[1].text, d[4].text, d[2].text, d[3].text])
+                        else:
+                            oh_table.append([dict_key, d[1].text, d[2].text, None, None])
                     elif len(d) == 3:
                         oh_table.append([dict_key, d[1].text, d[2].text, None, None])
                     else:
                         logging.warning('Errorous state.')
             if oh_table is not None:
+                nonstop_num = 0
                 try:
                     if oh_table[0][3] is not None and oh_table[0][4] is not None:
                         lunch_break_start = oh_table[0][3].replace('-', ':')
@@ -125,26 +130,42 @@ class hu_posta():
                     if oh_table[0] is not None:
                         mo_o = oh_table[0][1].replace('-', ':')
                         mo_c = oh_table[0][2].replace('-', ':')
+                        if '0:00' in oh_table[0][1] and ( oh_table[0][2] in ['0:00', '23:59', '24:00' ] ):
+                            nonstop_num += 1
                     if oh_table[1] is not None:
                         tu_o = oh_table[1][1].replace('-', ':')
                         tu_c = oh_table[1][2].replace('-', ':')
+                        if '0:00' in oh_table[1][1] and (oh_table[1][2] in ['0:00', '23:59', '24:00']):
+                            nonstop_num += 1
                     if oh_table[2] is not None:
                         we_o = oh_table[2][1].replace('-', ':')
                         we_c = oh_table[2][2].replace('-', ':')
+                        if '0:00' in oh_table[2][1] and (oh_table[2][2] in ['0:00', '23:59', '24:00']):
+                            nonstop_num += 1
                     if oh_table[3] is not None:
                         th_o = oh_table[3][1].replace('-', ':')
                         th_c = oh_table[3][2].replace('-', ':')
+                        if '0:00' in oh_table[3][1] and (oh_table[3][2] in ['0:00', '23:59', '24:00']):
+                            nonstop_num += 1
                     if oh_table[4] is not None:
                         fr_o = oh_table[4][1].replace('-', ':')
                         fr_c = oh_table[4][2].replace('-', ':')
+                        if '0:00' in oh_table[4][1] and (oh_table[4][2] in ['0:00', '23:59', '24:00']):
+                            nonstop_num += 1
                     if oh_table[5] is not None:
                         sa_o = oh_table[5][1].replace('-', ':')
                         sa_c = oh_table[5][2].replace('-', ':')
+                        if '0:00' in oh_table[5][1] and (oh_table[5][2] in ['0:00', '23:59', '24:00']):
+                            nonstop_num += 1
                     if oh_table[6] is not None:
                         su_o = oh_table[6][1].replace('-', ':')
                         su_c = oh_table[6][2].replace('-', ':')
+                        if '0:00' in oh_table[6][1] and (oh_table[6][2] in ['0:00', '23:59', '24:00']):
+                            nonstop_num += 1
                 except IndexError:
                     pass
+            if nonstop_num == 7:
+                nonstop = True
             summer_mo_o = None
             summer_tu_o = None
             summer_we_o = None
