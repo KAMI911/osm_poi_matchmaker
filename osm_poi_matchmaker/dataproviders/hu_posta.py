@@ -188,7 +188,6 @@ class hu_posta():
             lat, lon = check_hu_boundary(e.find('gpsData/WGSLat').text.replace(',', '.'),
                                          e.find('gpsData/WGSLon').text.replace(',', '.'))
             geom = check_geom(lat, lon)
-            postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
             original = None
             ref = None
             phone = clean_phone(e.find('phoneArea').text) if e.find('phoneArea') is not None else None
