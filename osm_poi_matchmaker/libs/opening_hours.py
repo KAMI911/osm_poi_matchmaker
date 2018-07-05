@@ -81,7 +81,7 @@ class OpeningHours(object):
                     oh_list.append(
                         '{} {}-{},{}-{}'.format(days.title(), self.df_dup.at[k, 'open'], self.lunchbreak['start'],
                                                 self.lunchbreak['stop'], self.df_dup.at[k, 'close']))
-                oh = ';'.join(oh_list)
+                oh = '; '.join(oh_list)
         if oh_list == []:
             oh = None
         return oh
