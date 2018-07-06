@@ -116,9 +116,10 @@ class hu_posta():
                     dict_key = dict_search(DAYS, d[0].text)
                     if len(d) == 5:
                         # Avoid duplicated values of opening and close
-                        if d[1].text != d[2].text and d[3].text != d[4].text:
+                        if d[1].text != d[3].text and d[2].text != d[4].text:
                             oh_table.append([dict_key, d[1].text, d[4].text, d[2].text, d[3].text])
                         else:
+                            logging.warning('Dulicated opening hours in post office: {}: {}-{}; {}-{}.'.format(branch, d[1].text, d[2].text, d[3].text, d[4].text))
                             oh_table.append([dict_key, d[1].text, d[2].text, None, None])
                     elif len(d) == 3:
                         oh_table.append([dict_key, d[1].text, d[2].text, None, None])
