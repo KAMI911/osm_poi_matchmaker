@@ -149,7 +149,7 @@ class POIBase:
             distance = config.get_geo_amenity_atm_poi_distance()
         elif ptype == 'post_office':
             query_type = "amenity='post_office'"
-            distance = config.get_geo_default_poi_distance()
+            distance = config.get_geo_amenity_post_office_poi_distance()
         elif ptype == 'vending_machine':
             query_type = "amenity='vending_machine'"
             distance = config.get_geo_default_poi_distance()
@@ -212,7 +212,7 @@ class POIBase:
             distance = config.get_geo_amenity_atm_poi_distance()
         elif ptype == 'post_office':
             query_type = "amenity='post_office'"
-            distance = config.get_geo_default_poi_distance()
+            distance = config.get_geo_amenity_post_office_poi_distance()
         elif ptype == 'vending_machine':
             query_type = "amenity='vending_machine'"
             distance = config.get_geo_default_poi_distance()
