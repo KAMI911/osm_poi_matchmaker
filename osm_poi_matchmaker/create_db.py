@@ -162,6 +162,21 @@ class POIBase:
         elif ptype == 'bicycle_rental':
             query_type = "amenity='bicycle_rental'"
             distance = config.get_geo_default_poi_distance()
+        elif ptype == 'vending_machine_cheques':
+            query_type = "amenity='vending_machine' AND vending='cheques'"
+            distance = config.get_geo_default_poi_distance()
+        elif ptype == 'vending_machine_parcel_pickup':
+            query_type = "amenity='vending_machine' AND vending='parcel_pickup'"
+            distance = config.get_geo_default_poi_distance()
+        elif ptype == 'vending_machine_parcel_mail_in':
+            query_type = "amenity='vending_machine' AND vending='parcel_mail_in'"
+            distance = config.get_geo_default_poi_distance()
+        elif ptype == 'vending_machine_parcel_pickup_and_mail_in':
+            query_type = "amenity='vending_machine' AND vending='parcel_pickup;parcel_mail_in'"
+            distance = config.get_geo_default_poi_distance()
+        elif ptype == 'vending_machine_parking_tickets':
+            query_type = "amenity='vending_machine' AND vending='parking_tickets'"
+            distance = config.get_geo_default_poi_distance()
         query = sqlalchemy.text('''
             SELECT name,osm_id, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
@@ -225,7 +240,6 @@ class POIBase:
         elif ptype == 'bicycle_rental':
             query_type = "amenity='bicycle_rental'"
             distance = config.get_geo_default_poi_distance()
-
         elif ptype == 'vending_machine_cheques':
             query_type = "amenity='vending_machine' AND vending='cheques'"
             distance = config.get_geo_default_poi_distance()
