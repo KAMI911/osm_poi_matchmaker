@@ -33,9 +33,10 @@ class hu_foxpost():
 
     @staticmethod
     def types():
-        data = [{'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_type': 'vending_machine_parcel_pickup_and_mail_in',
-                 'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup;parcel_mail_in', 'brand': 'Foxpost', 'operator': 'FoxPost Zrt.', 'facebook': 'https://www.facebook.com/foxpostzrt', 'youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w', 'email': 'info@foxpost.hu', 'phone': '+36 1 999 03 69', 'payment:debit_cards': 'yes', 'payment:cash': 'no'}",
-                 'poi_url_base': 'https://www.foxpost.hu'}]
+        data = [
+            {'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_type': 'vending_machine_parcel_pickup_and_mail_in',
+             'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup;parcel_mail_in', 'brand': 'Foxpost', 'operator': 'FoxPost Zrt.', 'facebook': 'https://www.facebook.com/foxpostzrt', 'youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w', 'email': 'info@foxpost.hu', 'phone': '+36 1 999 03 69', 'payment:debit_cards': 'yes', 'payment:cash': 'no'}",
+             'poi_url_base': 'https://www.foxpost.hu'}]
         return data
 
     def process(self):
@@ -97,7 +98,10 @@ class hu_foxpost():
                 summer_su_c = None
                 lunch_break_start = None
                 lunch_break_stop = None
-                t = OpeningHours(nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c, fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o, summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c, summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop)
+                t = OpeningHours(nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c, fr_c, sa_c,
+                                 su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
+                                 summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c, summer_fr_c,
+                                 summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop)
                 opening_hours = t.process()
                 original = poi_data['address']
                 ref = None
@@ -109,7 +113,8 @@ class hu_foxpost():
                 insert_data.append(
                     [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
                      ref, phone, email, geom, nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c,
-                     fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o, summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c,
+                     fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
+                     summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c,
                      summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop, opening_hours])
             if len(insert_data) < 1:
                 logging.warning('Resultset is empty. Skipping ...')

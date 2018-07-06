@@ -173,12 +173,14 @@ def get_geo_default_poi_distance():
     else:
         return 70
 
+
 def get_geo_amenity_atm_poi_distance():
     setting = get_config_int(KEY_GEO_AMENITY_ATM_POI_DISTANCE)
     if None != setting:
         return setting
     else:
         return 20
+
 
 def get_geo_shop_poi_distance():
     setting = get_config_int(KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE)
@@ -187,12 +189,14 @@ def get_geo_shop_poi_distance():
     else:
         return 50
 
+
 def get_geo_amenity_post_office_poi_distance():
     setting = get_config_int(KEY_GEO_AMENITY_POST_OFFICE_POI_DISTANCE)
     if None != setting:
         return setting
     else:
         return 250
+
 
 def get_geo_prefer_osm_postcode():
     setting = get_config_bool(KEY_GEO_PREFER_OSM_POSTCODE)

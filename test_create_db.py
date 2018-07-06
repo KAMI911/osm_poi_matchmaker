@@ -22,7 +22,8 @@ def testing_create_db():
     opening_hours_resolver = unittest.TestLoader().loadTestsFromTestCase(TestOpeningHours)
     timing = unittest.TestLoader().loadTestsFromTestCase(Timing)
     suite = unittest.TestSuite(
-        [address_resolver, address_full_resolver, opening_hours_cleaner, opening_hours_cleaner2, phone_cleaner, opening_hours_resolver, timing])
+        [address_resolver, address_full_resolver, opening_hours_cleaner, opening_hours_cleaner2, phone_cleaner,
+         opening_hours_resolver, timing])
     return unittest.TextTestRunner(verbosity=2).run(suite)
 
 

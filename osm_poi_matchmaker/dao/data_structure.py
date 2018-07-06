@@ -37,8 +37,6 @@ class POI_type(enum.Enum):
     vending_machine_parking_tickets = 13
 
 
-
-
 class POI_address(Base):
     __tablename__ = 'poi_address'
     _plural_name_ = 'poi_address'

@@ -13,6 +13,7 @@ POI_TAGS = {'poi_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:p
             'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email',
             'poi_opening_hours': 'opening_hours'}
 
+
 def ascii_numcoder(text):
     output = ''
     for i in text:
@@ -82,7 +83,7 @@ def generate_osm_xml(df):
         else:
             tags = {}
         # Overwriting with data from data providers
-        for k,v in POI_TAGS.items():
+        for k, v in POI_TAGS.items():
             if row[k] is not None:
                 tags[v] = row[k]
         if row['poi_phone'] is not None and not math.isnan(row['poi_phone']):

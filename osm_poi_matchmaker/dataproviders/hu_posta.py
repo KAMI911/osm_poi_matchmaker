@@ -23,10 +23,12 @@ POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
 DAYS = {0: 'Hétfő', 1: 'Kedd', 2: 'Szerda', 3: 'Csütörtök', 4: 'Péntek', 5: 'Szombat', 6: 'Vasárnap'}
 
+
 def dict_search(my_dict, lookup):
     for key, value in my_dict.items():
         if lookup in value:
             return key
+
 
 class hu_posta():
     # Processing http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml file
@@ -45,7 +47,8 @@ class hu_posta():
                 {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkautomata', 'poi_type': 'vending_machine_cheques',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'cheques', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial'}",
                  'poi_url_base': 'https://www.posta.hu'},
-                {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata', 'poi_type': 'vending_machine_parcel_pickup',
+                {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata',
+                 'poi_type': 'vending_machine_parcel_pickup',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial'}",
                  'poi_url_base': 'https://www.posta.hu'},
                 {'poi_code': 'hupostapp', 'poi_name': 'PostaPont', 'poi_type': 'post_office',
@@ -110,7 +113,7 @@ class hu_posta():
             oh_table = []
             for d in day:
                 if len(d) != 0:
-                    dict_key = dict_search (DAYS, d[0].text)
+                    dict_key = dict_search(DAYS, d[0].text)
                     if len(d) == 5:
                         # Avoid duplicated values of opening and close
                         if d[1].text != d[2].text and d[3].text != d[4].text:
@@ -130,7 +133,7 @@ class hu_posta():
                     if oh_table[0] is not None:
                         mo_o = oh_table[0][1].replace('-', ':')
                         mo_c = oh_table[0][2].replace('-', ':')
-                        if '0:00' in oh_table[0][1] and ( oh_table[0][2] in ['0:00', '23:59', '24:00' ] ):
+                        if '0:00' in oh_table[0][1] and (oh_table[0][2] in ['0:00', '23:59', '24:00']):
                             nonstop_num += 1
                     if oh_table[1] is not None:
                         tu_o = oh_table[1][1].replace('-', ':')
