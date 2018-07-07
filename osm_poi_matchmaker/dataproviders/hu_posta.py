@@ -65,7 +65,7 @@ class hu_posta():
         root = etree.fromstring(xml)
         for e in root.findall('post'):
             #  The 'kirendeltség' post offices are not available to end users, so we remove them
-            if 'kirendeltség' in e.find('name').text.lower():
+            if 'okmányiroda' in e.find('name').text.lower() or 'mol kirendeltség' in e.find('name').text.lower():
                 logging.debug('Skipping non public post office.')
                 continue
             else:
