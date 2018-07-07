@@ -22,7 +22,7 @@ except ImportError as err:
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'https://tesco.hu/aruhazak/'
-POI_COMMON_TAGS = "'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'ref:vatin:hu':'10307078-2-44', 'brand': 'Tesco', 'wikipedia':'hu:Tesco', 'wikidata': 'Q487494', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
+POI_COMMON_TAGS = "'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'ref:vatin:hu': '10307078-2-44', 'brand': 'Tesco', 'wikipedia': 'hu:Tesco', 'wikidata': 'Q487494', 'facebook': 'https://www.facebook.com/tescoaruhazak/', 'youtube': 'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
 
 
 class hu_tesco():

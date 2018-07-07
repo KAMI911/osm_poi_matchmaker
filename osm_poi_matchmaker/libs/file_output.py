@@ -4,6 +4,7 @@ try:
     import math
     import logging
     import os
+    import datetime
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -93,6 +94,8 @@ def generate_osm_xml(df):
         elif row['poi_url_base'] is not None:
             tags['website'] = row['poi_url_base']
         tags['source'] = 'website'
+        tags['source:date'] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d')
+        tags['import'] = 'osm_poi_matchmaker'
         # Adding POI common tags
         if row['poi_tags'] is not None:
             tags.update(eval(row['poi_tags']))
