@@ -17,7 +17,7 @@ except ImportError as err:
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/'
-
+POI_COMMON_TAGS = "'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi', 'ref:vatin:hu':'22234663-2-44', 'wikipedia':'hu:Aldi', 'wikidata':'Q125054', 'facebook': 'https://www.facebook.com/ALDI.Magyarorszag', 'youtube':'https://www.youtube.com/user/ALDIMagyarorszag', 'instagram':'https://www.instagram.com/aldi.magyarorszag/', 'payment:mastercard': 'yes', 'payment:visa': 'yes'}"
 
 class hu_aldi():
 
@@ -31,7 +31,7 @@ class hu_aldi():
     @staticmethod
     def types():
         data = [{'poi_code': 'hualdisup', 'poi_name': 'Aldi', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'supermarket', 'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi', 'facebook': 'https://www.facebook.com/ALDI.Magyarorszag', 'youtube':'https://www.youtube.com/user/ALDIMagyarorszag', 'instagram':'https://www.instagram.com/aldi.magyarorszag/', 'payment:mastercard': 'yes', 'payment:visa': 'yes'}",
+                 'poi_tags': "{'shop': 'supermarket', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.aldi.hu'}]
         return data
 
