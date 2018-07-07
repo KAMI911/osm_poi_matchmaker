@@ -22,7 +22,7 @@ except ImportError as err:
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
 DAYS = {0: 'Hétfő', 1: 'Kedd', 2: 'Szerda', 3: 'Csütörtök', 4: 'Péntek', 5: 'Szombat', 6: 'Vasárnap'}
-
+COMMON_TAGS="'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:vatin:hu':'10901232-2-44', 'wikipedia': 'hu:Magyar Posta Zrt.', 'wikidata': 'Q145614', 'email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial, 'instagram':'https://www.instagram.com/magyar_posta_zrt/'"
 
 def dict_search(my_dict, lookup):
     for key, value in my_dict.items():
@@ -42,20 +42,20 @@ class hu_posta():
     @staticmethod
     def types():
         data = [{'poi_code': 'hupostapo', 'poi_name': 'Posta', 'poi_type': 'post_office',
-                 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial'}",
+                 'poi_tags': "{'amenity': 'post_office'" + COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.posta.hu'},
                 {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkautomata', 'poi_type': 'vending_machine_cheques',
-                 'poi_tags': "{'amenity': 'vending_machine', 'vending': 'cheques', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial'}",
+                 'poi_tags': "{'amenity': 'vending_machine', 'vending': 'cheques'" + COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.posta.hu'},
                 {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata',
                  'poi_type': 'vending_machine_parcel_pickup',
-                 'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial'}",
+                 'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup'" + COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.posta.hu'},
                 {'poi_code': 'hupostapp', 'poi_name': 'PostaPont', 'poi_type': 'post_office',
-                 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial'}",
+                 'poi_tags': "{'amenity': 'post_office'" + COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.posta.hu'},
                 {'poi_code': 'hupostamp', 'poi_name': 'Mobilposta', 'poi_type': 'post_office',
-                 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial'}",
+                 'poi_tags': "{'amenity': 'post_office'" + COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.posta.hu'}]
         return data
 
