@@ -24,6 +24,7 @@ POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'https://tesco.hu/aruhazak/'
 
 
+
 class hu_tesco():
 
     def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_tesco.html'):
@@ -36,7 +37,7 @@ class hu_tesco():
     @staticmethod
     def types():
         data = [{'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'convenience', 'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'ref:vatin:hu':'10307078-2-44', 'brand': 'Tesco', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'convenience' }",
                  'poi_url_base': 'https://www.tesco.hu'},
                 {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'ref:vatin:hu':'10307078-2-44', 'brand': 'Tesco', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'wheelchair': 'yes'}",
