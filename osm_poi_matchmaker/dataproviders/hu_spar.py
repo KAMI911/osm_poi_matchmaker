@@ -21,7 +21,7 @@ except ImportError as err:
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU'
-
+POI_COMMON_TAGS = "'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar' 'wikipedia':'hu:Spar ', 'wikidata': 'Q610492', 'facebook': 'https://www.facebook.com/sparmagyarorszag', 'youtube': 'https://www.youtube.com/channel/UC9tu8COHiy4WkeTIN1k_Y8A', 'instagram':'https://www.instagram.com/sparmagyarorszag/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes',"
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
 
 
@@ -37,13 +37,13 @@ class hu_spar():
     @staticmethod
     def types():
         data = [{'poi_code': 'husparexp', 'poi_name': 'Spar Expressz', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'convenience', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment':'cash', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'convenience', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.spar.hu'},
                 {'poi_code': 'husparint', 'poi_name': 'Interspar', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment':'cash', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'supermarket', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.spar.hu'},
                 {'poi_code': 'husparsup', 'poi_name': 'Spar', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment':'cash', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'supermarket', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.spar.hu'}]
         return data
 
