@@ -12,6 +12,20 @@ except ImportError as err:
 __program__ = 'enums'
 __version__ = '0.0.1'
 
+class WeekDaysShort(enum.Enum):
+    mo = 0
+    tu = 1
+    we = 2
+    th = 3
+    fr = 4
+    sa = 5
+    su = 6
+
+class OpenClose(enum.Enum):
+    open = 0
+    close = 1
+    summer_open = 2
+    summer_close = 3
 
 class WeekDaysLongHU(enum.Enum):
     Hétfő = 0

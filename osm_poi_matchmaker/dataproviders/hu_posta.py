@@ -128,6 +128,7 @@ class hu_posta():
                 if oh_table is not None:
                     nonstop_num = 0
                     try:
+                        # Set luch break if there is a lunch break on Monday
                         if oh_table[0][3] is not None and oh_table[0][4] is not None:
                             lunch_break_start = oh_table[0][3].replace('-', ':')
                             lunch_break_stop = oh_table[0][4].replace('-', ':')
