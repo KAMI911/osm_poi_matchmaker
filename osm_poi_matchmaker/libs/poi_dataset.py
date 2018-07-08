@@ -15,9 +15,6 @@ except ImportError as err:
 __program__ = 'poi_dataset'
 __version__ = '0.0.1'
 
-DAYS = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su']
-OPENCLOSE = ['open', 'close', 'summer_open', 'summer_close']
-
 
 class POIDataset:
 
