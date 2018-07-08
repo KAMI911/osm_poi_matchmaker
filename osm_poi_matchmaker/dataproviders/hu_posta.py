@@ -14,6 +14,7 @@ try:
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.dao import poi_array_structure
+    from osm_poi_matchmaker.utils.enums import WeekDaysLongHU
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
@@ -21,7 +22,6 @@ except ImportError as err:
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
-DAYS = {0: 'Hétfő', 1: 'Kedd', 2: 'Szerda', 3: 'Csütörtök', 4: 'Péntek', 5: 'Szombat', 6: 'Vasárnap'}
 POI_COMMON_TAGS="'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:vatin:hu': '10901232-2-44', 'wikipedia': 'hu:Magyar Posta Zrt.', 'wikidata': 'Q145614', 'email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial', 'instagram': 'https://www.instagram.com/magyar_posta_zrt/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
 
 def dict_search(my_dict, lookup):
@@ -118,16 +118,16 @@ class hu_posta():
                 oh_table = []
                 for d in day:
                     if len(d) != 0:
-                        dict_key = dict_search(DAYS, d[0].text)
+                        day_key = WeekDaysLongHU[d[0].text].value
                         if len(d) == 5:
                             # Avoid duplicated values of opening and close
                             if d[1].text != d[3].text and d[2].text != d[4].text:
-                                oh_table.append([dict_key, d[1].text, d[4].text, d[2].text, d[3].text])
+                                oh_table.append([day_key, d[1].text, d[4].text, d[2].text, d[3].text])
                             else:
                                 logging.warning('Dulicated opening hours in post office: {}: {}-{}; {}-{}.'.format(branch, d[1].text, d[2].text, d[3].text, d[4].text))
-                                oh_table.append([dict_key, d[1].text, d[2].text, None, None])
+                                oh_table.append([day_key, d[1].text, d[2].text, None, None])
                         elif len(d) == 3:
-                            oh_table.append([dict_key, d[1].text, d[2].text, None, None])
+                            oh_table.append([day_key, d[1].text, d[2].text, None, None])
                         else:
                             logging.warning('Errorous state.')
                 if oh_table is not None:
