@@ -70,8 +70,7 @@ class POIDataset:
         self.__summer_fr_c = None
         self.__summer_sa_c = None
         self.__summer_su_c = None
-        self.__lunch_break_start = None
-        self.__lunch_break_stop = None
+        self.__lunch_break = {'start': None, 'stop': None}
         self.__opening_hours = None
 
     @property
@@ -463,20 +462,28 @@ class POIDataset:
         self.__oh.at[WeekDaysShort.su, OpenClose.summer_close] = data
 
     @property
+    def lunch_break(self):
+        return (self.__lunch_break['start'], self.__lunch_break['stop'])
+
+    @lunch_break.setter
+    def lunch_break(self, lunch_break_start, lunch_break_stop):
+        self.__lunch_break = {'start': lunch_break_start, 'stop': lunch_break_stop}
+
+    @property
     def lunch_break_start(self):
-        return (self.__lunch_break_start)
+        return (self.__lunch_break['start'])
 
     @lunch_break_start.setter
     def lunch_break_start(self, data):
-        self.__lunch_break_start = data
+        self.__lunch_break['start'] = data
 
     @property
     def lunch_break_stop(self):
-        return (self.__lunch_break_stop)
+        return (self.__lunch_break['stop'])
 
     @lunch_break_stop.setter
     def lunch_break_stop(self, data):
-        self.__lunch_break_stop = data
+        self.__lunch_break['stop'] = data
 
     @property
     def opening_hours(self):
@@ -493,7 +500,7 @@ class POIDataset:
                          self.__summer_fr_o, self.__summer_sa_o, self.__summer_su_o, self.__summer_mo_c,
                          self.__summer_tu_c, self.__summer_we_c, self.__summer_th_c, self.__summer_fr_c,
                          self.__summer_sa_c, self.__summer_su_c,
-                         self.__lunch_break_start, self.__lunch_break_stop)
+                         self.__lunch_break['start'], self.__lunch_break['stop'])
         self.__opening_hours = t.process()
 
     def dump_opening_hours(self):
