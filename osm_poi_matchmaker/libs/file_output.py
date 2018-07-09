@@ -83,6 +83,9 @@ def generate_osm_xml(df):
             tags = row['osm_live_tags']
         else:
             tags = {}
+        # Adding POI common tags
+        if row['poi_tags'] is not None:
+            tags.update(eval(row['poi_tags']))
         # Overwriting with data from data providers
         for k, v in POI_TAGS.items():
             if row[k] is not None:
@@ -96,9 +99,6 @@ def generate_osm_xml(df):
         tags['source'] = 'website'
         tags['source:date'] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d')
         tags['import'] = 'osm_poi_matchmaker'
-        # Adding POI common tags
-        if row['poi_tags'] is not None:
-            tags.update(eval(row['poi_tags']))
         # Rendering tags to the XML file
         for k, v in tags.items():
             xml_tags = etree.SubElement(main_data, 'tag', k=k, v='{}'.format(v))
