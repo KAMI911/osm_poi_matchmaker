@@ -8,7 +8,7 @@ try:
     from test.test_opening_hours import TestOpeningHours
     from test.test_poi_dataset import TestPOIDataset
     from test.test_timing import Timing
-
+    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -30,4 +30,5 @@ def testing_create_db():
 
 
 if __name__ == '__main__':
+    config.set_mode(config.Mode.matcher)
     testing_create_db()
