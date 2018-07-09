@@ -71,9 +71,10 @@ class hu_tesco():
                 data.website = poi_data['url']
                 opening = json.loads(poi_data['opening'])
                 for i in range(0, 7):
-                    if str(i + 1) in opening:
-                        data.day_open(i, opening[str(i + 1)][0])
-                        data.day_close(i, opening[str(i + 1)][1])
+                    ind = str(i + 1) if i != 6 else ind = '0'
+                    if ind in opening:
+                        data.day_open(i, opening[ind][0])
+                        data.day_close(i, opening[ind][1])
                 data.lunch_break_start = None
                 data.lunch_break_stop = None
                 data.lat, data.long = check_hu_boundary(poi_data['gpslat'], poi_data['gpslng'])
