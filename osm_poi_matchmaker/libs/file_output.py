@@ -100,7 +100,7 @@ def generate_osm_xml(df):
         tags['source:date'] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d')
         tags['import'] = 'osm_poi_matchmaker'
         # Rendering tags to the XML file
-        for k, v in tags.items():
+        for k, v in sorted(tags.items()):
             xml_tags = etree.SubElement(main_data, 'tag', k=k, v='{}'.format(v))
         osm_xml_data.append(main_data)
         id -= 1

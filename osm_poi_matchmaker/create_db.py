@@ -293,8 +293,8 @@ def main():
                                               config.get_database_writer_password(), config.get_database_writer_host(),
                                               config.get_database_writer_port(), config.get_database_poi_database()))
 
-    import_basic_data(db.session)
-    import_poi_data(db.session)
+    #import_basic_data(db.session)
+    #import_poi_data(db.session)
 
     logging.info('Loading data from database ...')
     if not os.path.exists(config.get_directory_output()):
