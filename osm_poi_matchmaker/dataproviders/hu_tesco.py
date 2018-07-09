@@ -68,7 +68,7 @@ class hu_tesco():
                 else:
                     data.name = 'Tesco'
                     data.code = 'hutescosup'
-                    data.website = poi_data['url']
+                data.website = poi_data['url']
                 opening = json.loads(poi_data['opening'])
                 for i in range(0, 7):
                     if str(i + 1) in opening:
