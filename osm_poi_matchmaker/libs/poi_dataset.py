@@ -7,6 +7,8 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose, WeekDaysLongHU
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
+    from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
@@ -15,10 +17,13 @@ except ImportError as err:
 __program__ = 'poi_dataset'
 __version__ = '0.0.1'
 
+POI_COLS = poi_array_structure.POI_COLS
+
 
 class POIDataset:
 
     def __init__(self):
+        self.insert_data = []
         self.clear_all()
 
     def clear_all(self):
@@ -36,37 +41,10 @@ class POIDataset:
         self.__phone = None
         self.__email = None
         self.__geom = None
-        self.__latlong = None
+        self.__lat = None
+        self.__long = None
         self.__nonstop = None
         self.__oh = pd.DataFrame(index=WeekDaysShort, columns=OpenClose)
-        self.__mo_o = None
-        self.__tu_o = None
-        self.__we_o = None
-        self.__th_o = None
-        self.__fr_o = None
-        self.__sa_o = None
-        self.__su_o = None
-        self.__mo_c = None
-        self.__tu_c = None
-        self.__we_c = None
-        self.__th_c = None
-        self.__fr_c = None
-        self.__sa_c = None
-        self.__su_c = None
-        self.__summer_mo_o = None
-        self.__summer_tu_o = None
-        self.__summer_we_o = None
-        self.__summer_th_o = None
-        self.__summer_fr_o = None
-        self.__summer_sa_o = None
-        self.__summer_su_o = None
-        self.__summer_mo_c = None
-        self.__summer_tu_c = None
-        self.__summer_we_c = None
-        self.__summer_th_c = None
-        self.__summer_fr_c = None
-        self.__summer_sa_c = None
-        self.__summer_su_c = None
         self.__lunch_break = {'start': None, 'stop': None}
         self.__opening_hours = None
 
@@ -183,12 +161,23 @@ class POIDataset:
         self.__geom = data
 
     @property
-    def latlong(self):
-        return (self.__original)
+    def lat(self):
+        return self.__lat
 
-    @latlong.setter
-    def latlong(self, lat, long):
-        self.__latlong = None
+    @lat.setter
+    def lat(self, lat):
+        self.__lat = lat
+
+    @property
+    def long(self):
+        return self.__long
+
+    @long.setter
+    def long(self, long):
+        self.__long = long
+
+    def process_geom(self):
+        self.geom = check_geom(self.__lat, self.__long)
 
     @property
     def opening_hours_table(self):
@@ -208,254 +197,226 @@ class POIDataset:
 
     @property
     def mo_o(self):
-        return (self.__mo_o)
+        return (self.__oh.at[WeekDaysShort.mo, OpenClose.open])
 
-    @website.setter
+    @mo_o.setter
     def mo_o(self, data):
-        self.__mo_o = data
         self.__oh.at[WeekDaysShort.mo, OpenClose.open] = data
 
     @property
     def tu_o(self):
-        return (self.__tu_o)
+        return (self.__oh.at[WeekDaysShort.tu, OpenClose.open])
 
-    @website.setter
+    @tu_o.setter
     def tu_o(self, data):
-        self.__tu_o = data
         self.__oh.at[WeekDaysShort.tu, OpenClose.open] = data
 
     @property
     def we_o(self):
-        return (self.__we_o)
+        return (self.__oh.at[WeekDaysShort.we, OpenClose.open])
 
-    @website.setter
+    @we_o.setter
     def we_o(self, data):
-        self.__we_o = data
         self.__oh.at[WeekDaysShort.we, OpenClose.open] = data
 
     @property
     def th_o(self):
-        return (self.__th_o)
+        return (self.__oh.at[WeekDaysShort.th, OpenClose.open])
 
-    @website.setter
+    @th_o.setter
     def th_o(self, data):
-        self.__th_o = data
         self.__oh.at[WeekDaysShort.th, OpenClose.open] = data
 
     @property
     def fr_o(self):
-        return (self.__fr_o)
+        return (self.__oh.at[WeekDaysShort.fr, OpenClose.open])
 
-    @website.setter
+    @fr_o.setter
     def fr_o(self, data):
-        self.__fr_o = data
         self.__oh.at[WeekDaysShort.fr, OpenClose.open] = data
 
     @property
     def sa_o(self):
-        return (self.__sa_o)
+        return (self.__oh.at[WeekDaysShort.sa, OpenClose.open])
 
-    @website.setter
+    @sa_o.setter
     def sa_o(self, data):
-        self.__sa_o = data
         self.__oh.at[WeekDaysShort.sa, OpenClose.open] = data
 
     @property
     def su_o(self):
-        return (self.__su_o)
+        return (self.__oh.at[WeekDaysShort.su, OpenClose.open])
 
-    @website.setter
+    @su_o.setter
     def su_o(self, data):
-        self.__su_o = data
         self.__oh.at[WeekDaysShort.su, OpenClose.open] = data
 
     @property
     def mo_c(self):
-        return (self.__mo_c)
+        return (self.__oh.at[WeekDaysShort.mo, OpenClose.close])
 
-    @website.setter
+    @mo_c.setter
     def mo_c(self, data):
-        self.__mo_c = data
         self.__oh.at[WeekDaysShort.mo, OpenClose.close] = data
 
     @property
     def tu_c(self):
-        return (self.__tu_c)
+        return (self.__oh.at[WeekDaysShort.tu, OpenClose.close])
 
-    @website.setter
+    @tu_c.setter
     def tu_c(self, data):
-        self.__tu_c = data
         self.__oh.at[WeekDaysShort.tu, OpenClose.close] = data
 
     @property
     def we_c(self):
-        return (self.__we_c)
+        return (self.__oh.at[WeekDaysShort.we, OpenClose.close])
 
-    @website.setter
+    @we_c.setter
     def we_c(self, data):
-        self.__we_c = data
         self.__oh.at[WeekDaysShort.we, OpenClose.close] = data
 
     @property
     def th_c(self):
-        return (self.__th_c)
+        return (self.__oh.at[WeekDaysShort.th, OpenClose.close])
 
-    @website.setter
+    @th_c.setter
     def th_c(self, data):
-        self.__th_c = data
         self.__oh.at[WeekDaysShort.th, OpenClose.close] = data
 
     @property
     def fr_c(self):
-        return (self.__fr_c)
+        return (self.__oh.at[WeekDaysShort.fr, OpenClose.close])
 
-    @website.setter
+    @fr_c.setter
     def fr_c(self, data):
-        self.__fr_c = data
         self.__oh.at[WeekDaysShort.fr, OpenClose.close] = data
 
     @property
     def sa_c(self):
-        return (self.__sa_c)
+        return (self.__oh.at[WeekDaysShort.sa, OpenClose.close])
 
-    @website.setter
+    @sa_c.setter
     def sa_c(self, data):
-        self.__sa_c = data
         self.__oh.at[WeekDaysShort.sa, OpenClose.close] = data
 
     @property
     def su_c(self):
-        return (self.__su_c)
+        return (self.__oh.at[WeekDaysShort.su, OpenClose.close])
 
-    @website.setter
+    @su_c.setter
     def su_c(self, data):
-        self.__su_c = data
         self.__oh.at[WeekDaysShort.su, OpenClose.close] = data
 
     @property
     def summer_mo_o(self):
-        return (self.__summer_mo_o)
+        return (self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open])
 
-    @website.setter
+    @summer_mo_o.setter
     def summer_mo_o(self, data):
-        self.__summer_mo_o = data
         self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open] = data
 
     @property
     def summer_tu_o(self):
-        return (self.__summer_tu_o)
+        return (self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open])
 
-    @website.setter
+    @summer_tu_o.setter
     def summer_tu_o(self, data):
-        self.__summer_tu_o = data
         self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open] = data
 
     @property
     def summer_we_o(self):
-        return (self.__summer_we_o)
+        return (self.__oh.at[WeekDaysShort.we, OpenClose.summer_open])
 
-    @website.setter
+    @summer_we_o.setter
     def summer_we_o(self, data):
-        self.__summer_we_o = data
         self.__oh.at[WeekDaysShort.we, OpenClose.summer_open] = data
 
     @property
     def summer_th_o(self):
-        return (self.__summer_th_o)
+        return (self.__oh.at[WeekDaysShort.th, OpenClose.summer_open])
 
-    @website.setter
+    @summer_th_o.setter
     def summer_th_o(self, data):
-        self.__summer_th_o = data
         self.__oh.at[WeekDaysShort.th, OpenClose.summer_open] = data
 
     @property
     def summer_fr_o(self):
-        return (self.__summer_fr_o)
+        return (self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open])
 
-    @website.setter
+    @summer_fr_o.setter
     def summer_fr_o(self, data):
-        self.__summer_fr_o = data
         self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open] = data
 
     @property
     def summer_sa_o(self):
-        return (self.__summer_sa_o)
+        return (self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open])
 
-    @website.setter
+    @summer_sa_o.setter
     def summer_sa_o(self, data):
-        self.__summer_sa_o = data
         self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open] = data
 
     @property
     def summer_su_o(self):
-        return (self.__summer_su_o)
+        return (self.__oh.at[WeekDaysShort.su, OpenClose.summer_open])
 
-    @website.setter
+    @summer_su_o.setter
     def summer_su_o(self, data):
-        self.__summer_su_o = data
         self.__oh.at[WeekDaysShort.su, OpenClose.summer_open] = data
 
     @property
     def summer_mo_c(self):
-        return (self.__summer_mo_c)
+        return (self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close])
 
-    @website.setter
+    @summer_mo_c.setter
     def summer_mo_c(self, data):
-        self.__summer_mo_c = data
         self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close] = data
 
     @property
     def summer_tu_c(self):
-        return (self.__summer_tu_c)
+        return (self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close])
 
-    @website.setter
+    @summer_tu_c.setter
     def summer_tu_c(self, data):
-        self.__summer_tu_c = data
         self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close] = data
 
     @property
     def summer_we_c(self):
-        return (self.__summer_we_c)
+        return (self.__oh.at[WeekDaysShort.we, OpenClose.summer_close])
 
-    @website.setter
+    @summer_we_c.setter
     def summer_we_c(self, data):
-        self.__summer_we_c = data
         self.__oh.at[WeekDaysShort.we, OpenClose.summer_close] = data
 
     @property
     def summer_th_c(self):
-        return (self.__summer_th_c)
+        return (self.__oh.at[WeekDaysShort.th, OpenClose.summer_close])
 
-    @website.setter
+    @summer_th_c.setter
     def summer_th_c(self, data):
-        self.__summer_th_c = data
         self.__oh.at[WeekDaysShort.th, OpenClose.summer_close] = data
 
     @property
     def summer_fr_c(self):
-        return (self.__summer_fr_c)
+        return (self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close])
 
-    @website.setter
+    @summer_fr_c.setter
     def summer_fr_c(self, data):
-        self.__summer_fr_c = data
         self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close] = data
 
     @property
     def summer_sa_c(self):
-        return (self.__summer_sa_c)
+        return (self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close])
 
-    @website.setter
+    @summer_sa_c.setter
     def summer_sa_c(self, data):
-        self.__summer_sa_c = data
         self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close] = data
 
     @property
     def summer_su_c(self):
-        return (self.__summer_su_c)
+        return (self.__oh.at[WeekDaysShort.su, OpenClose.summer_close])
 
-    @website.setter
+    @summer_su_c.setter
     def summer_su_c(self, data):
-        self.__summer_su_c = data
         self.__oh.at[WeekDaysShort.su, OpenClose.summer_close] = data
 
     @property
@@ -482,6 +443,13 @@ class POIDataset:
     def lunch_break_stop(self, data):
         self.__lunch_break['stop'] = data
 
+
+    def day_open(self, day, data):
+        self.__oh.at[WeekDaysShort(day), OpenClose.open] = data
+
+    def day_close(self, day, data):
+        self.__oh.at[WeekDaysShort(day), OpenClose.close] = data
+
     @property
     def opening_hours(self):
         return (self.__opening_hours)
@@ -491,14 +459,82 @@ class POIDataset:
         self.__opening_hours = data
 
     def process_opening_hours(self):
-        t = OpeningHours(self.__nonstop, self.__mo_o, self.__tu_o, self.__we_o, self.__th_o, self.__fr_o, self.__sa_o,
-                         self.__su_o, self.__mo_c, self.__tu_c, self.__we_c, self.__th_c, self.__fr_c, self.__sa_c,
-                         self.__su_c, self.__summer_mo_o, self.__summer_tu_o, self.__summer_we_o, self.__summer_th_o,
-                         self.__summer_fr_o, self.__summer_sa_o, self.__summer_su_o, self.__summer_mo_c,
-                         self.__summer_tu_c, self.__summer_we_c, self.__summer_th_c, self.__summer_fr_c,
-                         self.__summer_sa_c, self.__summer_su_c,
+        self.__oh = self.__oh.where((pd.notnull(self.__oh)), None)
+        t = OpeningHours(self.__nonstop, self.__oh.at[WeekDaysShort.mo, OpenClose.open],
+                         self.__oh.at[WeekDaysShort.tu, OpenClose.open],
+                         self.__oh.at[WeekDaysShort.we, OpenClose.open],
+                         self.__oh.at[WeekDaysShort.th, OpenClose.open],
+                         self.__oh.at[WeekDaysShort.fr, OpenClose.open],
+                         self.__oh.at[WeekDaysShort.sa, OpenClose.open],
+                         self.__oh.at[WeekDaysShort.su, OpenClose.open],
+                         self.__oh.at[WeekDaysShort.mo, OpenClose.close],
+                         self.__oh.at[WeekDaysShort.tu, OpenClose.close],
+                         self.__oh.at[WeekDaysShort.we, OpenClose.close],
+                         self.__oh.at[WeekDaysShort.th, OpenClose.close],
+                         self.__oh.at[WeekDaysShort.fr, OpenClose.close],
+                         self.__oh.at[WeekDaysShort.sa, OpenClose.close],
+                         self.__oh.at[WeekDaysShort.su, OpenClose.close],
+                         self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open],
+                         self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open],
+                         self.__oh.at[WeekDaysShort.we, OpenClose.summer_open],
+                         self.__oh.at[WeekDaysShort.th, OpenClose.summer_open],
+                         self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open],
+                         self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open],
+                         self.__oh.at[WeekDaysShort.su, OpenClose.summer_open],
+                         self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close],
+                         self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close],
+                         self.__oh.at[WeekDaysShort.we, OpenClose.summer_close],
+                         self.__oh.at[WeekDaysShort.th, OpenClose.summer_close],
+                         self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
+                         self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
+                         self.__oh.at[WeekDaysShort.su, OpenClose.summer_close],
                          self.__lunch_break['start'], self.__lunch_break['stop'])
         self.__opening_hours = t.process()
 
     def dump_opening_hours(self):
         print(self.__opening_hours)
+
+    def add(self):
+        self.process_opening_hours()
+        self.process_geom()
+        self.insert_data.append(
+            [self.__code, self.__postcode, self.__city, self.__name, self.__branch, self.__website, self.__original, self.__street,
+             self.__housenumber, self.__conscriptionnumber,
+             self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop, self.__oh.at[WeekDaysShort.mo, OpenClose.open],
+             self.__oh.at[WeekDaysShort.tu, OpenClose.open],
+             self.__oh.at[WeekDaysShort.we, OpenClose.open],
+             self.__oh.at[WeekDaysShort.th, OpenClose.open],
+             self.__oh.at[WeekDaysShort.fr, OpenClose.open],
+             self.__oh.at[WeekDaysShort.sa, OpenClose.open],
+             self.__oh.at[WeekDaysShort.su, OpenClose.open],
+             self.__oh.at[WeekDaysShort.mo, OpenClose.close],
+             self.__oh.at[WeekDaysShort.tu, OpenClose.close],
+             self.__oh.at[WeekDaysShort.we, OpenClose.close],
+             self.__oh.at[WeekDaysShort.th, OpenClose.close],
+             self.__oh.at[WeekDaysShort.fr, OpenClose.close],
+             self.__oh.at[WeekDaysShort.sa, OpenClose.close],
+             self.__oh.at[WeekDaysShort.su, OpenClose.close],
+             self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open],
+             self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open],
+             self.__oh.at[WeekDaysShort.we, OpenClose.summer_open],
+             self.__oh.at[WeekDaysShort.th, OpenClose.summer_open],
+             self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open],
+             self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open],
+             self.__oh.at[WeekDaysShort.su, OpenClose.summer_open],
+             self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close],
+             self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close],
+             self.__oh.at[WeekDaysShort.we, OpenClose.summer_close],
+             self.__oh.at[WeekDaysShort.th, OpenClose.summer_close],
+             self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
+             self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
+             self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break['start'], self.__lunch_break['stop'],
+             self.__opening_hours])
+        self.clear_all()
+
+    def process(self):
+        df = pd.DataFrame(self.insert_data)
+        df.columns = POI_COLS
+        return df.where((pd.notnull(df)), None)
+
+    def lenght(self):
+        return len(self.insert_data)
