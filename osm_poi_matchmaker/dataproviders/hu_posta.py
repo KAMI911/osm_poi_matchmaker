@@ -5,17 +5,15 @@ try:
     import logging
     import os
     import json
-    import pandas as pd
     from lxml import etree
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
-    from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
     from osm_poi_matchmaker.dao import poi_array_structure
-    from osm_poi_matchmaker.utils.enums import WeekDaysShort, WeekDaysLongHU
+    from osm_poi_matchmaker.utils.enums import WeekDaysLongHU
 
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
