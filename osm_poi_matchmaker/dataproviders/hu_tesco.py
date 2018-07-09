@@ -71,12 +71,13 @@ class hu_tesco():
                     data.website = poi_data['url']
                 opening = json.loads(poi_data['opening'])
                 for i in range(0, 7):
-                    data.day_open(i, opening[i + 1][0])
-                    data.day_close(i, opening[i + 1][1])
+                    if str(i + 1) in opening:
+                        data.day_open(i, opening[str(i + 1)][0])
+                        data.day_close(i, opening[str(i + 1)][1])
                 data.lunch_break_start = None
                 data.lunch_break_stop = None
                 data.lat, data.long = check_hu_boundary(poi_data['gpslat'], poi_data['gpslng'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, None)
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.long, None)
                 data.original = poi_data['address']
                 ref = None
                 if 'phone' in poi_data and poi_data['phone'] != '':
