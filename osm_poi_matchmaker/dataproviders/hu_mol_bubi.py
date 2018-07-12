@@ -12,14 +12,12 @@ try:
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
-    from osm_poi_matchmaker.libs.opening_hours import OpeningHours
-    from osm_poi_matchmaker.dao import poi_array_structure
+    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb'
 
 
@@ -43,70 +41,19 @@ class hu_mol_bubi():
         xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
         insert_data = []
         root = etree.fromstring(xml)
+        data = POIDataset()
         for e in root.iter('place'):
-            name = 'MOL Bubi'
-            code = 'hububibir'
-            housenumber = None
-            conscriptionnumber = None
-            street = None
-            city = 'Budapest'
-            branch = e.attrib['name'].split('-')[1].strip() if e.attrib['name'] is not None else None
-            ref = e.attrib['name'].split('-')[0].strip() if e.attrib['name'] is not None else None
-            capacity = e.attrib['bike_racks'].strip() if e.attrib['bike_racks'] is not None else None
-            website = None
-            nonstop = True
-            mo_o = None
-            tu_o = None
-            we_o = None
-            th_o = None
-            fr_o = None
-            sa_o = None
-            su_o = None
-            mo_c = None
-            tu_c = None
-            we_c = None
-            th_c = None
-            fr_c = None
-            sa_c = None
-            su_c = None
-            summer_mo_o = None
-            summer_tu_o = None
-            summer_we_o = None
-            summer_th_o = None
-            summer_fr_o = None
-            summer_sa_o = None
-            summer_su_o = None
-            summer_mo_c = None
-            summer_tu_c = None
-            summer_we_c = None
-            summer_th_c = None
-            summer_fr_c = None
-            summer_sa_c = None
-            summer_su_c = None
-            lunch_break_start = None
-            lunch_break_stop = None
-            t = OpeningHours(nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c, fr_c, sa_c,
-                             su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
-                             summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c, summer_fr_c, summer_sa_c,
-                             summer_su_c, lunch_break_start, lunch_break_stop)
-            opening_hours = t.process()
-            lat, lon = check_hu_boundary(e.attrib['lat'].replace(',', '.'), e.attrib['lng'].replace(',', '.'))
-            geom = check_geom(lat, lon)
-            postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, None)
-            original = None
-            ref = None
-            phone = None
-            email = None
-            insert_data.append(
-                [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                 ref, phone, email, geom, nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c,
-                 fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
-                 summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c,
-                 summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop, opening_hours])
-        print(insert_data)
-        if len(insert_data) < 1:
+            data.name = 'MOL Bubi'
+            data.code = 'hububibir'
+            data.city = 'Budapest'
+            data.branch = e.attrib['name'].split('-')[1].strip() if e.attrib['name'] is not None else None
+            data.ref = e.attrib['name'].split('-')[0].strip() if e.attrib['name'] is not None else None
+            data.nonstop = True
+            # data.capacity = e.attrib['bike_racks'].strip() if e.attrib['bike_racks'] is not None else None
+            data.lat, data.lon = check_hu_boundary(e.attrib['lat'].replace(',', '.'), e.attrib['lng'].replace(',', '.'))
+            data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, None)
+            data.add()
+        if data.lenght() < 1:
             logging.warning('Resultset is empty. Skipping ...')
         else:
-            df = pd.DataFrame(insert_data)
-            df.columns = POI_COLS
-            insert_poi_dataframe(self.session, df)
+            insert_poi_dataframe(self.session, data.process())
