@@ -13,14 +13,12 @@ try:
         clean_javascript_variable, clean_opening_hours_2, clean_phone
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
-    from osm_poi_matchmaker.libs.opening_hours import OpeningHours
-    from osm_poi_matchmaker.dao import poi_array_structure
+    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://www.cba.hu/uzletlista/'
 
 
@@ -61,84 +59,36 @@ class hu_cba():
             data = m.group(0)
             data = clean_javascript_variable(data, 'boltok_nyers')
             text = json.loads(data)
-            # for l in text:
-            # print ('postcode: {postcode}; city: {city}; address: {address}; alt_name: {alt_name}'.format(postcode=l['A_IRSZ'], city=l['A_VAROS'], address=l['A_CIM'], alt_name=l['P_NAME']))
-
+            data = POIDataset()
             for poi_data in text:
                 # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
+                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['A_CIM'])
-                city = clean_city(poi_data['A_VAROS'])
-                postcode = poi_data['A_IRSZ'].strip()
-                branch = poi_data['P_NAME'].strip()
-                name = 'Príma' if 'Príma' in branch else 'CBA'
-                code = 'huprimacon' if 'Príma' in branch else 'hucbacon'
-                website = None
-                nonstop = None
-                mo_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_1']) if poi_data[
-                                                                                'PS_OPEN_FROM_1'] is not None else None
-                tu_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_2']) if poi_data[
-                                                                                'PS_OPEN_FROM_2'] is not None else None
-                we_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_3']) if poi_data[
-                                                                                'PS_OPEN_FROM_3'] is not None else None
-                th_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_4']) if poi_data[
-                                                                                'PS_OPEN_FROM_4'] is not None else None
-                fr_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_5']) if poi_data[
-                                                                                'PS_OPEN_FROM_5'] is not None else None
-                sa_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_6']) if poi_data[
-                                                                                'PS_OPEN_FROM_6'] is not None else None
-                su_o = clean_opening_hours_2(poi_data['PS_OPEN_FROM_7']) if poi_data[
-                                                                                'PS_OPEN_FROM_7'] is not None else None
-                mo_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_1']) if poi_data['PS_OPEN_TO_1'] is not None else None
-                tu_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_2']) if poi_data['PS_OPEN_TO_2'] is not None else None
-                we_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_3']) if poi_data['PS_OPEN_TO_3'] is not None else None
-                th_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_4']) if poi_data['PS_OPEN_TO_4'] is not None else None
-                fr_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_5']) if poi_data['PS_OPEN_TO_5'] is not None else None
-                sa_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_6']) if poi_data['PS_OPEN_TO_6'] is not None else None
-                su_c = clean_opening_hours_2(poi_data['PS_OPEN_TO_7']) if poi_data['PS_OPEN_TO_7'] is not None else None
-                summer_mo_o = None
-                summer_tu_o = None
-                summer_we_o = None
-                summer_th_o = None
-                summer_fr_o = None
-                summer_sa_o = None
-                summer_su_o = None
-                summer_mo_c = None
-                summer_tu_c = None
-                summer_we_c = None
-                summer_th_c = None
-                summer_fr_c = None
-                summer_sa_c = None
-                summer_su_c = None
-                lunch_break_start = None
-                lunch_break_stop = None
-                t = OpeningHours(nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c, fr_c, sa_c,
-                                 su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
-                                 summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c, summer_fr_c,
-                                 summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop)
-                opening_hours = t.process()
-                original = poi_data['A_CIM']
-                lat, lon = check_hu_boundary(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'])
-                geom = check_geom(lat, lon)
-                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
-                ref = None
+                data.city = clean_city(poi_data['A_VAROS'])
+                data.postcode = poi_data['A_IRSZ'].strip()
+                data.branch = poi_data['P_NAME'].strip()
+                data.name = 'Príma' if 'Príma' in data.branch else 'CBA'
+                data.code = 'huprimacon' if 'Príma' in data.branch else 'hucbacon'
+                for i in range(0, 7):
+                    data.day_open(i, clean_opening_hours_2(poi_data['PS_OPEN_FROM_{}'.format(i + 1)]) if poi_data[
+                                                                                                             'PS_OPEN_FROM_{}'.format(
+                                                                                                                 i + 1)] is not None else None)
+                    data.day_close(i, clean_opening_hours_2(poi_data['PS_OPEN_TO_{}'.format(i + 1)]) if poi_data[
+                                                                                                            'PS_OPEN_TO_{}'.format(
+                                                                                                                i + 1)] is not None else None)
+                data.original = poi_data['A_CIM']
+                data.lat, data.lon = check_hu_boundary(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'])
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
                 if 'PS_PUBLIC_TEL' in poi_data and poi_data['PS_PUBLIC_TEL'] != '':
-                    phone = clean_phone(poi_data['PS_PUBLIC_TEL'])
+                    data.phone = clean_phone(poi_data['PS_PUBLIC_TEL'])
                 else:
-                    phone = None
+                    data.phone = None
                 if 'PS_PUBLIC_EMAIL' in poi_data and poi_data['PS_PUBLIC_EMAIL'] != '':
-                    email = poi_data['PS_PUBLIC_EMAIL']
+                    data.email = poi_data['PS_PUBLIC_EMAIL']
                 else:
-                    email = None
-                insert_data.append(
-                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, phone, email, geom, nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c,
-                     fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
-                     summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c,
-                     summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop, opening_hours])
-            if len(insert_data) < 1:
+                    data.email = None
+                data.add()
+            if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:
-                df = pd.DataFrame(insert_data)
-                df.columns = POI_COLS
-                insert_poi_dataframe(self.session, df)
+                insert_poi_dataframe(self.session, data.process())
