@@ -12,7 +12,6 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
-    from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHU
 
 except ImportError as err:
@@ -126,7 +125,7 @@ class hu_posta():
                         pass
                 if nonstop_num == 7:
                     data.nonstop = True
-                data.lat, data.long = check_hu_boundary(e.find('gpsData/WGSLat').text.replace(',', '.'), e.find('gpsData/WGSLon').text.replace(',', '.'))
+                data.lat, data.lon = check_hu_boundary(e.find('gpsData/WGSLat').text.replace(',', '.'), e.find('gpsData/WGSLon').text.replace(',', '.'))
                 data.phone = clean_phone(e.find('phoneArea').text) if e.find('phoneArea') is not None else None
                 data.email = e.find('email').text.strip() if e.find('email') is not None else None
                 data.add()
