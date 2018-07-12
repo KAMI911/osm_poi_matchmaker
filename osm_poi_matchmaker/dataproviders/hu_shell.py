@@ -10,14 +10,12 @@ try:
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
-    from osm_poi_matchmaker.libs.opening_hours import OpeningHours
-    from osm_poi_matchmaker.dao import poi_array_structure
+    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL'
 
 
@@ -50,103 +48,58 @@ class hu_shell():
             csv[['Telephone']] = csv[['Telephone']].astype(int)
             csv[['City']] = csv[['City']].fillna('')
             csv[['Name']] = csv[['Name']].fillna('')
-            insert_data = []
             poi_dict = csv.to_dict('records')
+            data = POIDataset()
             for poi_data in poi_dict:
                 if poi_data['Brand'] == 'Shell':
-                    name = 'Shell'
-                    code = 'hushellfu'
+                    data.name = 'Shell'
+                    data.code = 'hushellfu'
                 elif poi_data['Brand'] == 'Mobilpetrol':
-                    name = 'Mobil Petrol'
-                    code = 'humobpefu'
-                postcode = poi_data['Post code']
+                    data.name = 'Mobil Petrol'
+                    data.code = 'humobpefu'
+                data.postcode = poi_data['Post code']
                 steet_tmp = poi_data['Address'].lower().split()
                 for i in range(0, len(steet_tmp) - 2):
                     steet_tmp[i] = steet_tmp[i].capitalize()
                 steet_tmp = ' '.join(steet_tmp)
-                street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
+                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
                     steet_tmp)
                 if poi_data['City'] != '':
-                    city = clean_city(poi_data['City'].title())
+                    data.city = clean_city(poi_data['City'].title())
                 else:
                     if poi_data['Name'] != '':
-                        city = clean_city(poi_data['Name'].title())
+                        data.city = clean_city(poi_data['Name'].title())
                     else:
-                        city = None
-                branch = poi_data['Name'].strip()
-                website = None
+                        data.city = None
+                data.branch = poi_data['Name'].strip()
                 if poi_data['24 Hour'] == True:
-                    nonstop = True
-                    mo_o = None
-                    tu_o = None
-                    we_o = None
-                    th_o = None
-                    fr_o = None
-                    sa_o = None
-                    su_o = None
-                    mo_c = None
-                    tu_c = None
-                    we_c = None
-                    th_c = None
-                    fr_c = None
-                    sa_c = None
-                    su_c = None
+                    data.nonstop = True
                 else:
-                    nonstop = False
-                    mo_o = '06:00'
-                    tu_o = '06:00'
-                    we_o = '06:00'
-                    th_o = '06:00'
-                    fr_o = '06:00'
-                    sa_o = '06:00'
-                    su_o = '06:00'
-                    mo_c = '22:00'
-                    tu_c = '22:00'
-                    we_c = '22:00'
-                    th_c = '22:00'
-                    fr_c = '22:00'
-                    sa_c = '22:00'
-                    su_c = '22:00'
-                summer_mo_o = None
-                summer_tu_o = None
-                summer_we_o = None
-                summer_th_o = None
-                summer_fr_o = None
-                summer_sa_o = None
-                summer_su_o = None
-                summer_mo_c = None
-                summer_tu_c = None
-                summer_we_c = None
-                summer_th_c = None
-                summer_fr_c = None
-                summer_sa_c = None
-                summer_su_c = None
-                lunch_break_start = None
-                lunch_break_stop = None
-                t = OpeningHours(nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c, fr_c, sa_c,
-                                 su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
-                                 summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c, summer_fr_c,
-                                 summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop)
-                opening_hours = t.process()
-                original = poi_data['Address']
-                ref = None
-                lat, lon = check_hu_boundary(poi_data['GPS Latitude'], poi_data['GPS Longitude'])
-                geom = check_geom(lat, lon)
-                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon, postcode)
+                    data.nonstop = False
+                    data.mo_o = '06:00'
+                    data.tu_o = '06:00'
+                    data.we_o = '06:00'
+                    data.th_o = '06:00'
+                    data.fr_o = '06:00'
+                    data.sa_o = '06:00'
+                    data.su_o = '06:00'
+                    data.mo_c = '22:00'
+                    data.tu_c = '22:00'
+                    data.we_c = '22:00'
+                    data.th_c = '22:00'
+                    data.fr_c = '22:00'
+                    data.sa_c = '22:00'
+                    data.su_c = '22:00'
+                data.original = poi_data['Address']
+                data.lat, data.lon = check_hu_boundary(poi_data['GPS Latitude'], poi_data['GPS Longitude'])
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
                 if 'Telephone' in poi_data and poi_data['Telephone'] != '':
-                    phone = clean_phone(str(poi_data['Telephone']))
+                    data.phone = clean_phone(str(poi_data['Telephone']))
                 else:
-                    phone = None
-                email = None
-                insert_data.append(
-                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, phone, email, geom, nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c,
-                     fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
-                     summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c,
-                     summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop, opening_hours])
-            if len(insert_data) < 1:
+                    data.phone = None
+                data.email = None
+                data.add()
+            if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:
-                df = pd.DataFrame(insert_data)
-                df.columns = POI_COLS
-                insert_poi_dataframe(self.session, df)
+                insert_poi_dataframe(self.session, data.process())
