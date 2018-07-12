@@ -13,7 +13,6 @@ try:
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
-    from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
@@ -75,12 +74,9 @@ class hu_tesco():
                     if ind in opening:
                         data.day_open(i, opening[ind][0])
                         data.day_close(i, opening[ind][1])
-                data.lunch_break_start = None
-                data.lunch_break_stop = None
-                data.lat, data.long = check_hu_boundary(poi_data['gpslat'], poi_data['gpslng'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.long, None)
+                data.lat, data.lon = check_hu_boundary(poi_data['gpslat'], poi_data['gpslng'])
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, None)
                 data.original = poi_data['address']
-                ref = None
                 if 'phone' in poi_data and poi_data['phone'] != '':
                     data.phone = clean_phone(poi_data['phone'])
                 data.add()
