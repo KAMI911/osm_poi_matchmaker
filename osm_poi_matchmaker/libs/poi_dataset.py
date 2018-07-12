@@ -42,7 +42,7 @@ class POIDataset:
         self.__email = None
         self.__geom = None
         self.__lat = None
-        self.__long = None
+        self.__lon = None
         self.__nonstop = None
         self.__oh = pd.DataFrame(index=WeekDaysShort, columns=OpenClose)
         self.__lunch_break = {'start': None, 'stop': None}
@@ -169,15 +169,15 @@ class POIDataset:
         self.__lat = lat
 
     @property
-    def long(self):
-        return self.__long
+    def lon(self):
+        return self.__lon
 
-    @long.setter
-    def long(self, long):
-        self.__long = long
+    @lon.setter
+    def lon(self, lon):
+        self.__lon = lon
 
     def process_geom(self):
-        self.geom = check_geom(self.__lat, self.__long)
+        self.geom = check_geom(self.__lat, self.__lon)
 
     @property
     def opening_hours_table(self):
@@ -443,12 +443,25 @@ class POIDataset:
     def lunch_break_stop(self, data):
         self.__lunch_break['stop'] = data
 
-
     def day_open(self, day, data):
         self.__oh.at[WeekDaysShort(day), OpenClose.open] = data
 
     def day_close(self, day, data):
         self.__oh.at[WeekDaysShort(day), OpenClose.close] = data
+
+    def day_summer_open(self, day, data):
+        self.__oh.at[WeekDaysShort(day), OpenClose.summer_open] = data
+
+    def day_summer_close(self, day, data):
+        self.__oh.at[WeekDaysShort(day), OpenClose.summer_close] = data
+
+    def day_open_close(self, day, opening, closing):
+        self.__oh.at[WeekDaysShort(day), OpenClose.open] = opening
+        self.__oh.at[WeekDaysShort(day), OpenClose.close] = closing
+
+    def day_summer_open_close(self, day, opening, closing):
+        self.__oh.at[WeekDaysShort(day), OpenClose.summer_open] = opening
+        self.__oh.at[WeekDaysShort(day), OpenClose.summer_close] = closing
 
     @property
     def opening_hours(self):

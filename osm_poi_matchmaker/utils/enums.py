@@ -21,11 +21,23 @@ class WeekDaysShort(enum.Enum):
     sa = 5
     su = 6
 
+
+class WeekDaysLong(enum.Enum):
+    Monday = 0
+    Tuesday = 1
+    Wednesday = 2
+    Thursday = 3
+    Friday = 4
+    Saturday = 5
+    Sunday = 6
+
+
 class OpenClose(enum.Enum):
     open = 0
     close = 1
     summer_open = 2
     summer_close = 3
+
 
 class WeekDaysLongHU(enum.Enum):
     Hétfő = 0
@@ -35,3 +47,13 @@ class WeekDaysLongHU(enum.Enum):
     Péntek = 4
     Szombat = 5
     Vasárnap = 6
+
+
+class WeekDaysLongHUUnAccented(enum.Enum):
+    Hetfo = 0
+    Kedd = 1
+    Szerda = 2
+    Csutortok = 3
+    Pentek = 4
+    Szombat = 5
+    Vasarnap = 6
