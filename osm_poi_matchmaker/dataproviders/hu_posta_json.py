@@ -10,14 +10,13 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom
-    from osm_poi_matchmaker.libs.opening_hours import OpeningHours
-    from osm_poi_matchmaker.dao import poi_array_structure
+    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_COLS = poi_array_structure.POI_COLS
 POI_POSTA = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=posta'
 POI_CSEKK = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
 POI_CSOMAG = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postamachine',
@@ -53,84 +52,38 @@ class hu_posta_json():
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        insert_data = []
         if soup != None:
             text = json.loads(soup.get_text())
+            data = POIDataset()
             for poi_data in text['items']:
                 if poi_data['type'] == 'posta':
                     if 'mobilposta' in poi_data['name']:
-                        name = 'Mobilposta'
-                        code = 'hupostamp'
+                        data.name = 'Mobilposta'
+                        data.code = 'hupostamp'
                     else:
-                        name = 'Posta'
-                        code = 'hupostapo'
+                        data.name = 'Posta'
+                        data.code = 'hupostapo'
                 elif poi_data['type'] == 'csekkautomata':
-                    name = 'Posta csekkautomata'
-                    code = 'hupostacse'
+                    data.name = 'Posta csekkautomata'
+                    data.code = 'hupostacse'
                 elif poi_data['type'] == 'postamachine':
-                    name = 'Posta csomagautomata'
-                    code = 'hupostacso'
+                    data.name = 'Posta csomagautomata'
+                    data.code = 'hupostacso'
                 elif poi_data['type'] == 'postapoint':
-                    name = 'PostaPont'
-                    code = 'hupostapp'
+                    data.name = 'PostaPont'
+                    data.code = 'hupostapp'
                 else:
                     logging.error('Non existing Posta type.')
-                postcode = poi_data['zipCode'].strip()
-                street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
+                data.postcode = poi_data['zipCode'].strip()
+                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['address'])
-                city = clean_city(poi_data['city'])
-                branch = poi_data['name']
-                website = None
-                nonstop = None
-                mo_o = None
-                th_o = None
-                we_o = None
-                tu_o = None
-                fr_o = None
-                sa_o = None
-                su_o = None
-                mo_c = None
-                th_c = None
-                we_c = None
-                tu_c = None
-                fr_c = None
-                sa_c = None
-                su_c = None
-                summer_mo_o = None
-                summer_th_o = None
-                summer_we_o = None
-                summer_tu_o = None
-                summer_fr_o = None
-                summer_sa_o = None
-                summer_su_o = None
-                summer_mo_c = None
-                summer_th_c = None
-                summer_we_c = None
-                summer_tu_c = None
-                summer_fr_c = None
-                summer_sa_c = None
-                summer_su_c = None
-                lunch_break_start = None
-                lunch_break_stop = None
-                t = OpeningHours(nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c, fr_c, sa_c,
-                                 su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
-                                 summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c, summer_fr_c,
-                                 summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop)
-                opening_hours = t.process()
-                geom = check_geom(poi_data['lat'], poi_data['lng'])
-                original = poi_data['address']
-                ref = None
-                phone = None
-                email = None
-                insert_data.append(
-                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, phone, email, geom, nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c,
-                     fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
-                     summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c,
-                     summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop, opening_hours])
-            if len(insert_data) < 1:
+                data.city = clean_city(poi_data['city'])
+                data.branch = poi_data['name']
+                data.lat = poi_data['lat'].strip()
+                data.lon = poi_data['lng'].strip()
+                data.original = poi_data['address']
+                data.add()
+            if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:
-                df = pd.DataFrame(insert_data)
-                df.columns = POI_COLS
-                insert_poi_dataframe(self.session, df)
+                insert_poi_dataframe(self.session, data.process())
