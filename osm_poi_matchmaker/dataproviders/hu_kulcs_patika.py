@@ -10,16 +10,13 @@ try:
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
-    from osm_poi_matchmaker.libs.opening_hours import OpeningHours
-    from osm_poi_matchmaker.dao import poi_array_structure
+    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
-
 POST_DATA = {'kepnelkul': 'true', 'latitude': '47.498', 'longitude': '19.0399', 'tipus': 'patika'}
 
 
@@ -50,72 +47,26 @@ class hu_kulcs_patika():
         with open(os.path.join(self.download_cache, self.filename), 'r') as f:
             insert_data = []
             text = json.load(f)
+            data = POIDataset()
             for poi_data in text:
-                street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
+                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['cim'])
                 if 'Kulcs patika' not in poi_data['nev']:
-                    name = poi_data['nev'].strip()
-                    branch = None
+                    data.name = poi_data['nev'].strip()
+                    data.branch = None
                 else:
-                    name = 'Kulcs patika'
-                    branch = poi_data['nev'].strip()
-                code = 'hukulcspha'
-                website = poi_data['link'].strip() if poi_data['link'] is not None else None
-                nonstop = None
-                mo_o = None
-                tu_o = None
-                we_o = None
-                th_o = None
-                fr_o = None
-                sa_o = None
-                su_o = None
-                mo_c = None
-                tu_c = None
-                we_c = None
-                th_c = None
-                fr_c = None
-                sa_c = None
-                su_c = None
-                summer_mo_o = None
-                summer_tu_o = None
-                summer_we_o = None
-                summer_th_o = None
-                summer_fr_o = None
-                summer_sa_o = None
-                summer_su_o = None
-                summer_mo_c = None
-                summer_tu_c = None
-                summer_we_c = None
-                summer_th_c = None
-                summer_fr_c = None
-                summer_sa_c = None
-                summer_su_c = None
-                lunch_break_start = None
-                lunch_break_stop = None
-                t = OpeningHours(nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c, fr_c, sa_c,
-                                 su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
-                                 summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c, summer_fr_c,
-                                 summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop)
-                opening_hours = t.process()
-                city = clean_city(poi_data['helyseg'])
-                lat, lon = check_hu_boundary(poi_data['marker_position']['latitude'],
+                    data.name = 'Kulcs patika'
+                    data.branch = poi_data['nev'].strip()
+                data.code = 'hukulcspha'
+                data.website = poi_data['link'].strip() if poi_data['link'] is not None else None
+                data.city = clean_city(poi_data['helyseg'])
+                data.lat, data.lon = check_hu_boundary(poi_data['marker_position']['latitude'],
                                              poi_data['marker_position']['longitude'])
-                geom = check_geom(lat, lon)
-                postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, lat, lon,
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
                                                        poi_data['irsz'].strip())
-                original = poi_data['cim']
-                ref = None
-                phone = None
-                email = None
-                insert_data.append(
-                    [code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber,
-                     ref, phone, email, geom, nonstop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c,
-                     fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o, summer_sa_o,
-                     summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c,
-                     summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop, opening_hours])
-            if len(insert_data) < 1:
+                data.original = poi_data['cim']
+                data.add()
+            if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:
-                df = pd.DataFrame(insert_data)
-                df.columns = POI_COLS
-                insert_poi_dataframe(self.session, df)
+                insert_poi_dataframe(self.session, data.process())
