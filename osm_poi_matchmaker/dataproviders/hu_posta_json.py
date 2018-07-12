@@ -79,8 +79,8 @@ class hu_posta_json():
                     poi_data['address'])
                 data.city = clean_city(poi_data['city'])
                 data.branch = poi_data['name']
-                data.lat = poi_data['lat'].strip()
-                data.lon = poi_data['lng'].strip()
+                data.lat = poi_data['lat']
+                data.lon = poi_data['lng']
                 data.original = poi_data['address']
                 data.add()
             if data.lenght() < 1:
