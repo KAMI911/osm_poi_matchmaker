@@ -25,7 +25,7 @@ class hu_kulcs_patika():
 
     def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_kulcs_patika.json'):
         self.session = session
-        self.link = 'http://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
+        self.link = 'https://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
         self.download_cache = download_cache
         self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
@@ -38,10 +38,9 @@ class hu_kulcs_patika():
         return data
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), POST_DATA)
-        if soup != None:
-            text = json.loads(soup.get_text())
-            data = POIDataset()
+        if self.link:
+            with open(self.link, 'r') as f:
+                text = json.load(f)
             for poi_data in text:
                 data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['cim'])
