@@ -23,7 +23,7 @@ def download_soup(link, verify_link=config.get_download_verify_link(), post_parm
             headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
             page = requests.post(link, verify=verify_link, data=post_parm, headers=headers)
     except requests.exceptions.ConnectionError as e:
-        logging.warning('Unable to open connection.')
+        logging.warning('Unable to open connection. ({})'.format(e))
         return None
     return BeautifulSoup(page.content, 'html.parser') if page.status_code == 200 else None
 
