@@ -51,7 +51,7 @@ def extract_street_housenumber(clearable):
     housenumber = housenumber.split(' ')[-1]
     housenumber = housenumber.replace('.', '')
     housenumber = housenumber.replace('–', '-')
-    housenumber = housenumber.lower()
+    housenumber = housenumber.upper()
     # Split and clean up street
     street = clearable.split('(')[0]
     street = street.rsplit(' ', 1)[0]
@@ -188,7 +188,7 @@ def extract_street_housenumber_better_2(clearable):
                 housenumber = hn_match.group(0)
                 housenumber = housenumber.replace('.', '')
                 housenumber = housenumber.replace('–', '-')
-                housenumber = housenumber.lower()
+                housenumber = housenumber.upper()
             else:
                 housenumber = None
         if 'street_type' in locals():
