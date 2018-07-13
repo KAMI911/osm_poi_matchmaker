@@ -12,6 +12,7 @@ try:
     from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
@@ -25,14 +26,14 @@ class hu_kulcs_patika():
 
     def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_kulcs_patika.json'):
         self.session = session
-        self.link = 'https://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
+        self.link = os.path.join(config.get_directory_cache_url(), 'hu_kulcs_patika.json')
         self.download_cache = download_cache
         self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
 
     @staticmethod
     def types():
-        data = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs patika', 'poi_type': 'pharmacy',
+        data = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
                  'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.kulcspatika.hu'}]
         return data
@@ -41,7 +42,9 @@ class hu_kulcs_patika():
         if self.link:
             with open(self.link, 'r') as f:
                 text = json.load(f)
+            data = POIDataset()
             for poi_data in text:
+                print(poi_data)
                 data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['cim'])
                 if 'Kulcs patika' not in poi_data['nev']:
