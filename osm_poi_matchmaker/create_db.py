@@ -28,7 +28,7 @@ __version__ = '0.5.0'
 POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
             'poi_addr_street',
             'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
-
+RETRY = 3
 
 def init_log():
     logging.config.fileConfig('log.conf')
@@ -351,10 +351,25 @@ def main():
                 nodes = db.query_ways_nodes(osm_id)
                 data.at[i, 'osm_nodes'] = nodes
             try:
+                rtc = RETRY
                 if osm_node == False:
-                    data.at[i, 'osm_live_tags'] = osm_live_query.WayGet(osm_id)['tag']
+                    for rtc in range (0, RETRY):
+                        logging.info('Downloading OSM live tags to this way: {}.'.format(osm_id))
+                        live_tags_container = osm_live_query.WayGet(osm_id)
+                        if live_tags_container is not None:
+                            data.at[i, 'osm_live_tags'] = live_tags_container['tag']
+                            break
+                        else:
+                            logging.warning('Download of external data has failed.')
                 else:
-                    data.at[i, 'osm_live_tags'] = osm_live_query.NodeGet(osm_id)['tag']
+                    for rtc in range (0, RETRY):
+                        logging.info('Downloading OSM live tags to this way: {}.'.format(osm_id))
+                        live_tags_container = osm_live_query.NodeGet(osm_id)
+                        if live_tags_container is not None:
+                            data.at[i, 'osm_live_tags'] = live_tags_container['tag']
+                            break
+                        else:
+                            logging.warning('Download of external data has failed.')
             except Exception as err:
                 logging.warning('There was an error during OSM request: {}.'.format(err))
             counter += 1
