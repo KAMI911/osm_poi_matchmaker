@@ -79,10 +79,10 @@ def import_poi_data(session):
     logging.info('Importing {} stores ...'.format('CIB Bank'))
     from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
     work = hu_cib_bank(session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'),
-                       config.get_geo_prefer_osm_postcode(), 'CIB bank')
+                       config.get_geo_prefer_osm_postcode(), 'CIB Bank')
     insert_type(session, work.types())
     work = hu_cib_bank(session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.html'),
-                       config.get_geo_prefer_osm_postcode(), 'CIB')
+                       config.get_geo_prefer_osm_postcode(), 'CIB Bank ATM')
 
 
 class POIBase:

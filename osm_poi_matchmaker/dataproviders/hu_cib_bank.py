@@ -44,11 +44,11 @@ class hu_cib_bank():
                 data = POIDataset()
                 for poi_data in text['results']:
                     first_element = next(iter(poi_data))
-                    if self.name == 'CIB bank':
-                        data.name = 'CIB bank'
+                    if self.name == 'CIB Bank':
+                        data.name = 'CIB Bank'
                         data.code = 'hucibbank'
                     else:
-                        data.name = 'CIB'
+                        data.name = 'CIB Bank ATM'
                         data.code = 'hucibatm'
                     data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
                         poi_data[first_element]['address'])

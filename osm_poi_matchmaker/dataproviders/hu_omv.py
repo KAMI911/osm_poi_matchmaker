@@ -25,7 +25,7 @@ POST_DATA = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'QRY': '|'}
 
 class hu_omv():
 
-    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_mol.json'):
+    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_omv.json'):
         self.session = session
         self.link = POI_DATA
         self.download_cache = download_cache
@@ -41,7 +41,6 @@ class hu_omv():
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), POST_DATA)
-        insert_data = []
         if soup != None:
             text = json.loads(soup.get_text())
             data = POIDataset()
