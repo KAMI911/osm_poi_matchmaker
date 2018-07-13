@@ -18,8 +18,7 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-POI_DATA = 'https://www.dm.hu/cms/restws/stores/find?requestingCountry=HU&countryCodes=DE%2CAT%2CBA%2CBG%2CSK%2CRS%2CHR%2CCZ%2CRO%2CSI%2CHU%2CMK%2CIT&mandantId=870&bounds=47.462375%2C16.356074%7C48.56472%2C20.717646&before=false&after=false&morningHour=9&eveningHour=18&_=1531477911392'
-
+POI_DATA = 'https://www.dm.hu/cms/restws/stores/find?requestingCountry=HU&countryCodes=DE%2CAT%2CBA%2CBG%2CSK%2CRS%2CHR%2CCZ%2CRO%2CSI%2CHU%2CMK%2CIT&mandantId=870&bounds=46.599301%2C17.325265%7C47.71978%2C21.681344&before=false&after=false&morningHour=9&eveningHour=18&_=1527413070144'
 class hu_dm():
 
     def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_dm.json'):
