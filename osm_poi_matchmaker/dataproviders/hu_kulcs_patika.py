@@ -44,7 +44,6 @@ class hu_kulcs_patika():
                 text = json.load(f)
             data = POIDataset()
             for poi_data in text:
-                print(poi_data)
                 data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['cim'])
                 if 'Kulcs patika' not in poi_data['nev']:
