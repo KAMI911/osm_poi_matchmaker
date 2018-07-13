@@ -39,7 +39,6 @@ class hu_mol_bubi():
 
     def process(self):
         xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        insert_data = []
         root = etree.fromstring(xml)
         data = POIDataset()
         for e in root.iter('place'):

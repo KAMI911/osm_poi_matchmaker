@@ -43,7 +43,6 @@ class hu_tesco():
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
         data = []
-        insert_data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             table = soup.find('table', attrs={'class': 'tescoce-table'})

@@ -40,7 +40,6 @@ class hu_tom_market():
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        insert_data = []
         if soup != None:
             poi_data = soup.find_all('script', text=re.compile('var\s*marker'))
             poi_data_match = PATTERN_TOM_MARKET.findall(str(poi_data))

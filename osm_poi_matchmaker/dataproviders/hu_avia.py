@@ -40,7 +40,6 @@ class hu_avia():
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        insert_data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             pattern = re.compile('var\s*markers\s*=\s*((.*\n)*\]\;)', re.MULTILINE)

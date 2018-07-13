@@ -40,7 +40,6 @@ class hu_foxpost():
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        insert_data = []
         if soup != None:
             text = json.loads(soup.get_text())
             data = POIDataset()

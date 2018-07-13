@@ -38,7 +38,6 @@ class hu_kh_bank():
     def process(self):
         if self.link:
             with open(self.link, 'r') as f:
-                insert_data = []
                 text = json.load(f)
                 data = POIDataset()
                 for poi_data in text['results']:

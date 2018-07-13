@@ -46,7 +46,6 @@ class hu_rossmann():
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), None,
                                     self.verify_link)
-        insert_data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             pattern = re.compile('^\s*var\s*places.*')

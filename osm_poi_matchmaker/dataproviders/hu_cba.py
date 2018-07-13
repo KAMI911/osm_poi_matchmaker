@@ -50,7 +50,6 @@ class hu_cba():
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        insert_data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             pattern = re.compile('^\s*var\s*boltok_nyers.*')
