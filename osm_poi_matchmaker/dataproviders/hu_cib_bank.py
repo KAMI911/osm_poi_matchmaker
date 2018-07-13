@@ -28,10 +28,10 @@ class hu_cib_bank():
 
     @staticmethod
     def types():
-        data = [{'poi_code': 'hucibbank', 'poi_name': 'CIB bank', 'poi_type': 'bank',
+        data = [{'poi_code': 'hucibbank', 'poi_name': 'CIB Bank', 'poi_type': 'bank',
                  'poi_tags': "{'amenity': 'bank', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.', bic': 'CIBHHUHB', 'atm': 'yes'}",
                  'poi_url_base': 'https://www.cib.hu'},
-                {'poi_code': 'hucibatm', 'poi_name': 'CIB', 'poi_type': 'atm',
+                {'poi_code': 'hucibatm', 'poi_name': 'CIB Bank ATM', 'poi_type': 'atm',
                  'poi_tags': "{'amenity': 'atm', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.'}",
                  'poi_url_base': 'https://www.cib.hu'}]
         return data
