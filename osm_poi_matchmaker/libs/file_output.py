@@ -72,8 +72,7 @@ def generate_osm_xml(df):
         osm_xml_data.append(comment)
         # Add original POI tags as comment
         if row['osm_live_tags'] is not None:
-            for k, v in row['osm_live_tags'].items():
-                # do something with value
+            for k, v in sorted(row['osm_live_tags'].items()):
                 if isinstance(v, str):
                     row['osm_live_tags'][k] = v.replace('--', '\-\-').replace('\n', '')
         comment = etree.Comment(' Original tags: {} '.format(row['osm_live_tags']))
