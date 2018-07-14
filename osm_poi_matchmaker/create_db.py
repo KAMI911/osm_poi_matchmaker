@@ -207,12 +207,13 @@ class POIBase:
         else:
             return None
 
-    def query_osm_shop_poi_gpd_with_metadata(self, lon, lat, ptype='shop'):
+    def query_osm_shop_poi_gpd_with_metadata(self, lon, lat, ptype='shop', name=''):
         '''
         Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
         :param lon:
         :param lat:
         :param ptype:
+        :parm name:
         :return:
         '''
         if ptype == 'shop':
@@ -257,25 +258,29 @@ class POIBase:
         elif ptype == 'vending_machine_parking_tickets':
             query_type = "amenity='vending_machine' AND vending='parking_tickets'"
             distance = config.get_geo_default_poi_distance()
+        if name is not '':
+            query_name = ' AND name ~* :name'
+            distance += 100
+        else:
+            query_name = ''
         # Looking for way (building)
         query = sqlalchemy.text('''
             SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-            WHERE ({type}) AND osm_id > 0
+            WHERE ({query_type}) AND osm_id > 0 {query_name}
                 AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
-            ORDER BY distance ASC;'''.format(type=query_type))
+            ORDER BY distance ASC;'''.format(query_type=query_type, query_name=query_name))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
-                                                                                         'distance': distance})
+                                                                                         'distance': distance, 'name': '.*{}.*'.format(name)})
         # Looking for node
         query = sqlalchemy.text('''
             SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-            WHERE ({type}) AND osm_id > 0
+            WHERE ({query_type}) AND osm_id > 0 {query_name}
                 AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
-            ORDER BY distance ASC;'''.format(type=query_type))
+            ORDER BY distance ASC;'''.format(query_type=query_type, query_name=query_name))
         data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way',
-                                              params={'lon': lon, 'lat': lat, 'type': query_type,
-                                                      'distance': distance})
+                                              params={'lon': lon, 'lat': lat, 'distance': distance, 'name': '.*{}.*'.format(name)})
         if data2.empty == False:
             if data.empty == False:
                 data = data.append(data2)
@@ -332,8 +337,13 @@ def main():
     osm_live_query = OsmApi()
     for i, row in data.iterrows():
         common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
-        osm_query = (
-            db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
+        # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
+        if row['poi_search_name'] is not None and row['poi_search_name'] != '':
+            # Try to search OSM POI with same type within the specified distance
+            osm_query = (db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), row['poi_search_name']))
+            if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
+                osm_query = (db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
+        # Enrich our data with OSM database POI metadata
         if osm_query is not None:
             # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
             osm_id = osm_query['osm_id'].values[0]
@@ -352,6 +362,7 @@ def main():
                 data.at[i, 'osm_nodes'] = nodes
             try:
                 rtc = RETRY
+                # Download OSM POI way live tags
                 if osm_node == False:
                     for rtc in range (0, RETRY):
                         logging.info('Downloading OSM live tags to this way: {}.'.format(osm_id))
@@ -361,6 +372,7 @@ def main():
                             break
                         else:
                             logging.warning('Download of external data has failed.')
+                # Download OSM POI way live tags
                 else:
                     for rtc in range (0, RETRY):
                         logging.info('Downloading OSM live tags to this node: {}.'.format(osm_id))

@@ -19,7 +19,7 @@ except ImportError as err:
     exit(128)
 
 POI_DATA = 'https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU'
-POI_COMMON_TAGS = "'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', ,'brand:wikipedia': 'hu:Spar ', ,'brand:wikidata': 'Q610492', 'addr:country': 'HU', 'email': 'vevoszolgalat@spar.hu', 'phone': '+36208237727', 'facebook': 'https://www.facebook.com/sparmagyarorszag', 'youtube': 'https://www.youtube.com/channel/UC9tu8COHiy4WkeTIN1k_Y8A', 'instagram': 'https://www.instagram.com/sparmagyarorszag/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes',"
+POI_COMMON_TAGS = "'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'brand:wikipedia': 'hu:Spar ', 'brand:wikidata': 'Q610492', 'addr:country': 'HU', 'email': 'vevoszolgalat@spar.hu', 'phone': '+36208237727', 'facebook': 'https://www.facebook.com/sparmagyarorszag', 'youtube': 'https://www.youtube.com/channel/UC9tu8COHiy4WkeTIN1k_Y8A', 'instagram': 'https://www.instagram.com/sparmagyarorszag/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes',"
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
 
 
@@ -36,13 +36,13 @@ class hu_spar():
     def types():
         data = [{'poi_code': 'husparexp', 'poi_name': 'Spar Expressz', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'convenience', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.spar.hu'},
+                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar'},
                 {'poi_code': 'husparint', 'poi_name': 'Interspar', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.spar.hu'},
+                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar'},
                 {'poi_code': 'husparsup', 'poi_name': 'Spar', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.spar.hu'}]
+                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar'}]
         return data
 
     def process(self):

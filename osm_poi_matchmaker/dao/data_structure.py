@@ -111,6 +111,7 @@ class POI_common(Base):
     poi_tags = Column(Unicode(1024), nullable=False, index=True)
     poi_url_base = Column(Unicode(32))
     poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
+    poi_search_name = Column(Unicode(64))
 
     def __repr__(self):
         return '<POI common {}: {}>'.format(self.pc_id, self.poi_name)

@@ -40,7 +40,7 @@ class hu_rossmann():
     def types():
         data = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann', 'poi_type': 'chemist',
                  'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann', 'addr:country': 'HU', 'facebook':'https://www.facebook.com/Rossmann.hu', 'youtube': 'https://www.youtube.com/channel/UCmUCPmvMLL3IaXRBtx7-J7Q', 'instagram':'https://www.instagram.com/rossmann_hu/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
-                 'poi_url_base': 'https://www.rossmann.hu'}]
+                 'poi_url_base': 'https://www.rossmann.hu', 'poi_search_name': 'rossmann'}]
         return data
 
     def process(self):

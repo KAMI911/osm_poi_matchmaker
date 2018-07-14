@@ -35,7 +35,7 @@ class hu_mol():
     def types():
         data = [{'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'MOL', 'operator': 'MOL Nyrt.', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
-                 'poi_url_base': 'https://www.mol.hu'}]
+                 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol'}]
         return data
 
     def process(self):

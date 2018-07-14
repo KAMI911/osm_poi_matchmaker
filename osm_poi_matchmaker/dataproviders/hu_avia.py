@@ -35,7 +35,7 @@ class hu_avia():
     def types():
         data = [{'poi_code': 'huaviafu', 'poi_name': 'Avia', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', 'addr:country': 'HU', 'payment:mastercard': 'yes', 'payment:visa': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'email': 'avia@avia.hu', 'facebook': 'https://www.facebook.com/AVIAHungary', 'youtube': 'https://www.youtube.com/channel/UCjvjkjf2RgmKBuTnKSXk-Rg', }",
-                 'poi_url_base': 'https://www.avia.hu'}]
+                 'poi_url_base': 'https://www.avia.hu', 'poi_search_name': 'avia'}]
         return data
 
     def process(self):

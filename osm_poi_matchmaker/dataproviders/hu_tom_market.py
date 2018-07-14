@@ -35,7 +35,7 @@ class hu_tom_market():
         data = [
             {'poi_code': 'hutommacon', 'poi_name': 'Tom Market', 'poi_type': 'shop',
              'poi_tags': "{'shop': 'convenience', 'brand': 'Tom Market', 'addr:country': 'HU', 'payment:debit_cards': 'yes'}",
-             'poi_url_base': 'https://www.tommarket.hu'}]
+             'poi_url_base': 'https://www.tommarket.hu', 'poi_search_name': 'tom market'}]
         return data
 
     def process(self):

@@ -19,7 +19,7 @@ except ImportError as err:
     exit(128)
 
 POI_DATA = 'https://tesco.hu/aruhazak/'
-POI_COMMON_TAGS = "'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'ref:vatin:hu': '10307078-2-44', 'brand': 'Tesco', ,'brand:wikipedia': 'hu:Tesco', ,'brand:wikidata': 'Q487494', 'addr:country': 'HU', 'internet_access': 'wlan', 'internet_access:fee': 'no', 'facebook': 'https://www.facebook.com/tescoaruhazak/', 'youtube': 'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
+POI_COMMON_TAGS = "'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'ref:vatin:hu': '10307078-2-44', 'brand': 'Tesco', 'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494', 'addr:country': 'HU', 'internet_access': 'wlan', 'internet_access:fee': 'no', 'facebook': 'https://www.facebook.com/tescoaruhazak/', 'youtube': 'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
 
 
 class hu_tesco():
@@ -35,13 +35,13 @@ class hu_tesco():
     def types():
         data = [{'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'convenience', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.tesco.hu'},
+                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': 'tesco'},
                 {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'wheelchair': 'yes', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.tesco.hu'},
+                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': 'tesco'},
                 {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'wheelchair': 'yes', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.tesco.hu'}]
+                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': 'tesco'}]
         return data
 
     def process(self):

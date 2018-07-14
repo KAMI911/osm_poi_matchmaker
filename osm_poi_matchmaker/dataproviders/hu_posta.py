@@ -20,7 +20,7 @@ except ImportError as err:
     exit(128)
 
 POI_DATA = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
-POI_COMMON_TAGS="'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:vatin:hu': '10901232-2-44', ,'brand:wikipedia': 'hu:Magyar Posta Zrt.', ,'brand:wikidata': 'Q145614', 'addr:country': 'HU', 'email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial', 'instagram': 'https://www.instagram.com/magyar_posta_zrt/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
+POI_COMMON_TAGS="'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:vatin:hu': '10901232-2-44', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614', 'addr:country': 'HU', 'email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial', 'instagram': 'https://www.instagram.com/magyar_posta_zrt/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
 
 
 class hu_posta():
@@ -36,20 +36,20 @@ class hu_posta():
     def types():
         data = [{'poi_code': 'hupostapo', 'poi_name': 'Posta', 'poi_type': 'post_office',
                  'poi_tags': "{'amenity': 'post_office', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.posta.hu'},
+                 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta'},
                 {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkautomata', 'poi_type': 'vending_machine_cheques',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'cheques', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.posta.hu'},
+                 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta'},
                 {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata',
                  'poi_type': 'vending_machine_parcel_pickup',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.posta.hu'},
+                 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(mpl|posta)'},
                 {'poi_code': 'hupostapp', 'poi_name': 'PostaPont', 'poi_type': 'post_office',
                  'poi_tags': "{'amenity': 'post_office', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.posta.hu'},
+                 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(postapont|posta)'},
                 {'poi_code': 'hupostamp', 'poi_name': 'Mobilposta', 'poi_type': 'post_office',
                  'poi_tags': "{'amenity': 'post_office', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.posta.hu'}]
+                 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta'}]
         return data
 
     def process(self):

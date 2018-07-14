@@ -32,10 +32,10 @@ class hu_shell():
     def types():
         data = [{'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'Shell', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
-                 'poi_url_base': 'https://www.shell.hu'},
+                 'poi_url_base': 'https://www.shell.hu', 'poi_search_name': 'shell'},
                 {'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'Mobil Petrol', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
-                 'poi_url_base': 'https://www.shell.hu'}
+                 'poi_url_base': 'https://www.shell.hu', 'poi_search_name': '(mobil metrol|shell)'}
                 ]
         return data
 
