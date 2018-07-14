@@ -363,7 +363,7 @@ def main():
                             logging.warning('Download of external data has failed.')
                 else:
                     for rtc in range (0, RETRY):
-                        logging.info('Downloading OSM live tags to this way: {}.'.format(osm_id))
+                        logging.info('Downloading OSM live tags to this node: {}.'.format(osm_id))
                         live_tags_container = osm_live_query.NodeGet(osm_id)
                         if live_tags_container is not None:
                             data.at[i, 'osm_live_tags'] = live_tags_container['tag']
