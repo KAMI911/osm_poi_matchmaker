@@ -37,10 +37,10 @@ class hu_tesco():
                  'poi_tags': "{'shop': 'convenience', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.tesco.hu'},
                 {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'supermarket', " + POI_COMMON_TAGS + "}",
+                 'poi_tags': "{'shop': 'supermarket', 'wheelchair': 'yes', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.tesco.hu'},
                 {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'supermarket', " + POI_COMMON_TAGS + "}",
+                 'poi_tags': "{'shop': 'supermarket', 'wheelchair': 'yes', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.tesco.hu'}]
         return data
 
