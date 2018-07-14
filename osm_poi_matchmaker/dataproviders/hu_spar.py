@@ -19,7 +19,7 @@ except ImportError as err:
     exit(128)
 
 POI_DATA = 'https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU'
-POI_COMMON_TAGS = "'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'wikipedia': 'hu:Spar ', 'wikidata': 'Q610492', 'email': 'vevoszolgalat@spar.hu', 'phone': '+36208237727', 'facebook': 'https://www.facebook.com/sparmagyarorszag', 'youtube': 'https://www.youtube.com/channel/UC9tu8COHiy4WkeTIN1k_Y8A', 'instagram': 'https://www.instagram.com/sparmagyarorszag/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes',"
+POI_COMMON_TAGS = "'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'wikipedia': 'hu:Spar ', 'wikidata': 'Q610492', 'addr:country': 'HU', 'email': 'vevoszolgalat@spar.hu', 'phone': '+36208237727', 'facebook': 'https://www.facebook.com/sparmagyarorszag', 'youtube': 'https://www.youtube.com/channel/UC9tu8COHiy4WkeTIN1k_Y8A', 'instagram': 'https://www.instagram.com/sparmagyarorszag/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes',"
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
 
 

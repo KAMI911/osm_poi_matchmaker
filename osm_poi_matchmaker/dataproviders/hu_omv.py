@@ -35,7 +35,7 @@ class hu_omv():
     @staticmethod
     def types():
         data = [{'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
-                 'poi_tags': "{'amenity': 'fuel', 'brand': 'OMV', 'operator': 'OMV Hungária Kft.', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
+                 'poi_tags': "{'amenity': 'fuel', 'brand': 'OMV', 'operator': 'OMV Hungária Kft.', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
                  'poi_url_base': 'https://www.omv.hu'}]
         return data
 

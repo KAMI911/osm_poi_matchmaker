@@ -35,16 +35,16 @@ class hu_cba():
     def types():
         data = [
             {'poi_code': 'hucbacon', 'poi_name': 'CBA', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'convenience', 'brand': 'CBA', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+             'poi_tags': "{'shop': 'convenience', 'brand': 'CBA', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.cba.hu'},
             {'poi_code': 'hucbasup', 'poi_name': 'CBA', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'supermarket', 'brand': 'CBA', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+             'poi_tags': "{'shop': 'supermarket', 'brand': 'CBA', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.cba.hu'},
             {'poi_code': 'huprimacon', 'poi_name': 'Príma', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'convenience', 'brand': 'Príma', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+             'poi_tags': "{'shop': 'convenience', 'brand': 'Príma', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.prima.hu'},
             {'poi_code': 'huprimasup', 'poi_name': 'Príma', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'supermarket', 'brand': 'Príma', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+             'poi_tags': "{'shop': 'supermarket', 'brand': 'Príma', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.prima.hu'}]
         return data
 

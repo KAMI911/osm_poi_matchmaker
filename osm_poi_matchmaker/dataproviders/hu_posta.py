@@ -20,7 +20,7 @@ except ImportError as err:
     exit(128)
 
 POI_DATA = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
-POI_COMMON_TAGS="'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:vatin:hu': '10901232-2-44', 'wikipedia': 'hu:Magyar Posta Zrt.', 'wikidata': 'Q145614', 'email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial', 'instagram': 'https://www.instagram.com/magyar_posta_zrt/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
+POI_COMMON_TAGS="'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:vatin:hu': '10901232-2-44', 'wikipedia': 'hu:Magyar Posta Zrt.', 'wikidata': 'Q145614', 'addr:country': 'HU', 'email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', 'facebook': 'https://www.facebook.com/MagyarPosta/', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial', 'instagram': 'https://www.instagram.com/magyar_posta_zrt/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
 
 
 class hu_posta():

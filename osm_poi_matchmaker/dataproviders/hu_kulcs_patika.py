@@ -34,7 +34,7 @@ class hu_kulcs_patika():
     @staticmethod
     def types():
         data = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
-                 'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.kulcspatika.hu'}]
         return data
 

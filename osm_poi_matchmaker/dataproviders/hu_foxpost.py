@@ -34,7 +34,7 @@ class hu_foxpost():
     def types():
         data = [
             {'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_type': 'vending_machine_parcel_pickup_and_mail_in',
-             'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup;parcel_mail_in', 'brand': 'Foxpost', 'operator': 'FoxPost Zrt.', 'facebook': 'https://www.facebook.com/foxpostzrt', 'youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w', 'email': 'info@foxpost.hu', 'phone': '+36 1 999 03 69', 'payment:debit_cards': 'yes', 'payment:cash': 'no'}",
+             'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup;parcel_mail_in', 'brand': 'Foxpost', 'operator': 'FoxPost Zrt.', 'addr:country': 'HU', 'facebook': 'https://www.facebook.com/foxpostzrt', 'youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w', 'email': 'info@foxpost.hu', 'phone': '+36 1 999 03 69', 'payment:debit_cards': 'yes', 'payment:cash': 'no'}",
              'poi_url_base': 'https://www.foxpost.hu'}]
         return data
 
