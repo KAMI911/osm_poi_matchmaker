@@ -33,8 +33,8 @@ class hu_mol_bubi():
     @staticmethod
     def types():
         data = [{'poi_code': 'hububibir', 'poi_name': 'MOL Bubi', 'poi_type': 'bicycle_rental',
-                 'poi_tags': "{'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'operator': 'BKK MOL Bubi', 'network': 'bubi', 'addr:country': 'HU', 'payment:credit_cards': 'yes', 'facebook': 'https://www.facebook.com/molbubi/', 'youtube': 'https://www.youtube.com/user/bkkweb'}",
-                 'poi_url_base': 'https://molbubi.bkk.hu/', 'poi_search_name': '(mol bubi|bubi)'}]
+                 'poi_tags': "{'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'operator': 'BKK MOL Bubi', 'network': 'bubi', 'addr:country': 'HU', 'payment:credit_cards': 'yes', 'facebook': 'https://www.facebook.com/molbubi', 'youtube': 'https://www.youtube.com/user/bkkweb'}",
+                 'poi_url_base': 'https://molbubi.bkk.hu', 'poi_search_name': '(mol bubi|bubi)'}]
         return data
 
     def process(self):

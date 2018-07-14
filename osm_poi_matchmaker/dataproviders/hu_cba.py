@@ -19,7 +19,7 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-POI_DATA = 'http://www.cba.hu/uzletlista/'
+POI_DATA = 'http://www.cba.hu/uzletlista'
 
 
 class hu_cba():

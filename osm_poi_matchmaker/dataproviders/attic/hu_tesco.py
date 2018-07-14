@@ -16,7 +16,7 @@ except ImportError as err:
     exit(128)
 
 POI_COLS = poi_array_structure.POI_COLS
-POI_DATA = 'http://tesco.hu/aruhazak/nyitvatartas/'
+POI_DATA = 'http://tesco.hu/aruhazak/nyitvatartas'
 
 
 class hu_tesco():
@@ -30,13 +30,13 @@ class hu_tesco():
     @staticmethod
     def types():
         data = [{'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'facebook':'https://www.facebook.com/tescoaruhazak', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.tesco.hu'},
                 {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'facebook':'https://www.facebook.com/tescoaruhazak', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.tesco.hu'},
                 {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'facebook':'https://www.facebook.com/tescoaruhazak/', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'facebook':'https://www.facebook.com/tescoaruhazak', 'youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
                  'poi_url_base': 'https://www.tesco.hu'}]
         return data
 

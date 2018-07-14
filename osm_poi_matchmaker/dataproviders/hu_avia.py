@@ -19,7 +19,7 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-POI_DATA = 'https://www.avia.hu/kapcsolat/toltoallomasok/'
+POI_DATA = 'https://www.avia.hu/kapcsolat/toltoallomasok'
 
 
 class hu_avia():
