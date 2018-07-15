@@ -15,7 +15,6 @@ def geom_point(latitude, longitude, projection):
     else:
         return None
 
-
 def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
     if (latitude is not None and latitude != '') and (longitude is not None and longitude != ''):
         return geom_point(latitude, longitude, proj)

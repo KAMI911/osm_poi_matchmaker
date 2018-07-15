@@ -179,7 +179,7 @@ class POIBase:
             distance = config.get_geo_default_poi_distance()
         # Looking for way (building)
         query = sqlalchemy.text('''
-            SELECT name,osm_id, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
+            SELECT name,osm_id, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({type}) AND osm_id > 0
                 AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
@@ -188,7 +188,7 @@ class POIBase:
                                                                                          'distance': distance})
         # Looking for way (building)
         query = sqlalchemy.text('''
-            SELECT name,osm_id, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
+            SELECT name,osm_id, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt, ST_X(ST_Transform(planet_osm_point.way,4326)) as lon, ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({type}) AND osm_id > 0
                 AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
@@ -265,7 +265,7 @@ class POIBase:
             query_name = ''
         # Looking for way (building)
         query = sqlalchemy.text('''
-            SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
+            SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({query_type}) AND osm_id > 0 {query_name}
                 AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
@@ -274,7 +274,7 @@ class POIBase:
                                                                                          'distance': distance, 'name': '.*{}.*'.format(name)})
         # Looking for node
         query = sqlalchemy.text('''
-            SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way
+            SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt, ST_X(ST_Transform(planet_osm_point.way,4326)) as lon, ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({query_type}) AND osm_id > 0 {query_name}
                 AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
@@ -348,6 +348,10 @@ def main():
             # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
             osm_id = osm_query['osm_id'].values[0]
             osm_node = osm_query['node'].values[0]
+            # Set OSM POI coordinates for the node
+            if osm_node == True:
+                data.loc[[i], 'poi_lat'] = osm_query['lat'].values[0]
+                data.loc[[i], 'poi_lon'] = osm_query['lon'].values[0]
             data.loc[[i], 'osm_id'] = osm_id
             data.loc[[i], 'node'] = osm_node
             data.loc[[i], 'osm_version'] = osm_query['osm_version'].values[0]
