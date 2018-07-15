@@ -261,8 +261,8 @@ class POIBase:
             distance = config.get_geo_default_poi_distance()
         if name is not '':
             query_name = ' AND name ~* :name'
-            buffer += 150
-            distance + 150
+            buffer += 600
+            distance += 400
         else:
             query_name = ''
         # Looking for way (building)
