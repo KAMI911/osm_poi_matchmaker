@@ -216,6 +216,7 @@ class POIBase:
         :parm name:
         :return:
         '''
+        buffer = 50
         if ptype == 'shop':
             query_type = "shop='convenience' OR shop='supermarket'"
             distance = config.get_geo_shop_poi_distance()
@@ -260,7 +261,8 @@ class POIBase:
             distance = config.get_geo_default_poi_distance()
         if name is not '':
             query_name = ' AND name ~* :name'
-            distance += 200
+            buffer += 150
+            distance + 150
         else:
             query_name = ''
         # Looking for way (building)
@@ -268,10 +270,10 @@ class POIBase:
             SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({query_type}) AND osm_id > 0 {query_name}
-                AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
+                AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(query_type=query_type, query_name=query_name))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
-                                                                                         'distance': distance, 'name': '.*{}.*'.format(name)})
+                                                                                         'distance': distance, 'name': '.*{}.*'.format(name),'buffer': buffer})
         # Looking for node
         query = sqlalchemy.text('''
             SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt, ST_X(ST_Transform(planet_osm_point.way,4326)) as lon, ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
@@ -336,6 +338,7 @@ def main():
     data['osm_nodes'] = None
     osm_live_query = OsmApi()
     for i, row in data.iterrows():
+    # for i, row in data[data['poi_code'].str.contains('tesco')].iterrows():
         common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
         # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
         if row['poi_search_name'] is not None and row['poi_search_name'] != '':
