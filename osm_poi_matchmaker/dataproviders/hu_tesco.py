@@ -41,7 +41,13 @@ class hu_tesco():
                  'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': 'tesco'},
                 {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'wheelchair': 'yes', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': 'tesco'}]
+                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': 'tesco'},
+                {'poi_code': 'husmrktexp', 'poi_name': 'Tesco Expressz', 'poi_type': 'shop',
+                 'poi_tags': "{'shop': 'convenience', 'alt_name': 'S-Market', " + POI_COMMON_TAGS + "}",
+                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': '(tesco|smarket|s-market|s market)'},
+                {'poi_code': 'husmrktsup', 'poi_name': 'Tesco', 'poi_type': 'shop',
+                 'poi_tags': "{'shop': 'supermarket', 'wheelchair': 'yes', 'alt_name': 'S-Market', " + POI_COMMON_TAGS + "}",
+                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': '(tesco|smarket|s-market|s market)'}]
         return data
 
     def process(self):
@@ -60,13 +66,19 @@ class hu_tesco():
                 data.branch = poi_data['name']
                 if 'xpres' in poi_data['name']:
                     data.name = 'Tesco Expressz'
-                    data.code = 'hutescoexp'
+                    if data.city not in ['Győr', 'Sopron']:
+                        data.code = 'hutescoexp'
+                    else:
+                        data.code = 'husmrktexp'
                 elif 'xtra' in poi_data['name']:
                     data.name = 'Tesco Extra'
                     data.code = 'hutescoext'
                 else:
                     data.name = 'Tesco'
-                    data.code = 'hutescosup'
+                    if data.city not in ['Győr', 'Sopron']:
+                        data.code = 'hutescosup'
+                    else:
+                        data.code = 'husmrktsup'
                 data.website = poi_data['url']
                 opening = json.loads(poi_data['opening'])
                 for i in range(0, 7):
