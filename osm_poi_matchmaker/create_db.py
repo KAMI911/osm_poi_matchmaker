@@ -9,7 +9,6 @@ try:
     import logging.config
     import sqlalchemy
     import sqlalchemy.orm
-    import numpy as np
     import pandas as pd
     import geopandas as gpd
     from osmapi import OsmApi
@@ -153,7 +152,6 @@ def export_poi_data(database):
                 nodes = database.query_ways_nodes(osm_id)
                 data.at[i, 'osm_nodes'] = nodes
             try:
-                rtc = RETRY
                 # Download OSM POI way live tags
                 if osm_node == False:
                     for rtc in range (0, RETRY):

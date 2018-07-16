@@ -7,7 +7,7 @@ try:
     from lxml import etree
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone
+    from osm_poi_matchmaker.libs.address import clean_city, clean_phone
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHU

@@ -3,8 +3,7 @@
 try:
     import traceback
     import logging
-    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import clean_city, clean_javascript_variable
+    from osm_poi_matchmaker.libs.address import clean_javascript_variable
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
 except ImportError as err:
@@ -31,36 +30,6 @@ class hu_penny_market():
                  'poi_url_base': 'https://www.penny.hu', 'poi_search_name': '(penny market|penny)'}]
         data = POIDataset()
         data.nonstop = None
-        data.mo_o = None
-        data.tu_o = None
-        data.we_o = None
-        data.th_o = None
-        data.fr_o = None
-        data.sa_o = None
-        data.su_o = None
-        data.mo_c = None
-        data.tu_c = None
-        data.we_c = None
-        data.th_c = None
-        data.fr_c = None
-        data.sa_c = None
-        data.su_c = None
-        data.summer_mo_o = None
-        data.summer_tu_o = None
-        data.summer_we_o = None
-        data.summer_th_o = None
-        data.summer_fr_o = None
-        data.summer_sa_o = None
-        data.summer_su_o = None
-        data.summer_mo_c = None
-        data.summer_tu_c = None
-        data.summer_we_c = None
-        data.summer_th_c = None
-        data.summer_fr_c = None
-        data.summer_sa_c = None
-        data.summer_su_c = None
-        data.lunch_break_start = None
-        data.lunch_break_stop = None
         data.phone = None
         data.email = None
         return data
