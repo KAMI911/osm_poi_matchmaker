@@ -85,6 +85,107 @@ def import_poi_data(session):
                        config.get_geo_prefer_osm_postcode(), 'CIB Bank ATM')
 
 
+def export_poi_data(database):
+    logging.info('Loading data from database ...')
+    if not os.path.exists(config.get_directory_output()):
+        os.makedirs(config.get_directory_output())
+    # Build Dataframe from our POI database
+    addr_data = database.query_all_gpd('poi_address')
+    addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
+    comm_data = database.query_all_pd('poi_common')
+    logging.info('Exporting CSV files ...')
+    # And merge and them into one Dataframe and save it to a CSV file
+    save_csv_file(config.get_directory_output(), 'poi_common.csv', comm_data, 'poi_common')
+    logging.info('Merging dataframes ...')
+    data = pd.merge(addr_data, comm_data, left_on='poi_common_id', right_on='pc_id', how='inner')
+    save_csv_file(config.get_directory_output(), 'poi_address.csv', data, 'poi_address')
+    # Generating CSV files group by poi_code
+    poi_codes = data.poi_code.unique()
+    # Adding additional empty fields
+    data['osm_id'] = None
+    data['node'] = None
+    data['osm_version'] = None
+    data['osm_changeset'] = None
+    data['osm_timestamp'] = None
+    data['osm_live_tags'] = None
+    logging.info('Saving separated files ...')
+    for c in poi_codes:
+        save_csv_file(config.get_directory_output(), 'poi_address_{}.csv'.format(c), data[data.poi_code == c],
+                      'poi_address')
+        with open(os.path.join(config.get_directory_output(), 'poi_address_{}.osm'.format(c)), 'wb') as oxf:
+            oxf.write(generate_osm_xml(data[data.poi_code == c]))
+    with open(os.path.join(config.get_directory_output(), 'poi_address.osm'), 'wb') as oxf:
+        oxf.write(generate_osm_xml(data))
+    logging.info('Merging with OSM datasets ...')
+    counter = 0
+    data['osm_nodes'] = None
+    data['poi_distance'] = None
+    osm_live_query = OsmApi()
+    for i, row in data.iterrows():
+    # for i, row in data[data['poi_code'].str.contains('tesco')].iterrows():
+        common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
+        # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
+        if row['poi_search_name'] is not None and row['poi_search_name'] != '':
+            # Try to search OSM POI with same type within the specified distance
+            osm_query = (database.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), row['poi_search_name']))
+            if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
+                osm_query = (database.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
+        # Enrich our data with OSM database POI metadata
+        if osm_query is not None:
+            # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
+            osm_id = osm_query['osm_id'].values[0]
+            osm_node = osm_query['node'].values[0]
+            # Set OSM POI coordinates for the node
+            if osm_node == True:
+                data.loc[[i], 'poi_lat'] = osm_query['lat'].values[0]
+                data.loc[[i], 'poi_lon'] = osm_query['lon'].values[0]
+            data.loc[[i], 'osm_id'] = osm_id
+            data.loc[[i], 'node'] = osm_node
+            data.loc[[i], 'osm_version'] = osm_query['osm_version'].values[0]
+            data.loc[[i], 'osm_changeset'] = osm_query['osm_changeset'].values[0]
+            osm_timestamp = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
+            data.loc[[i], 'osm_timestamp'] = '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M:%S')
+            data.loc[[i], 'poi_distance'] = osm_query['distance'].values[0]
+            # For OSM way also query node points
+            if osm_node == False:
+                logging.info('This is an OSM way looking for id {} nodes.'.format(osm_id))
+                # Add list of nodes to the dataframe
+                nodes = database.query_ways_nodes(osm_id)
+                data.at[i, 'osm_nodes'] = nodes
+            try:
+                rtc = RETRY
+                # Download OSM POI way live tags
+                if osm_node == False:
+                    for rtc in range (0, RETRY):
+                        logging.info('Downloading OSM live tags to this way: {}.'.format(osm_id))
+                        live_tags_container = osm_live_query.WayGet(osm_id)
+                        if live_tags_container is not None:
+                            data.at[i, 'osm_live_tags'] = live_tags_container['tag']
+                            break
+                        else:
+                            logging.warning('Download of external data has failed.')
+                # Download OSM POI way live tags
+                else:
+                    for rtc in range (0, RETRY):
+                        logging.info('Downloading OSM live tags to this node: {}.'.format(osm_id))
+                        live_tags_container = osm_live_query.NodeGet(osm_id)
+                        if live_tags_container is not None:
+                            data.at[i, 'osm_live_tags'] = live_tags_container['tag']
+                            break
+                        else:
+                            logging.warning('Download of external data has failed.')
+            except Exception as err:
+                logging.warning('There was an error during OSM request: {}.'.format(err))
+            counter += 1
+    for c in poi_codes:
+        save_csv_file(config.get_directory_output(), 'poi_address_merge_{}.csv'.format(c), data[data.poi_code == c],
+                      'poi_address')
+        with open(os.path.join(config.get_directory_output(), 'poi_address_merge_{}.osm'.format(c)), 'wb') as oxf:
+            oxf.write(generate_osm_xml(data[data.poi_code == c]))
+    with open(os.path.join(config.get_directory_output(), 'poi_address_merge.osm'), 'wb') as oxf:
+        oxf.write(generate_osm_xml(data))
+    logging.info('{} objects found in OSM dataset.'.format(counter))
+
 class POIBase:
     """Represents the full database.
 
@@ -302,106 +403,7 @@ def main():
 
     import_basic_data(db.session)
     import_poi_data(db.session)
-
-    logging.info('Loading data from database ...')
-    if not os.path.exists(config.get_directory_output()):
-        os.makedirs(config.get_directory_output())
-    # Build Dataframe from our POI database
-    addr_data = db.query_all_gpd('poi_address')
-    addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
-    comm_data = db.query_all_pd('poi_common')
-    logging.info('Exporting CSV files ...')
-    # And merge and them into one Dataframe and save it to a CSV file
-    save_csv_file(config.get_directory_output(), 'poi_common.csv', comm_data, 'poi_common')
-    logging.info('Merging dataframes ...')
-    data = pd.merge(addr_data, comm_data, left_on='poi_common_id', right_on='pc_id', how='inner')
-    save_csv_file(config.get_directory_output(), 'poi_address.csv', data, 'poi_address')
-    # Generating CSV files group by poi_code
-    poi_codes = data.poi_code.unique()
-    # Adding additional empty fields
-    data['osm_id'] = None
-    data['node'] = None
-    data['osm_version'] = None
-    data['osm_changeset'] = None
-    data['osm_timestamp'] = None
-    data['osm_live_tags'] = None
-    logging.info('Saving separated files ...')
-    for c in poi_codes:
-        save_csv_file(config.get_directory_output(), 'poi_address_{}.csv'.format(c), data[data.poi_code == c],
-                      'poi_address')
-        with open(os.path.join(config.get_directory_output(), 'poi_address_{}.osm'.format(c)), 'wb') as oxf:
-            oxf.write(generate_osm_xml(data[data.poi_code == c]))
-    with open(os.path.join(config.get_directory_output(), 'poi_address.osm'), 'wb') as oxf:
-        oxf.write(generate_osm_xml(data))
-    logging.info('Merging with OSM datasets ...')
-    counter = 0
-    data['osm_nodes'] = None
-    data['poi_distance'] = None
-    osm_live_query = OsmApi()
-    for i, row in data.iterrows():
-    # for i, row in data[data['poi_code'].str.contains('tesco')].iterrows():
-        common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
-        # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
-        if row['poi_search_name'] is not None and row['poi_search_name'] != '':
-            # Try to search OSM POI with same type within the specified distance
-            osm_query = (db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), row['poi_search_name']))
-            if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
-                osm_query = (db.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
-        # Enrich our data with OSM database POI metadata
-        if osm_query is not None:
-            # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
-            osm_id = osm_query['osm_id'].values[0]
-            osm_node = osm_query['node'].values[0]
-            # Set OSM POI coordinates for the node
-            if osm_node == True:
-                data.loc[[i], 'poi_lat'] = osm_query['lat'].values[0]
-                data.loc[[i], 'poi_lon'] = osm_query['lon'].values[0]
-            data.loc[[i], 'osm_id'] = osm_id
-            data.loc[[i], 'node'] = osm_node
-            data.loc[[i], 'osm_version'] = osm_query['osm_version'].values[0]
-            data.loc[[i], 'osm_changeset'] = osm_query['osm_changeset'].values[0]
-            osm_timestamp = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
-            data.loc[[i], 'osm_timestamp'] = '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M:%S')
-            data.loc[[i], 'poi_distance'] = osm_query['distance'].values[0]
-            # For OSM way also query node points
-            if osm_node == False:
-                logging.info('This is an OSM way looking for id {} nodes.'.format(osm_id))
-                # Add list of nodes to the dataframe
-                nodes = db.query_ways_nodes(osm_id)
-                data.at[i, 'osm_nodes'] = nodes
-            try:
-                rtc = RETRY
-                # Download OSM POI way live tags
-                if osm_node == False:
-                    for rtc in range (0, RETRY):
-                        logging.info('Downloading OSM live tags to this way: {}.'.format(osm_id))
-                        live_tags_container = osm_live_query.WayGet(osm_id)
-                        if live_tags_container is not None:
-                            data.at[i, 'osm_live_tags'] = live_tags_container['tag']
-                            break
-                        else:
-                            logging.warning('Download of external data has failed.')
-                # Download OSM POI way live tags
-                else:
-                    for rtc in range (0, RETRY):
-                        logging.info('Downloading OSM live tags to this node: {}.'.format(osm_id))
-                        live_tags_container = osm_live_query.NodeGet(osm_id)
-                        if live_tags_container is not None:
-                            data.at[i, 'osm_live_tags'] = live_tags_container['tag']
-                            break
-                        else:
-                            logging.warning('Download of external data has failed.')
-            except Exception as err:
-                logging.warning('There was an error during OSM request: {}.'.format(err))
-            counter += 1
-    for c in poi_codes:
-        save_csv_file(config.get_directory_output(), 'poi_address_merge_{}.csv'.format(c), data[data.poi_code == c],
-                      'poi_address')
-        with open(os.path.join(config.get_directory_output(), 'poi_address_merge_{}.osm'.format(c)), 'wb') as oxf:
-            oxf.write(generate_osm_xml(data[data.poi_code == c]))
-    with open(os.path.join(config.get_directory_output(), 'poi_address_merge.osm'), 'wb') as oxf:
-        oxf.write(generate_osm_xml(data))
-    logging.info('{} objects found in OSM dataset.'.format(counter))
+    export_poi_data(db)
 
 
 if __name__ == '__main__':
