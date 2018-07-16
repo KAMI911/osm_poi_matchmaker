@@ -59,11 +59,11 @@ class hu_tom_market():
                 data.code = 'hutommacon'
                 data.branch = None
                 data.website = None
-                original = poi_data
-                ref = None
-                geom = None
-                phone = None
-                email = None
+                data.original = poi_data
+                data.ref = None
+                data.geom = None
+                data.phone = None
+                data.email = None
                 data.add()
             if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
