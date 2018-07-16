@@ -336,6 +336,7 @@ def main():
     logging.info('Merging with OSM datasets ...')
     counter = 0
     data['osm_nodes'] = None
+    data['poi_distance'] = None
     osm_live_query = OsmApi()
     for i, row in data.iterrows():
     # for i, row in data[data['poi_code'].str.contains('tesco')].iterrows():
@@ -361,6 +362,7 @@ def main():
             data.loc[[i], 'osm_changeset'] = osm_query['osm_changeset'].values[0]
             osm_timestamp = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
             data.loc[[i], 'osm_timestamp'] = '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M:%S')
+            data.loc[[i], 'poi_distance'] = osm_query['distance'].values[0]
             # For OSM way also query node points
             if osm_node == False:
                 logging.info('This is an OSM way looking for id {} nodes.'.format(osm_id))

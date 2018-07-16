@@ -70,6 +70,9 @@ def generate_osm_xml(df):
         # Add original POI coordinates as comment
         comment = etree.Comment(' Original coordinates: {} '.format(row['poi_geom']))
         osm_xml_data.append(comment)
+        if 'poi_distance' in row:
+            comment = etree.Comment(' OSM <-> POI distance: {} m'.format(row['poi_distance']))
+            osm_xml_data.append(comment)
         # Add original POI tags as comment
         comment = ''
         if row['osm_live_tags'] is not None:
