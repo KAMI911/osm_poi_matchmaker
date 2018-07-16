@@ -10,7 +10,7 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
         clean_phone
-    from osm_poi_matchmaker.libs.geo import check_geom, check_hu_boundary
+    from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
 except ImportError as err:
@@ -54,7 +54,7 @@ class hu_omv():
                 if poi_data['open_hours'] is not None:
                     oho, ohc = clean_opening_hours(poi_data['open_hours'])
                     if oho == '00:00' and ohc == '24:00':
-                        nonstop = True
+                        data.nonstop = True
                         oho, ohc = None, None
                 else:
                     oho, ohc = None, None

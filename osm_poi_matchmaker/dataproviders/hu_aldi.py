@@ -15,7 +15,7 @@ except ImportError as err:
     exit(128)
 
 POI_DATA = 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas'
-POI_COMMON_TAGS = "'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi', 'ref:vatin:hu':'22234663-2-44', 'brand:wikipedia':'hu:Aldi', 'brand:wikidata':'Q125054', 'addr:country': 'HU', 'facebook': 'https://www.facebook.com/ALDI.Magyarorszag', 'youtube':'https://www.youtube.com/user/ALDIMagyarorszag', 'instagram':'https://www.instagram.com/aldi.magyarorszag', 'payment:mastercard': 'yes', 'payment:visa': 'yes'}"
+POI_COMMON_TAGS = "'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi', 'ref:vatin:hu':'22234663-2-44', ,'brand:wikipedia':'hu:Aldi', ,'brand:wikidata':'Q125054', 'addr:country': 'HU', 'facebook': 'https://www.facebook.com/ALDI.Magyarorszag', 'youtube':'https://www.youtube.com/user/ALDIMagyarorszag', 'instagram':'https://www.instagram.com/aldi.magyarorszag', 'payment:mastercard': 'yes', 'payment:visa': 'yes'}"
 
 class hu_aldi():
 
