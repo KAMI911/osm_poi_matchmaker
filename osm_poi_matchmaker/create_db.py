@@ -127,9 +127,9 @@ def export_poi_data(database):
         # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
         if row['poi_search_name'] is not None and row['poi_search_name'] != '':
             # Try to search OSM POI with same type within the specified distance
-            osm_query = (database.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), row['poi_search_name']))
+            osm_query = (database.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), row['poi_search_name']))
             if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
-                osm_query = (database.query_osm_shop_poi_gpd_with_metadata(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
+                osm_query = (database.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
         # Enrich our data with OSM database POI metadata
         if osm_query is not None:
             # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
@@ -228,77 +228,6 @@ class POIBase:
         data['poi_lon'] = data['poi_geom'].y
         return data
 
-    def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop'):
-        '''
-        Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
-        :param lon:
-        :param lat:
-        :param ptype:
-        :return:
-        '''
-        if ptype == 'shop':
-            query_type = "shop='convenience' OR shop='supermarket'"
-            distance = config.get_geo_shop_poi_distance()
-        elif ptype == 'fuel':
-            query_type = "amenity='fuel'"
-            distance = config.get_geo_default_poi_distance()
-        elif ptype == 'bank':
-            query_type = "amenity='bank'"
-            distance = config.get_geo_default_poi_distance()
-        elif ptype == 'atm':
-            query_type = "amenity='atm'"
-            distance = config.get_geo_amenity_atm_poi_distance()
-        elif ptype == 'post_office':
-            query_type = "amenity='post_office'"
-            distance = config.get_geo_amenity_post_office_poi_distance()
-        elif ptype == 'vending_machine':
-            query_type = "amenity='vending_machine'"
-            distance = config.get_geo_default_poi_distance()
-        elif ptype == 'pharmacy':
-            query_type = "amenity='pharmacy'"
-            distance = config.get_geo_default_poi_distance()
-        elif ptype == 'chemist':
-            query_type = "shop='chemist'"
-            distance = config.get_geo_default_poi_distance()
-        elif ptype == 'bicycle_rental':
-            query_type = "amenity='bicycle_rental'"
-            distance = config.get_geo_default_poi_distance()
-        elif ptype == 'vending_machine_cheques':
-            query_type = "amenity='vending_machine' AND vending='cheques'"
-            distance = config.get_geo_default_poi_distance()
-        elif ptype == 'vending_machine_parcel_pickup':
-            query_type = "amenity='vending_machine' AND vending='parcel_pickup'"
-            distance = config.get_geo_default_poi_distance()
-        elif ptype == 'vending_machine_parcel_mail_in':
-            query_type = "amenity='vending_machine' AND vending='parcel_mail_in'"
-            distance = config.get_geo_default_poi_distance()
-        elif ptype == 'vending_machine_parcel_pickup_and_mail_in':
-            query_type = "amenity='vending_machine' AND vending='parcel_pickup;parcel_mail_in'"
-            distance = config.get_geo_default_poi_distance()
-        elif ptype == 'vending_machine_parking_tickets':
-            query_type = "amenity='vending_machine' AND vending='parking_tickets'"
-            distance = config.get_geo_default_poi_distance()
-        # Looking for way (building)
-        query = sqlalchemy.text('''
-            SELECT name,osm_id, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
-            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-            WHERE ({type}) AND osm_id > 0
-                AND ST_DWithin(ST_Centroid(way),ST_Transform(point.geom,3857), :distance)
-            ORDER BY distance ASC;'''.format(type=query_type))
-        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
-                                                                                         'distance': distance})
-        # Looking for way (building)
-        query = sqlalchemy.text('''
-            SELECT name,osm_id, true::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", amenity, ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt, ST_X(ST_Transform(planet_osm_point.way,4326)) as lon, ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
-            FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-            WHERE ({type}) AND osm_id > 0
-                AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
-            ORDER BY distance ASC;'''.format(type=query_type))
-        data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way',
-                                              params={'lon': lon, 'lat': lat, 'type': query_type,
-                                                      'distance': distance})
-        data = data.append(data2)
-        return data.sort_values(by=['distance'])
 
     def query_ways_nodes(self, way_id):
         if way_id > 0:
@@ -308,13 +237,14 @@ class POIBase:
         else:
             return None
 
-    def query_osm_shop_poi_gpd_with_metadata(self, lon, lat, ptype='shop', name=''):
+    def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop', name ='', with_metadata = True):
         '''
         Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
         :param lon:
         :param lat:
         :param ptype:
         :parm name:
+        :parm with_metadata:
         :return:
         '''
         buffer = 50
@@ -366,13 +296,17 @@ class POIBase:
             distance += 400
         else:
             query_name = ''
+        if with_metadata is True:
+            metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
+        else:
+            metadata_fields = ''
         # Looking for way (building)
         query = sqlalchemy.text('''
-            SELECT name, osm_id, osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
+            SELECT name, osm_id, {metadata_fields} false::boolean AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({query_type}) AND osm_id > 0 {query_name}
                 AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom,3857), :distance)
-            ORDER BY distance ASC;'''.format(query_type=query_type, query_name=query_name))
+            ORDER BY distance ASC;'''.format(query_type=query_type, query_name=query_name, metadata_fields=metadata_fields))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
                                                                                          'distance': distance, 'name': '.*{}.*'.format(name),'buffer': buffer})
         # Looking for node
