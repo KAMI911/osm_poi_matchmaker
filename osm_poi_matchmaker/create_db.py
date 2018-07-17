@@ -19,7 +19,6 @@ try:
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
     from osm_poi_matchmaker.dao.data_handlers import insert_type
     from sqlalchemy.orm import scoped_session, sessionmaker
-    from queue import Empty
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
