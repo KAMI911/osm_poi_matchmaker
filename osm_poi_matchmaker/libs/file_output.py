@@ -26,10 +26,13 @@ def ascii_numcoder(text):
 
 
 def save_csv_file(path, file, data, message):
-    # Save file to CSV file
-    logging.info('Saving {0} to file: {1}'.format(message, file))
-    res = data.to_csv(os.path.join(path, file))
-    logging.info('The {0} was sucessfully saved'.format(file))
+    try:
+        # Save file to CSV file
+        logging.info('Saving {0} to file: {1}'.format(message, file))
+        res = data.to_csv(os.path.join(path, file))
+        logging.info('The {0} was sucessfully saved'.format(file))
+    except Exception as err:
+        print(err)
 
 
 def generate_osm_xml(df):

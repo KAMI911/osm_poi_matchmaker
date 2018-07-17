@@ -45,11 +45,6 @@ class hu_tom_market():
             data = POIDataset()
             for poi_data in poi_data_match:
                 # if poi_data_match is not None else None
-                if poi_data == None:
-                    print('1')
-                    print(str(poi_data))
-                else:
-                    print(poi_data)
                 data.city, data.street, data.housenumber, data.conscriptionnumber = extract_city_street_housenumber_address(poi_data)
                 data.city = clean_city(data.city)
                 data.postcode = None
