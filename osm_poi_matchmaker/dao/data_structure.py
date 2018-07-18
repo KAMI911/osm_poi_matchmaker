@@ -117,6 +117,23 @@ class POI_common(Base):
         return '<POI common {}: {}>'.format(self.pc_id, self.poi_name)
 
 
+class POI_OSM_cache(Base):
+    __tablename__ = 'poi_osm_cache'
+    _plural_name_ = 'poi_osm_cache'
+    poc_id = Column(Integer, primary_key=True, index=True)
+    id = synonym('poc_id')
+    poi_name = Column(Unicode(64), unique=False, nullable=False, index=True)
+    poi_type = Column(Enum(POI_type))
+    osm_id = Column(Integer, nullable=False, index=True)
+    osm_node = Column(Boolean)
+    osm_version = Column(Integer, nullable=False, index=True)
+    osm_changeset = Column(Integer, nullable=False, index=True)
+    osm_timestamp = Column(DateTime(True), nullable=False)
+    osm_nodes = Column(Unicode(1024), nullable=True, index=False)
+    osm_distance = Column(Integer, nullable=True, index=False)
+    osm_live_tags = Column(Unicode(1024), nullable=True, index=True)
+
+
 class City(Base):
     __tablename__ = 'city'
     _plural_name_ = 'city'
