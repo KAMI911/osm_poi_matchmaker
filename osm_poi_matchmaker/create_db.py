@@ -61,9 +61,6 @@ def import_poi_data_module(module):
         session_factory = sessionmaker(mysql_pool)
         Session = scoped_session(session_factory)
         session = Session()
-
-        # print(queue)
-        # module = queue.get().strip()
         module = module.strip()
         logging.info('Processing {} module ...'.format(module))
         if module == 'hu_kh_bank':
@@ -465,7 +462,6 @@ def main():
         manager.join()
         # Export filesets
         export_raw_poi_data(poi_addr_data, poi_common_data, '_merge')
-        export_raw_poi_data_xml(poi_addr_data, '_merge')
         manager.start_exporter(poi_addr_data, 'merge_')
         manager.join()
 
