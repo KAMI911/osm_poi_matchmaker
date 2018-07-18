@@ -46,7 +46,7 @@ def generate_osm_xml(df):
         osm_timestamp = '' if row['osm_timestamp'] is None else row['osm_timestamp']
         osm_changeset = '99999' if row['osm_changeset'] is None else row['osm_changeset'] + 1
         osm_version = '99999' if row['osm_version'] is None else row['osm_version']
-        if row['node'] is None or (row['node'] == True or math.isnan(row['node'])):
+        if row['osm_node'] is None or (row['osm_node'] == True or math.isnan(row['osm_node'])):
             main_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(current_id),
                                          lat='{}'.format(row['poi_lat']), lon='{}'.format(row['poi_lon']),
                                          user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
@@ -55,7 +55,7 @@ def generate_osm_xml(df):
             if current_id > 0:
                 comment = etree.Comment(' OSM link: https://osm.org/node/{} '.format(str(current_id)))
                 osm_xml_data.append(comment)
-        elif row['node'] is not None and row['node'] == False:
+        elif row['osm_node'] is not None and row['osm_node'] == False:
             main_data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_id),
                                          user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
                                          uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),

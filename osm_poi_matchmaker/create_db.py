@@ -168,7 +168,7 @@ def online_poi_matching(args):
                     data.at[i, 'poi_lat'] = osm_query['lat'].values[0]
                     data.at[i, 'poi_lon'] = osm_query['lon'].values[0]
                 data.at[i, 'osm_id'] = osm_id
-                data.at[i, 'node'] = osm_node
+                data.at[i, 'osm_node'] = osm_node
                 data.at[i, 'osm_version'] = osm_query['osm_version'].values[0]
                 data.at[i, 'osm_changeset'] = osm_query['osm_changeset'].values[0]
                 osm_timestamp = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
@@ -442,7 +442,7 @@ def main():
         poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
         # Add additional empty fields
         poi_addr_data['osm_id'] = None
-        poi_addr_data['node'] = None
+        poi_addr_data['osm_node'] = None
         poi_addr_data['osm_version'] = None
         poi_addr_data['osm_changeset'] = None
         poi_addr_data['osm_timestamp'] = None
