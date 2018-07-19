@@ -88,6 +88,8 @@ class POI_address(Base):
     poi_opening_hours_lunch_break_start = Column(Time)
     poi_opening_hours_lunch_break_stop = Column(Time)
     poi_opening_hours = Column(Unicode(256), nullable=True, unique=False, index=True)
+    poi_good = Column(Unicode(128), nullable=True, index=False)
+    poi_bad = Column(Unicode(128), nullable=True, index=False)
     poi_hash = Column(Unicode(128), nullable=True, unique=False, index=True)
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_updated = Column(DateTime(True))
@@ -132,7 +134,6 @@ class POI_OSM_cache(Base):
     osm_nodes = Column(Unicode(1024), nullable=True, index=False)
     osm_distance = Column(Integer, nullable=True, index=False)
     osm_live_tags = Column(Unicode(1024), nullable=True, index=True)
-
 
 class City(Base):
     __tablename__ = 'city'

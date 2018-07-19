@@ -34,5 +34,5 @@ POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'p
             'poi_opening_hours_summer_su_close',
             'poi_opening_hours_lunch_break_start',
             'poi_opening_hours_lunch_break_stop',
-            'poi_opening_hours',
+            'poi_opening_hours', 'poi_good', 'poi_bad'
             ]

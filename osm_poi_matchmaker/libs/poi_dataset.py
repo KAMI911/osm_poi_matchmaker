@@ -9,6 +9,9 @@ try:
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
     from osm_poi_matchmaker.dao import poi_array_structure
+    from osm_poi_matchmaker.utils import config
+    from osm_poi_matchmaker.dao.poi_base import POIBase
+    from osm_poi_matchmaker.libs.poi_qc import POIQC
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
@@ -24,6 +27,12 @@ class POIDataset:
 
     def __init__(self):
         self.insert_data = []
+        self.__db = POIBase(
+            '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
+                                         config.get_database_writer_password(),
+                                         config.get_database_writer_host(),
+                                         config.get_database_writer_port(),
+                                         config.get_database_poi_database()))
         self.clear_all()
 
     def clear_all(self):
@@ -47,6 +56,8 @@ class POIDataset:
         self.__oh = pd.DataFrame(index=WeekDaysShort, columns=OpenClose)
         self.__lunch_break = {'start': None, 'stop': None}
         self.__opening_hours = None
+        self.__good = []
+        self.__bad = []
 
     @property
     def code(self):
@@ -510,6 +521,8 @@ class POIDataset:
     def add(self):
         self.process_opening_hours()
         self.process_geom()
+        pqc = POIQC(self.__db, self.__lon, self.__lat)
+        self.__good, self.__bad = pqc.process()
         self.insert_data.append(
             [self.__code, self.__postcode, self.__city, self.__name, self.__branch, self.__website, self.__original, self.__street,
              self.__housenumber, self.__conscriptionnumber,
@@ -541,7 +554,7 @@ class POIDataset:
              self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
              self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
              self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break['start'], self.__lunch_break['stop'],
-             self.__opening_hours])
+             self.__opening_hours, self.__good, self.__bad])
         self.clear_all()
 
     def process(self):

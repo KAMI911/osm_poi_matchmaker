@@ -76,6 +76,9 @@ def generate_osm_xml(df):
         if 'poi_distance' in row:
             comment = etree.Comment(' OSM <-> POI distance: {} m'.format(row['poi_distance']))
             osm_xml_data.append(comment)
+        if 'poi_good' in row and 'poi_bad' in row:
+            comment = etree.Comment(' Checker good: {}; bad {}'.format(row['poi_good'], row['poi_bad']))
+            osm_xml_data.append(comment)
         # Add original POI tags as comment
         comment = ''
         if row['osm_live_tags'] is not None:
