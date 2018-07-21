@@ -271,3 +271,7 @@ def clean_email(email):
     if ';' in email:
         email = email.split(';')[0]
     return email
+
+def clean_string(clearable):
+    clearable = clearable.replace('  ', ' ')
+    return clearable

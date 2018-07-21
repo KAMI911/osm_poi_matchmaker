@@ -8,6 +8,7 @@ try:
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose, WeekDaysLongHU
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.address import clean_string
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.dao.poi_base import POIBase
@@ -524,7 +525,7 @@ class POIDataset:
         pqc = POIQC(self.__db, self.__lon, self.__lat)
         self.__good, self.__bad = pqc.process()
         self.insert_data.append(
-            [self.__code, self.__postcode, self.__city, self.__name, self.__branch, self.__website, self.__original, self.__street,
+            [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website, self.__original, self.__street,
              self.__housenumber, self.__conscriptionnumber,
              self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop, self.__oh.at[WeekDaysShort.mo, OpenClose.open],
              self.__oh.at[WeekDaysShort.tu, OpenClose.open],
