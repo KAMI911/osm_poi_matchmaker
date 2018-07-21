@@ -77,7 +77,7 @@ class hu_tesco():
                         data.code = 'hutescosup'
                     else:
                         data.code = 'husmrktsup'
-                data.website = poi_data['url']
+                data.website = '{}/'.format(poi_data['url'])
                 opening = json.loads(poi_data['opening'])
                 for i in range(0, 7):
                     ind = str(i + 1) if i != 6 else '0'
