@@ -133,7 +133,7 @@ class POIBase:
         if name is not '':
             query_name = ' AND name ~* :name'
             buffer += 600
-            distance += 600
+            distance += 800
         else:
             query_name = ''
         if with_metadata is True:
