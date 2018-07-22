@@ -63,8 +63,8 @@ class hu_tesco():
                 data.city = clean_city(poi_data['city'])
                 data.branch = poi_data['name']
                 if 'xpres' in poi_data['name']:
-                    data.name = 'Tesco Expressz'
                     if data.city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:
+                        data.name = 'Tesco Expressz'
                         data.code = 'hutescoexp'
                     else:
                         data.name = 'S-Market'
@@ -73,8 +73,8 @@ class hu_tesco():
                     data.name = 'Tesco Extra'
                     data.code = 'hutescoext'
                 else:
-                    data.name = 'Tesco'
                     if data.city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:
+                        data.name = 'Tesco'
                         data.code = 'hutescosup'
                     else:
                         data.name = 'S-Market'
