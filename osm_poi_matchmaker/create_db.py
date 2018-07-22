@@ -18,6 +18,7 @@ try:
     from osm_poi_matchmaker.utils import config, timing, dataproviders_loader
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
     from osm_poi_matchmaker.dao.data_handlers import insert_type
+    from osm_poi_matchmaker.dao.data_structure import OSM_object_type
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
@@ -163,9 +164,14 @@ def online_poi_matching(args):
             if osm_query is not None:
                 # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
                 osm_id = osm_query['osm_id'].values[0]
-                osm_node = osm_query['node'].values[0]
+                if osm_query['node'].values[0] == 'node':
+                    osm_node = OSM_object_type.node
+                elif osm_query['node'].values[0] == 'way':
+                    osm_node = OSM_object_type.way
+                else:
+                    osm_node = OSM_object_type.relation
                 # Set OSM POI coordinates for the node
-                if osm_node == True:
+                if osm_node == OSM_object_type.node:
                     data.at[i, 'poi_lat'] = osm_query['lat'].values[0]
                     data.at[i, 'poi_lon'] = osm_query['lon'].values[0]
                 data.at[i, 'osm_id'] = osm_id
@@ -177,14 +183,14 @@ def online_poi_matching(args):
                                                                             tfmt='%H:%M:%S')
                 data.loc[[i], 'poi_distance'] = osm_query['distance'].values[0]
                 # For OSM way also query node points
-                if osm_node == False:
+                if osm_node == OSM_object_type.way:
                     logging.info('This is an OSM way looking for id {} nodes.'.format(osm_id))
                     # Add list of nodes to the dataframe
                     nodes = db.query_ways_nodes(osm_id)
                     data.at[i, 'osm_nodes'] = nodes
                 try:
                     # Download OSM POI way live tags
-                    if osm_node == False:
+                    if osm_node == OSM_object_type.way:
                         for rtc in range(0, RETRY):
                             logging.info('Downloading OSM live tags to this way: {}.'.format(osm_id))
                             live_tags_container = osm_live_query.WayGet(osm_id)
@@ -193,7 +199,7 @@ def online_poi_matching(args):
                                 break
                             else:
                                 logging.warning('Download of external data has failed.')
-                    # Download OSM POI way live tags
+                    # Download OSM POI node live tags
                     else:
                         for rtc in range(0, RETRY):
                             logging.info('Downloading OSM live tags to this node: {}.'.format(osm_id))
@@ -277,8 +283,8 @@ def main():
     try:
         # import_basic_data(db.session)
         manager = WorkflowManager()
-        manager.start_poi_harvest()
-        manager.join()
+        #manager.start_poi_harvest()
+        #manager.join()
         # Load basic dataset from database
         poi_addr_data = load_poi_data(db)
         # Download and load POI dataset to database

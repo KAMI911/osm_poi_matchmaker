@@ -15,9 +15,10 @@ except ImportError as err:
 Base = declarative_base()
 
 
-class OSM_type(enum.Enum):
+class OSM_object_type(enum.Enum):
     node = 0
     way = 1
+    relation = 2
 
 
 class POI_type(enum.Enum):
@@ -127,7 +128,7 @@ class POI_OSM_cache(Base):
     poi_name = Column(Unicode(64), unique=False, nullable=False, index=True)
     poi_type = Column(Enum(POI_type))
     osm_id = Column(Integer, nullable=False, index=True)
-    osm_node = Column(Boolean)
+    osm_object_type = Column(Enum(OSM_object_type))
     osm_version = Column(Integer, nullable=False, index=True)
     osm_changeset = Column(Integer, nullable=False, index=True)
     osm_timestamp = Column(DateTime(True), nullable=False)
@@ -166,8 +167,8 @@ class POI_osm(Base):
     po_id = Column(Integer, primary_key=True, index=True)
     id = synonym('po_id')
     poi_osm_id = Column(Integer, unique=True, index=True)
-    poi_osm_type = Column(Enum(OSM_type))
+    poi_osm_object_type = Column(Enum(OSM_object_type))
     poi_hash = Column(Unicode(128), nullable=True, unique=False, index=True)
     geom_hint = Column(Geometry('POINT, {}'.format(config.get_geo_default_projection())))
 
-    __table_args__ = (UniqueConstraint('poi_osm_id', 'poi_osm_type', name='uc_poi_osm_osm_type'),)
+    __table_args__ = (UniqueConstraint('poi_osm_id', 'poi_osm_object_type', name='uc_poi_osm_osm_type'),)
