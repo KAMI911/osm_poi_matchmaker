@@ -38,6 +38,7 @@ def save_csv_file(path, file, data, message):
 
 
 def generate_osm_xml(df):
+    from osm_poi_matchmaker.create_db import __version__ as __cdb_version__
     from lxml import etree
     import lxml
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
@@ -116,6 +117,14 @@ def generate_osm_xml(df):
             tags['source'] = 'website'
             tags['source:date'] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d')
             tags['import'] = 'osm_poi_matchmaker'
+            tags['import:tool:url'] = 'https://github.com/KAMI911/osm_poi_matchmaker'
+            tags['import:tool:version'] = __cdb_version__
+            tags['import:tool'] = 'osm_poi_matchmaker'
+            tags['import:area'] = 'Hungary'
+            tags['mechanical'] = 'yes'
+            tags['is_in: country_code'] = 'HU'
+            tags['is_in: country'] = 'Hungary'
+            tags['import:discussion:url'] = 'https://groups.google.com/forum/#!topic/openstreetmap-hungary/GF8hYXD5wU0'
             # Rendering tags to the XML file
             for k, v in sorted(tags.items()):
                 xml_tags = etree.SubElement(main_data, 'tag', k=k, v='{}'.format(v))
