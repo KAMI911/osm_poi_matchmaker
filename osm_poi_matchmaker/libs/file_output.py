@@ -59,6 +59,7 @@ def generate_osm_xml(df):
                     comment = etree.Comment(' OSM link: https://osm.org/node/{} '.format(str(current_id)))
                     osm_xml_data.append(comment)
             elif row['osm_node'] is not None and row['osm_node'] == OSM_object_type.way:
+
                 main_data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_id),
                                              user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
                                              uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),

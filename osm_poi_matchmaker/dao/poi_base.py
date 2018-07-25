@@ -159,15 +159,22 @@ class POIBase:
             ORDER BY distance ASC;'''.format(query_type=query_type, query_name=query_name, metadata_fields=metadata_fields))
         data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way',
                                               params={'lon': lon, 'lat': lat, 'distance': distance, 'name': '.*{}.*'.format(name)})
-        if data2.empty == False:
-            if data.empty == False:
-                data = data.append(data2)
-                return data.sort_values(by=['distance'])
-            else:
-                return data2
+        query = sqlalchemy.text('''
+            SELECT name, osm_id, {metadata_fields} 'relation' AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
+            WHERE ({query_type}) AND osm_id < 0 {query_name}
+                AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom,3857), :distance)
+            ORDER BY distance ASC;'''.format(query_type=query_type, query_name=query_name, metadata_fields=metadata_fields))
+        data3 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
+                                                                                         'distance': distance, 'name': '.*{}.*'.format(name),'buffer': buffer})
+        if data.empty and data2.empty and data3.empty:
+            return None
         else:
-            if data.empty == False:
-                return data
+            data = data.append(data2)
+            data = data.append(data3)
+            data.sort_values(by=['distance'])
+            return data
+
 
     def query_poi_in_water(self, lon, lat):
         distance = 1

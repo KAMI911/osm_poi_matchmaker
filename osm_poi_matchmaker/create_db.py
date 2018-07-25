@@ -157,8 +157,8 @@ def online_poi_matching(args):
                 # Try to search OSM POI with same type within the specified distance
                 osm_query = (db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
                                                        row['poi_search_name']))
-                if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
-                    osm_query = (
+            if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
+                osm_query = (
                         db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
             # Enrich our data with OSM database POI metadata
             if osm_query is not None:
@@ -168,8 +168,10 @@ def online_poi_matching(args):
                     osm_node = OSM_object_type.node
                 elif osm_query['node'].values[0] == 'way':
                     osm_node = OSM_object_type.way
-                else:
+                elif osm_query['node'].values[0] == 'relation':
                     osm_node = OSM_object_type.relation
+                else:
+                    logging.warning('Illegal state: {}'.format(osm_query['node'].values[0]))
                 # Set OSM POI coordinates for the node
                 if osm_node == OSM_object_type.node:
                     data.at[i, 'poi_lat'] = osm_query['lat'].values[0]
@@ -188,6 +190,8 @@ def online_poi_matching(args):
                     # Add list of nodes to the dataframe
                     nodes = db.query_ways_nodes(osm_id)
                     data.at[i, 'osm_nodes'] = nodes
+                elif osm_node == OSM_object_type.relation:
+                    logging.info('This is an OSM relation looking for id {} nodes.'.format(osm_id))
                 try:
                     # Download OSM POI way live tags
                     if osm_node == OSM_object_type.way:
@@ -200,7 +204,7 @@ def online_poi_matching(args):
                             else:
                                 logging.warning('Download of external data has failed.')
                     # Download OSM POI node live tags
-                    else:
+                    elif osm_node == OSM_object_type.node:
                         for rtc in range(0, RETRY):
                             logging.info('Downloading OSM live tags to this node: {}.'.format(osm_id))
                             live_tags_container = osm_live_query.NodeGet(osm_id)
@@ -209,6 +213,18 @@ def online_poi_matching(args):
                                 break
                             else:
                                 logging.warning('Download of external data has failed.')
+                    elif osm_node == OSM_object_type.relation:
+                        for rtc in range(0, RETRY):
+                            logging.info('Downloading OSM live tags to this relation: {}.'.format(osm_id))
+                            live_tags_container = osm_live_query.RelationGet(abs(osm_id))
+                            if live_tags_container is not None:
+                                data.at[i, 'osm_live_tags'] = live_tags_container['tag']
+                                break
+                            else:
+                                logging.warning('Download of external data has failed.')
+                    else:
+                        logging.warning('Invalid state for live tags.')
+
                 except Exception as err:
                     logging.warning('There was an error during OSM request: {}.'.format(err))
                     traceback.print_exc()
