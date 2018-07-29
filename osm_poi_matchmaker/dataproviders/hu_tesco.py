@@ -40,10 +40,10 @@ class hu_tesco():
                 {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'wheelchair': 'yes', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': 'tesco'},
-                {'poi_code': 'husmrktexp', 'poi_name': 'Tesco Expressz', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'convenience', 'alt_name': 'Tesco', " + POI_COMMON_TAGS + "}",
+                {'poi_code': 'husmrktexp', 'poi_name': 'S-Market', 'poi_type': 'shop',
+                 'poi_tags': "{'shop': 'convenience', 'alt_name': 'Tesco Expressz', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': '(tesco|smarket|s-market|s market)'},
-                {'poi_code': 'husmrktsup', 'poi_name': 'Tesco', 'poi_type': 'shop',
+                {'poi_code': 'husmrktsup', 'poi_name': 'S-Market', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'wheelchair': 'yes', 'alt_name': 'Tesco', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': '(tesco|smarket|s-market|s market)'}]
         return data
