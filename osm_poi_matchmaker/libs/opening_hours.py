@@ -19,7 +19,7 @@ class OpeningHours(object):
         self.opening_hours = {'mo': [mo_o, mo_c, summer_mo_o, summer_mo_c, 0],
                               'tu': [tu_o, tu_c, summer_tu_o, summer_tu_c, 1],
                               'we': [we_o, we_c, summer_we_o, summer_we_c, 2],
-                              'th': [th_o, th_c, summer_th_o, summer_fr_c, 3],
+                              'th': [th_o, th_c, summer_th_o, summer_th_c, 3],
                               'fr': [fr_o, fr_c, summer_fr_o, summer_fr_c, 4],
                               'sa': [sa_o, sa_c, summer_sa_o, summer_sa_c, 5],
                               'su': [su_o, su_c, summer_su_o, summer_su_c, 6]}
