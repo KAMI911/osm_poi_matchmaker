@@ -302,8 +302,8 @@ def main():
     try:
         # import_basic_data(db.session)
         manager = WorkflowManager()
-        #manager.start_poi_harvest()
-        #manager.join()
+        manager.start_poi_harvest()
+        manager.join()
         # Load basic dataset from database
         poi_addr_data = load_poi_data(db)
         # Download and load POI dataset to database
