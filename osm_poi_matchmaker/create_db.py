@@ -192,6 +192,9 @@ def online_poi_matching(args):
                     data.at[i, 'osm_nodes'] = nodes
                 elif osm_node == OSM_object_type.relation:
                     logging.info('This is an OSM relation looking for id {} nodes.'.format(osm_id))
+                    # Add list of relation nodes to the dataframe
+                    nodes = db.query_relation_nodes(osm_id)
+                    data.at[i, 'osm_nodes'] = nodes
                 try:
                     # Download OSM POI way live tags
                     if osm_node == OSM_object_type.way:

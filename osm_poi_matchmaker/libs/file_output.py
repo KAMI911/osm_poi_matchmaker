@@ -7,6 +7,7 @@ try:
     import os
     import datetime
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
+    from osm_poi_matchmaker.libs.osm import relationer
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -59,7 +60,6 @@ def generate_osm_xml(df):
                     comment = etree.Comment(' OSM link: https://osm.org/node/{} '.format(str(current_id)))
                     osm_xml_data.append(comment)
             elif row['osm_node'] is not None and row['osm_node'] == OSM_object_type.way:
-
                 main_data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_id),
                                              user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
                                              uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
@@ -75,8 +75,16 @@ def generate_osm_xml(df):
                     comment = etree.Comment(' OSM link: https://osm.org/way/{} '.format(str(current_id)))
                     osm_xml_data.append(comment)
             elif row['osm_node'] is not None and row['osm_node'] == OSM_object_type.relation:
-                logging.info('relation')
-                continue
+                main_data = etree.SubElement(osm_xml_data, 'relation', action='modify', id=str(current_id),
+                                             user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
+                                             uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
+                                             version='{}'.format(osm_version))
+                relations = relationer(row['osm_nodes'])
+                try:
+                    for i in relations:
+                        data = etree.SubElement(main_data, 'member', type=i['type'], ref=i['ref'], role=i['role'])
+                except TypeError as err:
+                    logging.warning('Missing nodes on this relation: {}.'.format(row['osm_id']))
             # Add original POI coordinates as comment
             comment = etree.Comment(' Original coordinates: {} '.format(row['poi_geom']))
             osm_xml_data.append(comment)

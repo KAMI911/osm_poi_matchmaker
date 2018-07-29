@@ -78,6 +78,12 @@ class POIBase:
             return None
 
 
+    def query_relation_nodes(self, relation_id):
+        query = sqlalchemy.text('select members from planet_osm_rels where id = :relation_id limit 1')
+        data = pd.read_sql(query, self.engine, params={'relation_id': int(abs(relation_id))})
+        return data.values.tolist()[0][0]
+
+
     def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop', name ='', with_metadata = True):
         '''
         Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance

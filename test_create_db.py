@@ -8,6 +8,7 @@ try:
     from test.test_opening_hours import TestOpeningHours
     from test.test_poi_dataset import TestPOIDataset
     from test.test_timing import Timing
+    from test.test_osm import TestOSMRelationer
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -23,9 +24,10 @@ def testing_create_db():
     opening_hours_resolver = unittest.TestLoader().loadTestsFromTestCase(TestOpeningHours)
     poi_dataset = unittest.TestLoader().loadTestsFromTestCase(TestPOIDataset)
     timing = unittest.TestLoader().loadTestsFromTestCase(Timing)
+    osm = unittest.TestLoader().loadTestsFromTestCase(TestOSMRelationer)
     suite = unittest.TestSuite(
         [address_resolver, address_full_resolver, opening_hours_cleaner, opening_hours_cleaner2, phone_cleaner,
-         opening_hours_resolver, poi_dataset, timing])
+         opening_hours_resolver, poi_dataset, timing, osm])
     return unittest.TextTestRunner(verbosity=2).run(suite)
 
 

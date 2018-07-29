@@ -43,3 +43,19 @@ def query_postcode_osm_external(prefer_osm, session, lon, lat, postcode_ext):
         return query_postcode
     elif prefer_osm is True and query_postcode is None:
         return postcode_ext
+
+def relationer(relation_text):
+    if relation_text is None: return None
+    data = []
+    for i in range(0, len(relation_text),2):
+        item = relation_text[i]
+        if item[0] == 'n':
+            tp = 'node'
+        elif item[0] == 'w':
+            tp = 'way'
+        elif item[0] == 'r':
+            tp = 'relation'
+        rf = item[1:]
+        rl = relation_text[i+1]
+        data.append({'type': tp, 'ref': rf , 'role': rl})
+    return data
