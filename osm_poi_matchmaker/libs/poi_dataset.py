@@ -533,7 +533,7 @@ class POIDataset:
         try:
             self.process_opening_hours()
             self.process_geom()
-            pqc = POIQC(self.__db, self.__lon, self.__lat)
+            pqc = POIQC(self.__db, self.__lon, self.__lat, self.__opening_hours)
             self.__good, self.__bad = pqc.process()
             self.insert_data.append(
                 [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website,

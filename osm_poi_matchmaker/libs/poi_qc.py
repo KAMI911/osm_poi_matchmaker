@@ -14,17 +14,21 @@ except ImportError as err:
 
 class POIQC:
 
-    def __init__(self, db, lon, lat):
+    def __init__(self, db, lon, lat, opening_hours=None):
         self.__db = db
         self.__lon = lon
         self.__lat = lat
         self.__good = []
         self.__bad = []
         self.__distance = 1
+        self.__opening_hours = opening_hours
         self.__check()
 
     def __check(self):
         self.__is_in_water()
+        if self.__opening_hours is not None:
+            self.__custom_opening_hours()
+
 
     def process(self):
         return self.__good, self.__bad
@@ -35,3 +39,10 @@ class POIQC:
             self.__good.append('not_in_water')
         else:
             self.__bad.append('in_water')
+
+    def __custom_opening_hours(self):
+        if self.__opening_hours is not None:
+            if 'comment' in self.__opening_hours or 'status' in self.__opening_hours or 'dawn' in self.__opening_hours or 'sunrise' in self.__opening_hours or 'sunset' in self.__opening_hours or 'dusk' in self.__opening_hours:
+                self.__bad.append('custom_opening_hours')
+            else:
+                self.__good.append('standard_opening_hours')
