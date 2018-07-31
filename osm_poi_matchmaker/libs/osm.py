@@ -2,6 +2,7 @@
 try:
     import sqlalchemy
     import geopandas as gpd
+    import datetime
     from OSMPythonTools.overpass import Overpass
     from OSMPythonTools.nominatim import Nominatim
     from OSMPythonTools.overpass import overpassQueryBuilder
@@ -60,3 +61,7 @@ def relationer(relation_text):
         rl = relation_text[i + 1]
         data.append({'type': tp, 'ref': rf, 'role': rl})
     return data
+
+
+def timestamp_now():
+    return '{:{dfmt}T{tfmt}Z}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d', tfmt='%H:%M:%S')

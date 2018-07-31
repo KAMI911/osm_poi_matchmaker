@@ -7,7 +7,7 @@ try:
     import os
     import datetime
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
-    from osm_poi_matchmaker.libs.osm import relationer
+    from osm_poi_matchmaker.libs.osm import relationer, timestamp_now
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -47,7 +47,7 @@ def generate_osm_xml(df):
     try:
         for index, row in df.iterrows():
             current_id = id if row['osm_id'] is None else row['osm_id']
-            osm_timestamp = '' if row['osm_timestamp'] is None else row['osm_timestamp']
+            osm_timestamp = timestamp_now() if row['osm_timestamp'] is None else row['osm_timestamp']
             osm_changeset = '99999' if row['osm_changeset'] is None else row['osm_changeset'] + 1
             osm_version = '99999' if row['osm_version'] is None else row['osm_version']
             if row['osm_node'] is None or row['osm_node'] == OSM_object_type.node:

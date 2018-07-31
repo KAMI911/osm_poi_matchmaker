@@ -17,6 +17,7 @@ try:
     from osmapi import OsmApi
     from osm_poi_matchmaker.utils import config, timing, dataproviders_loader
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
+    from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.dao.data_handlers import insert_type
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
     from sqlalchemy.orm import scoped_session, sessionmaker
@@ -182,8 +183,7 @@ def online_poi_matching(args):
                 data.at[i, 'osm_version'] = osm_query['osm_version'].values[0]
                 data.at[i, 'osm_changeset'] = osm_query['osm_changeset'].values[0]
                 osm_timestamp = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
-                data.at[i, 'osm_timestamp'] = '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d',
-                                                                         tfmt='%H:%M:%S')
+                data.at[i, 'osm_timestamp'] = '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M:%S')
                 data.loc[[i], 'poi_distance'] = osm_query['distance'].values[0]
                 # For OSM way also query node points
                 if osm_node == OSM_object_type.way:
@@ -317,7 +317,7 @@ def main():
         poi_addr_data['osm_node'] = None
         poi_addr_data['osm_version'] = None
         poi_addr_data['osm_changeset'] = None
-        poi_addr_data['osm_timestamp'] = None
+        poi_addr_data['osm_timestamp'] = timestamp_now()
         poi_addr_data['osm_live_tags'] = None
         # Export non-transformed data
         export_raw_poi_data(poi_addr_data, poi_common_data)
