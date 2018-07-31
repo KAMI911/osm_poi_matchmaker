@@ -47,6 +47,7 @@ class TestPOIDataset(unittest.TestCase):
             p.summer_su_c= i['summer_su_c']
             p.lunch_break_start = i['lunch_break_start']
             p.lunch_break_stop = i['lunch_break_stop']
+            p.public_holiday_open = i['public_holiday_open']
             with self.subTest():
                 p.process_opening_hours()
                 self.assertEqual(i['processed'], p.opening_hours)

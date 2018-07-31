@@ -53,6 +53,7 @@ class hu_dm():
                     data.phone = clean_phone(poi_data['phone'])
                 else:
                     data.phone = None
+                data.public_holiday_open = False
                 data.add()
             if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')

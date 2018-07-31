@@ -32,6 +32,7 @@ class hu_penny_market():
         data.nonstop = None
         data.phone = None
         data.email = None
+        data.public_holiday_open = False
         return data
 
     def process(self):

@@ -72,6 +72,7 @@ class hu_rossmann():
                 data.lat, data.lon = check_hu_boundary(poi_data['position'][0], poi_data['position'][1])
                 data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
                 data.original = poi_data['address']
+                data.public_holiday_open = False
                 data.add()
             if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')

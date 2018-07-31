@@ -14,7 +14,7 @@ class OpeningHours(object):
     def __init__(self, non_stop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c,
                  fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o,
                  summer_sa_o, summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c,
-                 summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop):
+                 summer_fr_c, summer_sa_c, summer_su_c, lunch_break_start, lunch_break_stop, public_holiday_open=None):
         self.non_stop = non_stop
         self.opening_hours = {'mo': [mo_o, mo_c, summer_mo_o, summer_mo_c, 0],
                               'tu': [tu_o, tu_c, summer_tu_o, summer_tu_c, 1],
@@ -29,6 +29,7 @@ class OpeningHours(object):
         self.df_oh = pd.DataFrame.from_dict(self.opening_hours, orient='index', columns=self.oh_types)
         self.df_dup = self.df_oh.sort_values('did').drop_duplicates(['open', 'close'], keep='first')
         self.df_dup['same'] = None
+        self.__public_holiday_open = public_holiday_open
         for k, v in self.df_dup.iterrows():
             same = self.df_oh.loc[
                 (self.df_oh['open'] == v['open']) & (self.df_oh['close'] == v['close'])].index.tolist()
@@ -44,6 +45,14 @@ class OpeningHours(object):
     @nonstop.setter
     def nonstop(self, value):
         self.nonstop = value
+
+    @property
+    def public_holiday_open(self):
+        return (self.__public_holiday_open)
+
+    @public_holiday_open.setter
+    def public_holiday_open(self, value):
+        self.__public_holiday_open = value
 
     @property
     def lunch_break(self):
@@ -63,6 +72,15 @@ class OpeningHours(object):
                 # Order by week days
                 ordered = collections.OrderedDict(sorted(v['same'].items(), key=lambda x: x[0]))
                 same = list(ordered.values())
+                # Public Holidays
+                if self.__public_holiday_open is None:
+                    oh_ph = ''
+                elif self.__public_holiday_open is True:
+                    oh_ph = '; PH on'
+                elif self.__public_holiday_open is False:
+                    oh_ph = '; PH off'
+                else:
+                    oh_ph = ''
                 # Try to merge days interval
                 if len(ordered) >= 2:
                     same_id = list(ordered.keys())
@@ -84,6 +102,7 @@ class OpeningHours(object):
                         '{} {}-{},{}-{}'.format(days.title(), self.df_dup.at[k, 'open'], self.lunchbreak['start'],
                                                 self.lunchbreak['stop'], self.df_dup.at[k, 'close']))
                 oh = '; '.join(oh_list)
+                oh = oh + oh_ph
         if oh_list == []:
             oh = None
         return oh

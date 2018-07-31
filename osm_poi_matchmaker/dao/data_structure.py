@@ -88,6 +88,7 @@ class POI_address(Base):
     poi_opening_hours_summer_su_close = Column(Time)
     poi_opening_hours_lunch_break_start = Column(Time)
     poi_opening_hours_lunch_break_stop = Column(Time)
+    poi_public_holiday_open = Column(Boolean)
     poi_opening_hours = Column(Unicode(256), nullable=True, unique=False, index=True)
     poi_good = Column(Unicode(128), nullable=True, index=False)
     poi_bad = Column(Unicode(128), nullable=True, index=False)

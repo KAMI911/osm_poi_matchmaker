@@ -63,15 +63,19 @@ class hu_posta_json():
                     else:
                         data.name = 'Posta'
                         data.code = 'hupostapo'
+                        data.public_holiday_open = False
                 elif poi_data['type'] == 'csekkautomata':
                     data.name = 'Posta csekkautomata'
                     data.code = 'hupostacse'
+                    data.public_holiday_open = True
                 elif poi_data['type'] == 'postamachine':
                     data.name = 'Posta csomagautomata'
                     data.code = 'hupostacso'
+                    data.public_holiday_open = True
                 elif poi_data['type'] == 'postapoint':
                     data.name = 'PostaPont'
                     data.code = 'hupostapp'
+                    data.public_holiday_open = False
                 else:
                     logging.error('Non existing Posta type.')
                 data.postcode = poi_data['zipCode'].strip()

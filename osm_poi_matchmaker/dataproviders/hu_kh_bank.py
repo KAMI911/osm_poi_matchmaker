@@ -44,9 +44,11 @@ class hu_kh_bank():
                     if self.name == 'K&H bank':
                         data.name = 'K&H bank'
                         data.code = 'hukhbank'
+                        data.public_holiday_open = False
                     else:
                         data.name = 'K&H'
                         data.code = 'hukhatm'
+                        data.public_holiday_open = True
                     data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
                         poi_data[first_element]['address'])
                     if data.code == 'hukhatm':

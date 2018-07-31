@@ -47,9 +47,11 @@ class hu_budapest_bank():
                 if poi_data['fiok'] == 1:
                     data.name = 'Budapest Bank'
                     data.code = 'hubpbank'
+                    data.public_holiday_open = False
                 else:
                     data.name = 'Budapest Bank ATM'
                     data.code = 'hubpatm'
+                    data.public_holiday_open = True
                 data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['addr'])
                 data.postcode = poi_data['zip']

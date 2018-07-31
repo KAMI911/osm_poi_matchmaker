@@ -58,6 +58,7 @@ class hu_kulcs_patika():
                 data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
                                                        poi_data['irsz'].strip())
                 data.original = poi_data['cim']
+                data.public_holiday_open = False
                 data.add()
             if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')

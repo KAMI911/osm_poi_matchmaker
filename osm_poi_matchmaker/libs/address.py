@@ -273,5 +273,6 @@ def clean_email(email):
     return email
 
 def clean_string(clearable):
-    clearable = clearable.replace('  ', ' ')
+    if clearable is not None:
+        clearable = clearable.replace('  ', ' ').strip()
     return clearable

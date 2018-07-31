@@ -44,9 +44,11 @@ class hu_cib_bank():
                     if self.name == 'CIB Bank':
                         data.name = 'CIB Bank'
                         data.code = 'hucibbank'
+                        data.public_holiday_open = False
                     else:
                         data.name = 'CIB Bank ATM'
                         data.code = 'hucibatm'
+                        data.public_holiday_open = True
                     data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
                         poi_data[first_element]['address'])
                     data.lat, data.lon = check_hu_boundary(poi_data[first_element]['latitude'],

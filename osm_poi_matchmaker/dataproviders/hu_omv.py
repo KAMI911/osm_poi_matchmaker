@@ -54,9 +54,13 @@ class hu_omv():
                     oho, ohc = clean_opening_hours(poi_data['open_hours'])
                     if oho == '00:00' and ohc == '24:00':
                         data.nonstop = True
+                        data.public_holiday_open = True
                         oho, ohc = None, None
+                    else:
+                        data.public_holiday_open = False
                 else:
                     oho, ohc = None, None
+                    data.public_holiday_open = False
                 for i in range(0, 7):
                     data.day_open(i, oho)
                     data.day_close(i, ohc)

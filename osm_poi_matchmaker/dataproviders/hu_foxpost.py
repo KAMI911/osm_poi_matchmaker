@@ -60,6 +60,7 @@ class hu_foxpost():
                 data.original = poi_data['address']
                 data.lat, data.lon = check_hu_boundary(poi_data['geolat'], poi_data['geolng'])
                 data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
+                data.public_holiday_open = False
                 data.add()
             if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')

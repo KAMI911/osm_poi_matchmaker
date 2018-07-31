@@ -91,6 +91,7 @@ class hu_tesco():
                 data.original = poi_data['address']
                 if 'phone' in poi_data and poi_data['phone'] != '':
                     data.phone = clean_phone(poi_data['phone'])
+                data.public_holiday_open = False
                 data.add()
             if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')

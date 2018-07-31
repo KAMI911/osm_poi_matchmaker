@@ -57,6 +57,7 @@ class POIDataset:
         self.__oh = pd.DataFrame(index=WeekDaysShort, columns=OpenClose)
         self.__lunch_break = {'start': None, 'stop': None}
         self.__opening_hours = None
+        self.__public_holiday_open = None
         self.__good = []
         self.__bad = []
 
@@ -483,6 +484,14 @@ class POIDataset:
     def opening_hours(self, data):
         self.__opening_hours = data
 
+    @property
+    def public_holiday_open(self):
+        return (self.__public_holiday_open)
+
+    @public_holiday_open.setter
+    def public_holiday_open(self, data):
+        self.__public_holiday_open = data
+
     def process_opening_hours(self):
         self.__oh = self.__oh.where((pd.notnull(self.__oh)), None)
         t = OpeningHours(self.__nonstop, self.__oh.at[WeekDaysShort.mo, OpenClose.open],
@@ -513,50 +522,55 @@ class POIDataset:
                          self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
                          self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
                          self.__oh.at[WeekDaysShort.su, OpenClose.summer_close],
-                         self.__lunch_break['start'], self.__lunch_break['stop'])
+                         self.__lunch_break['start'], self.__lunch_break['stop'],
+                         self.__public_holiday_open)
         self.__opening_hours = t.process()
 
     def dump_opening_hours(self):
         print(self.__opening_hours)
 
     def add(self):
-        self.process_opening_hours()
-        self.process_geom()
-        pqc = POIQC(self.__db, self.__lon, self.__lat)
-        self.__good, self.__bad = pqc.process()
-        self.insert_data.append(
-            [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website, self.__original, self.__street,
-             self.__housenumber, self.__conscriptionnumber,
-             self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop, self.__oh.at[WeekDaysShort.mo, OpenClose.open],
-             self.__oh.at[WeekDaysShort.tu, OpenClose.open],
-             self.__oh.at[WeekDaysShort.we, OpenClose.open],
-             self.__oh.at[WeekDaysShort.th, OpenClose.open],
-             self.__oh.at[WeekDaysShort.fr, OpenClose.open],
-             self.__oh.at[WeekDaysShort.sa, OpenClose.open],
-             self.__oh.at[WeekDaysShort.su, OpenClose.open],
-             self.__oh.at[WeekDaysShort.mo, OpenClose.close],
-             self.__oh.at[WeekDaysShort.tu, OpenClose.close],
-             self.__oh.at[WeekDaysShort.we, OpenClose.close],
-             self.__oh.at[WeekDaysShort.th, OpenClose.close],
-             self.__oh.at[WeekDaysShort.fr, OpenClose.close],
-             self.__oh.at[WeekDaysShort.sa, OpenClose.close],
-             self.__oh.at[WeekDaysShort.su, OpenClose.close],
-             self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open],
-             self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open],
-             self.__oh.at[WeekDaysShort.we, OpenClose.summer_open],
-             self.__oh.at[WeekDaysShort.th, OpenClose.summer_open],
-             self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open],
-             self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open],
-             self.__oh.at[WeekDaysShort.su, OpenClose.summer_open],
-             self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close],
-             self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close],
-             self.__oh.at[WeekDaysShort.we, OpenClose.summer_close],
-             self.__oh.at[WeekDaysShort.th, OpenClose.summer_close],
-             self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
-             self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
-             self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break['start'], self.__lunch_break['stop'],
-             self.__opening_hours, self.__good, self.__bad])
-        self.clear_all()
+        try:
+            self.process_opening_hours()
+            self.process_geom()
+            pqc = POIQC(self.__db, self.__lon, self.__lat)
+            self.__good, self.__bad = pqc.process()
+            self.insert_data.append(
+                [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website, self.__original, self.__street,
+                 self.__housenumber, self.__conscriptionnumber,
+                 self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop, self.__oh.at[WeekDaysShort.mo, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break['start'], self.__lunch_break['stop'],
+                 self.__public_holiday_open, self.__opening_hours, self.__good, self.__bad])
+            self.clear_all()
+        except Exception as err:
+            traceback.print_exc()
+            print(err)
 
     def process(self):
         df = pd.DataFrame(self.insert_data)

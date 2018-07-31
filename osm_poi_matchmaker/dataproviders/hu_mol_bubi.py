@@ -49,6 +49,7 @@ class hu_mol_bubi():
             # data.capacity = e.attrib['bike_racks'].strip() if e.attrib['bike_racks'] is not None else None
             data.lat, data.lon = check_hu_boundary(e.attrib['lat'].replace(',', '.'), e.attrib['lng'].replace(',', '.'))
             data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, None)
+            data.public_holiday_open = True
             data.add()
         if data.lenght() < 1:
             logging.warning('Resultset is empty. Skipping ...')

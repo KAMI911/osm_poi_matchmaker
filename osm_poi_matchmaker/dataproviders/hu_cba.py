@@ -85,6 +85,7 @@ class hu_cba():
                     data.email = poi_data['PS_PUBLIC_EMAIL']
                 else:
                     data.email = None
+                data.public_holiday_open = False
                 data.add()
             if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')

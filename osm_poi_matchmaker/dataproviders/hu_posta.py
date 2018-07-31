@@ -63,12 +63,15 @@ class hu_posta():
                 if e.find('ServicePointType').text == 'PM':
                     data.name = 'Posta'
                     data.code = 'hupostapo'
+                    data.public_holiday_open = False
                 elif e.find('ServicePointType').text == 'CS':
                     data.name = 'Posta csomagautomata'
                     data.code = 'hupostacso'
+                    data.public_holiday_open = True
                 elif e.find('ServicePointType').text == 'PP':
                     data.name = 'PostaPont'
                     data.code = 'hupostapp'
+                    data.public_holiday_open = False
                 else:
                     logging.error('Non existing Posta type.')
                 data.postcode = e.get('zipCode')

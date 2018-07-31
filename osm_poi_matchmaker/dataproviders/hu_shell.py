@@ -73,6 +73,7 @@ class hu_shell():
                 data.branch = poi_data['Name'].strip()
                 if poi_data['24 Hour'] == True:
                     data.nonstop = True
+                    data.public_holiday_open = True
                 else:
                     data.nonstop = False
                     data.mo_o = '06:00'
@@ -89,6 +90,7 @@ class hu_shell():
                     data.fr_c = '22:00'
                     data.sa_c = '22:00'
                     data.su_c = '22:00'
+                    data.public_holiday_open = False
                 data.original = poi_data['Address']
                 data.lat, data.lon = check_hu_boundary(poi_data['GPS Latitude'], poi_data['GPS Longitude'])
                 data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)

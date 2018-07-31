@@ -53,6 +53,7 @@ class hu_aldi():
                 data.postcode = poi_data[0].strip()
                 data.city = clean_city(poi_data[1])
                 data.original = poi_data[2]
+                data.public_holiday_open = False
                 data.add()
             if data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
