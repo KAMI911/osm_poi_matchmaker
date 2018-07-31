@@ -54,9 +54,9 @@ class hu_kulcs_patika():
                 data.website = poi_data['link'].strip() if poi_data['link'] is not None else None
                 data.city = clean_city(poi_data['helyseg'])
                 data.lat, data.lon = check_hu_boundary(poi_data['marker_position']['latitude'],
-                                             poi_data['marker_position']['longitude'])
+                                                       poi_data['marker_position']['longitude'])
                 data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
-                                                       poi_data['irsz'].strip())
+                                                            poi_data['irsz'].strip())
                 data.original = poi_data['cim']
                 data.public_holiday_open = False
                 data.add()

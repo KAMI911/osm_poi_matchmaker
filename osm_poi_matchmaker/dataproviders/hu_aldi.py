@@ -16,6 +16,7 @@ except ImportError as err:
 POI_DATA = 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas'
 POI_COMMON_TAGS = "'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi', 'ref:vatin:hu':'22234663-2-44', ,'brand:wikipedia':'hu:Aldi', ,'brand:wikidata':'Q125054', 'addr:country': 'HU', 'facebook': 'https://www.facebook.com/ALDI.Magyarorszag', 'youtube':'https://www.youtube.com/user/ALDIMagyarorszag', 'instagram':'https://www.instagram.com/aldi.magyarorszag', 'payment:mastercard': 'yes', 'payment:visa': 'yes'}"
 
+
 class hu_aldi():
 
     def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_aldi.html'):
@@ -47,7 +48,8 @@ class hu_aldi():
                 poi_dataset.append(cols)
             for poi_data in poi_dataset:
                 # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(poi_data[2])
+                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
+                    poi_data[2])
                 data.name = 'Aldi'
                 data.code = 'hualdisup'
                 data.postcode = poi_data[0].strip()

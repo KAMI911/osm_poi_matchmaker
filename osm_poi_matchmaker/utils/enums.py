@@ -12,6 +12,7 @@ except ImportError as err:
 __program__ = 'enums'
 __version__ = '0.0.1'
 
+
 class WeekDaysShort(enum.Enum):
     mo = 0
     tu = 1

@@ -198,7 +198,7 @@ class POIDataset:
 
     @opening_hours_table.setter
     def opening_hours_table(self, data):
-       self.__oh = pd.DataFrame(data, index=WeekDaysShort, columns=OpenClose)
+        self.__oh = pd.DataFrame(data, index=WeekDaysShort, columns=OpenClose)
 
     @property
     def nonstop(self):
@@ -536,9 +536,11 @@ class POIDataset:
             pqc = POIQC(self.__db, self.__lon, self.__lat)
             self.__good, self.__bad = pqc.process()
             self.insert_data.append(
-                [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website, self.__original, self.__street,
+                [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website,
+                 self.__original, self.__street,
                  self.__housenumber, self.__conscriptionnumber,
-                 self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop, self.__oh.at[WeekDaysShort.mo, OpenClose.open],
+                 self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop,
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.open],
                  self.__oh.at[WeekDaysShort.tu, OpenClose.open],
                  self.__oh.at[WeekDaysShort.we, OpenClose.open],
                  self.__oh.at[WeekDaysShort.th, OpenClose.open],
@@ -565,7 +567,8 @@ class POIDataset:
                  self.__oh.at[WeekDaysShort.th, OpenClose.summer_close],
                  self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
                  self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
-                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break['start'], self.__lunch_break['stop'],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break['start'],
+                 self.__lunch_break['stop'],
                  self.__public_holiday_open, self.__opening_hours, self.__good, self.__bad])
             self.clear_all()
         except Exception as err:

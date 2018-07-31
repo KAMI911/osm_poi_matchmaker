@@ -74,7 +74,8 @@ class hu_spar():
                 data.branch = poi_data['name'].split('(')[0].strip()
                 data.website = poi_data['pageUrl'].strip()
                 data.lat, data.lon = check_hu_boundary(poi_data['latitude'], poi_data['longitude'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
+                                                            data.postcode)
                 data.original = poi_data['address']
                 data.public_holiday_open = False
                 data.add()

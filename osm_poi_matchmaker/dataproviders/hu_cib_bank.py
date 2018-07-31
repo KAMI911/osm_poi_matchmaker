@@ -52,8 +52,9 @@ class hu_cib_bank():
                     data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
                         poi_data[first_element]['address'])
                     data.lat, data.lon = check_hu_boundary(poi_data[first_element]['latitude'],
-                                                 poi_data[first_element]['longitude'])
-                    data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
+                                                           poi_data[first_element]['longitude'])
+                    data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat,
+                                                                data.lon, data.postcode)
                     data.original = poi_data[first_element]['address']
                 data.add()
             if data.lenght() < 1:

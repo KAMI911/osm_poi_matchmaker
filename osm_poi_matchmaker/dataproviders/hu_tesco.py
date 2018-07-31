@@ -87,7 +87,8 @@ class hu_tesco():
                         data.day_open(i, opening[ind][0])
                         data.day_close(i, opening[ind][1])
                 data.lat, data.lon = check_hu_boundary(poi_data['gpslat'], poi_data['gpslng'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, None)
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
+                                                            None)
                 data.original = poi_data['address']
                 if 'phone' in poi_data and poi_data['phone'] != '':
                     data.phone = clean_phone(poi_data['phone'])

@@ -93,7 +93,8 @@ class hu_shell():
                     data.public_holiday_open = False
                 data.original = poi_data['Address']
                 data.lat, data.lon = check_hu_boundary(poi_data['GPS Latitude'], poi_data['GPS Longitude'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
+                                                            data.postcode)
                 if 'Telephone' in poi_data and poi_data['Telephone'] != '':
                     data.phone = clean_phone(str(poi_data['Telephone']))
                 else:

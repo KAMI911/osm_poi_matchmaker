@@ -76,7 +76,8 @@ class hu_cba():
                                                                                                                 i + 1)] is not None else None)
                 data.original = poi_data['A_CIM']
                 data.lat, data.lon = check_hu_boundary(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
+                                                            data.postcode)
                 if 'PS_PUBLIC_TEL' in poi_data and poi_data['PS_PUBLIC_TEL'] != '':
                     data.phone = clean_phone(poi_data['PS_PUBLIC_TEL'])
                 else:

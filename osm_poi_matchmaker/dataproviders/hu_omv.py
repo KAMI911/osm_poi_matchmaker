@@ -66,7 +66,8 @@ class hu_omv():
                     data.day_close(i, ohc)
                 data.original = poi_data['address_l']
                 data.lat, data.lon = check_hu_boundary(poi_data['y'], poi_data['x'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
+                                                            data.postcode)
                 if 'telnr' in poi_data and poi_data['telnr'] != '':
                     data.phone = clean_phone(poi_data['telnr'])
                 else:

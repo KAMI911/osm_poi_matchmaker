@@ -22,6 +22,7 @@ class TestOpeningHours(unittest.TestCase):
                              i['su_c'], i['summer_mo_o'], i['summer_tu_o'], i['summer_we_o'], i['summer_th_o'],
                              i['summer_fr_o'], i['summer_sa_o'], i['summer_su_o'], i['summer_mo_c'],
                              i['summer_tu_c'], i['summer_we_c'], i['summer_th_c'], i['summer_fr_c'],
-                             i['summer_sa_c'], i['summer_su_c'], i['lunch_break_start'], i['lunch_break_stop'], i['public_holiday_open'])
+                             i['summer_sa_c'], i['summer_su_c'], i['lunch_break_start'], i['lunch_break_stop'],
+                             i['public_holiday_open'])
             with self.subTest():
                 self.assertEqual(i['processed'], p.process())

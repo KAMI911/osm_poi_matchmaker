@@ -137,6 +137,7 @@ class POI_OSM_cache(Base):
     osm_distance = Column(Integer, nullable=True, index=False)
     osm_live_tags = Column(Unicode(1024), nullable=True, index=True)
 
+
 class City(Base):
     __tablename__ = 'city'
     _plural_name_ = 'city'

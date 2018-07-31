@@ -18,6 +18,7 @@ except ImportError as err:
 
 POI_DATA = 'https://www.dm.hu/cms/restws/stores/find?requestingCountry=HU&countryCodes=DE%2CAT%2CBA%2CBG%2CSK%2CRS%2CHR%2CCZ%2CRO%2CSI%2CHU%2CMK%2CIT&mandantId=870&bounds=46.599301%2C17.325265%7C47.71978%2C21.681344&before=false&after=false&morningHour=9&eveningHour=18&_=1527413070144'
 
+
 class hu_dm():
 
     def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_dm.json'):
@@ -44,11 +45,13 @@ class hu_dm():
                 data.code = 'hudmche'
                 data.postcode = poi_data['address']['plz'].strip()
                 street_tmp = poi_data['address']['street'].split(',')[0]
-                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(street_tmp.title())
+                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
+                    street_tmp.title())
                 data.city = clean_city(poi_data['address']['city'])
                 data.original = poi_data['address']['street']
                 data.lat, data.lon = check_hu_boundary(poi_data['location'][0], poi_data['location'][1])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
+                                                            data.postcode)
                 if 'telnr' in poi_data and poi_data['phone'] != '':
                     data.phone = clean_phone(poi_data['phone'])
                 else:

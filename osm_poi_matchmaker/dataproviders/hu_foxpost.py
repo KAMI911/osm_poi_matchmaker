@@ -52,14 +52,16 @@ class hu_foxpost():
                 data.branch = poi_data['name']
                 for i in range(0, 7):
                     if poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()] is not None:
-                        opening, closing = clean_opening_hours(poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()])
+                        opening, closing = clean_opening_hours(
+                            poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()])
                         data.day_open(i, opening)
                         data.day_close(i, closing)
                     else:
                         data.day_open_close(i, None, None)
                 data.original = poi_data['address']
                 data.lat, data.lon = check_hu_boundary(poi_data['geolat'], poi_data['geolng'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
+                                                            data.postcode)
                 data.public_holiday_open = False
                 data.add()
             if data.lenght() < 1:

@@ -11,6 +11,7 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
+
 class POIQC:
 
     def __init__(self, db, lon, lat):
@@ -25,10 +26,8 @@ class POIQC:
     def __check(self):
         self.__is_in_water()
 
-
-    def  process(self):
+    def process(self):
         return self.__good, self.__bad
-
 
     def __is_in_water(self):
         data = self.__db.query_poi_in_water(self.__lon, self.__lat)

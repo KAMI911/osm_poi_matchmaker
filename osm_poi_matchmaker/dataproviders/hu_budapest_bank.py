@@ -16,8 +16,8 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-
 POI_DATA = 'https://www.budapestbank.hu/info/fiokkereso/process/get_data.php?action=get_data_json'
+
 
 class hu_budapest_bank():
     def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_budapest_bank.json'):
@@ -26,7 +26,6 @@ class hu_budapest_bank():
         self.download_cache = download_cache
         self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = filename
-
 
     @staticmethod
     def types():
@@ -61,7 +60,8 @@ class hu_budapest_bank():
                 else:
                     data.nonstop = False
                 data.lat, data.lon = check_hu_boundary(poi_data['latitude'], poi_data['longitude'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
+                                                            data.postcode)
                 data.original = poi_data['address']
                 data.branch = poi_data['name']
                 data.add()

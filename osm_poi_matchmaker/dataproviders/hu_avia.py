@@ -51,16 +51,20 @@ class hu_avia():
             data = POIDataset()
             for poi_data in text:
                 if poi_data['cim'] is not None and poi_data['cim'] != '':
-                    data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(poi_data['cim'])
+                    data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
+                        poi_data['cim'])
                 data.name = 'Avia'
                 data.code = 'huaviafu'
                 if data.city is None:
                     data.city = poi_data['title']
                 data.ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
                 data.lat, data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
-                data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid'])) if poi_data['kutid'] is not None and \
-                                                                                   poi_data['kutid'] != '' else None
+                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
+                                                            data.postcode)
+                data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid'])) if poi_data[
+                                                                                            'kutid'] is not None and \
+                                                                                        poi_data[
+                                                                                            'kutid'] != '' else None
                 data.original = poi_data['cim']
                 if 'tel' in poi_data and poi_data['tel'] != '':
                     data.phone = clean_phone(poi_data['tel'])

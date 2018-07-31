@@ -56,8 +56,9 @@ class hu_kh_bank():
                     else:
                         data.nonstop = False
                     data.lat, data.lon = check_hu_boundary(poi_data[first_element]['latitude'],
-                                                 poi_data[first_element]['longitude'])
-                    data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon, data.postcode)
+                                                           poi_data[first_element]['longitude'])
+                    data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat,
+                                                                data.lon, data.postcode)
                     data.original = poi_data[first_element]['address']
                     if 'phoneNumber' in poi_data and poi_data['phoneNumber'] != '':
                         data.phone = clean_phone(poi_data['phoneNumber'])

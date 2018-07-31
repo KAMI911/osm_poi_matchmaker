@@ -34,6 +34,7 @@ POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'p
             'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
 RETRY = 3
 
+
 def init_log():
     logging.config.fileConfig('log.conf')
 
@@ -159,7 +160,7 @@ def online_poi_matching(args):
                                                        row['poi_search_name']))
             if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
                 osm_query = (
-                        db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
+                    db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
             # Enrich our data with OSM database POI metadata
             if osm_query is not None:
                 # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
@@ -182,7 +183,7 @@ def online_poi_matching(args):
                 data.at[i, 'osm_changeset'] = osm_query['osm_changeset'].values[0]
                 osm_timestamp = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
                 data.at[i, 'osm_timestamp'] = '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d',
-                                                                            tfmt='%H:%M:%S')
+                                                                         tfmt='%H:%M:%S')
                 data.loc[[i], 'poi_distance'] = osm_query['distance'].values[0]
                 # For OSM way also query node points
                 if osm_node == OSM_object_type.way:
@@ -288,6 +289,7 @@ class WorkflowManager(object):
     def join(self):
         self.pool.join()
 
+
 def main():
     logging.info('Starting {0} ...'.format(__program__))
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
@@ -340,6 +342,7 @@ def main():
         exit(1)
     except Exception as err:
         raise err
+
 
 if __name__ == '__main__':
     config.set_mode(config.Mode.matcher)

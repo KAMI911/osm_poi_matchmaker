@@ -44,7 +44,7 @@ class TestPOIDataset(unittest.TestCase):
             p.summer_th_c = i['summer_th_c']
             p.summer_fr_c = i['summer_fr_c']
             p.summer_sa_c = i['summer_sa_c']
-            p.summer_su_c= i['summer_su_c']
+            p.summer_su_c = i['summer_su_c']
             p.lunch_break_start = i['lunch_break_start']
             p.lunch_break_stop = i['lunch_break_stop']
             p.public_holiday_open = i['public_holiday_open']
