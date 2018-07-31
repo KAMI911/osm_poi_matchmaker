@@ -121,8 +121,12 @@ def generate_osm_xml(df):
                 tags['website'] = '{}{}'.format(row['poi_url_base'], row['poi_website'])
             elif row['poi_url_base'] is not None:
                 tags['website'] = row['poi_url_base']
-            tags['source'] = 'website'
-            tags['source:date'] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d')
+            # Short URL for source
+            if row['poi_url_base'] is not None:
+                source_url = 'source:{}:date'.format(row['poi_url_base'].split('/')[2])
+            else:
+                source_url = 'source:website:date'
+            tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d')
             tags['import'] = 'osm_poi_matchmaker'
             # Rendering tags to the XML file
             for k, v in sorted(tags.items()):
