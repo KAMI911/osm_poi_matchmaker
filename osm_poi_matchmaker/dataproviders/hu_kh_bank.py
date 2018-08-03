@@ -27,7 +27,7 @@ class hu_kh_bank():
     @staticmethod
     def types():
         data = [{'poi_code': 'hukhbank', 'poi_name': 'K&H Bank', 'poi_type': 'bank',
-                 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', 'bic': 'OKHBHUHB', 'atm': 'yes', 'addr:country': 'HU'}",
+                 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', 'bic': 'OKHBHUHB', 'atm': 'yes', 'addr:country': 'HU', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.kh.hu', 'poi_search_name': '(kh bank|k&h bank|k&h|kh)'},
                 {'poi_code': 'hukhatm', 'poi_name': 'K&H Bank ATM', 'poi_type': 'atm',
                  'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', 'addr:country': 'HU'}",

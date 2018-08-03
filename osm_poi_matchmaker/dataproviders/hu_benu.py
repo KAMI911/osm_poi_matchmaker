@@ -32,7 +32,7 @@ class hu_benu():
     @staticmethod
     def types():
         data = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
-                 'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'addr:country': 'HU', 'payment:mastercard': 'yes', 'payment:visa': 'yes', 'facebook':'https://www.facebook.com/BENUgyogyszertar', 'youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg'}",
+                 'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'addr:country': 'HU', 'payment:mastercard': 'yes', 'payment:visa': 'yes', 'facebook':'https://www.facebook.com/BENUgyogyszertar', 'youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.benu.hu', 'poi_search_name': '(benu gyogyszertár|benu)'}]
         return data
 

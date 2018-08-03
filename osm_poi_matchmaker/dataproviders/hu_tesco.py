@@ -17,7 +17,7 @@ except ImportError as err:
     exit(128)
 
 POI_DATA = 'https://tesco.hu/aruhazak'
-POI_COMMON_TAGS = "'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'ref:vatin:hu': '10307078-2-44', 'brand': 'Tesco', 'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494', 'addr:country': 'HU', 'internet_access': 'wlan', 'internet_access:fee': 'no', 'facebook': 'https://www.facebook.com/tescoaruhazak', 'youtube': 'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
+POI_COMMON_TAGS = "'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'ref:vatin:hu': '10307078-2-44', 'brand': 'Tesco', 'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494', 'addr:country': 'HU', 'internet_access': 'wlan', 'internet_access:fee': 'no', 'facebook': 'https://www.facebook.com/tescoaruhazak', 'youtube': 'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'air_conditioning': 'yes'"
 
 
 class hu_tesco():

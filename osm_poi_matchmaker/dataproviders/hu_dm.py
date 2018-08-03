@@ -31,7 +31,7 @@ class hu_dm():
     @staticmethod
     def types():
         data = [{'poi_code': 'hudmche', 'poi_name': 'dm', 'poi_type': 'chemist',
-                 'poi_tags': "{'shop': 'chemist', 'operator': 'dm Kft.', 'brand':'dm', 'addr:country': 'HU', 'facebook':'https://www.facebook.com/dm.Magyarorszag', 'youtube': 'https://www.youtube.com/user/dmMagyarorszag', 'instagram':'https://www.instagram.com/dm_magyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+                 'poi_tags': "{'shop': 'chemist', 'operator': 'dm Kft.', 'brand':'dm', 'addr:country': 'HU', 'facebook':'https://www.facebook.com/dm.Magyarorszag', 'youtube': 'https://www.youtube.com/user/dmMagyarorszag', 'instagram':'https://www.instagram.com/dm_magyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.dm.hu', 'poi_search_name': 'dm'}]
         return data
 
