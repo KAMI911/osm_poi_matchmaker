@@ -6,6 +6,7 @@ try:
     import logging
     import os
     import datetime
+    from urllib.parse import quote
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
     from osm_poi_matchmaker.libs.osm import relationer, timestamp_now
 except ImportError as err:
@@ -56,6 +57,7 @@ def generate_osm_xml(df):
                                              user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
                                              uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
                                              version='{}'.format(osm_version))
+                josm_object = 'n{}'.format(current_id)
                 if current_id > 0:
                     comment = etree.Comment(' OSM link: https://osm.org/node/{} '.format(str(current_id)))
                     osm_xml_data.append(comment)
@@ -64,6 +66,7 @@ def generate_osm_xml(df):
                                              user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
                                              uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
                                              version='{}'.format(osm_version))
+                josm_object = 'w{}'.format(current_id)
                 # Add way nodes without any modification)
                 try:
                     for n in row['osm_nodes']:
@@ -79,6 +82,7 @@ def generate_osm_xml(df):
                                              user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
                                              uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
                                              version='{}'.format(osm_version))
+                josm_object = 'r{}'.format(current_id)
                 relations = relationer(row['osm_nodes'])
                 try:
                     for i in relations:
@@ -128,9 +132,16 @@ def generate_osm_xml(df):
                 source_url = 'source:website:date'
             tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d')
             tags['import'] = 'osm_poi_matchmaker'
-            # Rendering tags to the XML file
+            # Rendering tags to the XML file and JOSM magic link
+            josm_link = ''
             for k, v in sorted(tags.items()):
                 xml_tags = etree.SubElement(main_data, 'tag', k=k, v='{}'.format(v))
+                josm_link = '{}|{}={}'.format(josm_link, k, v)
+            # URL encode link and '--' in comment
+            josm_link = quote(josm_link)
+            josm_link = josm_link.replace('--', '%2D%2D')
+            comment = etree.Comment(' JOSM magic link: {}?new_layer=false&objects={}&addtags={} '.format('http://localhost:8111/load_object', josm_object, josm_link))
+            osm_xml_data.append(comment)
             osm_xml_data.append(main_data)
             id -= 1
     except Exception as err:
