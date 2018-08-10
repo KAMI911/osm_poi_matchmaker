@@ -38,7 +38,7 @@ def save_downloaded_soup(link, file, post_data=None, verify=config.get_download_
             if not os.path.exists(config.get_directory_cache_url()):
                 os.makedirs(config.get_directory_cache_url())
             with open(file, mode="w", encoding="utf8") as code:
-                code.write(str(soup))
+                code.write(soup.get_text())
         else:
             logging.warning('Skipping dataset: {}.'.format(link))
     return soup

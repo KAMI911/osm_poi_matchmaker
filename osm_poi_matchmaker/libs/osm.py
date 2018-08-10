@@ -65,3 +65,14 @@ def relationer(relation_text):
 
 def timestamp_now():
     return '{:{dfmt}T{tfmt}Z}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d', tfmt='%H:%M:%S')
+
+
+def query_osm_city_name_gpd(session, lon, lat):
+    if lat is None or lat == '' or lon == '' or lon is None: return None
+    query = sqlalchemy.text('''
+        SELECT name
+        FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lat,:lon),4326) as geom) point
+        WHERE admin_level='8' and ST_Contains(way, ST_Transform(point.geom,3857)) ORDER BY name LIMIT 1;''')
+    data = session.execute(query, {'lon': lon, 'lat': lat}).first()
+    if data is None: return None
+    else: return data[0]

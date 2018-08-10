@@ -49,13 +49,12 @@ def generate_osm_xml(df):
         for index, row in df.iterrows():
             current_id = id if row['osm_id'] is None else row['osm_id']
             osm_timestamp = timestamp_now() if row['osm_timestamp'] is None else row['osm_timestamp']
-            osm_changeset = '99999' if row['osm_changeset'] is None else row['osm_changeset'] + 1
             osm_version = '99999' if row['osm_version'] is None else row['osm_version']
             if row['osm_node'] is None or row['osm_node'] == OSM_object_type.node:
                 main_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(current_id),
                                              lat='{}'.format(row['poi_lat']), lon='{}'.format(row['poi_lon']),
-                                             user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
-                                             uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
+                                             user='{}'.format('osm_poi_matchmaker'), timestamp='{}'.format(osm_timestamp),
+                                             uid='{}'.format('8635934'),
                                              version='{}'.format(osm_version))
                 josm_object = 'n{}'.format(current_id)
                 if current_id > 0:
@@ -63,8 +62,8 @@ def generate_osm_xml(df):
                     osm_xml_data.append(comment)
             elif row['osm_node'] is not None and row['osm_node'] == OSM_object_type.way:
                 main_data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_id),
-                                             user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
-                                             uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
+                                             user='{}'.format('osm_poi_matchmaker'), timestamp='{}'.format(osm_timestamp),
+                                             uid='{}'.format('8635934'),
                                              version='{}'.format(osm_version))
                 josm_object = 'w{}'.format(current_id)
                 # Add way nodes without any modification)
@@ -79,8 +78,8 @@ def generate_osm_xml(df):
                     osm_xml_data.append(comment)
             elif row['osm_node'] is not None and row['osm_node'] == OSM_object_type.relation:
                 main_data = etree.SubElement(osm_xml_data, 'relation', action='modify', id=str(current_id),
-                                             user='{}'.format('KAMI'), timestamp='{}'.format(osm_timestamp),
-                                             uid='{}'.format('4579407'), changeset='{}'.format(osm_changeset),
+                                             user='{}'.format('osm_poi_matchmaker'), timestamp='{}'.format(osm_timestamp),
+                                             uid='{}'.format('8635934'),
                                              version='{}'.format(osm_version))
                 josm_object = 'r{}'.format(current_id)
                 relations = relationer(row['osm_nodes'])
