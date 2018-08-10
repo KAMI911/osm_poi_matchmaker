@@ -1,7 +1,6 @@
 # osm_poi_matchmaker
 
-[![Build Status](https://api.travis-ci.org/KAMI911/osm_poi_matchmaker.svg?branch=master)](https://travis-ci.org/KAMI911/osm_poi_matchmaker/) [![Code Climate](https://codeclimate.com/github//KAMI911/osm_poi_matchmaker/KAMI911/osm_poi_matchmaker//KAMI911/osm_poi_matchmaker/badges/gpa.svg)](https://codeclimate.com/github//KAMI911/osm_poi_matchmaker)
-
+[![Build Status](https://api.travis-ci.org/KAMI911/osm_poi_matchmaker.svg?branch=master)](https://travis-ci.org/KAMI911/osm_poi_matchmaker/)[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7fa248270de94705a4ddc956ca710ce3)](https://www.codacy.com/app/KAMI911/osm_poi_matchmaker?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KAMI911/osm_poi_matchmaker&amp;utm_campaign=Badge_Grade)[![Maintainability](https://api.codeclimate.com/v1/badges/710ad0cde398623b864b/maintainability)](https://codeclimate.com/github/KAMI911/osm_poi_matchmaker/maintainability)
 ## Table of Contents
 
 1. [About][About]
