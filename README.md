@@ -41,7 +41,7 @@ Compatibility](https://wiki.openstreetmap.org/wiki/Import/ODbL_Compatibility) fo
 
 The osm_poi_matchmaker application and documantations are licensed under the terms of the GNU
 General Public License Version 3, you will find a copy of this license in the
-COPYING file included in the source package.
+[LICENSE](LICENSE) file included in the source package.
 
 ## Installation
 
