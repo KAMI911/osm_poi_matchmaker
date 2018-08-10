@@ -5,7 +5,7 @@
 ## Table of Contents
 
 1. [About][About]
-2. [License][License]
+2. [Licensing][Licensing]
 3. [Installation][Installation]
 4. [Documentation][Documentation]
 5. [Support][Support]
@@ -80,7 +80,7 @@ Please continue reading in the [contributing chapter](CONTRIBUTING.md).
 
 <!-- TOC URLs -->
 [About]: #about
-[License]: #license
+[Licensing]: #licensing
 [Installation]: #installation
 [Documentation]: #documentation
 [Support]: #support
