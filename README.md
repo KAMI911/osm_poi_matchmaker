@@ -1,6 +1,7 @@
 # osm_poi_matchmaker
 
 [![Build Status](https://api.travis-ci.org/KAMI911/osm_poi_matchmaker.svg?branch=master)](https://travis-ci.org/KAMI911/osm_poi_matchmaker/)[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7fa248270de94705a4ddc956ca710ce3)](https://www.codacy.com/app/KAMI911/osm_poi_matchmaker?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KAMI911/osm_poi_matchmaker&amp;utm_campaign=Badge_Grade)[![Maintainability](https://api.codeclimate.com/v1/badges/710ad0cde398623b864b/maintainability)](https://codeclimate.com/github/KAMI911/osm_poi_matchmaker/maintainability)
+
 ## Table of Contents
 
 1. [About][About]
@@ -9,6 +10,7 @@
 4. [Documentation][Documentation]
 5. [Support][Support]
 6. [Contributing][Contributing]
+7. [Donation][Donation]
 
 ## About
 
@@ -77,6 +79,12 @@ contribution is appreciated!
 
 Please continue reading in the [contributing chapter](CONTRIBUTING.md).
 
+## Donation
+
+If you find this useful, please consider a donation:
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RLQZ58B26XSLA)
+
 <!-- TOC URLs -->
 [About]: #about
 [Licensing]: #licensing
@@ -84,4 +92,5 @@ Please continue reading in the [contributing chapter](CONTRIBUTING.md).
 [Documentation]: #documentation
 [Support]: #support
 [Contributing]: #contributing
+[Donation]: #donation
 
