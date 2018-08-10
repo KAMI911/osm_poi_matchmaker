@@ -1,4 +1,4 @@
-# osm_poi_matchmaker
+# osm_poi_matchmaker - OSM POI ⌘ 🎔 MatchMaker
 
 [![Build Status](https://api.travis-ci.org/KAMI911/osm_poi_matchmaker.svg?branch=master)](https://travis-ci.org/KAMI911/osm_poi_matchmaker/)[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7fa248270de94705a4ddc956ca710ce3)](https://www.codacy.com/app/KAMI911/osm_poi_matchmaker?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KAMI911/osm_poi_matchmaker&amp;utm_campaign=Badge_Grade)[![Maintainability](https://api.codeclimate.com/v1/badges/710ad0cde398623b864b/maintainability)](https://codeclimate.com/github/KAMI911/osm_poi_matchmaker/maintainability)
 
@@ -78,6 +78,10 @@ testing, reporting bugs, or reviewing and updating the documentation. Every
 contribution is appreciated!
 
 Please continue reading in the [contributing chapter](CONTRIBUTING.md).
+
+### Fork me on Github
+
+https://github.com/KAMI911/osm_poi_matchmaker
 
 ## Donation
 
