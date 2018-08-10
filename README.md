@@ -1,6 +1,6 @@
 # osm_poi_matchmaker
 
-[![Build Status](https://api.travis-ci.org/KAMI911/osm_poi_matchmaker.svg?branch=master)](https://travis-ci.org/KAMI911/osm_poi_matchmaker/)
+[![Build Status](https://api.travis-ci.org/KAMI911/osm_poi_matchmaker.svg?branch=master)](https://travis-ci.org/KAMI911/osm_poi_matchmaker/) [![Code Climate](https://codeclimate.com/github//KAMI911/osm_poi_matchmaker/KAMI911/osm_poi_matchmaker//KAMI911/osm_poi_matchmaker/badges/gpa.svg)](https://codeclimate.com/github//KAMI911/osm_poi_matchmaker)
 
 ## Table of Contents
 
