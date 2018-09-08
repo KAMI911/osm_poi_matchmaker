@@ -18,7 +18,7 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-    
+
 POST_DATA = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'QRY': '|'}
 
 
@@ -28,6 +28,7 @@ class hu_omv(DataProvider):
     def constains(self):
         self.link = 'http://webgispu.wigeogis.com/kunden/omvpetrom/backend/getFsForCountry.php'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'json'
 
     def types(self):
         self.__types = [{'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',

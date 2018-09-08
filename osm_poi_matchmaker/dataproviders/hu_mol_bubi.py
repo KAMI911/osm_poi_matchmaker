@@ -25,6 +25,7 @@ class hu_mol_bubi(DataProvider):
     def constains(self):
         self.link = 'https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'xml'
 
     def types(self):
         self.__types = [{'poi_code': 'hububibir', 'poi_name': 'MOL Bubi', 'poi_type': 'bicycle_rental',

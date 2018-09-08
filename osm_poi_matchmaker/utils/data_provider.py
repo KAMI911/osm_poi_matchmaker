@@ -28,7 +28,7 @@ class DataProvider():
         self.session = session
         self.download_cache = download_cache
         self.prefer_osm_postcode = prefer_osm_postcode
-        self.filename = '{}.{}'.format(__name__, filetype)
+        self.filename = '{}.{}'.format(self.__class__.__name__, filetype)
         self.verify_link = verify_link
         self.constains()
         self.data = POIDataset()

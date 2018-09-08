@@ -23,6 +23,7 @@ class hu_shell(DataProvider):
     def constains(self):
         self.link = 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'csv'
 
     def types(self):
         self.__types = [{'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel',

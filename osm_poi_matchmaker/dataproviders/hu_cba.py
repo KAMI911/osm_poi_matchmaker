@@ -26,6 +26,7 @@ class hu_cba(DataProvider):
     def constains(self):
         self.link = 'http://www.cba.hu/uzletlista'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'html'
 
     def types(self):
         self.__types = [

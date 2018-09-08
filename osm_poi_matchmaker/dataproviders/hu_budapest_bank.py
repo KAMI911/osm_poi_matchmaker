@@ -24,6 +24,7 @@ class hu_budapest_bank(DataProvider):
     def constains(self):
         self.link = 'https://www.budapestbank.hu/info/fiokkereso/process/get_data.php?action=get_data_json'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'json'
 
     def types(self):
         self.__types = [{'poi_code': 'hubpbank', 'poi_name': 'Budapest Bank', 'poi_type': 'bank',

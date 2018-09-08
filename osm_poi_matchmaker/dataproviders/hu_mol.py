@@ -27,6 +27,7 @@ class hu_mol(DataProvider):
     def constains(self):
         self.link = 'http://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'json'
 
     def types(self):
         self.__types = [{'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',

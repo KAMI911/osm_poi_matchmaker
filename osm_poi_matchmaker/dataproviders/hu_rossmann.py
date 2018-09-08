@@ -26,6 +26,7 @@ class hu_rossmann(DataProvider):
     def constains(self):
         self.link = 'https://www.rossmann.hu/uzletkereso'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'html'
 
     def types(self):
         self.__types = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann', 'poi_type': 'chemist',

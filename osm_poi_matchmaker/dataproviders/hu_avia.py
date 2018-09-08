@@ -26,6 +26,7 @@ class hu_avia(DataProvider):
     def constains(self):
         self.link = 'https://www.avia.hu/kapcsolat/toltoallomasok'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'html'
 
     def types(self):
         self.__type = [{'poi_code': 'huaviafu', 'poi_name': 'Avia', 'poi_type': 'fuel',

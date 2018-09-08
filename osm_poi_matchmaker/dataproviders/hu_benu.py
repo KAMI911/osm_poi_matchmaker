@@ -24,6 +24,7 @@ class hu_benu(DataProvider):
     def constains(self):
         self.link = 'https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'json'
 
     def types(self):
         self.__types = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',

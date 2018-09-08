@@ -25,6 +25,7 @@ class hu_tom_market(DataProvider):
     def constains(self):
         self.link =  'http://tommarket.hu/shops'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'html'
 
     def types(self):
         self.__types = [

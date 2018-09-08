@@ -27,6 +27,7 @@ class hu_kulcs_patika(DataProvider):
     def constains(self):
         self.link = 'http://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'json'
 
     def types(self):
         self.__types = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',

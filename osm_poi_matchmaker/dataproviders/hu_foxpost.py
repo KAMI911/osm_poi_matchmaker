@@ -25,6 +25,7 @@ class hu_foxpost(DataProvider):
     def constains(self):
         self.link = 'http://www.foxpost.hu/wp-content/themes/foxpost/googleapijson.php'
         self.POI_COMMON_TAGS = ""
+        self.filename = self.filename + 'json'
 
     def types(self):
         self.__types = [
