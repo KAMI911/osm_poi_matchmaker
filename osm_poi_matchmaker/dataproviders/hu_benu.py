@@ -11,61 +11,55 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
-
+    from osm_poi_matchmaker.utils.data_provider import DataProvider
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_DATA = 'https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1'
+
+class hu_benu(DataProvider):
 
 
-class hu_benu():
+    def constains(self):
+        self.link = 'https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1'
+        self.POI_COMMON_TAGS = ""
 
-    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_benu.json'):
-        self.session = session
-        self.link = POI_DATA
-        self.download_cache = download_cache
-        self.prefer_osm_postcode = prefer_osm_postcode
-        self.filename = filename
-
-    @staticmethod
-    def types():
-        data = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
+    def types(self):
+        self.__types = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
                  'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'addr:country': 'HU', 'payment:mastercard': 'yes', 'payment:visa': 'yes', 'facebook':'https://www.facebook.com/BENUgyogyszertar', 'youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.benu.hu', 'poi_search_name': '(benu gyogyszertár|benu)'}]
-        return data
+        return self.__types
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
         if soup != None:
             text = json.loads(soup.get_text())
-            data = POIDataset()
             for poi_data in text:
-                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['street'])
                 if 'BENU Gyógyszertár' not in poi_data['title']:
-                    data.name = poi_data['title'].strip()
-                    data.branch = None
+                    self.data.name = poi_data['title'].strip()
+                    self.data.branch = None
                 else:
-                    data.name = 'Benu gyógyszertár'
-                    data.branch = poi_data['title'].strip()
-                data.code = 'hubenupha'
-                data.website = poi_data['description'].strip() if poi_data['description'] is not None else None
-                data.website = data.website[19:]
-                data.city = clean_city(poi_data['city'])
-                data.postcode = poi_data['postal_code'].strip()
-                data.lat, data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
-                                                            data.postcode)
-                data.original = poi_data['street']
+                    self.data.name = 'Benu gyógyszertár'
+                    self.data.branch = poi_data['title'].strip()
+                self.data.code = 'hubenupha'
+                self.data.website = poi_data['description'].strip() if poi_data['description'] is not None else None
+                self.data.website = self.data.website[19:]
+                self.data.city = clean_city(poi_data['city'])
+                self.data.postcode = poi_data['postal_code'].strip()
+                self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
+                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                            self.data.postcode)
+                self.data.original = poi_data['street']
                 if 'phone' in poi_data and poi_data['phone'] != '':
-                    data.phone = clean_phone(poi_data['phone'])
+                    self.data.phone = clean_phone(poi_data['phone'])
                 else:
-                    data.phone = None
-                data.public_holiday_open = False
-                data.add()
-            if data.lenght() < 1:
+                    self.data.phone = None
+                self.data.public_holiday_open = False
+                self.data.add()
+            if self.data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:
-                insert_poi_dataframe(self.session, data.process())
+                insert_poi_dataframe(self.session, self.data.process())

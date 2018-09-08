@@ -12,68 +12,62 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.utils.data_provider import DataProvider
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_DATA = 'http://webgispu.wigeogis.com/kunden/omvpetrom/backend/getFsForCountry.php'
-
+    
 POST_DATA = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'QRY': '|'}
 
 
-class hu_omv():
+class hu_omv(DataProvider):
 
-    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_omv.json'):
-        self.session = session
-        self.link = POI_DATA
-        self.download_cache = download_cache
-        self.prefer_osm_postcode = prefer_osm_postcode
-        self.filename = filename
 
-    @staticmethod
-    def types():
-        data = [{'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
+    def constains(self):
+        self.link = 'http://webgispu.wigeogis.com/kunden/omvpetrom/backend/getFsForCountry.php'
+        self.POI_COMMON_TAGS = ""
+
+    def types(self):
+        self.__types = [{'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'OMV', 'operator': 'OMV Hungária Kft.', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.omv.hu', 'poi_search_name': 'omv'}]
-        return data
+        return self.__types
+
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), POST_DATA)
         if soup != None:
             text = json.loads(soup.get_text())
-            data = POIDataset()
             for poi_data in text['results']:
-                data.name = 'OMV'
-                data.code = 'huomvfu'
-                data.postcode = poi_data['postcode'].strip()
-                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
+                self.data.name = 'OMV'
+                self.data.code = 'huomvfu'
+                self.data.postcode = poi_data['postcode'].strip()
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['address_l'])
-                data.city = clean_city(poi_data['town_l'])
+                self.data.city = clean_city(poi_data['town_l'])
                 if poi_data['open_hours'] is not None:
                     oho, ohc = clean_opening_hours(poi_data['open_hours'])
                     if oho == '00:00' and ohc == '24:00':
-                        data.nonstop = True
-                        data.public_holiday_open = True
+                        self.data.nonstop = True
+                        self.data.public_holiday_open = True
                         oho, ohc = None, None
                     else:
-                        data.public_holiday_open = False
+                        self.data.public_holiday_open = False
                 else:
                     oho, ohc = None, None
-                    data.public_holiday_open = False
+                    self.data.public_holiday_open = False
                 for i in range(0, 7):
-                    data.day_open(i, oho)
-                    data.day_close(i, ohc)
-                data.original = poi_data['address_l']
-                data.lat, data.lon = check_hu_boundary(poi_data['y'], poi_data['x'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
-                                                            data.postcode)
+                    self.data.day_open(i, oho)
+                    self.data.day_close(i, ohc)
+                self.data.original = poi_data['address_l']
+                self.data.lat, self.data.lon = check_hu_boundary(poi_data['y'], poi_data['x'])
+                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                            self.data.postcode)
                 if 'telnr' in poi_data and poi_data['telnr'] != '':
-                    data.phone = clean_phone(poi_data['telnr'])
+                    self.data.phone = clean_phone(poi_data['telnr'])
                 else:
-                    data.phone = None
-                data.add()
-            if data.lenght() < 1:
-                logging.warning('Resultset is empty. Skipping ...')
-            else:
-                insert_poi_dataframe(self.session, data.process())
+                    self.data.phone = None
+                self.data.add()
+

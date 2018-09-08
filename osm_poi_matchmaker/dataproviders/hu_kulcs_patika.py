@@ -10,57 +10,51 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_DATA = 'http://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
+
 POST_DATA = {'kepnelkul': 'true', 'latitude': '47.498', 'longitude': '19.0399', 'tipus': 'patika'}
 
 
-class hu_kulcs_patika():
+class hu_kulcs_patika(DataProvider):
 
-    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_kulcs_patika.json'):
-        self.session = session
-        self.link = os.path.join(config.get_directory_cache_url(), 'hu_kulcs_patika.json')
-        self.download_cache = download_cache
-        self.prefer_osm_postcode = prefer_osm_postcode
-        self.filename = filename
 
-    @staticmethod
-    def types():
-        data = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
+    def constains(self):
+        self.link = 'http://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
+        self.POI_COMMON_TAGS = ""
+
+    def types(self):
+        self.__types = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
                  'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.kulcspatika.hu', 'poi_search_name': '(kulcs patika|kulcs)'}]
-        return data
+        return self.__types
 
     def process(self):
         if self.link:
             with open(self.link, 'r') as f:
                 text = json.load(f)
-            data = POIDataset()
             for poi_data in text:
-                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['cim'])
                 if 'Kulcs patika' not in poi_data['nev']:
-                    data.name = poi_data['nev'].strip()
-                    data.branch = None
+                    self.data.name = poi_data['nev'].strip()
+                    self.data.branch = None
                 else:
-                    data.name = 'Kulcs patika'
-                    data.branch = poi_data['nev'].strip()
-                data.code = 'hukulcspha'
-                data.website = poi_data['link'].strip() if poi_data['link'] is not None else None
-                data.city = clean_city(poi_data['helyseg'])
-                data.lat, data.lon = check_hu_boundary(poi_data['marker_position']['latitude'],
+                    self.data.name = 'Kulcs patika'
+                    self.data.branch = poi_data['nev'].strip()
+                self.data.code = 'hukulcspha'
+                self.data.website = poi_data['link'].strip() if poi_data['link'] is not None else None
+                self.data.city = clean_city(poi_data['helyseg'])
+                self.data.lat, self.data.lon = check_hu_boundary(poi_data['marker_position']['latitude'],
                                                        poi_data['marker_position']['longitude'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
+                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
                                                             poi_data['irsz'].strip())
-                data.original = poi_data['cim']
-                data.public_holiday_open = False
-                data.add()
-            if data.lenght() < 1:
-                logging.warning('Resultset is empty. Skipping ...')
-            else:
-                insert_poi_dataframe(self.session, data.process())
+                self.data.original = poi_data['cim']
+                self.data.public_holiday_open = False
+                self.data.add()
+

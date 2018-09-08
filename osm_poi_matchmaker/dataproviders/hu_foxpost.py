@@ -12,59 +12,51 @@ try:
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHUUnAccented
+    from osm_poi_matchmaker.utils.data_provider import DataProvider
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_DATA = 'http://www.foxpost.hu/wp-content/themes/foxpost/googleapijson.php'
+
+class hu_foxpost(DataProvider):
 
 
-class hu_foxpost():
+    def constains(self):
+        self.link = 'http://www.foxpost.hu/wp-content/themes/foxpost/googleapijson.php'
+        self.POI_COMMON_TAGS = ""
 
-    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_foxpost.json'):
-        self.session = session
-        self.link = POI_DATA
-        self.download_cache = download_cache
-        self.prefer_osm_postcode = prefer_osm_postcode
-        self.filename = filename
-
-    @staticmethod
-    def types():
-        data = [
+    def types(self):
+        self.__types = [
             {'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_type': 'vending_machine_parcel_pickup_and_mail_in',
              'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup;parcel_mail_in', 'brand': 'Foxpost', 'operator': 'FoxPost Zrt.', 'addr:country': 'HU', 'facebook': 'https://www.facebook.com/foxpostzrt', 'youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w', 'email': 'info@foxpost.hu', 'phone': '+36 1 999 03 69', 'payment:debit_cards': 'yes', 'payment:cash': 'no'}",
              'poi_url_base': 'https://www.foxpost.hu', 'poi_search_name': 'foxpost'}]
-        return data
+        return self.__types
+
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
         if soup != None:
             text = json.loads(soup.get_text())
-            data = POIDataset()
             for poi_data in text:
-                data.name = 'Foxpost'
-                data.code = 'hufoxpocso'
-                data.postcode = poi_data['zip'].strip()
-                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
+                self.data.name = 'Foxpost'
+                self.data.code = 'hufoxpocso'
+                self.data.postcode = poi_data['zip'].strip()
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['street'])
-                data.city = clean_city(poi_data['city'])
-                data.branch = poi_data['name']
+                self.data.city = clean_city(poi_data['city'])
+                self.data.branch = poi_data['name']
                 for i in range(0, 7):
                     if poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()] is not None:
                         opening, closing = clean_opening_hours(
                             poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()])
-                        data.day_open(i, opening)
-                        data.day_close(i, closing)
+                        self.data.day_open(i, opening)
+                        self.data.day_close(i, closing)
                     else:
-                        data.day_open_close(i, None, None)
-                data.original = poi_data['address']
-                data.lat, data.lon = check_hu_boundary(poi_data['geolat'], poi_data['geolng'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
-                                                            data.postcode)
-                data.public_holiday_open = False
-                data.add()
-            if data.lenght() < 1:
-                logging.warning('Resultset is empty. Skipping ...')
-            else:
-                insert_poi_dataframe(self.session, data.process())
+                        self.data.day_open_close(i, None, None)
+                self.data.original = poi_data['address']
+                self.data.lat, self.data.lon = check_hu_boundary(poi_data['geolat'], poi_data['geolng'])
+                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                            self.data.postcode)
+                self.data.public_holiday_open = False
+                self.data.add()

@@ -14,33 +14,24 @@ try:
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
     from osm_poi_matchmaker.utils.enums import WeekDaysLong
+    from osm_poi_matchmaker.utils.data_provider import DataProvider
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_DATA = 'https://www.rossmann.hu/uzletkereso'
 
+class hu_rossmann(DataProvider):
 
-class hu_rossmann():
+    def constains(self):
+        self.link = 'https://www.rossmann.hu/uzletkereso'
+        self.POI_COMMON_TAGS = ""
 
-    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_rossmann.html', **kwargs):
-        self.session = session
-        self.link = POI_DATA
-        self.download_cache = download_cache
-        self.prefer_osm_postcode = prefer_osm_postcode
-        self.filename = filename
-        if 'verify_link' in kwargs:
-            self.verify_link = kwargs['verify_link']
-        else:
-            self.verify_link = None
-
-    @staticmethod
-    def types():
-        data = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann', 'poi_type': 'chemist',
+    def types(self):
+        self.__types = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann', 'poi_type': 'chemist',
                  'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann', 'addr:country': 'HU', 'facebook':'https://www.facebook.com/Rossmann.hu', 'youtube': 'https://www.youtube.com/channel/UCmUCPmvMLL3IaXRBtx7-J7Q', 'instagram':'https://www.instagram.com/rossmann_hu', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.rossmann.hu', 'poi_search_name': 'rossmann'}]
-        return data
+        return self.__types
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), None,
@@ -53,29 +44,25 @@ class hu_rossmann():
             data = m.group(0)
             data = clean_javascript_variable(data, 'places')
             text = json.loads(data)
-            data = POIDataset()
             for poi_data in text:
                 poi_data = poi_data['addresses'][0]
                 # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['address'])
-                data.name = 'Rossmann'
-                data.code = 'hurossmche'
-                data.city = clean_city(poi_data['city'])
-                data.postcode = poi_data['zip'].strip()
+                self.data.name = 'Rossmann'
+                self.data.code = 'hurossmche'
+                self.data.city = clean_city(poi_data['city'])
+                self.data.postcode = poi_data['zip'].strip()
                 for i in range(0, 7):
                     if poi_data['business_hours'][WeekDaysLong(i).name.lower()] is not None:
                         opening, closing = clean_opening_hours(poi_data['business_hours'][WeekDaysLong(i).name.lower()])
-                        data.day_open_close(i, opening, closing)
+                        self.data.day_open_close(i, opening, closing)
                     else:
-                        data.day_open_close(i, None, None)
-                data.lat, data.lon = check_hu_boundary(poi_data['position'][0], poi_data['position'][1])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
-                                                            data.postcode)
-                data.original = poi_data['address']
-                data.public_holiday_open = False
-                data.add()
-            if data.lenght() < 1:
-                logging.warning('Resultset is empty. Skipping ...')
-            else:
-                insert_poi_dataframe(self.session, data.process())
+                        self.data.day_open_close(i, None, None)
+                self.data.lat, self.data.lon = check_hu_boundary(poi_data['position'][0], poi_data['position'][1])
+                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat,
+                                                                 self.data.lon,
+                                                                 self.data.postcode)
+                self.data.original = poi_data['address']
+                self.data.public_holiday_open = False
+                self.data.add()

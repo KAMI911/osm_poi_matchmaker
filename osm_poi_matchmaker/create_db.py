@@ -96,6 +96,7 @@ def import_poi_data_module(module):
             work = mo(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode())
             insert_type(session, work.types())
             work.process()
+            work.export_list()
     except Exception as err:
         print(err)
 

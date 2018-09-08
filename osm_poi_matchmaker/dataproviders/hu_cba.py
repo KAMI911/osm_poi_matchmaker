@@ -13,26 +13,22 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.utils.data_provider import DataProvider
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_DATA = 'http://www.cba.hu/uzletlista'
+
+class hu_cba(DataProvider):
 
 
-class hu_cba():
+    def constains(self):
+        self.link = 'http://www.cba.hu/uzletlista'
+        self.POI_COMMON_TAGS = ""
 
-    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_cba.html'):
-        self.session = session
-        self.link = POI_DATA
-        self.download_cache = download_cache
-        self.prefer_osm_postcode = prefer_osm_postcode
-        self.filename = filename
-
-    @staticmethod
-    def types():
-        data = [
+    def types(self):
+        self.__types = [
             {'poi_code': 'hucbacon', 'poi_name': 'CBA', 'poi_type': 'shop',
              'poi_tags': "{'shop': 'convenience', 'brand': 'CBA', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.cba.hu', 'poi_search_name': '(cba abc|cba)'},
@@ -45,7 +41,7 @@ class hu_cba():
             {'poi_code': 'huprimasup', 'poi_name': 'Príma', 'poi_type': 'shop',
              'poi_tags': "{'shop': 'supermarket', 'brand': 'Príma', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.prima.hu', 'poi_search_name': '(príma abc|prima abc|príma|prima)'}]
-        return data
+        return self.__types
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
@@ -57,38 +53,34 @@ class hu_cba():
             data = m.group(0)
             data = clean_javascript_variable(data, 'boltok_nyers')
             text = json.loads(data)
-            data = POIDataset()
             for poi_data in text:
                 # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['A_CIM'])
-                data.city = clean_city(poi_data['A_VAROS'])
-                data.postcode = poi_data['A_IRSZ'].strip()
-                data.branch = poi_data['P_NAME'].strip()
-                data.name = 'Príma' if 'Príma' in data.branch else 'CBA'
-                data.code = 'huprimacon' if 'Príma' in data.branch else 'hucbacon'
+                self.data.city = clean_city(poi_data['A_VAROS'])
+                self.data.postcode = poi_data['A_IRSZ'].strip()
+                self.data.branch = poi_data['P_NAME'].strip()
+                self.data.name = 'Príma' if 'Príma' in self.data.branch else 'CBA'
+                self.data.code = 'huprimacon' if 'Príma' in self.data.branch else 'hucbacon'
                 for i in range(0, 7):
-                    data.day_open(i, clean_opening_hours_2(poi_data['PS_OPEN_FROM_{}'.format(i + 1)]) if poi_data[
+                    self.data.day_open(i, clean_opening_hours_2(poi_data['PS_OPEN_FROM_{}'.format(i + 1)]) if poi_data[
                                                                                                              'PS_OPEN_FROM_{}'.format(
                                                                                                                  i + 1)] is not None else None)
-                    data.day_close(i, clean_opening_hours_2(poi_data['PS_OPEN_TO_{}'.format(i + 1)]) if poi_data[
+                    self.data.day_close(i, clean_opening_hours_2(poi_data['PS_OPEN_TO_{}'.format(i + 1)]) if poi_data[
                                                                                                             'PS_OPEN_TO_{}'.format(
                                                                                                                 i + 1)] is not None else None)
-                data.original = poi_data['A_CIM']
-                data.lat, data.lon = check_hu_boundary(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
-                                                            data.postcode)
+                self.data.original = poi_data['A_CIM']
+                self.data.lat, self.data.lon = check_hu_boundary(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'])
+                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                            self.data.postcode)
                 if 'PS_PUBLIC_TEL' in poi_data and poi_data['PS_PUBLIC_TEL'] != '':
-                    data.phone = clean_phone(poi_data['PS_PUBLIC_TEL'])
+                    self.data.phone = clean_phone(poi_data['PS_PUBLIC_TEL'])
                 else:
-                    data.phone = None
+                    self.data.phone = None
                 if 'PS_PUBLIC_EMAIL' in poi_data and poi_data['PS_PUBLIC_EMAIL'] != '':
-                    data.email = poi_data['PS_PUBLIC_EMAIL']
+                    self.data.email = poi_data['PS_PUBLIC_EMAIL']
                 else:
-                    data.email = None
-                data.public_holiday_open = False
-                data.add()
-            if data.lenght() < 1:
-                logging.warning('Resultset is empty. Skipping ...')
-            else:
-                insert_poi_dataframe(self.session, data.process())
+                    self.data.email = None
+                self.data.public_holiday_open = False
+                self.data.add()
+

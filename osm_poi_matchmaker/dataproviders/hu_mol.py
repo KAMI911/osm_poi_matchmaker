@@ -11,50 +11,43 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.utils.data_provider import DataProvider
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
     exit(128)
 
-POI_DATA = 'http://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json'
+
 POST_DATA = {'country': 'Magyarország', 'lat': '47.162494', 'lng': '19.503304100000037', 'radius': 20}
 
 
-class hu_mol():
+class hu_mol(DataProvider):
 
-    def __init__(self, session, download_cache, prefer_osm_postcode, filename='hu_mol.json'):
-        self.session = session
-        self.link = POI_DATA
-        self.download_cache = download_cache
-        self.prefer_osm_postcode = prefer_osm_postcode
-        self.filename = filename
 
-    @staticmethod
-    def types():
-        data = [{'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
+    def constains(self):
+        self.link = 'http://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json'
+        self.POI_COMMON_TAGS = ""
+
+    def types(self):
+        self.__types = [{'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'MOL', 'operator': 'MOL Nyrt.', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol'}]
-        return data
+        return self.__types
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), POST_DATA)
         if soup != None:
             text = json.loads(soup.get_text())
-            data = POIDataset()
             for poi_data in text:
-                data.name = 'MOL'
-                data.code = 'humolfu'
-                data.postcode = poi_data['postcode'].strip()
-                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
+                self.data.name = 'MOL'
+                self.data.code = 'humolfu'
+                self.data.postcode = poi_data['postcode'].strip()
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['address'])
-                data.city = clean_city(poi_data['city'])
-                data.original = poi_data['address']
-                data.lat, data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
-                data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat, data.lon,
-                                                            data.postcode)
-                data.public_holiday_open = False
-                data.add()
-            if data.lenght() < 1:
-                logging.warning('Resultset is empty. Skipping ...')
-            else:
-                insert_poi_dataframe(self.session, data.process())
+                self.data.city = clean_city(poi_data['city'])
+                self.data.original = poi_data['address']
+                self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
+                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                            self.data.postcode)
+                self.data.public_holiday_open = False
+                self.data.add()
