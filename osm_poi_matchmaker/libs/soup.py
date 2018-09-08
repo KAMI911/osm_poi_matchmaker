@@ -13,27 +13,31 @@ except ImportError as err:
     exit(128)
 
 
-def download_soup(link, verify_link=config.get_download_verify_link(), post_parm=None):
+def download_soup(link, verify_link=config.get_download_verify_link(), post_parm=None, headers=None):
     try:
         if post_parm is None:
             logging.debug('Downloading without post parameters.')
-            page = requests.get(link, verify=verify_link)
+            page = requests.get(link, verify=verify_link, headers=headers)
         else:
             logging.debug('Downloading with post parameters.')
-            headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
-            page = requests.post(link, verify=verify_link, data=post_parm, headers=headers)
+            headers_static = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
+            if headers is not None:
+                headers = headers.items() + headers_static.items()
+            else:
+                headers = headers_static
+            page = requests.session(link, verify=verify_link, data=post_parm, headers=headers)
     except requests.exceptions.ConnectionError as e:
         logging.warning('Unable to open connection. ({})'.format(e))
         return None
     return BeautifulSoup(page.content, 'html.parser') if page.status_code == 200 else None
 
 
-def save_downloaded_soup(link, file, post_data=None, verify=config.get_download_verify_link()):
+def save_downloaded_soup(link, file, post_data=None, verify=config.get_download_verify_link(), headers=None):
     if config.get_download_use_cached_data() == True and os.path.isfile(file):
         with open(file, 'r') as content_file:
             soup = BeautifulSoup(content_file.read(), 'html.parser')
     else:
-        soup = download_soup(link, verify, post_data)
+        soup = download_soup(link, verify, post_data, headers)
         if soup != None:
             if not os.path.exists(config.get_directory_cache_url()):
                 os.makedirs(config.get_directory_cache_url())
