@@ -274,6 +274,11 @@ def clean_email(email):
 
 
 def clean_string(clearable):
+    '''
+    Remove extra spaces from strings and surrounding whitespace characters
+    :param clearable: String that has to clean
+    :return: Cleaned string
+    '''
     if clearable is not None:
         clearable = clearable.replace('  ', ' ').strip()
     return clearable
