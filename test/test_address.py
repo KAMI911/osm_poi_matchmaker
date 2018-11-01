@@ -81,7 +81,7 @@ class TestFullAddressResolver(unittest.TestCase):
                 self.assertEqual(conscriptionnumber, e)
 
 
-class OpeningHoursClener(unittest.TestCase):
+class TestOpeningHoursClener(unittest.TestCase):
     def setUp(self):
         self.opening_hours = [
             {'original': '05:20-19:38', 'opening_hours_open': '05:20', 'opening_hours_close': '19:38'},
@@ -102,7 +102,7 @@ class OpeningHoursClener(unittest.TestCase):
                 self.assertEqual(ohc, b)
 
 
-class OpeningHoursClener2(unittest.TestCase):
+class TestOpeningHoursClener2(unittest.TestCase):
     def setUp(self):
         self.opening_hours = [
             {'original': '600', 'converted': '06:00'},
@@ -119,7 +119,7 @@ class OpeningHoursClener2(unittest.TestCase):
                 self.assertEqual(oho, a)
 
 
-class PhoneClener(unittest.TestCase):
+class TestPhoneClener(unittest.TestCase):
     def setUp(self):
         self.phones = [
             {'original': '0684/330-734, 0630/2374-712', 'converted': '3684330734'},
@@ -139,7 +139,7 @@ class PhoneClener(unittest.TestCase):
                 self.assertEqual(ph, a)
 
 
-class StringCleaner(unittest.TestCase):
+class TestStringCleaner(unittest.TestCase):
     def setUp(self):
         self.phones = [
             {'original': '  ablak  zsiráf   ', 'converted': 'ablak zsiráf'},

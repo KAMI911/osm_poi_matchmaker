@@ -3,8 +3,8 @@
 
 try:
     import unittest
-    from test.test_address import TestAddressResolver, TestFullAddressResolver, OpeningHoursClener, OpeningHoursClener2, \
-        PhoneClener, StringCleaner
+    from test.test_address import TestAddressResolver, TestFullAddressResolver, TestOpeningHoursClener, TestOpeningHoursClener2, \
+        TestPhoneClener, TestStringCleaner
     from test.test_opening_hours import TestOpeningHours
     from test.test_poi_dataset import TestPOIDataset
     from test.test_timing import Timing
@@ -18,10 +18,10 @@ except ImportError as err:
 def testing_create_db():
     address_resolver = unittest.TestLoader().loadTestsFromTestCase(TestAddressResolver)
     address_full_resolver = unittest.TestLoader().loadTestsFromTestCase(TestFullAddressResolver)
-    opening_hours_cleaner = unittest.TestLoader().loadTestsFromTestCase(OpeningHoursClener)
-    opening_hours_cleaner2 = unittest.TestLoader().loadTestsFromTestCase(OpeningHoursClener2)
-    phone_cleaner = unittest.TestLoader().loadTestsFromTestCase(PhoneClener)
-    string_cleaner = unittest.TestLoader().loadTestsFromTestCase(StringCleaner)
+    opening_hours_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestOpeningHoursClener)
+    opening_hours_cleaner2 = unittest.TestLoader().loadTestsFromTestCase(TestOpeningHoursClener2)
+    phone_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestPhoneClener)
+    string_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestStringCleaner)
     opening_hours_resolver = unittest.TestLoader().loadTestsFromTestCase(TestOpeningHours)
     poi_dataset = unittest.TestLoader().loadTestsFromTestCase(TestPOIDataset)
     timing = unittest.TestLoader().loadTestsFromTestCase(Timing)
