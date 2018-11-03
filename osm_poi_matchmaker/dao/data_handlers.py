@@ -23,6 +23,7 @@ def get_or_create(session, model, **kwargs):
         try:
             instance = model(**kwargs)
             session.add(instance)
+            session.commit()
             return instance
         except Exception as e:
             traceback.print_exc()
@@ -48,6 +49,7 @@ def get_or_create_poi(session, model, **kwargs):
         try:
             instance = model(**kwargs)
             session.add(instance)
+            session.commit()
             return instance
         except Exception as e:
             traceback.print_exc()

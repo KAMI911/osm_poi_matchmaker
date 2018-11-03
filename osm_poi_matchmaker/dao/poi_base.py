@@ -5,7 +5,7 @@ try:
     import pandas as pd
     import sqlalchemy
     from osm_poi_matchmaker.utils import config
-    from osm_poi_matchmaker.dao.data_structure import Base
+    from osm_poi_matchmaker.dao.data_structure import Base, OSM_object_type
 
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -68,6 +68,18 @@ class POIBase:
         query = sqlalchemy.text('select count(*) from {} where poi_geom is not NULL'.format(table))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='poi_geom')
         return data
+
+
+    def query_from_cache(self, node_id, object_type):
+        if node_id > 0:
+            query = sqlalchemy.text('select * from poi_osm_cache where osm_id = :node_id and osm_object_type = :object_type limit 1')
+            data = pd.read_sql(query, self.engine, params={'node_id': int(node_id), 'object_type': object_type.name})
+            if not data.values.tolist():
+                return None
+            else:
+                return data.to_dict('records')
+        else:
+            return None
 
     def query_ways_nodes(self, way_id):
         if way_id > 0:

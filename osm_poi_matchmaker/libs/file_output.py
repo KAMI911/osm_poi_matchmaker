@@ -8,7 +8,10 @@ try:
     import datetime
     from urllib.parse import quote
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
+    from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.osm import relationer, timestamp_now
+    from sqlalchemy.orm import scoped_session, sessionmaker
+    from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -39,7 +42,16 @@ def save_csv_file(path, file, data, message):
         print(err)
 
 
-def generate_osm_xml(df):
+def generate_osm_xml(df, session=None):
+    db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
+                                              config.get_database_writer_password(),
+                                              config.get_database_writer_host(),
+                                              config.get_database_writer_port(),
+                                              config.get_database_poi_database()))
+    mysql_pool = db.pool
+    session_factory = sessionmaker(mysql_pool)
+    Session = scoped_session(session_factory)
+    session = Session()
     from lxml import etree
     import lxml
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
@@ -70,8 +82,20 @@ def generate_osm_xml(df):
                 try:
                     for n in row['osm_nodes']:
                         data = etree.SubElement(main_data, 'nd', ref=str(n))
+                    if session is not None:
+                        for n in row['osm_nodes']:
+                            way_node = db.query_from_cache(n, OSM_object_type.node)[0]
+                            node_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(n),
+                                                         lat='{}'.format(way_node['osm_lat']),
+                                                         lon='{}'.format(way_node['osm_lon']),
+                                                         user='{}'.format(way_node['osm_user']),
+                                                         timestamp='{:{dfmt}T{tfmt}Z}'.format(way_node['osm_timestamp'], dfmt='%Y-%m-%d', tfmt='%H:%M:%S'),
+                                                         uid='{}'.format(way_node['osm_user_id']),
+                                                         version='{}'.format(way_node['osm_version']))
+                            osm_xml_data.append(node_data)
                 except TypeError as err:
                     logging.warning('Missing nodes on this way: {}.'.format(row['osm_id']))
+                    traceback.print_exc()
                 # Add node reference as comment for existing POI
                 if current_id > 0:
                     comment = etree.Comment(' OSM link: https://osm.org/way/{} '.format(str(current_id)))
@@ -121,7 +145,10 @@ def generate_osm_xml(df):
             if row['poi_phone'] is not None and not math.isnan(row['poi_phone']):
                 tags['phone'] = '+{:d}'.format(int(row['poi_phone']))
             if row['poi_url_base'] is not None and row['poi_website'] is not None:
-                tags['website'] = '{}{}'.format(row['poi_url_base'], row['poi_website'])
+                if row['poi_url_base'] in row['poi_website']:
+                    tags['website'] = '{}'.format(row['poi_website'])
+                else:
+                    tags['website'] = '{}{}'.format(row['poi_url_base'], row['poi_website'])
             elif row['poi_url_base'] is not None:
                 tags['website'] = row['poi_url_base']
             # Short URL for source

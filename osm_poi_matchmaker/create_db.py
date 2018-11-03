@@ -18,8 +18,8 @@ try:
     from osm_poi_matchmaker.utils import config, timing, dataproviders_loader
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
     from osm_poi_matchmaker.libs.osm import timestamp_now
-    from osm_poi_matchmaker.dao.data_handlers import insert_type
-    from osm_poi_matchmaker.dao.data_structure import OSM_object_type
+    from osm_poi_matchmaker.dao.data_handlers import insert_type, get_or_create
+    from osm_poi_matchmaker.dao.data_structure import OSM_object_type, POI_OSM_cache
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
@@ -153,7 +153,7 @@ def online_poi_matching(args):
         session = Session()
         osm_live_query = OsmApi()
         for i, row in data.iterrows():
-            # for i, row in data[data['poi_code'].str.contains('tesco')].iterrows():
+        # for i, row in data[data['poi_code'].str.contains('tesco')].iterrows():
             common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
             # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
             if row['poi_search_name'] is not None and row['poi_search_name'] != '':
@@ -203,21 +203,67 @@ def online_poi_matching(args):
                         for rtc in range(0, RETRY):
                             logging.info('Downloading OSM live tags to this way: {}.'.format(osm_id))
                             live_tags_container = osm_live_query.WayGet(osm_id)
-                            if live_tags_container is not None:
-                                data.at[i, 'osm_live_tags'] = live_tags_container['tag']
-                                break
+                            cached_way = db.query_from_cache(osm_id, osm_node)
+                            if cached_way is None:
+                                if live_tags_container is not None:
+                                    data.at[i, 'osm_live_tags'] = live_tags_container['tag']
+                                    cache_row = {'osm_id': osm_id, 'osm_live_tags': str(live_tags_container['tag']),
+                                             'osm_version': live_tags_container['version'],
+                                             'osm_user': live_tags_container['user'],
+                                             'osm_user_id': live_tags_container['uid'],
+                                             'osm_changeset': live_tags_container['changeset'],
+                                             'osm_timestamp': str(live_tags_container['timestamp']),
+                                             'osm_object_type': osm_node,
+                                             'osm_lat': None,
+                                             'osm_lon': None,
+                                             'osm_nodes': str(live_tags_container['nd'])}
+                                    get_or_create(session, POI_OSM_cache, **cache_row)
+                                    print(live_tags_container['nd'])
+                                    # Downloading referenced nodes of the way
+                                    for way_nodes in live_tags_container['nd']:
+                                        logging.debug('Getting node {} belongs to way {}'.format(way_nodes, osm_id))
+                                        live_tags_node = osm_live_query.NodeGet(way_nodes)
+                                        cache_row = {'osm_id': way_nodes, 'osm_live_tags': str(live_tags_node['tag']),
+                                                     'osm_version': live_tags_node['version'],
+                                                     'osm_user': live_tags_node['user'],
+                                                     'osm_user_id': live_tags_node['uid'],
+                                                     'osm_changeset': live_tags_node['changeset'],
+                                                     'osm_timestamp': str(live_tags_node['timestamp']),
+                                                     'osm_object_type': OSM_object_type.node,
+                                                     'osm_lat': live_tags_node['lat'],
+                                                     'osm_lon': live_tags_node['lon'],
+                                                     'osm_nodes': None}
+                                        get_or_create(session, POI_OSM_cache, **cache_row)
+                                    break
+                                else:
+                                    logging.warning('Download of external data has failed.')
                             else:
-                                logging.warning('Download of external data has failed.')
+                                break
                     # Download OSM POI node live tags
                     elif osm_node == OSM_object_type.node:
                         for rtc in range(0, RETRY):
                             logging.info('Downloading OSM live tags to this node: {}.'.format(osm_id))
-                            live_tags_container = osm_live_query.NodeGet(osm_id)
-                            if live_tags_container is not None:
-                                data.at[i, 'osm_live_tags'] = live_tags_container['tag']
-                                break
+                            cached_node = db.query_from_cache(osm_id, osm_node)
+                            if cached_node is None:
+                                live_tags_container = osm_live_query.NodeGet(osm_id)
+                                if live_tags_container is not None:
+                                    data.at[i, 'osm_live_tags'] = live_tags_container['tag']
+                                    cache_row = {'osm_id': osm_id, 'osm_live_tags': str(live_tags_container['tag']),
+                                                 'osm_version': live_tags_container['version'],
+                                                 'osm_user': live_tags_container['user'],
+                                                 'osm_user_id': live_tags_container['uid'],
+                                                 'osm_changeset': live_tags_container['changeset'],
+                                                 'osm_timestamp': str(live_tags_container['timestamp']),
+                                                 'osm_object_type': osm_node,
+                                                 'osm_lat': live_tags_container['lat'],
+                                                 'osm_lon': live_tags_container['lon'],
+                                                 'osm_nodes': None}
+                                    get_or_create(session, POI_OSM_cache, **cache_row)
+                                    break
+                                else:
+                                    logging.warning('Download of external data has failed.')
                             else:
-                                logging.warning('Download of external data has failed.')
+                                break
                     elif osm_node == OSM_object_type.relation:
                         for rtc in range(0, RETRY):
                             logging.info('Downloading OSM live tags to this relation: {}.'.format(osm_id))
@@ -303,7 +349,7 @@ def main():
     Session = scoped_session(session_factory)
     session = Session()
     try:
-        # import_basic_data(db.session)
+        import_basic_data(db.session)
         manager = WorkflowManager()
         manager.start_poi_harvest()
         manager.join()
