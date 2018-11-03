@@ -34,10 +34,10 @@ class hu_spar(DataProvider):
                  'poi_tags': "{'shop': 'convenience', " + self.POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar'},
                 {'poi_code': 'husparint', 'poi_name': 'Interspar', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'supermarket', 'payment:contactless': 'yes', 'payment:american_express': 'yes', 'payment:mastercard': 'yes', 'payment:maestro': yes', 'payment:v_pay': 'yes', 'payment:visa': 'yes', 'payment:visa_electron': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes', " + self.POI_COMMON_TAGS + "}",
+                 'poi_tags': "{'shop': 'supermarket', 'payment:contactless': 'yes', 'payment:american_express': 'yes', 'payment:mastercard': 'yes', 'payment:maestro': 'yes', 'payment:v_pay': 'yes', 'payment:visa': 'yes', 'payment:visa_electron': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes', " + self.POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar'},
                 {'poi_code': 'husparsup', 'poi_name': 'Spar', 'poi_type': 'shop',
-                 'poi_tags': "{'shop': 'supermarket', 'payment:contactless': 'yes', 'payment:american_express': 'yes', 'payment:mastercard': 'yes', 'payment:maestro': yes', 'payment:v_pay': 'yes', 'payment:visa': 'yes', 'payment:visa_electron': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes', " + self.POI_COMMON_TAGS + "}",
+                 'poi_tags': "{'shop': 'supermarket', 'payment:contactless': 'yes', 'payment:american_express': 'yes', 'payment:mastercard': 'yes', 'payment:maestro': 'yes', 'payment:v_pay': 'yes', 'payment:visa': 'yes', 'payment:visa_electron': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes', " + self.POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar'}]
         return self.__types
 
