@@ -218,7 +218,6 @@ def online_poi_matching(args):
                                              'osm_lon': None,
                                              'osm_nodes': str(live_tags_container['nd'])}
                                     get_or_create(session, POI_OSM_cache, **cache_row)
-                                    print(live_tags_container['nd'])
                                     # Downloading referenced nodes of the way
                                     for way_nodes in live_tags_container['nd']:
                                         logging.debug('Getting node {} belongs to way {}'.format(way_nodes, osm_id))
