@@ -30,7 +30,7 @@ class hu_rossmann(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann', 'poi_type': 'chemist',
-                 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'ref:vatin:hu': '11149769-2-44', 'brand':'Rossmann', 'addr:country': 'HU', email': 'ugyfelszolgalat@rossmann.hu', 'phone': '+36 29 889-800;+36 70 4692 800', 'facebook':'https://www.facebook.com/Rossmann.hu', 'youtube': 'https://www.youtube.com/channel/UCmUCPmvMLL3IaXRBtx7-J7Q', 'instagram':'https://www.instagram.com/rossmann_hu', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'air_conditioning': 'yes'}",
+                 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'ref:vatin:hu': '11149769-2-44', 'brand':'Rossmann', 'addr:country': 'HU', 'email': 'ugyfelszolgalat@rossmann.hu', 'phone': '+36 29 889-800;+36 70 4692 800', 'facebook':'https://www.facebook.com/Rossmann.hu', 'youtube': 'https://www.youtube.com/channel/UCmUCPmvMLL3IaXRBtx7-J7Q', 'instagram':'https://www.instagram.com/rossmann_hu', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.rossmann.hu', 'poi_search_name': 'rossmann'}]
         return self.__types
 
