@@ -279,6 +279,7 @@ def online_poi_matching(args):
                 except Exception as err:
                     logging.warning('There was an error during OSM request: {}.'.format(err))
                     traceback.print_exc()
+        session.commit()
         return data
     except Exception as err:
         print(err)
