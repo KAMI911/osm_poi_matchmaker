@@ -48,6 +48,7 @@ class hu_benu(DataProvider):
                 self.data.code = 'hubenupha'
                 self.data.website = poi_data['description'].strip() if poi_data['description'] is not None else None
                 self.data.website = self.data.website[19:]
+                self.data.website = self.data.website.split('\r\n')[0]
                 self.data.city = clean_city(poi_data['city'])
                 self.data.postcode = poi_data['postal_code'].strip()
                 self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
