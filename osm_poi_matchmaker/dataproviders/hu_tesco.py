@@ -23,25 +23,25 @@ class hu_tesco(DataProvider):
 
     def constains(self):
         self.link = 'https://tesco.hu/Ajax?type=fetch-stores-for-area&reduceBy%5Btab%5D=all&bounds%5Bnw%5D%5Blat%5D=49.631214952216425&bounds%5Bnw%5D%5Blng%5D=11.727758183593778&bounds%5Bne%5D%5Blat%5D=49.631214952216425&bounds%5Bne%5D%5Blng%5D=27.004247441406278&bounds%5Bsw%5D%5Blat%5D=38.45256463471463&bounds%5Bsw%5D%5Blng%5D=11.727758183593778&bounds%5Bse%5D%5Blat%5D=38.45256463471463&bounds%5Bse%5D%5Blng%5D=27.004247441406278&currentCoords%5Blat%5D=44.30719090363816&currentCoords%5Blng%5D=19.366002812500028&instanceUUID=b5c4aa5f-9819-47d9-9e5a-d631e931c007'
-        self.POI_COMMON_TAGS = "'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'ref:vatin:hu': '10307078-2-44', 'brand': 'Tesco', 'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494', 'addr:country': 'HU', 'internet_access': 'wlan', 'internet_access:fee': 'no', 'facebook': 'https://www.facebook.com/tescoaruhazak', 'youtube': 'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'air_conditioning': 'yes'"
+        self.POI_COMMON_TAGS = "'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'ref:vatin:hu': '10307078-2-44', 'brand': 'Tesco', 'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494', 'addr:country': 'HU', 'internet_access': 'wlan', 'internet_access:fee': 'no', 'facebook': 'https://www.facebook.com/tescoaruhazak', 'youtube': 'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes', 'air_conditioning': 'yes'"
         self.filename = self.filename + 'json'
 
     def types(self):
         self.__types = [{'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'convenience', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': 'tesco'},
+                 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco'},
                 {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'wheelchair': 'yes', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': 'tesco'},
+                 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco'},
                 {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'wheelchair': 'yes', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': 'tesco'},
+                 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco'},
                 {'poi_code': 'husmrktexp', 'poi_name': 'S-Market', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'convenience', 'alt_name': 'Tesco Expressz', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': '(tesco|smarket|s-market|s market)'},
+                 'poi_url_base': 'https://tesco.hu', 'poi_search_name': '(tesco|smarket|s-market|s market)'},
                 {'poi_code': 'husmrktsup', 'poi_name': 'S-Market', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'wheelchair': 'yes', 'alt_name': 'Tesco', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.tesco.hu', 'poi_search_name': '(tesco|smarket|s-market|s market)'}]
+                 'poi_url_base': 'https://tesco.hu', 'poi_search_name': '(tesco|smarket|s-market|s market)'}]
         return self.__types
 
     def process(self):
