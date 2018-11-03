@@ -28,10 +28,10 @@ class hu_budapest_bank(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hubpbank', 'poi_name': 'Budapest Bank', 'poi_type': 'bank',
-                 'poi_tags': "{'amenity': 'bank', 'brand': 'Budapest Bank', 'operator': 'Budapest Bank Zrt.', 'bic': 'BUDAHUHB', 'atm': 'yes', 'addr:country': 'HU', 'air_conditioning': 'yes'}",
+                 'poi_tags': "{'amenity': 'bank', 'brand': 'Budapest Bank', 'brand:wikidata': 'Q27493463', 'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.', 'bic': 'BUDAHUHB', 'atm': 'yes', 'addr:country': 'HU', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.budapestbank.hu', 'poi_search_name': '(budapest bank|bp bank)'},
                 {'poi_code': 'hubpatm', 'poi_name': 'Budapest Bank ATM', 'poi_type': 'atm',
-                 'poi_tags': "{'amenity': 'atm', 'brand': 'Budapest Bank', 'operator': 'Budapest Bank Zrt.', 'addr:country': 'HU',}",
+                 'poi_tags': "{'amenity': 'atm', 'brand': 'Budapest Bank', 'brand:wikidata': 'Q27493463', 'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.', 'addr:country': 'HU',}",
                  'poi_url_base': 'https://www.budapestbank.hu', 'poi_search_name': '(budapest bank|bp bank)'}]
         return self.__types
 
