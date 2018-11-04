@@ -23,7 +23,20 @@ class hu_tesco(DataProvider):
 
     def constains(self):
         self.link = 'https://tesco.hu/Ajax?type=fetch-stores-for-area&reduceBy%5Btab%5D=all&bounds%5Bnw%5D%5Blat%5D=49.631214952216425&bounds%5Bnw%5D%5Blng%5D=11.727758183593778&bounds%5Bne%5D%5Blat%5D=49.631214952216425&bounds%5Bne%5D%5Blng%5D=27.004247441406278&bounds%5Bsw%5D%5Blat%5D=38.45256463471463&bounds%5Bsw%5D%5Blng%5D=11.727758183593778&bounds%5Bse%5D%5Blat%5D=38.45256463471463&bounds%5Bse%5D%5Blng%5D=27.004247441406278&currentCoords%5Blat%5D=44.30719090363816&currentCoords%5Blng%5D=19.366002812500028&instanceUUID=b5c4aa5f-9819-47d9-9e5a-d631e931c007'
-        self.POI_COMMON_TAGS = "'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'ref:vatin:hu': '10307078-2-44', 'brand': 'Tesco', 'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494', 'addr:country': 'HU', 'internet_access': 'wlan', 'internet_access:fee': 'no', 'facebook': 'https://www.facebook.com/tescoaruhazak', 'youtube': 'https://www.youtube.com/user/TescoMagyarorszag', 'payment:cash': 'yes', 'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes', 'air_conditioning': 'yes'"
+        self.POI_COMMON_TAGS = "'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'operator:addr': '2040 Budaörs, Kinizsi út 1-3.'," \
+                               " 'ref:HU:company': '13-10-040628', 'ref:vatin:hu': '10307078-2-44', 'brand': 'Tesco'," \
+                               " 'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494', 'addr:country': 'HU'," \
+                               " 'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'tesco-internet'," \
+                               " 'facebook': 'https://www.facebook.com/tescoaruhazak', 'pinterest': 'https://www.pinterest.com/tescohungary/'," \
+                               " 'youtube': 'https://www.youtube.com/user/TescoMagyarorszag',  'loyalty_card': 'yes'," \
+                               " 'payment:cash': 'yes', 'payment:contactless': 'yes', 'payment:mastercard': 'yes'," \
+                               " 'payment:visa': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes'," \
+                               " 'payment:edenred_voucher': 'yes', 'payment:edenred_card': 'yes', 'payment:otp_cafeteria': 'yes', " \
+                               " 'payment:multipay': 'yes', 'payment:mastercard_electronic': 'yes', 'payment:maestro': 'yes', " \
+                               " 'payment:visa_electron': 'yes', 'payment:mastercard_contactless': 'yes', 'payment:otp_bankpont': 'yes', " \
+                               " 'payment:american_express': 'yes', 'payment:jcb': 'yes', 'payment:v_pay': 'yes', " \
+                               " 'payment:unionpay': 'yes', 'payment:gift_card': 'yes', 'payment:wire_transfer': 'yes'," \
+                               " 'air_conditioning': 'yes'"
         self.filename = self.filename + 'json'
 
     def types(self):
