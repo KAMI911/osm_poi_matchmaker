@@ -8,7 +8,7 @@ try:
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose, WeekDaysLongHU
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
-    from osm_poi_matchmaker.libs.address import clean_string
+    from osm_poi_matchmaker.libs.address import clean_string, clean_url
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.dao.poi_base import POIBase
@@ -107,7 +107,7 @@ class POIDataset:
 
     @website.setter
     def website(self, data):
-        self.__website = data
+        self.__website = clean_url(data)
 
     @property
     def original(self):
@@ -155,7 +155,10 @@ class POIDataset:
 
     @phone.setter
     def phone(self, data):
-        self.__phone = data
+        if data == 'NULL':
+            self.__phone = None
+        else:
+            self.__phone = data
 
     @property
     def email(self):
@@ -163,7 +166,10 @@ class POIDataset:
 
     @email.setter
     def email(self, data):
-        self.__email = data
+        if data == 'NULL':
+            self.__email = None
+        else:
+            self.__email = data
 
     @property
     def geom(self):

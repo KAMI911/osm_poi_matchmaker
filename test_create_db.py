@@ -4,7 +4,7 @@
 try:
     import unittest
     from test.test_address import TestAddressResolver, TestFullAddressResolver, TestOpeningHoursClener, TestOpeningHoursClener2, \
-        TestPhoneClener, TestStringCleaner
+        TestPhoneClener, TestStringCleaner, TestURLCleaner
     from test.test_opening_hours import TestOpeningHours
     from test.test_poi_dataset import TestPOIDataset
     from test.test_timing import Timing
@@ -22,13 +22,14 @@ def testing_create_db():
     opening_hours_cleaner2 = unittest.TestLoader().loadTestsFromTestCase(TestOpeningHoursClener2)
     phone_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestPhoneClener)
     string_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestStringCleaner)
+    url_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestURLCleaner)
     opening_hours_resolver = unittest.TestLoader().loadTestsFromTestCase(TestOpeningHours)
     poi_dataset = unittest.TestLoader().loadTestsFromTestCase(TestPOIDataset)
     timing = unittest.TestLoader().loadTestsFromTestCase(Timing)
     osm = unittest.TestLoader().loadTestsFromTestCase(TestOSMRelationer)
     suite = unittest.TestSuite(
         [address_resolver, address_full_resolver, opening_hours_cleaner, opening_hours_cleaner2, phone_cleaner,
-         string_cleaner, opening_hours_resolver, poi_dataset, timing, osm])
+         string_cleaner, url_cleaner, opening_hours_resolver, poi_dataset, timing, osm])
     return unittest.TextTestRunner(verbosity=2).run(suite)
 
 

@@ -9,6 +9,7 @@ try:
     from urllib.parse import quote
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
     from osm_poi_matchmaker.utils import config
+    from osm_poi_matchmaker.libs.address import clean_url
     from osm_poi_matchmaker.libs.osm import relationer, timestamp_now
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
@@ -84,7 +85,7 @@ def generate_osm_xml(df, session=None):
                         data = etree.SubElement(main_data, 'nd', ref=str(n))
                     if session is not None:
                         for n in row['osm_nodes']:
-                            way_node = db.query_from_cache(n, OSM_object_type.node)[0]
+                            way_node = db.query_from_cache(n, OSM_object_type.node)
                             node_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(n),
                                                          lat='{}'.format(way_node['osm_lat']),
                                                          lon='{}'.format(way_node['osm_lon']),
@@ -146,9 +147,9 @@ def generate_osm_xml(df, session=None):
                 tags['phone'] = '+{:d}'.format(int(row['poi_phone']))
             if row['poi_url_base'] is not None and row['poi_website'] is not None:
                 if row['poi_url_base'] in row['poi_website']:
-                    tags['website'] = '{}'.format(row['poi_website'])
+                    tags['website'] = clean_url('{}'.format((row['poi_website'])))
                 else:
-                    tags['website'] = '{}{}'.format(row['poi_url_base'], row['poi_website'])
+                    tags['website'] = clean_url('{}/{}'.format(row['poi_url_base'], row['poi_website']))
             elif row['poi_url_base'] is not None:
                 tags['website'] = row['poi_url_base']
             # Short URL for source

@@ -3,7 +3,7 @@
 try:
     import unittest
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address, \
-        clean_opening_hours, clean_opening_hours_2, clean_phone, clean_string
+        clean_opening_hours, clean_opening_hours_2, clean_phone, clean_string, clean_url
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -149,5 +149,19 @@ class TestStringCleaner(unittest.TestCase):
         for i in self.phones:
             original, ph = i['original'], i['converted']
             a = clean_string(original)
+            with self.subTest():
+                self.assertEqual(ph, a)
+
+class TestURLCleaner(unittest.TestCase):
+    def setUp(self):
+        self.urls = [
+            {'original': '  https://examle.com//tests//url//   ', 'converted': 'https://examle.com/tests/url/'},
+            {'original': '  https://examle.com/////tests///url     ', 'converted': 'https://examle.com/tests/url'},
+        ]
+
+    def test_clean_url(self):
+        for i in self.urls:
+            original, ph = i['original'], i['converted']
+            a = clean_url(original)
             with self.subTest():
                 self.assertEqual(ph, a)
