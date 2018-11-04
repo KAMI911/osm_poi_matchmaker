@@ -118,7 +118,6 @@ def insert_poi_dataframe(session, poi_df):
             if 'poi_code' in poi_data: del poi_data['poi_code']
             get_or_create_poi(session, POI_address, **poi_data)
     except Exception as e:
-        logging.warning(poi_data)
         logging.warning(e)
         logging.warning(traceback.print_exc())
         session.rollback()
