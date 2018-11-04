@@ -202,9 +202,9 @@ def online_poi_matching(args):
                     if osm_node == OSM_object_type.way:
                         for rtc in range(0, RETRY):
                             logging.info('Downloading OSM live tags to this way: {}.'.format(osm_id))
-                            live_tags_container = osm_live_query.WayGet(osm_id)
                             cached_way = db.query_from_cache(osm_id, osm_node)
                             if cached_way is None:
+                                live_tags_container = osm_live_query.WayGet(osm_id)
                                 if live_tags_container is not None:
                                     data.at[i, 'osm_live_tags'] = live_tags_container['tag']
                                     cache_row = {'osm_id': osm_id, 'osm_live_tags': str(live_tags_container['tag']),
@@ -237,7 +237,9 @@ def online_poi_matching(args):
                                 else:
                                     logging.warning('Download of external data has failed.')
                             else:
+                                data.at[i, 'osm_live_tags'] = eval(cached_way['osm_live_tags'])
                                 break
+                        session.commit()
                     # Download OSM POI node live tags
                     elif osm_node == OSM_object_type.node:
                         for rtc in range(0, RETRY):
@@ -262,7 +264,9 @@ def online_poi_matching(args):
                                 else:
                                     logging.warning('Download of external data has failed.')
                             else:
+                                data.at[i, 'osm_live_tags'] = eval(cached_node['osm_live_tags'])
                                 break
+                        session.commit()
                     elif osm_node == OSM_object_type.relation:
                         for rtc in range(0, RETRY):
                             logging.info('Downloading OSM live tags to this relation: {}.'.format(osm_id))
@@ -272,6 +276,7 @@ def online_poi_matching(args):
                                 break
                             else:
                                 logging.warning('Download of external data has failed.')
+                        session.commit()
                     else:
                         logging.warning('Invalid state for live tags.')
 

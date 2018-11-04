@@ -77,7 +77,7 @@ class POIBase:
             if not data.values.tolist():
                 return None
             else:
-                return data.to_dict('records')
+                return data.to_dict('records')[0]
         else:
             return None
 
