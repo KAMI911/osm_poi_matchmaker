@@ -112,7 +112,7 @@ class POI_common(Base):
     id = synonym('pc_id')
     poi_name = Column(Unicode(64), unique=False, nullable=False, index=True)
     poi_type = Column(Enum(POI_type))
-    poi_tags = Column(Unicode(1024), nullable=False, index=True)
+    poi_tags = Column(Unicode(2048), nullable=False, index=True)
     poi_url_base = Column(Unicode(32))
     poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
     poi_search_name = Column(Unicode(64))
@@ -138,7 +138,7 @@ class POI_OSM_cache(Base):
     osm_lon = Column(Float, nullable=True, index=True)
     osm_nodes = Column(Unicode(1024), nullable=True, index=False)
     #osm_distance = Column(Integer, nullable=True, index=False)
-    osm_live_tags = Column(Unicode(1024), nullable=True, index=True)
+    osm_live_tags = Column(Unicode(2048), nullable=True, index=True)
 
 
 class City(Base):
