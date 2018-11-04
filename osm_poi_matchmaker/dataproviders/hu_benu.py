@@ -7,7 +7,7 @@ try:
     import json
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone, PATTERN_FULL_URL
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
@@ -35,32 +35,38 @@ class hu_benu(DataProvider):
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
         if soup != None:
-            text = json.loads(soup.get_text())
-            for poi_data in text:
-                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                    poi_data['street'])
-                if 'BENU Gyógyszertár' not in poi_data['title']:
-                    self.data.name = poi_data['title'].strip()
-                    self.data.branch = None
-                else:
-                    self.data.name = 'Benu gyógyszertár'
-                    self.data.branch = poi_data['title'].strip()
-                self.data.code = 'hubenupha'
-                self.data.website = poi_data['description'].strip() if poi_data['description'] is not None else None
-                self.data.website = self.data.website[19:]
-                self.data.website = self.data.website.split('\r\n')[0]
-                self.data.city = clean_city(poi_data['city'])
-                self.data.postcode = poi_data['postal_code'].strip()
-                self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
-                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                            self.data.postcode)
-                self.data.original = poi_data['street']
-                if 'phone' in poi_data and poi_data['phone'] != '':
-                    self.data.phone = clean_phone(poi_data['phone'])
-                else:
-                    self.data.phone = None
-                self.data.public_holiday_open = False
-                self.data.add()
+            try:
+                text = json.loads(soup.get_text())
+                for poi_data in text:
+                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                        poi_data['street'])
+                    if 'BENU Gyógyszertár' not in poi_data['title']:
+                        self.data.name = poi_data['title'].strip()
+                        self.data.branch = None
+                    else:
+                        self.data.name = 'Benu gyógyszertár'
+                        self.data.branch = poi_data['title'].strip()
+                    self.data.code = 'hubenupha'
+                    if poi_data['description'] is not None:
+                        pu_match = PATTERN_FULL_URL.match(poi_data['description'].strip())
+                        self.data.website = pu_match.group(0)
+                    else:
+                        self.data.website = None
+                    self.data.city = clean_city(poi_data['city'])
+                    self.data.postcode = poi_data['postal_code'].strip()
+                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
+                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                                self.data.postcode)
+                    self.data.original = poi_data['street']
+                    if 'phone' in poi_data and poi_data['phone'] != '':
+                        self.data.phone = clean_phone(poi_data['phone'])
+                    else:
+                        self.data.phone = None
+                    self.data.public_holiday_open = False
+                    self.data.add()
+            except Exception as err:
+                print(err)
+                traceback.print_exc()
             if self.data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:
