@@ -12,6 +12,7 @@ try:
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external, query_osm_city_name_gpd
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
     from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from osm_poi_matchmaker.libs.osm_tag_sets import POS_OTP
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
@@ -29,13 +30,7 @@ class hu_tesco(DataProvider):
                                " 'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'tesco-internet'," \
                                " 'facebook': 'https://www.facebook.com/tescoaruhazak', 'pinterest': 'https://www.pinterest.com/tescohungary/'," \
                                " 'youtube': 'https://www.youtube.com/user/TescoMagyarorszag',  'loyalty_card': 'yes'," \
-                               " 'payment:cash': 'yes', 'payment:contactless': 'yes', 'payment:mastercard': 'yes'," \
-                               " 'payment:visa': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes'," \
-                               " 'payment:edenred_voucher': 'yes', 'payment:edenred_card': 'yes', 'payment:otp_cafeteria': 'yes', " \
-                               " 'payment:multipay': 'yes', 'payment:mastercard_electronic': 'yes', 'payment:maestro': 'yes', " \
-                               " 'payment:visa_electron': 'yes', 'payment:mastercard_contactless': 'yes', 'payment:otp_bankpont': 'yes', " \
-                               " 'payment:american_express': 'yes', 'payment:jcb': 'yes', 'payment:v_pay': 'yes', " \
-                               " 'payment:unionpay': 'yes', 'payment:gift_card': 'yes', 'payment:wire_transfer': 'yes'," \
+                               + POS_OTP + "'payment:gift_card': 'yes', 'payment:wire_transfer': 'yes'," \
                                " 'air_conditioning': 'yes'"
         self.filename = self.filename + 'json'
 
