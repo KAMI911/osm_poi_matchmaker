@@ -48,8 +48,8 @@ class hu_benu(DataProvider):
                         self.data.branch = poi_data['title'].strip()
                     self.data.code = 'hubenupha'
                     if poi_data['description'] is not None:
-                        pu_match = PATTERN_FULL_URL.match(poi_data['description'].strip())
-                        self.data.website = pu_match.group(0)
+                        pu_match = PATTERN_FULL_URL.match(poi_data['description'])
+                        self.data.website = pu_match.group(0).strip() if pu_match is not None else None
                     else:
                         self.data.website = None
                     self.data.city = clean_city(poi_data['city'])

@@ -294,4 +294,6 @@ def clean_url(clearable):
     '''
     if clearable is not None:
         url_match = PATTERN_URL_SLASH.sub('/' , clearable)
-    return url_match.strip()
+        return url_match.strip()
+    else:
+        return None
