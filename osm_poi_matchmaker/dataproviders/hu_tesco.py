@@ -85,7 +85,7 @@ class hu_tesco(DataProvider):
                         self.data.name = 'Tesco Extra'
                         self.data.code = 'hutescoext'
                     else:
-                        if self.data.city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:
+                        if self.data.city not in ['Levél']:
                             self.data.name = 'Tesco'
                             self.data.code = 'hutescosup'
                         else:
