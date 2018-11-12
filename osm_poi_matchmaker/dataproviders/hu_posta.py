@@ -7,7 +7,7 @@ try:
     from lxml import etree
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
-    from osm_poi_matchmaker.libs.address import clean_city, clean_phone
+    from osm_poi_matchmaker.libs.address import clean_city, clean_phone, clean_street
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHU
@@ -77,6 +77,7 @@ class hu_posta():
                 data.postcode = e.get('zipCode')
                 street_tmp_1 = e.find('street/name').text.strip() if e.find('street/name').text is not None else None
                 street_tmp_2 = e.find('street/type').text.strip() if e.find('street/type').text is not None else None
+                street_tmp_1 = clean_street(street_tmp_1)
                 if street_tmp_2 is None:
                     data.street = street_tmp_1
                 elif street_tmp_1 is not None and street_tmp_2 is not None:
