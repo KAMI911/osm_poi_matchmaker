@@ -13,7 +13,7 @@ class TestAddressResolver(unittest.TestCase):
     def setUp(self):
         self.addresses = [
             {'original': 'Gránátos u. 11.', 'street': 'Gránátos utca', 'housenumber': '11', 'conscriptionnumber': None},
-            {'original': 'BERCSÉNYI U.1 2934/5 HRSZ', 'street': 'Bercsényi utca', 'housenumber': '1',
+            {'original': 'BERCSÉNYI U.1 2934/5 HRSZ', 'street': 'Bercsényi Miklós utca', 'housenumber': '1',
              'conscriptionnumber': '2934/5'},
             {'original': 'Szérűskert utca 018910/23. hrsz. (Köles utca 1.)', 'street': 'Szérűskert utca',
              'housenumber': None,
