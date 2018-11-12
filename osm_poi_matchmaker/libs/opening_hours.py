@@ -65,8 +65,6 @@ class OpeningHours(object):
     def process(self):
         oh = ''
         oh_list = []
-        if self.non_stop == True:
-            return '24/7'
         for k, v in self.df_dup.iterrows():
             if v['open'] is not None and v['close'] is not None:
                 # Order by week days
@@ -103,6 +101,12 @@ class OpeningHours(object):
                                                 self.lunchbreak['stop'], self.df_dup.at[k, 'close']))
                 oh = '; '.join(oh_list)
                 oh = oh + oh_ph
-        if oh_list == []:
-            oh = None
-        return oh
+        if self.non_stop == True or 'Mo-Su 00:00-24:00' in oh:
+            if self.__public_holiday_open is not None:
+                return '24/7{}'.format(oh_ph)
+            else:
+                return '24/7'
+        elif oh_list == []:
+            return None
+        else:
+            return oh
