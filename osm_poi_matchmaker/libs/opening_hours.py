@@ -102,9 +102,9 @@ class OpeningHours(object):
                 oh = '; '.join(oh_list)
                 oh = oh + oh_ph
         if self.non_stop == True or 'Mo-Su 00:00-24:00' in oh:
-            if self.__public_holiday_open is not None:
+            try:
                 return '24/7{}'.format(oh_ph)
-            else:
+            except:
                 return '24/7'
         elif oh_list == []:
             return None
