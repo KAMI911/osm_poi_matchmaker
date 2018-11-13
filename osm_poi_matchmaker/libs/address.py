@@ -356,7 +356,7 @@ def clean_street(clearable):
     street = street.replace('Dobogókői út- Kesztölci út sarok', 'Dobogókői út')
     street = street.replace('Koch L.u.', 'Dr. Koch László utca')
     street = street.replace('DR KOCH L.', 'Dr. Koch László')
-    street = street.replace('DR. KOCH L.', 'Dr. Koch László')
+    street = street.replace('DR. KOCH L. UTCA', 'Dr. Koch László utca')
     street = street.replace('Kiss J. ', 'Kiss József')
     street = street.replace('Kossuth L.u.', 'Kossuth Lajos utca ')
     street = street.replace('Kossuth L.', 'Kossuth Lajos')
@@ -426,7 +426,7 @@ def clean_street(clearable):
     street = street.replace(' LTP.', ' lakótelep')
     street = street.replace(' ltp', ' lakótelep')
     street = street.replace(' sgt.', ' sugárút')
-    street = street.replace('4. sz', '4. számú főközlekedési')
+    street = street.replace('^4. sz$', '4. számú főközlekedési')
     return street
 
 def clean_street_type(clearable):
