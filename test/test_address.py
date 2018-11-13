@@ -22,9 +22,9 @@ class TestAddressResolver(unittest.TestCase):
              'housenumber': '6', 'conscriptionnumber': None},
             {'original': 'Budai Vám 1.', 'street': 'Budai Vám',
              'housenumber': '1', 'conscriptionnumber': None},
-            {'original': 'Kaszás u. 2.-Dózsa György út 87.', 'street': 'Kaszás utca 2.-Dózsa György út',
+            {'original': 'Kaszás u. 2.-Dózsa György út 87.', 'street': 'Dózsa György út',
              'housenumber': '87',
-             'conscriptionnumber': None},  # TODO: this is wrong
+             'conscriptionnumber': None},
             {'original': 'Bajcsy Zs. út 11.', 'street': 'Bajcsy-Zsilinszky Endre út', 'housenumber': '11',
              'conscriptionnumber': None},
             {'original': 'Hunyadi János út 19. - Savoya Park', 'street': 'Hunyadi János út', 'housenumber': '19',
@@ -38,6 +38,10 @@ class TestAddressResolver(unittest.TestCase):
             {'original': 'Bajcsy Zs.u. 77.', 'street': 'Bajcsy-Zsilinszky Endre utca', 'housenumber': '77',
              'conscriptionnumber': None},
             {'original': 'Dózsa Gy.u.6.', 'street': 'Dózsa György utca', 'housenumber': '6',
+             'conscriptionnumber': None},
+            {'original': 'Krisztina krt. 65-67.', 'street': 'Krisztina körút', 'housenumber': '65-67',
+             'conscriptionnumber': None},
+            {'original': 'OLADI LTP. (DOLGOZÓK U.)', 'street': 'OLADI lakótelep', 'housenumber': None,
              'conscriptionnumber': None},
         ]
 
