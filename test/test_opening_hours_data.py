@@ -109,4 +109,13 @@ OPENING_HOURS_TEST_DATA = [
      'summer_we_c': None, 'summer_th_c': None, 'summer_fr_c': None, 'summer_sa_c': None, 'summer_su_c': None,
      'lunch_break_start': None, 'lunch_break_stop': None, 'public_holiday_open': None,
      'processed': '24/7'},
+    {'nonstop': None, 'mo_o': '08:00', 'tu_o': '09:00', 'we_o': '09:00', 'th_o': '10:00', 'fr_o': '10:00',
+     'sa_o': '00:00',
+     'su_o': '00:00', 'mo_c': '16:00', 'tu_c': '16:00', 'we_c': '16:00', 'th_c': '16:00', 'fr_c': '16:00',
+     'sa_c': '00:00',
+     'su_c': '00:00', 'summer_mo_o': None, 'summer_tu_o': None, 'summer_we_o': None, 'summer_th_o': None,
+     'summer_fr_o': None, 'summer_sa_o': None, 'summer_su_o': None, 'summer_mo_c': None, 'summer_tu_c': None,
+     'summer_we_c': None, 'summer_th_c': None, 'summer_fr_c': None, 'summer_sa_c': None, 'summer_su_c': None,
+     'lunch_break_start': '12:00', 'lunch_break_stop': '12:30', 'public_holiday_open': True,
+     'processed': 'Mo 08:00-12:00,12:30-16:00; Tu-We 09:00-12:00,12:30-16:00; Th-Fr 10:00-12:00,12:30-16:00; PH on'},
 ]
