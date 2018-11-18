@@ -122,15 +122,6 @@ def generate_osm_xml(df, session=None):
             if 'poi_good' in row and 'poi_bad' in row:
                 comment = etree.Comment(' Checker good: {}; bad {}'.format(row['poi_good'], row['poi_bad']))
                 osm_xml_data.append(comment)
-            # Add original POI tags as comment
-            comment = ''
-            if row['osm_live_tags'] is not None:
-                for k, v in sorted(row['osm_live_tags'].items()):
-                    if isinstance(v, str):
-                        v = v.replace('--', '\-\-').replace('\n', '')
-                    comment += "'{}':'{}'; ".format(k, v)
-            comment = etree.Comment(' Original tags: {} '.format(comment))
-            osm_xml_data.append(comment)
             # Using already definied OSM tags if exists
             if row['osm_live_tags'] is not None:
                 tags = row['osm_live_tags']
@@ -161,12 +152,26 @@ def generate_osm_xml(df, session=None):
             tags['import'] = 'osm_poi_matchmaker'
             # Rendering tags to the XML file and JOSM magic link
             josm_link = ''
+            comment = ('\nKey\t\t\t\tNew value\t\tOSM value\n')
             for k, v in sorted(tags.items()):
                 xml_tags = etree.SubElement(main_data, 'tag', k=k, v='{}'.format(v))
                 josm_link = '{}|{}={}'.format(josm_link, k, v)
+                # Add original POI tags as comment
+                try:
+                    if isinstance(v, str):
+                        v = v.replace('--', '\-\-').replace('\n', '')
+                    w = row['osm_live_tags'][k]
+                except TypeError:
+                    comment += "'{:32}' '{}'\n".format(k, v)
+                else:
+                    if isinstance(w, str):
+                        w = w.replace('--', '\-\-').replace('\n', '')
+                    comment += "'{:32}' '{}'  '{}'\n".format(k, v, w)
+            comment = etree.Comment(comment)
             # URL encode link and '--' in comment
             josm_link = quote(josm_link)
             josm_link = josm_link.replace('--', '%2D%2D')
+            osm_xml_data.append(comment)
             comment = etree.Comment(' JOSM magic link: {}?new_layer=false&objects={}&addtags={} '.format('http://localhost:8111/load_object', josm_object, josm_link))
             osm_xml_data.append(comment)
             osm_xml_data.append(main_data)
