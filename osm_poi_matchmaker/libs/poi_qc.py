@@ -14,7 +14,7 @@ except ImportError as err:
 
 class POIQC:
 
-    def __init__(self, db, lon, lat, opening_hours=None):
+    def __init__(self, db, lon, lat, opening_hours=None, street=None):
         self.__db = db
         self.__lon = lon
         self.__lat = lat
@@ -22,13 +22,15 @@ class POIQC:
         self.__bad = []
         self.__distance = 1
         self.__opening_hours = opening_hours
+        self.__street = street
         self.__check()
+
 
     def __check(self):
         self.__is_in_water()
+        self.__is_name_road_around()
         if self.__opening_hours is not None:
             self.__custom_opening_hours()
-
 
     def process(self):
         return self.__good, self.__bad
@@ -46,3 +48,10 @@ class POIQC:
                 self.__bad.append('custom_opening_hours')
             else:
                 self.__good.append('standard_opening_hours')
+
+    def __is_name_road_around(self):
+        data = self.__db.query_name_road_around(self.__lon, self.__lat, self.__street, True)
+        if data.empty:
+            self.__bad.append('street_is_not_around')
+        else:
+            self.__good.append('street_is_around')
