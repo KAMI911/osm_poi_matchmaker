@@ -367,6 +367,7 @@ def clean_street(clearable):
     street = street.replace('Páter K.', 'Páter Károly')
     street = street.replace('Petőfi S.', 'Petőfi Sándor')
     street = street.replace('Somogyi B.', 'Somogyi Béla')
+    street = street.replace('Szondy', 'Szondi')
     street = street.replace('Szt.István', 'Szent István')
     street = street.replace('szt.istván', 'Szent István')
     street = street.replace('Táncsics M.', 'Táncsics Mihály')
