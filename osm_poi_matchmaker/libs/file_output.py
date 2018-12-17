@@ -166,7 +166,7 @@ def generate_osm_xml(df, session=None):
                 else:
                     if isinstance(w, str):
                         w = w.replace('--', '\-\-').replace('\n', '')
-                    comment += "'{:32}' '{}'  '{}'\n".format(k, v, w)
+                    comment += "{:32} '{}'  '{}'\n".format(k, v, w)
             comment = etree.Comment(comment)
             # URL encode link and '--' in comment
             josm_link = quote(josm_link)
