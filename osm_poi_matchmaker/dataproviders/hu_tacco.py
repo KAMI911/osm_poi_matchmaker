@@ -63,7 +63,6 @@ class hu_tesco(DataProvider):
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data['address'])
                     self.data.branch = poi_data['store_name']
-                    self.data.ref = poi_data['goldid']
                     self.data.website = 'https://tesco.hu/aruhazak/aruhaz/{}/'.format(poi_data['urlname'])
                     opening = json.loads(poi_data['opening'])
                     for i in range(0, 7):
