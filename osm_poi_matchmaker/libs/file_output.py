@@ -149,7 +149,7 @@ def generate_osm_xml(df, session=None):
             else:
                 source_url = 'source:website:date'
             tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d')
-            tags['import'] = 'osm_poi_matchmaker'
+            # tags['import'] = 'osm_poi_matchmaker'
             # Rendering tags to the XML file and JOSM magic link
             josm_link = ''
             comment = ('\nKey\t\t\t\tNew value\t\tOSM value\n')
