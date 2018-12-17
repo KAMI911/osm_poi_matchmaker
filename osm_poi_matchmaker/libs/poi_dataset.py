@@ -169,7 +169,7 @@ class POIDataset:
         if data == 'NULL':
             self.__email = None
         else:
-            self.__email = data
+            self.__email = data.strip().lower()
 
     @property
     def geom(self):
