@@ -19,7 +19,7 @@ except ImportError as err:
     exit(128)
 
 
-class hu_tesco(DataProvider):
+class hu_takko(DataProvider):
 
 
     def constains(self):
