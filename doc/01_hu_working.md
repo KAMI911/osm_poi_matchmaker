@@ -36,14 +36,16 @@ Keresési értékek:
 ```buffer = 50```
 
 Az egyes POI típusokra jellemző keresési sugár az app.conf fájl alapján kerül meghatározásra:
-```geo.default.poi.distance=70
+```
+geo.default.poi.distance=70
 geo.amenity.atm.poi.distance=20
 geo.shop.conveience.poi.distance=50
 geo.amenity.post.office.poi.distance=260
 ```
 
 Ilyenkor az alapértelmezetten megadott keresési sugár az alább szerint kerül megnövelésre:
-```buffer += 600
+```
+buffer += 600
 distance += 800
 ```
 
@@ -58,7 +60,8 @@ Keresési értékek:
 ```buffer = 50```
 
 Az egyes POI típusokra jellemző keresési sugár az app.conf fájl alapján kerül meghatározásra:
-```geo.default.poi.distance=70
+```
+geo.default.poi.distance=70
 geo.amenity.atm.poi.distance=20
 geo.shop.conveience.poi.distance=50
 geo.amenity.post.office.poi.distance=260
