@@ -157,9 +157,9 @@ def online_poi_matching(args):
             common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
             # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
             if row['poi_search_name'] is not None and row['poi_search_name'] != '':
-                # Try to search OSM POI with same type within the specified distance
                 osm_query = (db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
                                                        row['poi_search_name']))
+            # Try to search OSM POI with same type and without name within the specified distance
             if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
                 osm_query = (
                     db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item()))
