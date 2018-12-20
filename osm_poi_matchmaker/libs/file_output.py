@@ -58,6 +58,7 @@ def generate_osm_xml(df, session=None):
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
     id = -1
     current_id = id
+    added_nodes = []
     try:
         for index, row in df.iterrows():
             current_id = id if row['osm_id'] is None else row['osm_id']
@@ -84,9 +85,13 @@ def generate_osm_xml(df, session=None):
                     for n in row['osm_nodes']:
                         data = etree.SubElement(main_data, 'nd', ref=str(n))
                     if session is not None:
+                        # Go through the list except the last value (which is same as the first)
                         for n in row['osm_nodes']:
-                            way_node = db.query_from_cache(n, OSM_object_type.node)
-                            node_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(n),
+                            # Add nodes only when it is not already added.
+                            if n not in added_nodes:
+                                added_nodes.append(n)
+                                way_node = db.query_from_cache(n, OSM_object_type.node)
+                                node_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(n),
                                                          lat='{}'.format(way_node['osm_lat']),
                                                          lon='{}'.format(way_node['osm_lon']),
                                                          user='{}'.format(way_node['osm_user']),
