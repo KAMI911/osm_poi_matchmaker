@@ -45,6 +45,7 @@ class WeekDaysLongHU(enum.Enum):
     Kedd = 1
     Szerda = 2
     Csütörtök = 3
+    Csütörtökön = 3
     Péntek = 4
     Szombat = 5
     Vasárnap = 6
