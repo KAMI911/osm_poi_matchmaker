@@ -39,11 +39,13 @@ Az egyes POI típusokra jellemző keresési sugár az app.conf fájl alapján ke
 ```geo.default.poi.distance=70
 geo.amenity.atm.poi.distance=20
 geo.shop.conveience.poi.distance=50
-geo.amenity.post.office.poi.distance=260```
+geo.amenity.post.office.poi.distance=260
+```
 
 Ilyenkor az alapértelmezetten megadott keresési sugár az alább szerint kerül megnövelésre:
 ```buffer += 600
-distance += 800```
+distance += 800
+```
 
 (Ezt a megoldást a T miatt használtam, külön külön minden POI típushoz érdemes lenne kivezetni a megfelelő értékeket.)
 
@@ -59,5 +61,6 @@ Az egyes POI típusokra jellemző keresési sugár az app.conf fájl alapján ke
 ```geo.default.poi.distance=70
 geo.amenity.atm.poi.distance=20
 geo.shop.conveience.poi.distance=50
-geo.amenity.post.office.poi.distance=260```
+geo.amenity.post.office.poi.distance=260
+```
 
