@@ -52,4 +52,3 @@ class hu_aldi(DataProvider):
                 self.data.original = poi_data[2]
                 self.data.public_holiday_open = False
                 self.data.add()
-                print(self.data)
