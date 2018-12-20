@@ -4,11 +4,11 @@
 
 Annak érdekében, hogy a poi_matchmaker képes legyen offline működésre, szükség van az OpenStreetMap adatbázis-mentés beimportálására a saját adatbázisba, az osm2pgsql program segítségével.
 
-# A program beállításai
+## A program beállításai
 
 A program futtatásával kapcsolatos beállítások a [app.conf-template](https://github.com/KAMI911/osm_poi_matchmaker/blob/master/osm_poi_matchmaker/app.conf-template) fájlban találhatóak, amelyet átmásolva app.conf néven és a kívánt beállításokat szerkesztve elvégezhető a program testreszabása.
 
-# Adatbázis táblák létrehozása
+## Az adatbázis táblák létrehozása
 
 Az adatbázis táblák automatikusan létrejönnek, amennyiben azok még nem léteznek.
 
@@ -36,18 +36,14 @@ Keresési értékek:
 ```buffer = 50```
 
 Az egyes POI típusokra jellemző keresési sugár az app.conf fájl alapján kerül meghatározásra:
-```
-geo.default.poi.distance=70
+```geo.default.poi.distance=70
 geo.amenity.atm.poi.distance=20
 geo.shop.conveience.poi.distance=50
-geo.amenity.post.office.poi.distance=260
-```
+geo.amenity.post.office.poi.distance=260```
 
 Ilyenkor az alapértelmezetten megadott keresési sugár az alább szerint kerül megnövelésre:
-```
-buffer += 600
-distance += 800
-```
+```buffer += 600
+distance += 800```
 
 (Ezt a megoldást a T miatt használtam, külön külön minden POI típushoz érdemes lenne kivezetni a megfelelő értékeket.)
 
@@ -60,11 +56,8 @@ Keresési értékek:
 ```buffer = 50```
 
 Az egyes POI típusokra jellemző keresési sugár az app.conf fájl alapján kerül meghatározásra:
-```
-geo.default.poi.distance=70
+```geo.default.poi.distance=70
 geo.amenity.atm.poi.distance=20
 geo.shop.conveience.poi.distance=50
-geo.amenity.post.office.poi.distance=260
-```
-
+geo.amenity.post.office.poi.distance=260```
 
