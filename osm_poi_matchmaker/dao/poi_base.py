@@ -94,7 +94,7 @@ class POIBase:
         data = pd.read_sql(query, self.engine, params={'relation_id': int(abs(relation_id))})
         return data.values.tolist()[0][0]
 
-    def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop', name='', with_metadata=True):
+    def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop', name='', distance_safe=None, distance_unsafe=None, with_metadata=True):
         '''
         Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
         :param lon:
@@ -104,7 +104,7 @@ class POIBase:
         :parm with_metadata:
         :return:
         '''
-        buffer = 50
+        buffer = 10
         if ptype == 'shop':
             query_type = "shop='convenience' OR shop='supermarket'"
             distance = config.get_geo_shop_poi_distance()
@@ -147,10 +147,16 @@ class POIBase:
         elif ptype == 'vending_machine_parking_tickets':
             query_type = "amenity='vending_machine' AND vending='parking_tickets'"
             distance = config.get_geo_default_poi_distance()
+        # If we have PO common definied unsafe search radius distance, then use it (or use defaults specified above)
+        if distance_unsafe is not None:
+            distance = distance_unsafe
         if name is not '':
             query_name = ' AND name ~* :name'
-            buffer += 600
-            distance += 800
+            # If we have PO common definied safe search radius distance, then use it (or use defaults specified above)
+            if distance_safe is not None:
+                distance = distance_safe
+            else:
+                distance = 200
         else:
             query_name = ''
         if with_metadata is True:

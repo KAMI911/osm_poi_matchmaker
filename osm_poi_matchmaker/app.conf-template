@@ -15,7 +15,7 @@ geo.default.projection=3857
 geo.default.poi.distance=70
 geo.amenity.atm.poi.distance=20
 geo.shop.conveience.poi.distance=50
-geo.amenity.post.office.poi.distance=260
+geo.amenity.post.office.poi.distance=200
 geo.prefer.osm.postcode=True
 
 download.verify.link=True
