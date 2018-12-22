@@ -11,6 +11,7 @@ try:
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import clean_url
     from osm_poi_matchmaker.libs.osm import relationer, timestamp_now
+    from osm_poi_matchmaker.libs.compare_strings import compare_strings
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
@@ -40,7 +41,8 @@ def save_csv_file(path, file, data, message):
         res = data.to_csv(os.path.join(path, file))
         logging.info('The {0} was sucessfully saved'.format(file))
     except Exception as err:
-        print(err)
+        logging.error(err)
+        logging.error(traceback.print_exc())
 
 
 def generate_osm_xml(df, session=None):
@@ -101,7 +103,7 @@ def generate_osm_xml(df, session=None):
                             osm_xml_data.append(node_data)
                 except TypeError as err:
                     logging.warning('Missing nodes on this way: {}.'.format(row['osm_id']))
-                    traceback.print_exc()
+                    logging.warning(traceback.print_exc())
                 # Add node reference as comment for existing POI
                 if current_id > 0:
                     comment = etree.Comment(' OSM link: https://osm.org/way/{} '.format(str(current_id)))
@@ -130,8 +132,10 @@ def generate_osm_xml(df, session=None):
             # Using already definied OSM tags if exists
             if row['osm_live_tags'] is not None:
                 tags = row['osm_live_tags']
+                osm_live_tags = row['osm_live_tags'].copy()
             else:
                 tags = {}
+                osm_live_tags = {}
             # Adding POI common tags
             if row['poi_tags'] is not None:
                 tags.update(eval(row['poi_tags']))
@@ -157,7 +161,7 @@ def generate_osm_xml(df, session=None):
             # tags['import'] = 'osm_poi_matchmaker'
             # Rendering tags to the XML file and JOSM magic link
             josm_link = ''
-            comment = ('\nKey\t\t\t\tNew value\t\tOSM value\n')
+            comment = ('\nKey\t\t\t\tStatus\t\tNew value\t\tOSM value\n')
             for k, v in sorted(tags.items()):
                 xml_tags = etree.SubElement(main_data, 'tag', k=k, v='{}'.format(v))
                 josm_link = '{}|{}={}'.format(josm_link, k, v)
@@ -165,13 +169,13 @@ def generate_osm_xml(df, session=None):
                 try:
                     if isinstance(v, str):
                         v = v.replace('--', '\-\-').replace('\n', '')
-                    w = row['osm_live_tags'][k]
-                except TypeError:
-                    comment += "'{:32}' '{}'\n".format(k, v)
+                    w = osm_live_tags[k]
+                except KeyError:
+                    comment += "{:32} N\t\t'{}'\n".format(k, v)
                 else:
                     if isinstance(w, str):
                         w = w.replace('--', '\-\-').replace('\n', '')
-                    comment += "{:32} '{}'  '{}'\n".format(k, v, w)
+                    comment += "{:32} {}\t\t'{}'\t\t\t'{}'\n".format(k, compare_strings(v,w), v, w)
             comment = etree.Comment(comment)
             # URL encode link and '--' in comment
             josm_link = quote(josm_link)
@@ -182,6 +186,6 @@ def generate_osm_xml(df, session=None):
             osm_xml_data.append(main_data)
             id -= 1
     except Exception as err:
-        print(err)
-        traceback.print_exc()
+        logging.error(err)
+        logging.error(traceback.print_exc())
     return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")
