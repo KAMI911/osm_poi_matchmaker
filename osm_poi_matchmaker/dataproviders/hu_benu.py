@@ -65,8 +65,8 @@ class hu_benu(DataProvider):
                     self.data.public_holiday_open = False
                     self.data.add()
             except Exception as err:
-                print(err)
-                traceback.print_exc()
+                logging.error(err)
+                logging.error(traceback.print_exc())
             if self.data.lenght() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:

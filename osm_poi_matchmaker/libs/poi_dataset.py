@@ -578,8 +578,8 @@ class POIDataset:
                  self.__public_holiday_open, self.__opening_hours, self.__good, self.__bad])
             self.clear_all()
         except Exception as err:
-            traceback.print_exc()
-            print(err)
+            logging.error(err)
+            logging.error(traceback.print_exc())
 
     def process(self):
         df = pd.DataFrame(self.insert_data)

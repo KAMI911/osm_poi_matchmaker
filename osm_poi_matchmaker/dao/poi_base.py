@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 try:
     import traceback
+    import logging
     import geopandas as gpd
     import pandas as pd
     import sqlalchemy
@@ -218,8 +219,8 @@ class POIBase:
                                                                                              'distance': distance})
             return data
         except Exception as err:
-            traceback.print_exc()
-            print(err)
+            logging.error(err)
+            logging.error(traceback.print_exc())
 
     def query_name_road_around(self, lon, lat, name='', with_metadata=True):
         '''
@@ -251,5 +252,5 @@ class POIBase:
             data.sort_values(by=['distance'])
             return data
         except Exception as err:
-            traceback.print_exc()
-            print(err)
+            logging.error(err)
+            logging.error(traceback.print_exc())

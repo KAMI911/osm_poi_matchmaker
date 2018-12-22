@@ -98,5 +98,5 @@ class hu_tesco(DataProvider):
                     self.data.public_holiday_open = False
                     self.data.add()
                 except Exception as err:
-                    print (err)
-                    traceback.print_exc()
+                    logging.error(err)
+                    logging.error(traceback.print_exc())
