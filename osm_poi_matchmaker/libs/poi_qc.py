@@ -29,6 +29,7 @@ class POIQC:
     def __check(self):
         self.__is_in_water()
         self.__is_name_road_around()
+        self.__is_name_metaphone_road_around()
         if self.__opening_hours is not None:
             self.__custom_opening_hours()
 
@@ -55,3 +56,11 @@ class POIQC:
             self.__bad.append('street_is_not_around')
         else:
             self.__good.append('street_is_around')
+
+
+    def __is_name_metaphone_road_around(self):
+        data = self.__db.query_name_metaphone_road_around(self.__lon, self.__lat, self.__street, True)
+        if data.empty:
+            self.__bad.append('street_metaphone_is_not_around')
+        else:
+            self.__good.append('street_metaphone_is_around')
