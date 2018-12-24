@@ -38,8 +38,6 @@ class hu_benu(DataProvider):
             try:
                 text = json.loads(soup.get_text())
                 for poi_data in text:
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                        poi_data['street'])
                     if 'BENU Gyógyszertár' not in poi_data['title']:
                         self.data.name = poi_data['title'].strip()
                         self.data.branch = None
@@ -55,6 +53,8 @@ class hu_benu(DataProvider):
                     self.data.city = clean_city(poi_data['city'])
                     self.data.postcode = poi_data['postal_code'].strip()
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
+                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                        poi_data['street'])
                     self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
                                                                 self.data.postcode)
                     self.data.original = poi_data['street']

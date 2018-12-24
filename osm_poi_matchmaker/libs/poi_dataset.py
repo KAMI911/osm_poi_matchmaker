@@ -3,6 +3,7 @@ __author__ = 'kami911'
 
 try:
     import traceback
+    import logging
     import numpy as np
     import pandas as pd
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose, WeekDaysLongHU
@@ -123,6 +124,20 @@ class POIDataset:
 
     @street.setter
     def street(self, data):
+        # Try to find street name around
+        if self.lat is not None and self.lon is not None:
+            query = self.__db.query_name_road_around(self.lon, self.lat, data, True)
+            if query.empty:
+                logging.warning('There is no street around named: {}'.format(data))
+                # Try to find street metaphone name around
+                query = self.__db.query_name_metaphone_road_around(self.lon, self.lat, data, True)
+                if query.empty:
+                    logging.warning('There is no street around pronounced name: {}'.format(data))
+                else:
+                    logging.info('There is a street around pronounced name: {}'.format(data))
+                    data = query['name'][0]
+            else:
+                logging.info('There is a street around named: {}'.format(data))
         self.__street = data
 
     @property

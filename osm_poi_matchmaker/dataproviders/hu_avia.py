@@ -47,15 +47,15 @@ class hu_avia(DataProvider):
             text = json.loads(data)
             data = POIDataset()
             for poi_data in text:
-                if poi_data['cim'] is not None and poi_data['cim'] != '':
-                    self.data.postcode, self.data.city, self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_all_address(
-                        poi_data['cim'])
                 self.data.name = 'Avia'
                 self.data.code = 'huaviafu'
                 if self.data.city is None:
                     self.data.city = poi_data['title']
                 self.data.ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
                 self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
+                if poi_data['cim'] is not None and poi_data['cim'] != '':
+                    self.data.postcode, self.data.city, self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_all_address(
+                        poi_data['cim'])
                 self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
                                                             self.data.postcode)
                 self.data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid'])) if poi_data[

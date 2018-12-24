@@ -49,14 +49,14 @@ class hu_kh_bank():
                         data.name = 'K&H'
                         data.code = 'hukhatm'
                         data.public_holiday_open = True
-                    data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
-                        poi_data[first_element]['address'])
                     if data.code == 'hukhatm':
                         data.nonstop = True
                     else:
                         data.nonstop = False
                     data.lat, data.lon = check_hu_boundary(poi_data[first_element]['latitude'],
                                                            poi_data[first_element]['longitude'])
+                    data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
+                        poi_data[first_element]['address'])
                     data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat,
                                                                 data.lon, data.postcode)
                     data.original = poi_data[first_element]['address']

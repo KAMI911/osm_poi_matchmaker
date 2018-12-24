@@ -59,8 +59,6 @@ class hu_shell(DataProvider):
                 for i in range(0, len(steet_tmp) - 2):
                     steet_tmp[i] = steet_tmp[i].capitalize()
                 steet_tmp = ' '.join(steet_tmp)
-                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                    steet_tmp)
                 if poi_data['City'] != '':
                     self.data.city = clean_city(poi_data['City'].title())
                 else:
@@ -91,6 +89,8 @@ class hu_shell(DataProvider):
                     self.data.public_holiday_open = False
                 self.data.original = poi_data['Address']
                 self.data.lat, self.data.lon = check_hu_boundary(poi_data['GPS Latitude'], poi_data['GPS Longitude'])
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                    steet_tmp)
                 self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
                                                             self.data.postcode)
                 if 'Telephone' in poi_data and poi_data['Telephone'] != '':

@@ -75,16 +75,6 @@ class hu_posta(DataProvider):
                 else:
                     logging.error('Non existing Posta type.')
                 data.postcode = e.get('zipCode')
-                street_tmp_1 = clean_street(e.find('street/name').text.strip()) if e.find(
-                    'street/name').text is not None else None
-                street_tmp_2 = clean_street_type(e.find('street/type').text.strip()) if e.find(
-                    'street/type').text is not None else None
-                if street_tmp_2 is None:
-                    data.street = street_tmp_1
-                elif street_tmp_1 is not None and street_tmp_2 is not None:
-                    data.street = '{} {}'.format(street_tmp_1, street_tmp_2)
-                else:
-                    logging.error('Non handled state!')
                 data.housenumber = e.find('street/houseNumber').text.strip().lower() if e.find(
                     'street/houseNumber').text is not None else None
                 data.conscriptionnumber = None
@@ -130,6 +120,16 @@ class hu_posta(DataProvider):
                     data.nonstop = True
                 data.lat, data.lon = check_hu_boundary(e.find('gpsData/WGSLat').text.replace(',', '.'),
                                                        e.find('gpsData/WGSLon').text.replace(',', '.'))
+                street_tmp_1 = clean_street(e.find('street/name').text.strip()) if e.find(
+                    'street/name').text is not None else None
+                street_tmp_2 = clean_street_type(e.find('street/type').text.strip()) if e.find(
+                    'street/type').text is not None else None
+                if street_tmp_2 is None:
+                    data.street = street_tmp_1
+                elif street_tmp_1 is not None and street_tmp_2 is not None:
+                    data.street = '{} {}'.format(street_tmp_1, street_tmp_2)
+                else:
+                    logging.error('Non handled state!')
                 data.phone = clean_phone(e.find('phoneArea').text) if e.find('phoneArea') is not None else None
                 data.email = e.find('email').text.strip() if e.find('email') is not None else None
                 data.add()

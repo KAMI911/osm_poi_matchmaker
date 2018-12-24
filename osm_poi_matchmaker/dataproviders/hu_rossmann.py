@@ -48,8 +48,6 @@ class hu_rossmann(DataProvider):
             for poi_data in text:
                 poi_data = poi_data['addresses'][0]
                 # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                    poi_data['address'])
                 self.data.name = 'Rossmann'
                 self.data.code = 'hurossmche'
                 self.data.city = clean_city(poi_data['city'])
@@ -61,6 +59,8 @@ class hu_rossmann(DataProvider):
                     else:
                         self.data.day_open_close(i, None, None)
                 self.data.lat, self.data.lon = check_hu_boundary(poi_data['position'][0], poi_data['position'][1])
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                    poi_data['address'])
                 self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat,
                                                                  self.data.lon,
                                                                  self.data.postcode)

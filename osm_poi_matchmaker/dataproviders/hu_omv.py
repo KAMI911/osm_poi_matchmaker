@@ -45,8 +45,6 @@ class hu_omv(DataProvider):
                 self.data.name = 'OMV'
                 self.data.code = 'huomvfu'
                 self.data.postcode = poi_data['postcode'].strip()
-                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                    poi_data['address_l'])
                 self.data.city = clean_city(poi_data['town_l'])
                 if poi_data['open_hours'] is not None:
                     oho, ohc = clean_opening_hours(poi_data['open_hours'])
@@ -64,6 +62,8 @@ class hu_omv(DataProvider):
                     self.data.day_close(i, ohc)
                 self.data.original = poi_data['address_l']
                 self.data.lat, self.data.lon = check_hu_boundary(poi_data['y'], poi_data['x'])
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                    poi_data['address_l'])
                 self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
                                                             self.data.postcode)
                 if 'telnr' in poi_data and poi_data['telnr'] != '':

@@ -48,8 +48,6 @@ class hu_kulcs_patika(DataProvider):
             with open(os.path.join(self.download_cache, self.filename), 'r') as f:
                 text = json.load(f)
                 for poi_data in text:
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                        poi_data['cim'])
                     if 'Kulcs patika' not in poi_data['nev']:
                         self.data.name = poi_data['nev'].strip()
                         self.data.branch = None
@@ -61,6 +59,8 @@ class hu_kulcs_patika(DataProvider):
                     self.data.city = clean_city(poi_data['helyseg'])
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data['marker_position']['latitude'],
                                                            poi_data['marker_position']['longitude'])
+                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                        poi_data['cim'])
                     self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
                                                                 poi_data['irsz'].strip())
                     self.data.original = poi_data['cim']

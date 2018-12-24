@@ -7,6 +7,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.address import extract_all_address
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
+    from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
 
 except ImportError as err:
@@ -49,10 +50,10 @@ class hu_cib_bank():
                         data.name = 'CIB Bank ATM'
                         data.code = 'hucibatm'
                         data.public_holiday_open = True
-                    data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
-                        poi_data[first_element]['address'])
                     data.lat, data.lon = check_hu_boundary(poi_data[first_element]['latitude'],
                                                            poi_data[first_element]['longitude'])
+                    data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
+                        poi_data[first_element]['address'])
                     data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat,
                                                                 data.lon, data.postcode)
                     data.original = poi_data[first_element]['address']

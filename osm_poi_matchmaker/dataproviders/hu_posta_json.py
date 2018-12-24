@@ -79,12 +79,12 @@ class hu_posta_json():
                 else:
                     logging.error('Non existing Posta type.')
                 data.postcode = poi_data['zipCode'].strip()
-                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
-                    poi_data['address'])
                 data.city = clean_city(poi_data['city'])
                 data.branch = poi_data['name']
                 data.lat = poi_data['lat']
                 data.lon = poi_data['lng']
+                data.street, data.housenumber, data.conscriptionnumber = extract_street_housenumber_better_2(
+                    poi_data['address'])
                 data.original = poi_data['address']
                 data.add()
             if data.lenght() < 1:

@@ -56,8 +56,6 @@ class hu_cba(DataProvider):
             text = json.loads(data)
             for poi_data in text:
                 # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                    poi_data['A_CIM'])
                 self.data.city = clean_city(poi_data['A_VAROS'])
                 self.data.postcode = poi_data['A_IRSZ'].strip()
                 self.data.branch = poi_data['P_NAME'].strip()
@@ -72,6 +70,8 @@ class hu_cba(DataProvider):
                                                                                                                 i + 1)] is not None else None)
                 self.data.original = poi_data['A_CIM']
                 self.data.lat, self.data.lon = check_hu_boundary(poi_data['PS_GPS_COORDS_LAT'], poi_data['PS_GPS_COORDS_LNG'])
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                    poi_data['A_CIM'])
                 self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
                                                             self.data.postcode)
                 if 'PS_PUBLIC_TEL' in poi_data and poi_data['PS_PUBLIC_TEL'] != '':

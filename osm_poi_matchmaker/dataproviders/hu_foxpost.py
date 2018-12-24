@@ -43,8 +43,6 @@ class hu_foxpost(DataProvider):
                 self.data.name = 'Foxpost'
                 self.data.code = 'hufoxpocso'
                 self.data.postcode = poi_data['zip'].strip()
-                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                    poi_data['street'])
                 self.data.city = clean_city(poi_data['city'])
                 self.data.branch = poi_data['name']
                 for i in range(0, 7):
@@ -57,6 +55,8 @@ class hu_foxpost(DataProvider):
                         self.data.day_open_close(i, None, None)
                 self.data.original = poi_data['address']
                 self.data.lat, self.data.lon = check_hu_boundary(poi_data['geolat'], poi_data['geolng'])
+                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                    poi_data['street'])
                 self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
                                                             self.data.postcode)
                 self.data.public_holiday_open = False
