@@ -8,7 +8,7 @@ try:
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose, WeekDaysLongHU
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
-    from osm_poi_matchmaker.libs.address import clean_string, clean_url
+    from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.dao.poi_base import POIBase
@@ -99,7 +99,7 @@ class POIDataset:
 
     @branch.setter
     def branch(self, data):
-        self.__branch = data
+        self.__branch = clean_branch(data)
 
     @property
     def website(self):

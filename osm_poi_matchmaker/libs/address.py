@@ -447,3 +447,16 @@ def clean_street_type(clearable):
     street = street.replace('(nincs)', '')
     street = street.replace('.', '')
     return street
+
+def clean_branch(clearable):
+    '''
+
+    :param clearable:
+    :return:
+    '''
+    if clearable is not None and clearable != '':
+        clearable = clearable.strip()
+        branch = clearable.replace('sz.', 'számú')
+        return branch
+    else:
+        return None
