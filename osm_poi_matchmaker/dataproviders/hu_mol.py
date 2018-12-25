@@ -31,9 +31,10 @@ class hu_mol(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
-                 'poi_tags': "{'amenity': 'fuel', 'brand': 'MOL', 'operator': 'MOL Nyrt.', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
+                 'poi_tags': "{'amenity': 'fuel', 'brand': 'MOL', 'operator': 'MOL Nyrt.', 'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.', 'ref:vatin:hu': '10625790-4-44', 'website': 'https://mol.hu/', 'facebook': 'https://www.facebook.com/mol.magyarorszag/', 'youtube': 'https://www.youtube.com/user/molgrouptv', 'instagram': 'https://www.instagram.com/mol.magyarorszag/', 'brand:wikipedia': 'hu:MOL Magyar Olaj- és Gázipari Nyrt.', 'brand:wikidata': 'Q549181', 'ref:HU:company': '01-10-041683', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol'}]
         return self.__types
+
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), POST_DATA)
