@@ -149,8 +149,6 @@ class POIBase:
             query_type = "amenity='vending_machine' AND vending='parking_tickets'"
             distance = config.get_geo_default_poi_distance()
         # If we have PO common definied unsafe search radius distance, then use it (or use defaults specified above)
-        if distance_unsafe is not None:
-            distance = distance_unsafe
         if name is not '':
             query_name = ' AND name ~* :name'
             # If we have PO common definied safe search radius distance, then use it (or use defaults specified above)
@@ -160,6 +158,8 @@ class POIBase:
                 distance = 200
         else:
             query_name = ''
+            if distance_unsafe is not None:
+                distance = distance_unsafe
         if with_metadata is True:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
         else:
