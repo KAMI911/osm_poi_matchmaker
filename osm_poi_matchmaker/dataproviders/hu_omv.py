@@ -33,7 +33,7 @@ class hu_omv(DataProvider):
     def types(self):
         self.__types = [{'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'OMV', 'operator': 'OMV Hungária Kft.', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://www.omv.hu', 'poi_search_name': 'omv'}]
+                 'poi_url_base': 'https://www.omv.hu', 'poi_search_name': 'omv', 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 5}]
         return self.__types
 
 
