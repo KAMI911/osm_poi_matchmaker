@@ -5,6 +5,7 @@ try:
     import geopandas as gpd
     import pandas as pd
     import sqlalchemy
+    from math import isnan
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.dao.data_structure import Base, OSM_object_type
 
@@ -106,6 +107,7 @@ class POIBase:
         :return:
         '''
         buffer = 10
+        distance = config.get_geo_default_poi_distance()
         if ptype == 'shop':
             query_type = "shop='convenience' OR shop='supermarket'"
             distance = config.get_geo_shop_poi_distance()
@@ -152,13 +154,13 @@ class POIBase:
         if name is not '':
             query_name = ' AND name ~* :name'
             # If we have PO common definied safe search radius distance, then use it (or use defaults specified above)
-            if distance_safe is not None:
+            if not isnan(distance_safe):
                 distance = distance_safe
             else:
-                distance = 200
+                distance = config.get_geo_default_poi_distance()
         else:
             query_name = ''
-            if distance_unsafe is not None:
+            if not isnan(distance_unsafe):
                 distance = distance_unsafe
         if with_metadata is True:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
