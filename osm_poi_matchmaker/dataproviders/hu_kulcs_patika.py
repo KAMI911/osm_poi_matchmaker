@@ -34,7 +34,7 @@ class hu_kulcs_patika(DataProvider):
     def types(self):
         self.__types = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
                  'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://www.kulcspatika.hu/', 'poi_search_name': '(kulcs patika|kulcs)'}]
+                 'poi_url_base': 'https://www.kulcspatika.hu/', 'poi_search_name': '(kulcs patika|kulcs)', 'preserve_original_name': True}]
         return self.__types
 
     def process(self):
