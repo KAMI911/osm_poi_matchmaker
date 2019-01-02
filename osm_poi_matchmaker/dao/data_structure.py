@@ -116,8 +116,10 @@ class POI_common(Base):
     poi_url_base = Column(Unicode(32))
     poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
     poi_search_name = Column(Unicode(64))
+    preserve_original_name = Column(Boolean,  nullable=False, default=False)
     osm_search_distance_safe = Column(Integer, nullable=True, index=False)
     osm_search_distance_unsafe = Column(Integer, nullable=True, index=False)
+
 
     def __repr__(self):
         return '<POI common {}: {}>'.format(self.pc_id, self.poi_name)

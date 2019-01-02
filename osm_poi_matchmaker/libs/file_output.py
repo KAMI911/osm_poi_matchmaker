@@ -139,6 +139,12 @@ def generate_osm_xml(df, session=None):
             # Adding POI common tags
             if row['poi_tags'] is not None:
                 tags.update(eval(row['poi_tags']))
+            # Save live name tags if preserve name is enabled
+            try:
+                if row['preserve_original_name'] == True:
+                    preserved_name = tags['name']
+            except KeyError as err:
+                logging.debug('No name tag is specified to save in original OpenStreetMap data.')
             # Overwriting with data from data providers
             for k, v in POI_TAGS.items():
                 if row[k] is not None:
@@ -158,6 +164,9 @@ def generate_osm_xml(df, session=None):
             else:
                 source_url = 'source:website:date'
             tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d')
+            # Write back the saved name tag
+            if 'preserved_name' in locals():
+                tags['name'] = preserved_name
             # tags['import'] = 'osm_poi_matchmaker'
             # Rendering tags to the XML file and JOSM magic link
             josm_link = ''
