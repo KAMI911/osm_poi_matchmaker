@@ -29,7 +29,7 @@ class hu_benu(DataProvider):
     def types(self):
         self.__types = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
                  'poi_tags': "{'amenity': 'pharmacy', 'dispensing': 'yes', 'addr:country': 'HU', 'payment:mastercard': 'yes', 'payment:visa': 'yes', 'facebook':'https://www.facebook.com/BENUgyogyszertar', 'youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg', 'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://benu.hu', 'poi_search_name': '(benu gyogyszertár|benu)', 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 20}]
+                 'poi_url_base': 'https://benu.hu', 'poi_search_name': '(benu gyogyszertár|benu)', 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 20, 'preserve_original_name': True}]
         return self.__types
 
     def process(self):
