@@ -6,7 +6,7 @@ try:
     import os
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.pandas import save_downloaded_pd
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
@@ -94,7 +94,7 @@ class hu_shell(DataProvider):
                 self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
                                                             self.data.postcode)
                 if 'Telephone' in poi_data and poi_data['Telephone'] != '':
-                    self.data.phone = clean_phone(str(poi_data['Telephone']))
+                    self.data.phone = clean_phone_to_str(str(poi_data['Telephone']))
                 else:
                     self.data.phone = None
                 self.data.email = None

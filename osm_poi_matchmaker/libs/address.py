@@ -3,6 +3,8 @@
 try:
     import re
     import logging
+    import phonenumbers
+    import json
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -216,20 +218,42 @@ def clean_opening_hours_2(oh):
 
 def clean_phone(phone):
     # Remove all whitespaces
-    if ',' in phone:
-        phone = phone.split(',')[0]
-    if ';' in phone:
-        phone = phone.split(';')[0]
+    original = phone
     if '(' in phone:
         phone = phone.split('(')[0]
-    phone = ''.join(phone.split())
-    ph_match = PATTERN_PHONE.sub('', phone)
-    if ph_match[:2] == '06':
-        ph_match = '36{}'.format(ph_match[2:])
-    if len(ph_match) == 8:
-        ph_match = '36{}'.format(ph_match)
-    if ph_match != '':
-        return ph_match
+    phone = phone.replace('-', ' ')
+    if ',' in phone:
+        phone = phone.replace(',',';')
+    if ';' in phone:
+        phone = phone.split(';')
+    try:
+        if type(phone) is list:
+            for i in phone:
+                pn = [phonenumbers.parse(i, 'HU') for i in phone]
+        else:
+            pn = []
+            pn.append(phonenumbers.parse(phone, 'HU'))
+    except phonenumbers.phonenumberutil.NumberParseException as err:
+        logging.debug('This is string is cannot converted to phone number: {}'.format(phone))
+        return None
+    if pn is not None:
+        return [ phonenumbers.format_number(i, phonenumbers.PhoneNumberFormat.INTERNATIONAL) for i in pn ]
+    else:
+        return None
+
+
+def clean_phone_to_json(phone):
+    cleaned = clean_phone(phone)
+    if cleaned is not None:
+        return json.dumps(cleaned)
+    else:
+        return None
+
+
+def clean_phone_to_str(phone):
+    cleaned = clean_phone(phone)
+    if cleaned is not None:
+        return ';'.join(cleaned)
     else:
         return None
 

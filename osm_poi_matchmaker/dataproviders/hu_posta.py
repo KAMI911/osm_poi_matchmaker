@@ -8,7 +8,7 @@ try:
     from lxml import etree
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
-    from osm_poi_matchmaker.libs.address import clean_city, clean_phone, clean_street, clean_street_type
+    from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str, clean_street, clean_street_type
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHU
@@ -132,7 +132,7 @@ class hu_posta(DataProvider):
                     data.street = '{} {}'.format(street_tmp_1, street_tmp_2)
                 else:
                     logging.error('Non handled state!')
-                data.phone = clean_phone(e.find('phoneArea').text) if e.find('phoneArea') is not None else None
+                data.phone = clean_phone_to_str(e.find('phoneArea').text) if e.find('phoneArea') is not None else None
                 data.email = e.find('email').text.strip() if e.find('email') is not None else None
                 '''
                 if data.email is not None:

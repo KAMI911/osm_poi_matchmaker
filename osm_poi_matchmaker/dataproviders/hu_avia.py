@@ -8,7 +8,7 @@ try:
     import json
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_javascript_variable, clean_phone, \
+    from osm_poi_matchmaker.libs.address import extract_all_address, clean_javascript_variable, clean_phone_to_str, \
         clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
@@ -64,7 +64,7 @@ class hu_avia(DataProvider):
                                                                                             'kutid'] != '' else None
                 self.data.original = poi_data['cim']
                 if 'tel' in poi_data and poi_data['tel'] != '':
-                    self.data.phone = clean_phone(poi_data['tel'])
+                    self.data.phone = clean_phone_to_str(poi_data['tel'])
                 else:
                     self.data.phone = None
                 if 'email' in poi_data and poi_data['email'] != '':

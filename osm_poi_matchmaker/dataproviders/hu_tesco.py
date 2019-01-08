@@ -7,7 +7,7 @@ try:
     import json
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone, clean_string
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external, query_osm_city_name_gpd
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
@@ -94,7 +94,7 @@ class hu_tesco(DataProvider):
                             self.data.code = 'husmrktsup'
                     self.data.original = poi_data['address']
                     if 'phone' in poi_data and poi_data['phone'] != '':
-                        self.data.phone = clean_phone(poi_data['phone'])
+                        self.data.phone = clean_phone_to_str(poi_data['phone'])
                     self.data.public_holiday_open = False
                     self.data.add()
                 except Exception as err:

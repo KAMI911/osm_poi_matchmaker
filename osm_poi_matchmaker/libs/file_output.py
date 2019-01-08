@@ -149,8 +149,8 @@ def generate_osm_xml(df, session=None):
             for k, v in POI_TAGS.items():
                 if row[k] is not None:
                     tags[v] = row[k]
-            if row['poi_phone'] is not None and not math.isnan(row['poi_phone']):
-                tags['phone'] = '+{:d}'.format(int(row['poi_phone']))
+            if row['poi_phone'] is not None and row['poi_phone'] != '':
+                tags['phone'] = row['poi_phone']
             if row['poi_url_base'] is not None and row['poi_website'] is not None:
                 if row['poi_url_base'] in row['poi_website']:
                     tags['website'] = clean_url('{}'.format((row['poi_website'])))
