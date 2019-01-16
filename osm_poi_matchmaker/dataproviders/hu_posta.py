@@ -82,6 +82,8 @@ class hu_posta(DataProvider):
                 data.conscriptionnumber = None
                 data.city = clean_city(e.find('city').text)
                 data.branch = e.find('name').text if e.find('name').text is not None else None
+                if data.code == 'hupostapo':
+                    data.branch = re.sub(r"(\d{1,3})", r"\1 számú", data.branch)
                 day = e.findall('workingHours/days') if e.findall('workingHours/days') is not None else None
                 oh_table = []
                 for d in day:
