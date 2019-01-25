@@ -36,6 +36,7 @@ class POI_type(enum.Enum):
     vending_machine_parcel_mail_in = 11
     vending_machine_parcel_pickup_and_mail_in = 12
     vending_machine_parking_tickets = 13
+    tobacco = 14
 
 
 class POI_address(Base):

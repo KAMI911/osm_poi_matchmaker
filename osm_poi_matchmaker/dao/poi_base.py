@@ -150,6 +150,9 @@ class POIBase:
         elif ptype == 'vending_machine_parking_tickets':
             query_type = "amenity='vending_machine' AND vending='parking_tickets'"
             distance = config.get_geo_default_poi_distance()
+        elif ptype == 'tobacco':
+            query_type = "shop='tobacco'"
+            distance = config.get_geo_default_poi_distance()
         # If we have PO common definied unsafe search radius distance, then use it (or use defaults specified above)
         if name is not '':
             query_name = ' AND name ~* :name'
