@@ -171,7 +171,7 @@ class POIBase:
             metadata_fields = ''
         # Looking for way (building)
         query = sqlalchemy.text('''
-            SELECT name, osm_id, {metadata_fields} 'way' AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
+            SELECT name, osm_id, {metadata_fields} 998 AS priority, 'way' AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({query_type}) AND osm_id > 0 {query_name}
                 AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom,3857), :distance)
@@ -183,7 +183,7 @@ class POIBase:
                                                                                          'buffer': buffer})
         # Looking for node
         query = sqlalchemy.text('''
-            SELECT name, osm_id, {metadata_fields} 'node' AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt, ST_X(ST_Transform(planet_osm_point.way,4326)) as lon, ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
+            SELECT name, osm_id, {metadata_fields} 999 AS priority, 'node' AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt, ST_X(ST_Transform(planet_osm_point.way,4326)) as lon, ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({query_type}) AND osm_id > 0 {query_name}
                 AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
@@ -193,7 +193,7 @@ class POIBase:
                                               params={'lon': lon, 'lat': lat, 'distance': distance,
                                                       'name': '.*{}.*'.format(name)})
         query = sqlalchemy.text('''
-            SELECT name, osm_id, {metadata_fields} 'relation' AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
+            SELECT name, osm_id, {metadata_fields} 997 AS priority, 'relation' AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
             WHERE ({query_type}) AND osm_id < 0 {query_name}
                 AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom,3857), :distance)
@@ -208,7 +208,7 @@ class POIBase:
         else:
             data = data.append(data2)
             data = data.append(data3)
-            data.sort_values(by=['distance'])
+            data.sort_values(by=['priority', 'distance'])
             return data
 
     def query_poi_in_water(self, lon, lat):
