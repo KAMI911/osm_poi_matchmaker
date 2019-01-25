@@ -36,10 +36,10 @@ class hu_posta(DataProvider):
     def types():
         data = [{'poi_code': 'hupostapo', 'poi_name': 'Posta', 'poi_type': 'post_office',
                  'poi_tags': "{'amenity': 'post_office', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta', 'osm_search_distance_safe': 200},
+                 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta', 'osm_search_distance_safe': 430},
                 {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkautomata', 'poi_type': 'vending_machine_cheques',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'cheques', " + POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta', 'osm_search_distance_safe': 200},
+                 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta', 'osm_search_distance_safe': 430},
                 {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata',
                  'poi_type': 'vending_machine_parcel_pickup',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup', " + POI_COMMON_TAGS + "}",
@@ -83,7 +83,7 @@ class hu_posta(DataProvider):
                 data.city = clean_city(e.find('city').text)
                 data.branch = e.find('name').text if e.find('name').text is not None else None
                 if data.code == 'hupostapo':
-                    data.branch = re.sub(r"(\d{1,3})", r"\1 számú", data.branch)
+                    data.branch = re.sub(r"(\d{1,3})", r"\1. számú", data.branch)
                 day = e.findall('workingHours/days') if e.findall('workingHours/days') is not None else None
                 oh_table = []
                 for d in day:
