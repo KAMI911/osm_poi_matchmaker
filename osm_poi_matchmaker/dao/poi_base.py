@@ -96,7 +96,7 @@ class POIBase:
         data = pd.read_sql(query, self.engine, params={'relation_id': int(abs(relation_id))})
         return data.values.tolist()[0][0]
 
-    def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop', name='', distance_safe=None, distance_unsafe=None, with_metadata=True):
+    def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop', name='', street_name='', distance_safe=None, distance_unsafe=None, with_metadata=True):
         '''
         Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
         :param lon:
@@ -169,40 +169,46 @@ class POIBase:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
         else:
             metadata_fields = ''
+        if street_name is not None and street_name != '':
+            street_query = ' AND "addr:street" = :street_name'
+        else:
+            street_query = ''
         # Looking for way (building)
         query = sqlalchemy.text('''
             SELECT name, osm_id, {metadata_fields} 998 AS priority, 'way' AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-            WHERE ({query_type}) AND osm_id > 0 {query_name}
+            WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query}
                 AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(query_type=query_type, query_name=query_name,
-                                             metadata_fields=metadata_fields))
+                                             metadata_fields=metadata_fields, street_query=street_query))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
                                                                                          'distance': distance,
                                                                                          'name': '.*{}.*'.format(name),
-                                                                                         'buffer': buffer})
+                                                                                         'buffer': buffer,
+                                                                                         'street_name': street_name})
         # Looking for node
         query = sqlalchemy.text('''
             SELECT name, osm_id, {metadata_fields} 999 AS priority, 'node' AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt, ST_X(ST_Transform(planet_osm_point.way,4326)) as lon, ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-            WHERE ({query_type}) AND osm_id > 0 {query_name}
+            WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query}
                 AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(query_type=query_type, query_name=query_name,
-                                             metadata_fields=metadata_fields))
+                                             metadata_fields=metadata_fields, street_query=street_query))
         data2 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way',
                                               params={'lon': lon, 'lat': lat, 'distance': distance,
-                                                      'name': '.*{}.*'.format(name)})
+                                                      'name': '.*{}.*'.format(name), 'street_name': street_name})
         query = sqlalchemy.text('''
             SELECT name, osm_id, {metadata_fields} 997 AS priority, 'relation' AS node, shop, amenity, "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street", ST_Distance_Sphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-            WHERE ({query_type}) AND osm_id < 0 {query_name}
+            WHERE ({query_type}) AND osm_id < 0 {query_name} {street_query}
                 AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom,3857), :distance)
             ORDER BY distance ASC;'''.format(query_type=query_type, query_name=query_name,
-                                             metadata_fields=metadata_fields))
+                                             metadata_fields=metadata_fields, street_query=street_query))
         data3 = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
                                                                                           'distance': distance,
                                                                                           'name': '.*{}.*'.format(name),
-                                                                                          'buffer': buffer})
+                                                                                          'buffer': buffer,
+                                                                                          'street_name': street_name})
         if data.empty and data2.empty and data3.empty:
             return None
         else:
