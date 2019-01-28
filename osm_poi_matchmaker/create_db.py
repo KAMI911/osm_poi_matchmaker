@@ -157,19 +157,18 @@ def online_poi_matching(args):
             common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
             # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
             if row['poi_search_name'] is not None and row['poi_search_name'] != '':
-                osm_query = db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
-                                                       row['poi_search_name'], row['poi_addr_street'], row['osm_search_distance_safe'], row['osm_search_distance_unsafe'])
-                osm_query_new = db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
+                if row['poi_addr_street'] is not None and row['poi_addr_street'] != '':
+                    # This search combinates two types of search - with and without OSM street name
+                    osm_query = db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
+                                                       row['poi_search_name'], row['poi_addr_street'], row['poi_addr_housenumber'], row['osm_search_distance_safe'], row['osm_search_distance_unsafe'])
+                else:
+                    osm_query = db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
                                                row['poi_search_name'], '', row['osm_search_distance_safe'],
                                                row['osm_search_distance_unsafe'])
-                if osm_query is not None:
-                    osm_query.append(osm_query_new)
-                else:
-                    osm_query = osm_query_new
             # Try to search OSM POI with same type and without name within the specified distance
             if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
                 osm_query = (
-                    db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), '', '', row['osm_search_distance_safe'], row['osm_search_distance_unsafe']))
+                    db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), '', '', '', row['osm_search_distance_safe'], row['osm_search_distance_unsafe']))
             # Enrich our data with OSM database POI metadata
             if osm_query is not None:
                 # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
@@ -214,7 +213,7 @@ def online_poi_matching(args):
                                 live_tags_container = osm_live_query.WayGet(osm_id)
                                 if live_tags_container is not None:
                                     data.at[i, 'osm_live_tags'] = live_tags_container['tag']
-                                    cache_row = {'osm_id': osm_id, 'osm_live_tags': str(live_tags_container['tag']),
+                                    cache_row = {'osm_id': int(osm_id), 'osm_live_tags': str(live_tags_container['tag']),
                                              'osm_version': live_tags_container['version'],
                                              'osm_user': live_tags_container['user'],
                                              'osm_user_id': live_tags_container['uid'],
@@ -229,7 +228,7 @@ def online_poi_matching(args):
                                     for way_nodes in live_tags_container['nd']:
                                         logging.debug('Getting node {} belongs to way {}'.format(way_nodes, osm_id))
                                         live_tags_node = osm_live_query.NodeGet(way_nodes)
-                                        cache_row = {'osm_id': way_nodes, 'osm_live_tags': str(live_tags_node['tag']),
+                                        cache_row = {'osm_id': int(way_nodes), 'osm_live_tags': str(live_tags_node['tag']),
                                                      'osm_version': live_tags_node['version'],
                                                      'osm_user': live_tags_node['user'],
                                                      'osm_user_id': live_tags_node['uid'],
@@ -256,7 +255,7 @@ def online_poi_matching(args):
                                 live_tags_container = osm_live_query.NodeGet(osm_id)
                                 if live_tags_container is not None:
                                     data.at[i, 'osm_live_tags'] = live_tags_container['tag']
-                                    cache_row = {'osm_id': osm_id, 'osm_live_tags': str(live_tags_container['tag']),
+                                    cache_row = {'osm_id': int(osm_id), 'osm_live_tags': str(live_tags_container['tag']),
                                                  'osm_version': live_tags_container['version'],
                                                  'osm_user': live_tags_container['user'],
                                                  'osm_user_id': live_tags_container['uid'],
