@@ -96,7 +96,7 @@ class POIBase:
         data = pd.read_sql(query, self.engine, params={'relation_id': int(abs(relation_id))})
         return data.values.tolist()[0][0]
 
-    def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop', name='', street_name='', housenumber='', distance_safe=None, distance_unsafe=None, with_metadata=True):
+    def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop', name='', street_name='', housenumber='', distance_perfect=None, distance_safe=None, distance_unsafe=None, with_metadata=True):
         '''
         Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
         :param lon:
@@ -161,6 +161,8 @@ class POIBase:
                 distance = distance_safe
             else:
                 distance = config.get_geo_default_poi_distance()
+            if isnan(distance_perfect):
+                distance_perfect = 2000 # TODO: Config parameter
         else:
             query_name = ''
             if not isnan(distance_unsafe):
@@ -188,7 +190,7 @@ class POIBase:
                        ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query} {housenumber_query}
-                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :street_distance)
+                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :distance_perfect)
                 UNION ALL
                 --- The node selector with street name and housenumber
                 SELECT name, osm_id, {metadata_fields} 970 AS priority, 'node' AS node, shop, amenity, "addr:housename",
@@ -198,7 +200,7 @@ class POIBase:
                        ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
                 FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query} {housenumber_query}
-                    AND ST_DWithin(way,ST_Transform(point.geom, 3857), :street_distance)
+                    AND ST_DWithin(way,ST_Transform(point.geom, 3857), :distance_perfect)
                 UNION ALL
                 --- The relation selector with street name and housenumber
                 SELECT name, osm_id, {metadata_fields} 970 AS priority, 'relation' AS node, shop, amenity,
@@ -207,7 +209,7 @@ class POIBase:
                        ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id < 0 {query_name} {street_query} {housenumber_query}
-                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :street_distance)
+                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :distance_perfect)
                 UNION ALL
                 --- The way selector without street name
                 SELECT name, osm_id, {metadata_fields} 980 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -300,6 +302,7 @@ class POIBase:
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
                                                                                           'distance': distance,
                                                                                           'street_distance': 850,
+                                                                                          'distance_perfect': distance_perfect,
                                                                                           'name': '.*{}.*'.format(name),
                                                                                           'buffer': buffer,
                                                                                           'street_name': street_name,

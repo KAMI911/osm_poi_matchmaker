@@ -160,15 +160,15 @@ def online_poi_matching(args):
                 if row['poi_addr_street'] is not None and row['poi_addr_street'] != '':
                     # This search combinates two types of search - with and without OSM street name
                     osm_query = db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
-                                                       row['poi_search_name'], row['poi_addr_street'], row['poi_addr_housenumber'], row['osm_search_distance_safe'], row['osm_search_distance_unsafe'])
+                                                       row['poi_search_name'], row['poi_addr_street'], row['poi_addr_housenumber'], row['osm_search_distance_perfect'], row['osm_search_distance_safe'], row['osm_search_distance_unsafe'])
                 else:
                     osm_query = db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
-                                               row['poi_search_name'], '', row['osm_search_distance_safe'],
+                                               row['poi_search_name'], '', '', row['osm_search_distance_perfect'], row['osm_search_distance_safe'],
                                                row['osm_search_distance_unsafe'])
             # Try to search OSM POI with same type and without name within the specified distance
             if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
                 osm_query = (
-                    db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), '', '', '', row['osm_search_distance_safe'], row['osm_search_distance_unsafe']))
+                    db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), '', '', '', row['osm_search_distance_perfect'], row['osm_search_distance_safe'], row['osm_search_distance_unsafe']))
             # Enrich our data with OSM database POI metadata
             if osm_query is not None:
                 # Collect additional OSM metadata. Note: this needs style change during osm2pgsql

@@ -32,13 +32,13 @@ class hu_spar(DataProvider):
     def types(self):
         self.__types = [{'poi_code': 'husparexp', 'poi_name': 'Spar Expressz', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'convenience', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 15},
+                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 15},
                 {'poi_code': 'husparint', 'poi_name': 'Interspar', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'payment:contactless': 'yes', 'payment:american_express': 'yes', 'payment:mastercard': 'yes', 'payment:maestro': 'yes', 'payment:v_pay': 'yes', 'payment:visa': 'yes', 'payment:visa_electron': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 15},
+                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 15},
                 {'poi_code': 'husparsup', 'poi_name': 'Spar', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'payment:contactless': 'yes', 'payment:american_express': 'yes', 'payment:mastercard': 'yes', 'payment:maestro': 'yes', 'payment:v_pay': 'yes', 'payment:visa': 'yes', 'payment:visa_electron': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 15}]
+                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 15}]
         return self.__types
 
     def process(self):
