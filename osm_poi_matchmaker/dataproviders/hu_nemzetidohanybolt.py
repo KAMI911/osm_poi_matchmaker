@@ -17,22 +17,18 @@ except ImportError as err:
     traceback.print_exc()
     exit(128)
 
-
-POST_DATA = {'country': 'Magyarország', 'lat': '47.162494', 'lng': '19.503304100000037', 'radius': 20}
-
-
 class hu_mol(DataProvider):
 
 
     def constains(self):
-        self.link = 'http://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json'
+        self.link = 'hhttp://trafikok.nemzetidohany.hu/mind.jsonp'
         self.POI_COMMON_TAGS = ""
         self.filename = self.filename + 'json'
 
     def types(self):
-        self.__types = [{'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
-                 'poi_tags': "{'amenity': 'fuel', 'brand': 'MOL', 'operator': 'MOL Nyrt.', 'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.', 'ref:vatin:hu': '10625790-4-44', 'website': 'https://mol.hu/', 'facebook': 'https://www.facebook.com/mol.magyarorszag/', 'youtube': 'https://www.youtube.com/user/molgrouptv', 'instagram': 'https://www.instagram.com/mol.magyarorszag/', 'brand:wikipedia': 'hu:MOL Magyar Olaj- és Gázipari Nyrt.', 'brand:wikidata': 'Q549181', 'ref:HU:company': '01-10-041683', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 0}]
+        self.__types = [{'poi_code': 'hunemdoto', 'poi_name': 'Nemzeti dohánybolt', 'poi_type': 'tobacco',
+                 'poi_tags': "{'shop': 'tobacco'}",
+                 'poi_url_base': 'https://www.nemzetidohany.hu/', 'poi_search_name': '(nemzeti dohánybolt|dohánybolt)', 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 0}]
         return self.__types
 
 

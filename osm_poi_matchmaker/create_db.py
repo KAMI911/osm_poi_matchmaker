@@ -15,13 +15,13 @@ try:
     import geopandas as gpd
     import multiprocessing
     from osmapi import OsmApi
-    from osm_poi_matchmaker.utils import config, timing, dataproviders_loader
-    from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
-    from osm_poi_matchmaker.libs.osm import timestamp_now
-    from osm_poi_matchmaker.dao.data_handlers import insert_type, get_or_create
-    from osm_poi_matchmaker.dao.data_structure import OSM_object_type, POI_OSM_cache
+    from utils import config, timing, dataproviders_loader
+    from libs.file_output import save_csv_file, generate_osm_xml
+    from libs.osm import timestamp_now
+    from dao.data_handlers import insert_type, get_or_create
+    from dao.data_structure import OSM_object_type, POI_OSM_cache
     from sqlalchemy.orm import scoped_session, sessionmaker
-    from osm_poi_matchmaker.dao.poi_base import POIBase
+    from dao.poi_base import POIBase
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
@@ -42,13 +42,13 @@ def init_log():
 
 def import_basic_data(session):
     logging.info('Importing cities ...'.format())
-    from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
+    from dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',
                                      config.get_directory_cache_url())
     work.process()
 
     logging.info('Importing street types ...'.format())
-    from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
+    from dataproviders.hu_generic import hu_street_types_from_xml
     work = hu_street_types_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml',
                                     config.get_directory_cache_url())
     work.process()
@@ -68,7 +68,7 @@ def import_poi_data_module(module):
         module = module.strip()
         logging.info('Processing {} module ...'.format(module))
         if module == 'hu_kh_bank':
-            from osm_poi_matchmaker.dataproviders.hu_kh_bank import hu_kh_bank
+            from dataproviders.hu_kh_bank import hu_kh_bank
             work = hu_kh_bank(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(),
                               os.path.join(config.get_directory_cache_url(), 'hu_kh_bank.json'), 'K&H bank')
             insert_type(session, work.types())
@@ -77,7 +77,7 @@ def import_poi_data_module(module):
                               os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H')
             work.process()
         elif module == 'hu_cib_bank':
-            from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
+            from dataproviders.hu_cib_bank import hu_cib_bank
             work = hu_cib_bank(session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'),
                                config.get_geo_prefer_osm_postcode(), 'CIB Bank')
             insert_type(session, work.types())
@@ -85,14 +85,14 @@ def import_poi_data_module(module):
                                config.get_geo_prefer_osm_postcode(), 'CIB Bank ATM')
         elif module == 'hu_posta_json':
             # Old code that uses JSON files
-            from osm_poi_matchmaker.dataproviders.hu_posta_json import hu_posta_json
+            from dataproviders.hu_posta_json import hu_posta_json
             # We only using csekkautomata since there is no XML from another data source
             work = hu_posta_json(session,
                                  'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
                                  config.get_directory_cache_url(), 'hu_postacsekkautomata.json')
             work.process()
         else:
-            mo = dataproviders_loader.import_module('osm_poi_matchmaker.dataproviders.{0}'.format(module), module)
+            mo = dataproviders_loader.import_module('dataproviders.{0}'.format(module), module)
             work = mo(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode())
             insert_type(session, work.types())
             work.process()

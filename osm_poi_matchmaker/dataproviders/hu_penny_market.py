@@ -3,10 +3,10 @@
 try:
     import traceback
     import logging
-    from osm_poi_matchmaker.libs.address import clean_javascript_variable
-    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
-    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
-    from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from libs.address import clean_javascript_variable
+    from libs.osm import query_postcode_osm_external
+    from libs.poi_dataset import POIDataset
+    from utils.data_provider import DataProvider
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()

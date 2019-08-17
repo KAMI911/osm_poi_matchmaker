@@ -5,8 +5,8 @@ try:
     import os
     import pandas as pd
     from lxml import etree
-    from osm_poi_matchmaker.dao.data_handlers import insert_city_dataframe, insert_street_type_dataframe
-    from osm_poi_matchmaker.libs.xml import save_downloaded_xml
+    from dao.data_handlers import insert_city_dataframe, insert_street_type_dataframe
+    from libs.xml import save_downloaded_xml
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()

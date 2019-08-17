@@ -5,13 +5,13 @@ try:
     import logging
     import os
     from lxml import etree
-    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.xml import save_downloaded_xml
-    from osm_poi_matchmaker.libs.address import clean_city
-    from osm_poi_matchmaker.libs.geo import check_hu_boundary
-    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
-    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
-    from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from dao.data_handlers import insert_poi_dataframe
+    from libs.xml import save_downloaded_xml
+    from libs.address import clean_city
+    from libs.geo import check_hu_boundary
+    from libs.osm import query_postcode_osm_external
+    from libs.poi_dataset import POIDataset
+    from utils.data_provider import DataProvider
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
@@ -51,4 +51,3 @@ class hu_mol_bubi(DataProvider):
                                                         None)
             self.data.public_holiday_open = True
             self.data.add()
-

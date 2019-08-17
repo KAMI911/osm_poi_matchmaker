@@ -5,14 +5,14 @@ try:
     import logging
     import os
     import json
-    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours
-    from osm_poi_matchmaker.libs.geo import check_hu_boundary
-    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
-    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
-    from osm_poi_matchmaker.utils.enums import WeekDaysLongHUUnAccented
-    from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from dao.data_handlers import insert_poi_dataframe
+    from libs.soup import save_downloaded_soup
+    from libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours
+    from libs.geo import check_hu_boundary
+    from libs.osm import query_postcode_osm_external
+    from libs.poi_dataset import POIDataset
+    from utils.enums import WeekDaysLongHUUnAccented
+    from utils.data_provider import DataProvider
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()

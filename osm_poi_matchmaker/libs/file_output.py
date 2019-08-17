@@ -7,13 +7,13 @@ try:
     import os
     import datetime
     from urllib.parse import quote
-    from osm_poi_matchmaker.dao.data_structure import OSM_object_type
-    from osm_poi_matchmaker.utils import config
-    from osm_poi_matchmaker.libs.address import clean_url
-    from osm_poi_matchmaker.libs.osm import relationer, timestamp_now
-    from osm_poi_matchmaker.libs.compare_strings import compare_strings
+    from dao.data_structure import OSM_object_type
+    from utils import config
+    from libs.address import clean_url
+    from libs.osm import relationer, timestamp_now
+    from libs.compare_strings import compare_strings
     from sqlalchemy.orm import scoped_session, sessionmaker
-    from osm_poi_matchmaker.dao.poi_base import POIBase
+    from dao.poi_base import POIBase
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
