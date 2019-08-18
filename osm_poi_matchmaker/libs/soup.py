@@ -34,14 +34,14 @@ def download_soup(link, verify_link=config.get_download_verify_link(), post_parm
 
 def save_downloaded_soup(link, file, post_data=None, verify=config.get_download_verify_link(), headers=None):
     if config.get_download_use_cached_data() == True and os.path.isfile(file):
-        with open(file, 'r') as content_file:
+        with open(file, 'r', encoding='utf-8') as content_file:
             soup = BeautifulSoup(content_file.read(), 'html.parser')
     else:
         soup = download_soup(link, verify, post_data, headers)
         if soup != None:
             if not os.path.exists(config.get_directory_cache_url()):
                 os.makedirs(config.get_directory_cache_url())
-            with open(file, mode="w", encoding="utf8") as code:
+            with open(file, mode='w', encoding='utf-8') as code:
                 code.write(soup.get_text())
         else:
             logging.warning('Skipping dataset: {}.'.format(link))
