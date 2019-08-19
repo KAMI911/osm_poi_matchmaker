@@ -38,31 +38,35 @@ class hu_kulcs_patika(DataProvider):
         return self.__types
 
     def process(self):
-        if self.link:
-            '''
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), None,
-                                        self.verify_link, headers=self.headers)
-            if soup != None:
-            text = json.loads(soup.get_text())
-            '''
-            with open(os.path.join(self.download_cache, self.filename), 'r') as f:
-                text = json.load(f)
-                for poi_data in text:
-                    if 'Kulcs patika' not in poi_data['nev']:
-                        self.data.name = poi_data['nev'].strip()
-                        self.data.branch = None
-                    else:
-                        self.data.name = 'Kulcs patika'
-                        self.data.branch = poi_data['nev'].strip()
-                    self.data.code = 'hukulcspha'
-                    self.data.website = poi_data['link'].strip() if poi_data['link'] is not None else None
-                    self.data.city = clean_city(poi_data['helyseg'])
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['marker_position']['latitude'],
-                                                           poi_data['marker_position']['longitude'])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                        poi_data['cim'])
-                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                                poi_data['irsz'].strip())
-                    self.data.original = poi_data['cim']
-                    self.data.public_holiday_open = False
-                    self.data.add()
+        try:
+            if self.link:
+                '''
+                soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), None,
+                                            self.verify_link, headers=self.headers)
+                if soup != None:
+                text = json.loads(soup.get_text())
+                '''
+                with open(os.path.join(self.download_cache, self.filename), 'r') as f:
+                    text = json.load(f)
+                    for poi_data in text:
+                        if 'Kulcs patika' not in poi_data['nev']:
+                            self.data.name = poi_data['nev'].strip()
+                            self.data.branch = None
+                        else:
+                            self.data.name = 'Kulcs patika'
+                            self.data.branch = poi_data['nev'].strip()
+                        self.data.code = 'hukulcspha'
+                        self.data.website = poi_data['link'].strip() if poi_data['link'] is not None else None
+                        self.data.city = clean_city(poi_data['helyseg'])
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data['marker_position']['latitude'],
+                                                               poi_data['marker_position']['longitude'])
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                            poi_data['cim'])
+                        self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                                    poi_data['irsz'].strip())
+                        self.data.original = poi_data['cim']
+                        self.data.public_holiday_open = False
+                        self.data.add()
+        except Exception as e:
+            traceback.print_exc()
+            logging.error(e)

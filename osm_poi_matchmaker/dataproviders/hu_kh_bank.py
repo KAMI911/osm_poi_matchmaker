@@ -35,37 +35,41 @@ class hu_kh_bank():
         return data
 
     def process(self):
-        if self.link:
-            with open(self.link, 'r') as f:
-                text = json.load(f)
-                data = POIDataset()
-                for poi_data in text['results']:
-                    first_element = next(iter(poi_data))
-                    if self.name == 'K&H bank':
-                        data.name = 'K&H bank'
-                        data.code = 'hukhbank'
-                        data.public_holiday_open = False
+        try:
+            if self.link:
+                with open(self.link, 'r') as f:
+                    text = json.load(f)
+                    data = POIDataset()
+                    for poi_data in text['results']:
+                        first_element = next(iter(poi_data))
+                        if self.name == 'K&H bank':
+                            data.name = 'K&H bank'
+                            data.code = 'hukhbank'
+                            data.public_holiday_open = False
+                        else:
+                            data.name = 'K&H'
+                            data.code = 'hukhatm'
+                            data.public_holiday_open = True
+                        if data.code == 'hukhatm':
+                            data.nonstop = True
+                        else:
+                            data.nonstop = False
+                        data.lat, data.lon = check_hu_boundary(poi_data[first_element]['latitude'],
+                                                               poi_data[first_element]['longitude'])
+                        data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
+                            poi_data[first_element]['address'])
+                        data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat,
+                                                                    data.lon, data.postcode)
+                        data.original = poi_data[first_element]['address']
+                        if 'phoneNumber' in poi_data and poi_data['phoneNumber'] != '':
+                            data.phone = clean_phone_to_str(poi_data['phoneNumber'])
+                        else:
+                            data.phone = None
+                        data.add()
+                    if data.lenght() < 1:
+                        logging.warning('Resultset is empty. Skipping ...')
                     else:
-                        data.name = 'K&H'
-                        data.code = 'hukhatm'
-                        data.public_holiday_open = True
-                    if data.code == 'hukhatm':
-                        data.nonstop = True
-                    else:
-                        data.nonstop = False
-                    data.lat, data.lon = check_hu_boundary(poi_data[first_element]['latitude'],
-                                                           poi_data[first_element]['longitude'])
-                    data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
-                        poi_data[first_element]['address'])
-                    data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat,
-                                                                data.lon, data.postcode)
-                    data.original = poi_data[first_element]['address']
-                    if 'phoneNumber' in poi_data and poi_data['phoneNumber'] != '':
-                        data.phone = clean_phone_to_str(poi_data['phoneNumber'])
-                    else:
-                        data.phone = None
-                    data.add()
-                if data.lenght() < 1:
-                    logging.warning('Resultset is empty. Skipping ...')
-                else:
-                    insert_poi_dataframe(self.session, data.process())
+                        insert_poi_dataframe(self.session, data.process())
+        except Exception as e:
+            traceback.print_exc()
+            logging.error(e)

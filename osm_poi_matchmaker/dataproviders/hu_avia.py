@@ -35,41 +35,45 @@ class hu_avia(DataProvider):
         return self.__type
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        if soup != None:
-            # parse the html using beautiful soap and store in variable `soup`
-            pattern = re.compile('var\s*markers\s*=\s*((.*\n)*\]\;)', re.MULTILINE)
-            script = soup.find('script', text=pattern)
-            m = pattern.search(script.get_text())
-            data = m.group(0)
-            data = data.replace("'", '"')
-            data = clean_javascript_variable(data, 'markers')
-            text = json.loads(data)
-            data = POIDataset()
-            for poi_data in text:
-                self.data.name = 'Avia'
-                self.data.code = 'huaviafu'
-                if self.data.city is None:
-                    self.data.city = poi_data['title']
-                self.data.ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
-                self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
-                if poi_data['cim'] is not None and poi_data['cim'] != '':
-                    self.data.postcode, self.data.city, self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_all_address(
-                        poi_data['cim'])
-                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                            self.data.postcode)
-                self.data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid'])) if poi_data[
-                                                                                            'kutid'] is not None and \
-                                                                                        poi_data[
-                                                                                            'kutid'] != '' else None
-                self.data.original = poi_data['cim']
-                if 'tel' in poi_data and poi_data['tel'] != '':
-                    self.data.phone = clean_phone_to_str(poi_data['tel'])
-                else:
-                    self.data.phone = None
-                if 'email' in poi_data and poi_data['email'] != '':
-                    self.data.email = clean_email(poi_data['email'])
-                else:
-                    self.data.email = None
-                self.data.public_holiday_open = False
-                self.data.add()
+        try:
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+            if soup != None:
+                # parse the html using beautiful soap and store in variable `soup`
+                pattern = re.compile('var\s*markers\s*=\s*((.*\n)*\]\;)', re.MULTILINE)
+                script = soup.find('script', text=pattern)
+                m = pattern.search(script.get_text())
+                data = m.group(0)
+                data = data.replace("'", '"')
+                data = clean_javascript_variable(data, 'markers')
+                text = json.loads(data)
+                data = POIDataset()
+                for poi_data in text:
+                    self.data.name = 'Avia'
+                    self.data.code = 'huaviafu'
+                    if self.data.city is None:
+                        self.data.city = poi_data['title']
+                    self.data.ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
+                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
+                    if poi_data['cim'] is not None and poi_data['cim'] != '':
+                        self.data.postcode, self.data.city, self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_all_address(
+                            poi_data['cim'])
+                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                                self.data.postcode)
+                    self.data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid'])) if poi_data[
+                                                                                                'kutid'] is not None and \
+                                                                                            poi_data[
+                                                                                                'kutid'] != '' else None
+                    self.data.original = poi_data['cim']
+                    if 'tel' in poi_data and poi_data['tel'] != '':
+                        self.data.phone = clean_phone_to_str(poi_data['tel'])
+                    else:
+                        self.data.phone = None
+                    if 'email' in poi_data and poi_data['email'] != '':
+                        self.data.email = clean_email(poi_data['email'])
+                    else:
+                        self.data.email = None
+                    self.data.public_holiday_open = False
+                    self.data.add()
+        except Exception as e:
+            traceback.print_exc()
+            logging.error(e)

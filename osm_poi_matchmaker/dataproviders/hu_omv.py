@@ -38,36 +38,40 @@ class hu_omv(DataProvider):
 
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), POST_DATA)
-        if soup != None:
-            text = json.loads(soup.get_text())
-            for poi_data in text['results']:
-                self.data.name = 'OMV'
-                self.data.code = 'huomvfu'
-                self.data.postcode = poi_data['postcode'].strip()
-                self.data.city = clean_city(poi_data['town_l'])
-                if poi_data['open_hours'] is not None:
-                    oho, ohc = clean_opening_hours(poi_data['open_hours'])
-                    if oho == '00:00' and ohc == '24:00':
-                        self.data.nonstop = True
-                        self.data.public_holiday_open = True
-                        oho, ohc = None, None
+        try:
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), POST_DATA)
+            if soup != None:
+                text = json.loads(soup.get_text())
+                for poi_data in text['results']:
+                    self.data.name = 'OMV'
+                    self.data.code = 'huomvfu'
+                    self.data.postcode = poi_data['postcode'].strip()
+                    self.data.city = clean_city(poi_data['town_l'])
+                    if poi_data['open_hours'] is not None:
+                        oho, ohc = clean_opening_hours(poi_data['open_hours'])
+                        if oho == '00:00' and ohc == '24:00':
+                            self.data.nonstop = True
+                            self.data.public_holiday_open = True
+                            oho, ohc = None, None
+                        else:
+                            self.data.public_holiday_open = False
                     else:
+                        oho, ohc = None, None
                         self.data.public_holiday_open = False
-                else:
-                    oho, ohc = None, None
-                    self.data.public_holiday_open = False
-                for i in range(0, 7):
-                    self.data.day_open(i, oho)
-                    self.data.day_close(i, ohc)
-                self.data.original = poi_data['address_l']
-                self.data.lat, self.data.lon = check_hu_boundary(poi_data['y'], poi_data['x'])
-                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                    poi_data['address_l'])
-                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                            self.data.postcode)
-                if 'telnr' in poi_data and poi_data['telnr'] != '':
-                    self.data.phone = clean_phone_to_str(poi_data['telnr'])
-                else:
-                    self.data.phone = None
-                self.data.add()
+                    for i in range(0, 7):
+                        self.data.day_open(i, oho)
+                        self.data.day_close(i, ohc)
+                    self.data.original = poi_data['address_l']
+                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['y'], poi_data['x'])
+                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                        poi_data['address_l'])
+                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                                self.data.postcode)
+                    if 'telnr' in poi_data and poi_data['telnr'] != '':
+                        self.data.phone = clean_phone_to_str(poi_data['telnr'])
+                    else:
+                        self.data.phone = None
+                    self.data.add()
+        except Exception as e:
+            traceback.print_exc()
+            logging.error(e)

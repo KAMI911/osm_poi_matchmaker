@@ -36,29 +36,33 @@ class hu_budapest_bank(DataProvider):
         return self.__types
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        if soup != None:
-            text = json.loads(soup.get_text())
-            for poi_data in text['points']:
-                if poi_data['fiok'] == 1:
-                    self.data.name = 'Budapest Bank'
-                    self.data.code = 'hubpbank'
-                    self.data.public_holiday_open = False
-                else:
-                    self.data.name = 'Budapest Bank ATM'
-                    self.data.code = 'hubpatm'
-                    self.data.public_holiday_open = True
-                self.data.postcode = poi_data['zip']
-                self.data.city = poi_data['city_only']
-                if self.data.code == 'hubpatm':
-                    self.data.nonstop = True
-                else:
-                    self.data.nonstop = False
-                self.data.lat, self.data.lon = check_hu_boundary(poi_data['latitude'], poi_data['longitude'])
-                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                    poi_data['addr'])
-                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                            self.data.postcode)
-                self.data.original = poi_data['address']
-                self.data.branch = poi_data['name']
-                self.data.add()
+        try:
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+            if soup != None:
+                text = json.loads(soup.get_text())
+                for poi_data in text['points']:
+                    if poi_data['fiok'] == 1:
+                        self.data.name = 'Budapest Bank'
+                        self.data.code = 'hubpbank'
+                        self.data.public_holiday_open = False
+                    else:
+                        self.data.name = 'Budapest Bank ATM'
+                        self.data.code = 'hubpatm'
+                        self.data.public_holiday_open = True
+                    self.data.postcode = poi_data['zip']
+                    self.data.city = poi_data['city_only']
+                    if self.data.code == 'hubpatm':
+                        self.data.nonstop = True
+                    else:
+                        self.data.nonstop = False
+                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['latitude'], poi_data['longitude'])
+                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                        poi_data['addr'])
+                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                                self.data.postcode)
+                    self.data.original = poi_data['address']
+                    self.data.branch = poi_data['name']
+                    self.data.add()
+        except Exception as e:
+            traceback.print_exc()
+            logging.error(e)

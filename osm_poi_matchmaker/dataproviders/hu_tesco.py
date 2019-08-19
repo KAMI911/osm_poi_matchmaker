@@ -53,50 +53,56 @@ class hu_tesco(DataProvider):
         return self.__types
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        if soup != None:
-            # parse the html using beautiful soap and store in variable `soup`
-            # script = soup.find('div', attrs={'data-stores':True})
-            text = json.loads(soup.get_text())
-            for poi_data in text['stores']:
-                try:
-                    # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                    self.data.branch = poi_data['store_name']
-                    self.data.ref = poi_data['goldid']
-                    self.data.website = 'https://tesco.hu/aruhazak/aruhaz/{}/'.format(poi_data['urlname'])
-                    opening = json.loads(poi_data['opening'])
-                    for i in range(0, 7):
-                        ind = str(i + 1) if i != 6 else '0'
-                        if ind in opening:
-                            self.data.day_open(i, opening[ind][0])
-                            self.data.day_close(i, opening[ind][1])
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['gpslat'], poi_data['gpslng'])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data['address'])
-                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                                None)
-                    self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
-                    if 'xpres' in poi_data['name']:
-                        if self.data.city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:
-                            self.data.name = 'Tesco Expressz'
-                            self.data.code = 'hutescoexp'
+        try:
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+            if soup != None:
+                # parse the html using beautiful soap and store in variable `soup`
+                # script = soup.find('div', attrs={'data-stores':True})
+                text = json.loads(soup.get_text())
+                for poi_data in text['stores']:
+                    try:
+                        # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
+                        self.data.branch = poi_data['store_name']
+                        self.data.ref = poi_data['goldid']
+                        self.data.website = 'https://tesco.hu/aruhazak/aruhaz/{}/'.format(poi_data['urlname'])
+                        opening = json.loads(poi_data['opening'])
+                        for i in range(0, 7):
+                            ind = str(i + 1) if i != 6 else '0'
+                            if ind in opening:
+                                self.data.day_open(i, opening[ind][0])
+                                self.data.day_close(i, opening[ind][1])
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data['gpslat'], poi_data['gpslng'])
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data['address'])
+                        self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                                    None)
+                        self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
+                        if 'xpres' in poi_data['name']:
+                            if self.data.city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:
+                                self.data.name = 'Tesco Expressz'
+                                self.data.code = 'hutescoexp'
+                            else:
+                                self.data.name = 'S-Market'
+                                self.data.code = 'husmrktexp'
+                        elif 'xtra' in poi_data['name']:
+                            self.data.name = 'Tesco Extra'
+                            self.data.code = 'hutescoext'
                         else:
-                            self.data.name = 'S-Market'
-                            self.data.code = 'husmrktexp'
-                    elif 'xtra' in poi_data['name']:
-                        self.data.name = 'Tesco Extra'
-                        self.data.code = 'hutescoext'
-                    else:
-                        if self.data.city not in ['Levél']:
-                            self.data.name = 'Tesco'
-                            self.data.code = 'hutescosup'
-                        else:
-                            self.data.name = 'S-Market'
-                            self.data.code = 'husmrktsup'
-                    self.data.original = poi_data['address']
-                    if 'phone' in poi_data and poi_data['phone'] != '':
-                        self.data.phone = clean_phone_to_str(poi_data['phone'])
-                    self.data.public_holiday_open = False
-                    self.data.add()
-                except Exception as err:
-                    logging.error(err)
-                    logging.error(traceback.print_exc())
+                            if self.data.city not in ['Levél']:
+                                self.data.name = 'Tesco'
+                                self.data.code = 'hutescosup'
+                            else:
+                                self.data.name = 'S-Market'
+                                self.data.code = 'husmrktsup'
+                        self.data.original = poi_data['address']
+                        if 'phone' in poi_data and poi_data['phone'] != '':
+                            self.data.phone = clean_phone_to_str(poi_data['phone'])
+                        if 'goldid' in poi_data and poi_data['goldid'] != '':
+                            self.data.ref = poi_data['goldid'].strip()
+                        self.data.public_holiday_open = False
+                        self.data.add()
+                    except Exception as err:
+                        logging.error(err)
+                        logging.error(traceback.print_exc())
+        except Exception as e:
+            traceback.print_exc()
+            logging.error(e)
