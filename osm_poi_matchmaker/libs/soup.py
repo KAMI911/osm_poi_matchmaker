@@ -37,12 +37,25 @@ def save_downloaded_soup(link, file, post_data=None, verify=config.get_download_
         with open(file, 'r', encoding='utf-8') as content_file:
             soup = BeautifulSoup(content_file.read(), 'html.parser')
     else:
-        soup = download_soup(link, verify, post_data, headers)
-        if soup != None:
-            if not os.path.exists(config.get_directory_cache_url()):
-                os.makedirs(config.get_directory_cache_url())
-            with open(file, mode='w', encoding='utf-8') as code:
-                code.write(soup.get_text())
+        if link != None:
+            soup = download_soup(link, verify, post_data, headers)
+            if soup != None:
+                if not os.path.exists(config.get_directory_cache_url()):
+                    os.makedirs(config.get_directory_cache_url())
+                with open(file, mode='w', encoding='utf-8') as code:
+                    code.write(soup.get_text())
+            else:
+                if os.path.exists(file):
+                    logging.info('The {} link returned error code other than 200 but there is an already downloaded file. Try to open it.'.format(link))
+                    with open(file, mode='r', encoding='utf-8') as code:
+                        soup = BeautifulSoup(code.read(), 'html.parser')
+                else:
+                    logging.warning('Skipping dataset: {}. There is not downloadable URL, nor already downbloaded file.'.format(link))
         else:
-            logging.warning('Skipping dataset: {}.'.format(link))
+            if os.path.exists(file):
+                with open(file, mode='r', encoding='utf-8') as code:
+                    soup = BeautifulSoup(code.read(), 'html.parser')
+                logging.info('Using file only: {}. There is not downloadable URL only just the file. Do not forget to update file manually!'.format(file))
+            else:
+                logging.warning('Cannot use download and file: {}. There is not downloadable URL, nor already downbloaded file.'.format(file))
     return soup
