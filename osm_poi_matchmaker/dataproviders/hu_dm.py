@@ -22,7 +22,8 @@ class hu_dm(DataProvider):
 
 
     def constains(self):
-        self.link = 'https://www.dm.hu/cms/restws/stores/find?requestingCountry=HU&countryCodes=DE%2CAT%2CBA%2CBG%2CSK%2CRS%2CHR%2CCZ%2CRO%2CSI%2CHU%2CMK%2CIT&mandantId=870&bounds=46.599301%2C17.325265%7C47.71978%2C21.681344&before=false&after=false&morningHour=9&eveningHour=18&_=1527413070144'
+        #self.link = 'https://www.dm.hu/cms/restws/stores/find?requestingCountry=HU&countryCodes=DE%2CAT%2CBA%2CBG%2CSK%2CRS%2CHR%2CCZ%2CRO%2CSI%2CHU%2CMK%2CIT&mandantId=870&bounds=46.599301%2C17.325265%7C47.71978%2C21.681344&before=false&after=false&morningHour=9&eveningHour=18&_=1527413070144'
+        self.link = 'https://services.dm.de/storedata/stores/bbox/49%2C16%2C45%2C23'
         self.POI_COMMON_TAGS = ""
         self.filename = self.filename + 'json'
 
@@ -33,25 +34,30 @@ class hu_dm(DataProvider):
         return self.__types
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-        if soup != None:
-            text = json.loads(soup.get_text())
-            data = POIDataset()
-            for poi_data in text:
-                self.data.name = 'dm'
-                self.data.code = 'hudmche'
-                self.data.postcode = poi_data['address']['plz'].strip()
-                street_tmp = poi_data['address']['street'].split(',')[0]
-                self.data.city = clean_city(poi_data['address']['city'])
-                self.data.original = poi_data['address']['street']
-                self.data.lat, self.data.lon = check_hu_boundary(poi_data['location'][0], poi_data['location'][1])
-                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                    street_tmp.title())
-                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                            self.data.postcode)
-                if 'telnr' in poi_data and poi_data['phone'] != '':
-                    self.data.phone = clean_phone_to_str(poi_data['phone'])
-                else:
-                    self.data.phone = None
-                self.data.public_holiday_open = False
-                self.data.add()
+        try:
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+            if soup != None:
+                text = json.loads(soup.get_text())
+                data = POIDataset()
+                for poi_data in text['stores']:
+                    if poi_data['localeCountry'].strip().upper() == 'HU':
+                      self.data.name = 'dm'
+                      self.data.code = 'hudmche'
+                      self.data.postcode = poi_data['address']['zip'].strip()
+                      street_tmp = poi_data['address']['street'].split(',')[0]
+                      self.data.city = clean_city(poi_data['address']['city'])
+                      self.data.original = poi_data['address']['street']
+                      self.data.lat, self.data.lon = check_hu_boundary(poi_data['location']['lat'], poi_data['location']['lon'])
+                      self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                          street_tmp.title())
+                      self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
+                                                                  self.data.postcode)
+                      if 'phone' in poi_data and poi_data['phone'] != '':
+                          self.data.phone = clean_phone_to_str(poi_data['phone'])
+                      if 'storeNumber' in poi_data and poi_data['storeNumber'] != '':
+                          self.data.ref = poi_data['storeNumber'].strip()
+                      self.data.public_holiday_open = False
+                      self.data.add()
+        except Exception as e:
+            traceback.print_exc()
+            logging.error(e)
