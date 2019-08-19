@@ -45,7 +45,7 @@ class POI_address(Base):
     pa_id = Column(Integer, primary_key=True, index=True)
     id = synonym('pa_id')
     poi_common_id = Column(ForeignKey('poi_common.pc_id'), index=True)
-    poi_branch = Column(Unicode(64), nullable=True, index=True)
+    poi_branch = Column(Unicode(128), nullable=True, index=True)
     poi_addr_city = Column(ForeignKey('city.city_id'), index=True)
     poi_postcode = Column(Integer)
     poi_city = Column(Unicode(64))
