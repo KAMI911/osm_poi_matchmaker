@@ -29,9 +29,9 @@ class hu_shell(DataProvider):
         self.__types = [{'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'Shell', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.shell.hu', 'poi_search_name': 'shell'},
-                {'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel',
+                {'poi_code': 'humobpefu', 'poi_name': 'M. Petrol', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'Mobil Petrol', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
-                 'poi_url_base': 'https://www.shell.hu', 'poi_search_name': '(mobil metrol|shell)'}
+                 'poi_url_base': 'http://www.mpetrol.hu/', 'poi_search_name': '(mobil metrol|shell)'}
                 ]
         return self.__types
 
@@ -52,9 +52,11 @@ class hu_shell(DataProvider):
                     if poi_data['Brand'] == 'Shell':
                         self.data.name = 'Shell'
                         self.data.code = 'hushellfu'
+                        self.data.website = 'https://shell.hu/'
                     elif poi_data['Brand'] == 'Mobilpetrol':
-                        self.data.name = 'Mobil Petrol'
+                        self.data.name = 'M. Petrol'
                         self.data.code = 'humobpefu'
+                        self.data.website = 'http://mpetrol.hu/'
                     self.data.postcode = poi_data['Post code']
                     steet_tmp = poi_data['Address'].lower().split()
                     for i in range(0, len(steet_tmp) - 2):
