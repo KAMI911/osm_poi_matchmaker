@@ -25,20 +25,26 @@ class hu_spar(DataProvider):
 
 
     def constains(self):
-        self.link = 'https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU'
+        self.link = 'https://www.spar.hu/uzletek/_jcr_content.stores.v2'
         self.POI_COMMON_TAGS = "'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'brand:wikipedia': 'hu:Spar', 'brand:wikidata': 'Q610492', 'addr:country': 'HU', 'email': 'vevoszolgalat@spar.hu', 'phone': '+36208237727', 'facebook': 'https://www.facebook.com/sparmagyarorszag', 'youtube': 'https://www.youtube.com/channel/UC9tu8COHiy4WkeTIN1k_Y8A', 'instagram': 'https://www.instagram.com/sparmagyarorszag', 'payment:cash': 'yes'"
         self.filename = self.filename + 'json'
 
     def types(self):
         self.__types = [{'poi_code': 'husparexp', 'poi_name': 'Spar Expressz', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'convenience', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 15},
+                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 150, 'osm_search_distance_unsafe': 15},
                 {'poi_code': 'husparint', 'poi_name': 'Interspar', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'payment:contactless': 'yes', 'payment:american_express': 'yes', 'payment:mastercard': 'yes', 'payment:maestro': 'yes', 'payment:v_pay': 'yes', 'payment:visa': 'yes', 'payment:visa_electron': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 15},
+                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 150, 'osm_search_distance_unsafe': 15},
                 {'poi_code': 'husparsup', 'poi_name': 'Spar', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', 'payment:contactless': 'yes', 'payment:american_express': 'yes', 'payment:mastercard': 'yes', 'payment:maestro': 'yes', 'payment:v_pay': 'yes', 'payment:visa': 'yes', 'payment:visa_electron': 'yes', 'payment:erzsebet': 'yes', 'payment:erzsebet_plus': 'yes', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 15}]
+                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 150, 'osm_search_distance_unsafe': 15},
+                {'poi_code': 'hudespexp', 'poi_name': 'DeSpar', 'poi_type': 'shop',
+                 'poi_tags': "{'shop': 'convenience', " + self.POI_COMMON_TAGS + "}",
+                 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar',
+                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 150,
+                 'osm_search_distance_unsafe': 15},
+                        ]
         return self.__types
 
     def process(self):
@@ -57,6 +63,9 @@ class hu_spar(DataProvider):
                     elif 'market' in poi_data['name']:
                         self.data.name = 'Spar'
                         self.data.code = 'husparsup'
+                    elif 'DESPAR' in poi_data['name']:
+                        self.data.name = 'DeSpar'
+                        self.data.code = 'hudespexp'
                     else:
                         self.data.name = 'Spar'
                         self.data.code = 'husparsup'
