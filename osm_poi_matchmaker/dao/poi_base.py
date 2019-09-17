@@ -224,7 +224,7 @@ class POIBase:
                 WHERE ({query_type}) AND osm_id < 0 {query_name} {street_query} {housenumber_query}
                     AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :distance_perfect)
                 UNION ALL
-                --- The way selector without street name
+                --- The way selector with street name
                 SELECT name, osm_id, {metadata_fields} 980 AS priority, 'way' AS node, shop, amenity, "addr:housename",
                        "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
                        ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
