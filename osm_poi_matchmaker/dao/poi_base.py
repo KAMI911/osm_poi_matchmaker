@@ -76,9 +76,9 @@ class POIBase:
 
     def count_all_gpd(self, table):
         '''
-        Load all POI data from SQL that contains gometry
+        Load all POI data from SQL that contains geometry
         :param table: Name of table where POI data is stored
-        :return: Full table with poi_lat and poi_long fileds read from SQL database table
+        :return: Full table with poi_lat and poi_long fields read from SQL database table
         '''
         query = sqlalchemy.text('select count(*) from {} where poi_geom is not NULL'.format(table))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='poi_geom')
