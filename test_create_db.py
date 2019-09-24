@@ -9,7 +9,7 @@ try:
     from test.test_poi_dataset import TestPOIDataset
     from test.test_timing import Timing
     from test.test_osm import TestOSMRelationer
-    from utils import config
+    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
