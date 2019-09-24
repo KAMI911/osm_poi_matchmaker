@@ -2,7 +2,7 @@
 
 try:
     import unittest
-    from libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
     from test.test_opening_hours_data import OPENING_HOURS_TEST_DATA
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
