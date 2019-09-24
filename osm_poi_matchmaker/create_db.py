@@ -106,7 +106,7 @@ def load_poi_data(database):
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
     # Build Dataframe from our POI database
-    addr_data = database.query_all_gpd('poi_address')
+    addr_data = database.query_all_gpd_in_order('poi_address')
     addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
     return addr_data
 
