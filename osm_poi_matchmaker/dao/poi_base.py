@@ -7,8 +7,8 @@ try:
     import sqlalchemy
     import time
     from math import isnan
-    from utils import config
-    from dao.data_structure import Base, OSM_object_type
+    from osm_poi_matchmaker.utils import config
+    from osm_poi_matchmaker.dao.data_structure import Base, OSM_object_type
 
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))

@@ -4,9 +4,9 @@ try:
     import traceback
     import hashlib
     import logging
-    from dao.data_structure import City, POI_common, POI_address, Street_type
-    from libs import address
-    from dao import poi_array_structure
+    from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, Street_type
+    from osm_poi_matchmaker.libs import address
+    from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
