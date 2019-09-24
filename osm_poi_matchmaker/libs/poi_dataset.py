@@ -6,14 +6,14 @@ try:
     import logging
     import numpy as np
     import pandas as pd
-    from utils.enums import WeekDaysShort, OpenClose, WeekDaysLongHU
-    from libs.opening_hours import OpeningHours
-    from libs.geo import check_geom
-    from libs.address import clean_string, clean_url, clean_branch
-    from dao import poi_array_structure
-    from utils import config
-    from dao.poi_base import POIBase
-    from libs.poi_qc import POIQC
+    from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose, WeekDaysLongHU
+    from osm_poi_matchmaker.libs.opening_hours import OpeningHours
+    from osm_poi_matchmaker.libs.geo import check_geom
+    from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch
+    from osm_poi_matchmaker.dao import poi_array_structure
+    from osm_poi_matchmaker.utils import config
+    from osm_poi_matchmaker.dao.poi_base import POIBase
+    from osm_poi_matchmaker.libs.poi_qc import POIQC
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     traceback.print_exc()
