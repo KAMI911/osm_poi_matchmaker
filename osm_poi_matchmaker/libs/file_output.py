@@ -150,15 +150,20 @@ def generate_osm_xml(df, session=None):
             for k, v in POI_TAGS.items():
                 if row[k] is not None:
                     tags[v] = row[k]
+            # If we got POI phone tag use it as OSM contact:phone tag
             if row['poi_phone'] is not None and row['poi_phone'] != '':
-                tags['phone'] = row['poi_phone']
+                tags['contact:phone'] = row['poi_phone']
+            # If we got POI website tag use it as OSM contact:website tag
             if row['poi_url_base'] is not None and row['poi_website'] is not None:
                 if row['poi_url_base'] in row['poi_website']:
-                    tags['website'] = clean_url('{}'.format((row['poi_website'])))
+                    # The POI website contains the base URL use the POI website field only
+                    tags['contact:website'] = clean_url('{}'.format((row['poi_website'])))
                 else:
-                    tags['website'] = clean_url('{}/{}'.format(row['poi_url_base'], row['poi_website']))
+                    # The POI website does not contain the base URL use the merged base URL and POI website field
+                    tags['contact:website'] = clean_url('{}/{}'.format(row['poi_url_base'], row['poi_website']))
+            # If only the base URL is available
             elif row['poi_url_base'] is not None:
-                tags['website'] = row['poi_url_base']
+                tags['contact:website'] = row['poi_url_base']
             # Short URL for source
             if row['poi_url_base'] is not None:
                 source_url = 'source:{}:date'.format(row['poi_url_base'].split('/')[2])
