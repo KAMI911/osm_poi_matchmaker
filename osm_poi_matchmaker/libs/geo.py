@@ -3,9 +3,10 @@
 try:
     import logging
     from geoalchemy2 import WKTElement
-    from osm_poi_matchmaker.utils import config
+    from utils import config
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
+    traceback.print_exc()
     exit(128)
 
 
