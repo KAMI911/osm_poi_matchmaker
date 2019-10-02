@@ -28,7 +28,7 @@ class hu_mol(DataProvider):
     def types(self):
         self.__types = [{'poi_code': 'hunemdoto', 'poi_name': 'Nemzeti dohánybolt', 'poi_type': 'tobacco',
                  'poi_tags': "{'shop': 'tobacco'}",
-                 'poi_url_base': 'https://www.nemzetidohany.hu/', 'poi_search_name': '(nemzeti dohánybolt|dohánybolt)', 'osm_search_distance_safe': 60, 'osm_search_distance_unsafe': 0}]
+                 'poi_url_base': 'https://www.nemzetidohany.hu/', 'poi_search_name': '(nemzeti dohánybolt|dohánybolt)', 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 0}]
         return self.__types
 
 
