@@ -173,6 +173,11 @@ def generate_osm_xml(df, session=None):
             # Write back the saved name tag
             if 'preserved_name' in locals():
                 tags['name'] = preserved_name
+            # Rewrite old contact tags to contact:tag form
+            tags_rewrite = [ 'website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax']
+            for tr in tags_rewrite:
+                if tr in tags:
+                    tags['contact:' + tr] = tags.pop(None)
             # tags['import'] = 'osm_poi_matchmaker'
             # Rendering tags to the XML file and JOSM magic link
             josm_link = ''
