@@ -19,7 +19,7 @@ POI_POSTA = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/posto
 POI_CSEKK = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
 POI_CSOMAG = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postamachine',
 POI_POSTA_PONT = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postapoint',
-POI_COMMON_TAGS = "'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:vatin:hu' '10901232-2-44', 'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614', 'addr:country': 'HU', 'email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', 'facebook': 'https://www.facebook.com/MagyarPosta', 'youtube': 'https://www.youtube.com/user/magyarpostaofficial', 'instagram': 'https://www.instagram.com/magyar_posta_zrt/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
+POI_COMMON_TAGS = "'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:vatin:hu' '10901232-2-44', 'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614', 'addr:country': 'HU', 'contact:email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', 'contact:facebook': 'https://www.facebook.com/MagyarPosta', 'contact:youtube': 'https://www.youtube.com/user/magyarpostaofficial', 'contact:instagram': 'https://www.instagram.com/magyar_posta_zrt/', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
 
 
 class hu_posta_json():

@@ -26,7 +26,7 @@ class hu_takko(DataProvider):
         self.link = ''
         self.POI_COMMON_TAGS = "'operator': 'Takko Fashion Kft.', 'operator:addr': '2040 Budaörs, Ébner György köz 4.'," \
                                " 'ref:HU:company': '13-10-040628', 'ref:vatin:hu': '1335199-2-13', 'ref:vatin': 'HU1335199', 'brand': 'Takko'," \
-                               " 'website': 'https://www.takko.com/hu-hu/'" \
+                               " 'contact:website': 'https://www.takko.com/hu-hu/'" \
                                " 'addr:country': 'HU', 'loyalty_card': 'yes'," + POS_OTP + " 'air_conditioning': 'yes'"
         self.filename = self.filename + 'json'
 

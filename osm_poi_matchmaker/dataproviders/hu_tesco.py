@@ -28,8 +28,8 @@ class hu_tesco(DataProvider):
                                " 'ref:HU:company': '13-10-040628', 'ref:vatin:hu': '10307078-2-44', 'ref:vatin': 'HU10307078', 'brand': 'Tesco'," \
                                " 'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494', 'addr:country': 'HU'," \
                                " 'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'tesco-internet'," \
-                               " 'facebook': 'https://www.facebook.com/tescoaruhazak', 'contact:pinterest': 'https://www.pinterest.com/tescohungary/'," \
-                               " 'youtube': 'https://www.youtube.com/user/TescoMagyarorszag',  'loyalty_card': 'yes'," \
+                               " 'contact:facebook': 'https://www.facebook.com/tescoaruhazak', 'contact:pinterest': 'https://www.pinterest.com/tescohungary/'," \
+                               " 'contact:youtube': 'https://www.youtube.com/user/TescoMagyarorszag',  'loyalty_card': 'yes'," \
                                + POS_OTP + "'payment:gift_card': 'yes', 'payment:wire_transfer': 'yes'," \
                                " 'air_conditioning': 'yes'"
         self.filename = self.filename + 'json'
