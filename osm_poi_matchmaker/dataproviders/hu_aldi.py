@@ -7,6 +7,7 @@ try:
     from dao.data_handlers import insert_poi_dataframe
     from libs.soup import save_downloaded_soup
     from libs.address import extract_street_housenumber_better_2, clean_city
+    from libs.osm import query_postcode_osm_external
     from libs.poi_dataset import POIDataset
     from utils.data_provider import DataProvider
 except ImportError as err:
@@ -48,6 +49,9 @@ class hu_aldi(DataProvider):
                 self.data.name = 'Aldi'
                 self.data.code = 'hualdisup'
                 self.data.postcode = poi_data[0].strip()
+                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat,
+                                                                 self.data.lon,
+                                                                 self.data.postcode)
                 self.data.city = clean_city(poi_data[1])
                 self.data.original = poi_data[2]
                 self.data.public_holiday_open = False
