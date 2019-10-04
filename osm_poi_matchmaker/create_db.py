@@ -78,11 +78,13 @@ def import_poi_data_module(module):
             work.process()
         elif module == 'hu_cib_bank':
             from dataproviders.hu_cib_bank import hu_cib_bank
-            work = hu_cib_bank(session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.html'),
-                               config.get_geo_prefer_osm_postcode(), 'CIB Bank')
+            work = hu_cib_bank(session,  config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(),
+                              os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.json'), 'CIB Bank')
             insert_type(session, work.types())
-            work = hu_cib_bank(session, '', os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.html'),
-                               config.get_geo_prefer_osm_postcode(), 'CIB Bank ATM')
+            work.process()
+            work = hu_cib_bank(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(),
+                              os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.json'), 'CIB Bank ATM')
+            work.process()
         elif module == 'hu_posta_json':
             # Old code that uses JSON files
             from dataproviders.hu_posta_json import hu_posta_json

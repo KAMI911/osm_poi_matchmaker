@@ -5,10 +5,12 @@ try:
     import logging
     import json
     from dao.data_handlers import insert_poi_dataframe
-    from libs.address import extract_all_address
+    from libs.address import extract_all_address, clean_city, clean_phone_to_str, extract_street_housenumber_better_2
     from libs.osm import query_postcode_osm_external
     from libs.geo import check_hu_boundary
     from libs.poi_dataset import POIDataset
+    from utils.data_provider import DataProvider
+
 
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
@@ -18,10 +20,10 @@ except ImportError as err:
 
 class hu_cib_bank():
 
-    def __init__(self, session, link, download_cache, prefer_osm_postcode, name):
+    def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
         self.session = session
-        self.link = link
         self.download_cache = download_cache
+        self.link = link
         self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name
 
@@ -36,29 +38,40 @@ class hu_cib_bank():
         return data
 
     def process(self):
-        if self.link:
-            with open(self.link, 'r') as f:
-                text = json.load(f)
-                data = POIDataset()
-                for poi_data in text['results']:
-                    first_element = next(iter(poi_data))
-                    if self.name == 'CIB Bank':
-                        data.name = 'CIB Bank'
-                        data.code = 'hucibbank'
-                        data.public_holiday_open = False
-                    else:
-                        data.name = 'CIB Bank ATM'
-                        data.code = 'hucibatm'
-                        data.public_holiday_open = True
-                    data.lat, data.lon = check_hu_boundary(poi_data[first_element]['latitude'],
-                                                           poi_data[first_element]['longitude'])
-                    data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
-                        poi_data[first_element]['address'])
-                    data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat,
-                                                                data.lon, data.postcode)
-                    data.original = poi_data[first_element]['address']
-                data.add()
-            if data.lenght() < 1:
-                logging.warning('Resultset is empty. Skipping ...')
-            else:
-                insert_poi_dataframe(self.session, data.process())
+        try:
+            if self.link:
+                with open(self.link, 'r') as f:
+                    text = json.load(f)
+                    data = POIDataset()
+                    for poi_data in text['availableLocations']:
+                        if 'locationStatus' in poi_data and poi_data['locationStatus'] == 'IN_SERVICE':
+                            if self.name == 'CIB Bank':
+                                data.name = 'CIB Bank'
+                                data.code = 'hucibbank'
+                                data.public_holiday_open = False
+                            else:
+                                data.name = 'CIB Bank ATM'
+                                data.code = 'hucibatm'
+                                data.public_holiday_open = True
+                            data.lat, data.lon = check_hu_boundary(poi_data['location']['lat'],
+                                                                   poi_data['location']['lon'])
+                            data.city = clean_city(poi_data['city'])
+                            data.postcode = poi_data['zip'].strip()
+                            data.housenumber = poi_data['streetNo'].strip()
+                            data.street = poi_data['streetName'].strip()
+                            data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat,
+                                                                        data.lon, data.postcode)
+                            data.branch = poi_data['name']
+                            if 'phone' in poi_data and poi_data['phone'] != '':
+                                data.phone = clean_phone_to_str(poi_data['phone'])
+                            if 'email' in poi_data and poi_data['email'] != '':
+                                data.email = poi_data['email'].strip()
+                            data.original = poi_data['fullAddress']
+                            data.add()
+                if data.lenght() < 1:
+                    logging.warning('Resultset is empty. Skipping ...')
+                else:
+                    insert_poi_dataframe(self.session, data.process())
+        except Exception as e:
+            traceback.print_exc()
+            logging.error(e)
