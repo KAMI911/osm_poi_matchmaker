@@ -77,3 +77,12 @@ def query_osm_city_name_gpd(session, lon, lat):
     data = session.execute(query, {'lon': lon, 'lat': lat}).first()
     if data is None: return None
     else: return data[0]
+
+
+def query_osm_city_name(session, name):
+    query = sqlalchemy.text('''
+        SELECT name
+        FROM planet_osm_polygon WHERE admin_level='8' and name=:name ORDER BY name LIMIT 1;''')
+    data = session.execute(query, {'name': name}).first()
+    if data is None: return None
+    else: return data[0]
