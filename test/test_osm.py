@@ -4,7 +4,7 @@ try:
     import unittest
     from osm_poi_matchmaker.libs.osm import relationer
 except ImportError as err:
-    print('Error {0} import module: {1}'.format(__name__, err))
+    logging.error('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
 
 

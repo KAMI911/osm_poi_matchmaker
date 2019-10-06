@@ -5,7 +5,7 @@ try:
     import time
     from osm_poi_matchmaker.utils.timing import Timing
 except ImportError as err:
-    print('Error {0} import module: {1}'.format(__name__, err))
+    logging.error('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
 
 

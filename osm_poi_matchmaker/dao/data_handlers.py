@@ -8,8 +8,8 @@ try:
     from libs import address
     from dao import poi_array_structure
 except ImportError as err:
-    print('Error {0} import module: {1}'.format(__name__, err))
-    traceback.print_exc()
+    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error(traceback.print_exc())
     exit(128)
 
 POI_COLS = poi_array_structure.POI_COLS
@@ -26,7 +26,7 @@ def get_or_create(session, model, **kwargs):
             return instance
         except Exception as e:
             logging.error("Can't add to database.")
-            traceback.print_exc()
+            logging.error(traceback.print_exc())
             raise (e)
 
 
@@ -51,7 +51,7 @@ def get_or_create_poi(session, model, **kwargs):
             session.add(instance)
             return instance
         except Exception as e:
-            traceback.print_exc()
+            logging.error(traceback.print_exc())
             raise (e)
 
 
@@ -63,7 +63,7 @@ def insert_city_dataframe(session, city_df):
                           city_name=address.clean_city(city_data['city_name']))
     except Exception as e:
         logging.error(city_data)
-        traceback.print_exc()
+        logging.error(traceback.print_exc())
         logging.error(e)
         session.rollback()
     else:
@@ -77,7 +77,7 @@ def insert_street_type_dataframe(session, city_df):
             get_or_create(session, Street_type, street_type=city_data['street_type'])
     except Exception as e:
         logging.error(city_data)
-        traceback.print_exc()
+        logging.error(traceback.print_exc())
         logging.error(e)
         session.rollback()
     else:
@@ -90,7 +90,7 @@ def insert_common_dataframe(session, common_df):
         for index, poi_common_data in common_df.iterrows():
             get_or_create(session, POI_common, **poi_common_data)
     except Exception as e:
-        traceback.print_exc()
+        logging.error(traceback.print_exc())
         logging.error(e)
         session.rollback()
     else:
@@ -138,7 +138,7 @@ def insert_type(session, type_data):
             get_or_create(session, POI_common, **i)
     except Exception as e:
         logging.error(e)
-        traceback.print_exc()
+        logging.error(traceback.print_exc())
         session.rollback()
     else:
         logging.info('Successfully added the dataset.')
@@ -162,6 +162,7 @@ def insert(session, **kwargs):
         get_or_create(session, POI_address, **kwargs)
         session.commit()
     except Exception as e:
-        print(e)
+        logging.error(traceback.print_exc())
+        logging.error(e)
     finally:
         session.close()

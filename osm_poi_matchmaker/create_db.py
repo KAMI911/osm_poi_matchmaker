@@ -23,8 +23,8 @@ try:
     from sqlalchemy.orm import scoped_session, sessionmaker
     from dao.poi_base import POIBase
 except ImportError as err:
-    print('Error {0} import module: {1}'.format(__name__, err))
-    traceback.print_exc()
+    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error(traceback.print_exc())
     exit(128)
 
 __program__ = 'create_db'
@@ -100,7 +100,7 @@ def import_poi_data_module(module):
             work.process()
             work.export_list()
     except Exception as err:
-        print(err)
+        logging.error(err)
 
 
 def load_poi_data(database):
@@ -290,11 +290,12 @@ def online_poi_matching(args):
 
                 except Exception as err:
                     logging.warning('There was an error during OSM request: {}.'.format(err))
-                    traceback.print_exc()
+                    logging.error(traceback.print_exc())
         session.commit()
         return data
     except Exception as err:
-        print(err)
+        logging.error(traceback.print_exc())
+        logging.error(err)
 
 
 class WorkflowManager(object):
@@ -316,8 +317,8 @@ class WorkflowManager(object):
             self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable())
             self.pool.close()
         except Exception as e:
-            traceback.print_exc()
-            print(e)
+            logging.error(traceback.print_exc())
+            logging.error(e)
 
     def start_exporter(self, data, postfix=''):
         poi_codes = data['poi_code'].unique()
@@ -331,8 +332,8 @@ class WorkflowManager(object):
             self.results = self.pool.map_async(export_grouped_poi_data, modules)
             self.pool.close()
         except Exception as e:
-            traceback.print_exc()
-            print(e)
+            logging.error(traceback.print_exc())
+            logging.error(e)
 
     def start_matcher(self, data, comm_data):
         try:
@@ -343,8 +344,8 @@ class WorkflowManager(object):
             self.pool.close()
             return pd.concat(list(self.results.get()))
         except Exception as e:
-            traceback.print_exc()
-            print(e)
+            logging.error(traceback.print_exc())
+            logging.error(e)
 
     def join(self):
         self.pool.join()

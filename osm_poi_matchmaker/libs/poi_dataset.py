@@ -15,8 +15,8 @@ try:
     from dao.poi_base import POIBase
     from libs.poi_qc import POIQC
 except ImportError as err:
-    print('Error {0} import module: {1}'.format(__name__, err))
-    traceback.print_exc()
+    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error(traceback.print_exc())
     exit(128)
 
 __program__ = 'poi_dataset'

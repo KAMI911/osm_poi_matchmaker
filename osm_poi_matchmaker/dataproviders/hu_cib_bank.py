@@ -13,8 +13,8 @@ try:
 
 
 except ImportError as err:
-    print('Error {0} import module: {1}'.format(__name__, err))
-    traceback.print_exc()
+    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error(traceback.print_exc())
     exit(128)
 
 
@@ -73,5 +73,5 @@ class hu_cib_bank():
                 else:
                     insert_poi_dataframe(self.session, data.process())
         except Exception as e:
-            traceback.print_exc()
+            logging.error(traceback.print_exc())
             logging.error(e)

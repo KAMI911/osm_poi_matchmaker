@@ -14,8 +14,8 @@ try:
     from libs.poi_dataset import POIDataset
     from utils.data_provider import DataProvider
 except ImportError as err:
-    print('Error {0} import module: {1}'.format(__name__, err))
-    traceback.print_exc()
+    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error(traceback.print_exc())
     exit(128)
 
 
@@ -73,5 +73,5 @@ class hu_omv(DataProvider):
                         self.data.phone = None
                     self.data.add()
         except Exception as e:
-            traceback.print_exc()
+            logging.error(traceback.print_exc())
             logging.error(e)

@@ -2,11 +2,12 @@
 
 try:
     import traceback
+    import logging
     from libs.osm import timestamp_now
     from dao.data_structure import OSM_object_type
 except ImportError as err:
-    print('Error {0} import module: {1}'.format(__name__, err))
-    traceback.print_exc()
+    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error(traceback.print_exc())
     exit(128)
 
 

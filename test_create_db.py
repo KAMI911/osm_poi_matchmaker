@@ -11,7 +11,7 @@ try:
     from test.test_osm import TestOSMRelationer
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
-    print('Error {0} import module: {1}'.format(__name__, err))
+    logging.error('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
 
 
