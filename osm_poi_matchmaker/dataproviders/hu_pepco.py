@@ -28,7 +28,7 @@ class hu_pepco(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hupepcoclo', 'poi_name': 'Pepco', 'poi_type': 'clothes',
-                 'poi_tags': "{'shop': 'clothes', 'brand': 'Pepco', 'brand:wikidata': 'Q11815580', 'brand:wikipedia': 'pl:Pepco', 'contact:facebook'='https://www.facebook.com/pepcohu/', 'contact:website'='https://pepco.hu/', 'contact:linkedin'='https://www.linkedin.com/company/pepco-poland', 'contact:phone'='+36 1 701 0424', 'contact:email'='ugyfelszolgalat@pepco.eu', 'operator'='Pepkor Hungary Kft.', 'operator:addr'='1138 Budapest, Váci út 187.'," + POS_OTP + "}",
+                 'poi_tags': "{'shop': 'clothes', 'brand': 'Pepco', 'brand:wikidata': 'Q11815580', 'brand:wikipedia': 'pl:Pepco', 'contact:facebook': 'https://www.facebook.com/pepcohu/', 'contact:website':'https://pepco.hu/', 'contact:linkedin': 'https://www.linkedin.com/company/pepco-poland', 'contact:phone': '+36 1 701 0424', 'contact:email': 'ugyfelszolgalat@pepco.eu', 'operator': 'Pepkor Hungary Kft.', 'operator:addr': '1138 Budapest, Váci út 187.', 'payment:cash': 'yes', 'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes' }",
                  'poi_url_base': 'https://pepco.hu', 'poi_search_name': 'tesco', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200}]
         return self.__types
 
@@ -47,10 +47,12 @@ class hu_pepco(DataProvider):
                     '''
                     logging.info(poi_data.get('city'))
                     logging.info(query_osm_city_name(self.session, poi_data.get('city')))
-                    if 'city' in poi_data and poi_data['city'] == '' and query_osm_city_name(self.session, poi_data['city']) is None:
+                    if 'city' in poi_data and (poi_data['city'] == '' or query_osm_city_name(self.session, poi_data['city']) is None):
                         continue
                     elif 'city' in poi_data:
                         self.data.city = poi_data['city']
+                    else:
+                        continue
                     self.data.name = 'Pepco'
                     self.data.code = 'hupepcoclo'
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
