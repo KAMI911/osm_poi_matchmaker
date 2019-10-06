@@ -101,6 +101,7 @@ def import_poi_data_module(module):
             work.export_list()
     except Exception as err:
         logging.error(err)
+        logging.error(traceback.print_exc())
 
 
 def load_poi_data(database):
@@ -290,12 +291,12 @@ def online_poi_matching(args):
 
                 except Exception as err:
                     logging.warning('There was an error during OSM request: {}.'.format(err))
-                    logging.error(traceback.print_exc())
+                    logging.warning(traceback.print_exc())
         session.commit()
         return data
     except Exception as err:
-        logging.error(traceback.print_exc())
         logging.error(err)
+        logging.error(traceback.print_exc())
 
 
 class WorkflowManager(object):
@@ -317,8 +318,8 @@ class WorkflowManager(object):
             self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable())
             self.pool.close()
         except Exception as e:
-            logging.error(traceback.print_exc())
             logging.error(e)
+            logging.error(traceback.print_exc())
 
     def start_exporter(self, data, postfix=''):
         poi_codes = data['poi_code'].unique()
@@ -332,8 +333,8 @@ class WorkflowManager(object):
             self.results = self.pool.map_async(export_grouped_poi_data, modules)
             self.pool.close()
         except Exception as e:
-            logging.error(traceback.print_exc())
             logging.error(e)
+            logging.error(traceback.print_exc())
 
     def start_matcher(self, data, comm_data):
         try:
@@ -344,8 +345,8 @@ class WorkflowManager(object):
             self.pool.close()
             return pd.concat(list(self.results.get()))
         except Exception as e:
-            logging.error(traceback.print_exc())
             logging.error(e)
+            logging.error(traceback.print_exc())
 
     def join(self):
         self.pool.join()
