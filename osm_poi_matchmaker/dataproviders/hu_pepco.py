@@ -38,7 +38,6 @@ class hu_pepco(DataProvider):
             if soup != None:
                 text = json.loads(soup.get_text())
                 for poi_data in text['data']:
-                    logging.info(poi_data)
                     '''
                     The Pepco dataset contains all European data. Since the program cannot handle POIs outside Hungary (so far)
                     this will limit only for Hungarian POIs
