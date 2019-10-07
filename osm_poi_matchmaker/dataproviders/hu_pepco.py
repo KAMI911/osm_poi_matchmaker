@@ -65,8 +65,7 @@ class hu_pepco(DataProvider):
                             self.data.day_open(i, opening[i]['from'])
                             self.data.day_close(i, opening[i]['to'])
                     # Assign additional informations
-                    if 'phone' in poi_data and poi_data['phone'] != '':
-                        self.data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
+                    self.data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
                     self.data.public_holiday_open = False
                     self.data.add()
         except Exception as e:
