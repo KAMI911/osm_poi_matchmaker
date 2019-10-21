@@ -14,7 +14,7 @@ def compare_strings(string1, string2 = ''):
         return 'N'
     elif (string1 is not '' and string1 is not None) and (string2 is '' or string2 is None):
         return 'D'
-    elif  string1 != string2:
+    elif  str(string1) != str(string2):
         return 'M'
-    elif string1 == string2:
+    elif str(string1) == str(string2):
         return 'E'
