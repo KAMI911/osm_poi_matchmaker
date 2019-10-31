@@ -29,7 +29,7 @@ class hu_mol_bubi(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hububibir', 'poi_name': 'MOL Bubi', 'poi_type': 'bicycle_rental',
-                 'poi_tags': "{'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'operator': 'BKK MOL Bubi', 'network': 'bubi', 'addr:country': 'HU', 'contact:instagram': 'https://www.instagram.com/molbubi/', 'contact:facebook': 'https://www.facebook.com/molbubi', 'contact:youtube': 'https://www.youtube.com/user/bkkweb', 'twitter': 'molbubi'}",
+                 'poi_tags': "{'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'operator': 'BKK MOL Bubi', 'network': 'bubi',  'contact:instagram': 'https://www.instagram.com/molbubi/', 'contact:facebook': 'https://www.facebook.com/molbubi', 'contact:youtube': 'https://www.youtube.com/user/bkkweb', 'twitter': 'molbubi'}",
                  'poi_url_base': 'https://molbubi.bkk.hu', 'poi_search_name': '(mol bubi|bubi)'}]
         return self.__types
 

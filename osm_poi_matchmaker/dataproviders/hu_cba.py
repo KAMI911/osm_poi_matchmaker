@@ -31,16 +31,16 @@ class hu_cba(DataProvider):
     def types(self):
         self.__types = [
             {'poi_code': 'hucbacon', 'poi_name': 'CBA', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'convenience', 'brand': 'CBA', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+             'poi_tags': "{'shop': 'convenience', 'brand': 'CBA',  'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.cba.hu', 'poi_search_name': '(cba abc|cba)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 5, 'preserve_original_name': True},
             {'poi_code': 'hucbasup', 'poi_name': 'CBA', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'supermarket', 'brand': 'CBA', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+             'poi_tags': "{'shop': 'supermarket', 'brand': 'CBA',  'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.cba.hu', 'poi_search_name': '(cba abc|cba)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 5, 'preserve_original_name': True},
             {'poi_code': 'huprimacon', 'poi_name': 'Príma', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'convenience', 'brand': 'Príma', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+             'poi_tags': "{'shop': 'convenience', 'brand': 'Príma',  'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.prima.hu', 'poi_search_name': '(príma abc|prima abc|príma|prima)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 23, 'preserve_original_name': True},
             {'poi_code': 'huprimasup', 'poi_name': 'Príma', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'supermarket', 'brand': 'Príma', 'addr:country': 'HU', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+             'poi_tags': "{'shop': 'supermarket', 'brand': 'Príma',  'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
              'poi_url_base': 'https://www.prima.hu', 'poi_search_name': '(príma abc|prima abc|príma|prima)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 23, 'preserve_original_name': True}]
         return self.__types
 

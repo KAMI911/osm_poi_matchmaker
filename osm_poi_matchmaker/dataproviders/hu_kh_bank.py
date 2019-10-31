@@ -27,10 +27,10 @@ class hu_kh_bank():
     @staticmethod
     def types():
         data = [{'poi_code': 'hukhbank', 'poi_name': 'K&H Bank', 'poi_type': 'bank',
-                 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', 'bic': 'OKHBHUHB', 'atm': 'yes', 'addr:country': 'HU', 'air_conditioning': 'yes'}",
+                 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', 'bic': 'OKHBHUHB', 'atm': 'yes',  'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.kh.hu', 'poi_search_name': '(kh bank|k&h bank|k&h|kh)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 4},
                 {'poi_code': 'hukhatm', 'poi_name': 'K&H Bank ATM', 'poi_type': 'atm',
-                 'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', 'addr:country': 'HU'}",
+                 'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.'}",
                  'poi_url_base': 'https://www.kh.hu', 'poi_search_name': '(kh bank atm|k&h bank atm|k&h atm|kh atm)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 3}]
         return data
 

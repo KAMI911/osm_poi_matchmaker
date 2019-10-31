@@ -26,7 +26,7 @@ class hu_tesco(DataProvider):
         self.link = 'https://tesco.hu/Ajax?type=fetch-stores-for-area&reduceBy%5Btab%5D=all&bounds%5Bnw%5D%5Blat%5D=49.631214952216425&bounds%5Bnw%5D%5Blng%5D=11.727758183593778&bounds%5Bne%5D%5Blat%5D=49.631214952216425&bounds%5Bne%5D%5Blng%5D=27.004247441406278&bounds%5Bsw%5D%5Blat%5D=38.45256463471463&bounds%5Bsw%5D%5Blng%5D=11.727758183593778&bounds%5Bse%5D%5Blat%5D=38.45256463471463&bounds%5Bse%5D%5Blng%5D=27.004247441406278&currentCoords%5Blat%5D=44.30719090363816&currentCoords%5Blng%5D=19.366002812500028&instanceUUID=b5c4aa5f-9819-47d9-9e5a-d631e931c007'
         self.POI_COMMON_TAGS = "'operator': 'TESCO-GLOBAL Áruházak Zrt.', 'operator:addr': '2040 Budaörs, Kinizsi út 1-3.'," \
                                " 'ref:HU:company': '13-10-040628', 'ref:vatin:hu': '10307078-2-44', 'ref:vatin': 'HU10307078', 'brand': 'Tesco'," \
-                               " 'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494', 'addr:country': 'HU'," \
+                               " 'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494', " \
                                " 'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'tesco-internet'," \
                                " 'contact:facebook': 'https://www.facebook.com/tescoaruhazak', 'contact:pinterest': 'https://www.pinterest.com/tescohungary/'," \
                                " 'contact:youtube': 'https://www.youtube.com/user/TescoMagyarorszag',  'loyalty_card': 'yes'," \
