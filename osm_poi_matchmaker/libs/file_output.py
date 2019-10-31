@@ -184,6 +184,8 @@ def generate_osm_xml(df, session=None):
                     else:
                         # Rewrite simple contact tag to contact:* tag
                         tags['contact:' + tr] = tags.pop(tr, None)
+            # Remove unwanted addr:country from file output as we discussed in Issue #33
+            tags.pop('addr:country', None)
             # tags['import'] = 'osm_poi_matchmaker'
             # Rendering tags to the XML file and JOSM magic link
             josm_link = ''
