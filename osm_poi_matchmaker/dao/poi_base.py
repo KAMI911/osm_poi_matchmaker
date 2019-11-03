@@ -339,6 +339,68 @@ class POIBase:
         else:
             return data
 
+
+    def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='', distance=60):
+        '''
+        Looking for a building (actually a way) around the POI node with same address with within a preconfigured distance.
+        Actually this method helps to find a building for a single node.
+        :param lon: Longitude of POI node type coordinate.
+        :param lat: Latitude of POI node type coordinate.
+        :param: city: Name of city where the POI node is.
+        :param: postcode: Postcode of area where the POI node is.
+        :param: street_name: Name of street where the POI node is.
+        :param: housenumber: House number of street where the POI node is.
+        :param: distance: Look buildings around the POI node within this radius (specified in meter).
+        :return: A new node within the building with same address.
+        '''
+        buffer = 10
+        # When we got all address parts, then we should try to fetch only one coordinate pair of building geometry
+        if city is not None and city != '' and postcode is not None and postcode != '' and street_name is not None and \
+            street_name != '' and housenumber is not None and housenumber != '':
+            city_query = ' AND "addr:city" = :city'
+            postcode_query = ' AND "addr:postcode" = :postcode'
+            street_query = ' AND "addr:street" = :street_name'
+            housenumber_query = ' AND "addr:housenumber" = :housenumber'
+        else:
+            return None
+        query = sqlalchemy.text('''
+            --- The building selector based on POI node distance and
+            --- city, postcode, street name and housenumber of building
+            --- Make a line that connects the building and POI coords, using one point from union
+            SELECT name, building, osm_id, 'way' AS node, "addr:housename",
+                "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                 ST_Y(ST_Transform(ST_PointOnSurface(way),4326)) as lat,
+                 ST_X(ST_Transform(ST_PointOnSurface(way),4326)) as lon,
+                 ST_Y(ST_Transform(ST_PointOnSurface(ST_Intersection(
+                 ST_Transform(way, 4326), ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom))) ,4326)) as lat_edge,
+                 ST_X(ST_Transform(ST_PointOnSurface(ST_Intersection(
+                 ST_Transform(way, 4326), ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom))) ,4326)) as lon_edge,
+                 ST_Y(ST_PointOnSurface(ST_Union(ST_BuildArea(ST_Transform(way, 4326)),
+                 ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom)))) as lat_test,
+                 ST_X(ST_PointOnSurface(ST_Union(ST_BuildArea(ST_Transform(way, 4326)),
+                 ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom)))) as lon_test,
+                ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
+                ST_PointOnSurface(way) in_building, ST_AsEWKT(ST_Transform(way, 4326)) as way_ewkt,
+                ST_AsEWKT(ST_PointOnSurface(ST_Transform(way, 4326))) in_building_ewkt
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+            WHERE ST_Intersects(ST_Transform(way, 4326), point.geom) AND building <> '' AND osm_id > 0
+                {city_query} {postcode_query} {street_query} {housenumber_query}
+                AND ST_DWithin(ST_Buffer(ST_Transform(way, 4326), :buffer), point.geom, :distance)
+            ORDER BY distance ASC LIMIT 1'''.format(city_query=city_query, postcode_query=postcode_query,
+                                                          street_query=street_query, housenumber_query=housenumber_query))
+        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
+                                                                                         'distance': distance,
+                                                                                         'city': city,
+                                                                                         'postcode': str(postcode),
+                                                                                         'buffer': buffer,
+                                                                                         'street_name': street_name,
+                                                                                         'housenumber': housenumber})
+        if data.empty:
+            return None
+        else:
+            return data
+
+
     def query_poi_in_water(self, lon, lat):
         distance = 1
         try:

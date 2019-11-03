@@ -163,15 +163,19 @@ def online_poi_matching(args):
                 if row['poi_addr_street'] is not None and row['poi_addr_street'] != '':
                     # This search combinates two types of search - with and without OSM street name
                     osm_query = db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
-                                                       row['poi_search_name'], row['poi_addr_street'], row['poi_addr_housenumber'], row['osm_search_distance_perfect'], row['osm_search_distance_safe'], row['osm_search_distance_unsafe'])
+                                                       row['poi_search_name'], row['poi_addr_street'],
+                                                       row['poi_addr_housenumber'], row['osm_search_distance_perfect'],
+                                                       row['osm_search_distance_safe'], row['osm_search_distance_unsafe'])
                 else:
                     osm_query = db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
-                                               row['poi_search_name'], '', '', row['osm_search_distance_perfect'], row['osm_search_distance_safe'],
-                                               row['osm_search_distance_unsafe'])
+                                               row['poi_search_name'], '', '', row['osm_search_distance_perfect'],
+                                               row['osm_search_distance_safe'], row['osm_search_distance_unsafe'])
             # Try to search OSM POI with same type and without name within the specified distance
             if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
                 osm_query = (
-                    db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), '', '', '', row['osm_search_distance_perfect'], row['osm_search_distance_safe'], row['osm_search_distance_unsafe']))
+                    db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), '', '', '',
+                                              row['osm_search_distance_perfect'], row['osm_search_distance_safe'],
+                                              row['osm_search_distance_unsafe']))
             # Enrich our data with OSM database POI metadata
             if osm_query is not None:
                 # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
@@ -292,6 +296,18 @@ def online_poi_matching(args):
                 except Exception as err:
                     logging.warning('There was an error during OSM request: {}.'.format(err))
                     logging.warning(traceback.print_exc())
+            # This is a new POI
+            else:
+                logging.info('New {} type: {} POI: {} {}, {} {}'.format(row['poi_search_name'], row['poi_type'],
+                    row['poi_postcode'], row['poi_city'], row['poi_addr_street'], row['poi_addr_housenumber']))
+                osm_bulding_q = db.query_osm_building_poi_gpd(row['poi_lon'], row['poi_lat'], row['poi_city'],
+                    row['poi_postcode'], row['poi_addr_street'], row['poi_addr_housenumber'])
+                if osm_bulding_q is not None:
+                    logging.info('Relocating POI coordinates to the building with same address: {} {}, {} {}'.format(
+                        row['poi_lat'], row['poi_lon'], osm_bulding_q['lat'][0], osm_bulding_q['lon'][0]))
+                    row['poi_lat'], row['poi_lon'] = osm_bulding_q['lat'][0], osm_bulding_q['lon'][0]
+                else:
+                    logging.info('The POI is already in its building or there is no building match. Keeping POI coordinates as is as.')
         session.commit()
         return data
     except Exception as err:
