@@ -134,7 +134,7 @@ class POIBase:
         query_type, distance = poitypes.getPOITypes(ptype)
         # If we have PO common definied unsafe search radius distance, then use it (or use defaults specified above)
         if name is not '':
-            query_name = ' AND name ~* :name'
+            query_name = ' AND (name ~* :name OR brand ~* :name)'
             # If we have PO common definied safe search radius distance, then use it (or use defaults specified above)
             if not isnan(distance_safe):
                 distance = distance_safe
