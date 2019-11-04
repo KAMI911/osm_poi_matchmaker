@@ -12,7 +12,7 @@ try:
     from libs.osm import query_postcode_osm_external, query_osm_city_name_gpd
     from libs.poi_dataset import POIDataset
     from utils.data_provider import DataProvider
-    from libs.osm_tag_sets import POS_OTP
+    from libs.osm_tag_sets import POS_OTP, PAY_CASH
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -30,7 +30,7 @@ class hu_tesco(DataProvider):
                                " 'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'tesco-internet'," \
                                " 'contact:facebook': 'https://www.facebook.com/tescoaruhazak', 'contact:pinterest': 'https://www.pinterest.com/tescohungary/'," \
                                " 'contact:youtube': 'https://www.youtube.com/user/TescoMagyarorszag',  'loyalty_card': 'yes'," \
-                               + POS_OTP + "'payment:gift_card': 'yes', 'payment:wire_transfer': 'yes'," \
+                               + POS_OTP + PAY_CASH + "'payment:gift_card': 'yes', 'payment:wire_transfer': 'yes'," \
                                " 'air_conditioning': 'yes'"
         self.filename = self.filename + 'json'
 

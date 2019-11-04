@@ -11,6 +11,7 @@ try:
     from libs.geo import check_hu_boundary
     from libs.osm import query_postcode_osm_external
     from libs.poi_dataset import POIDataset
+    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from utils.data_provider import DataProvider
     from utils import config
 except ImportError as err:
@@ -33,7 +34,7 @@ class hu_kulcs_patika(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
-                 'poi_tags': "{'amenity': 'pharmacy', 'brand': 'Kulcs Patika', 'dispensing': 'yes',  'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'air_conditioning': 'yes'}",
+                 'poi_tags': "{'amenity': 'pharmacy', 'brand': 'Kulcs Patika', 'dispensing': 'yes', " + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.kulcspatika.hu/', 'poi_search_name': '(kulcs patika|kulcs)', 'preserve_original_name': True}]
         return self.__types
 

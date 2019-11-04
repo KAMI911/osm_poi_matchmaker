@@ -11,6 +11,7 @@ try:
     from libs.geo import check_hu_boundary
     from libs.osm import query_postcode_osm_external
     from libs.poi_dataset import POIDataset
+    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from utils.data_provider import DataProvider
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
@@ -28,7 +29,7 @@ class hu_benu(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
-                 'poi_tags': "{'amenity': 'pharmacy', 'brand': 'Benu gyógyszertár', 'dispensing': 'yes',  'payment:mastercard': 'yes', 'payment:visa': 'yes', 'contact:facebook':'https://www.facebook.com/BENUgyogyszertar', 'contact:youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg', 'air_conditioning': 'yes'}",
+                 'poi_tags': "{'amenity': 'pharmacy', 'brand': 'Benu gyógyszertár', 'dispensing': 'yes', " + POS_HU_GEN + PAY_CASH + " 'contact:facebook':'https://www.facebook.com/BENUgyogyszertar', 'contact:youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://benu.hu', 'poi_search_name': '(benu gyogyszertár|benu)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 20, 'preserve_original_name': True}]
         return self.__types
 

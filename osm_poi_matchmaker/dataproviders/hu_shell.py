@@ -10,6 +10,7 @@ try:
     from libs.geo import check_hu_boundary
     from libs.osm import query_postcode_osm_external
     from libs.poi_dataset import POIDataset
+    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from utils.data_provider import DataProvider
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
@@ -27,10 +28,10 @@ class hu_shell(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel',
-                 'poi_tags': "{'amenity': 'fuel', 'brand': 'Shell',  'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
+                 'poi_tags': "{'amenity': 'fuel', 'brand': 'Shell', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.shell.hu', 'poi_search_name': 'shell'},
                 {'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel',
-                 'poi_tags': "{'amenity': 'fuel', 'brand': 'Mobil Petrol',  'payment:cash': 'yes', 'payment:debit_cards': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
+                 'poi_tags': "{'amenity': 'fuel', 'brand': 'Mobil Petrol', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
                  'poi_url_base': 'http://www.mpetrol.hu/', 'poi_search_name': '(mobil metrol|shell)'}
                 ]
         return self.__types

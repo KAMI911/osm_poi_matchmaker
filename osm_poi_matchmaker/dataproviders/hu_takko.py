@@ -11,8 +11,8 @@ try:
     from libs.geo import check_hu_boundary
     from libs.osm import query_postcode_osm_external, query_osm_city_name_gpd
     from libs.poi_dataset import POIDataset
+    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from utils.data_provider import DataProvider
-    from libs.osm_tag_sets import POS_OTP
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -27,7 +27,7 @@ class hu_takko(DataProvider):
         self.POI_COMMON_TAGS = "'operator': 'Takko Fashion Kft.', 'operator:addr': '2040 Budaörs, Ébner György köz 4.'," \
                                " 'ref:HU:company': '13-10-040628', 'ref:vatin:hu': '1335199-2-13', 'ref:vatin': 'HU1335199', 'brand': 'Takko'," \
                                " 'contact:website': 'https://www.takko.com/hu-hu/'" \
-                               "  'loyalty_card': 'yes'," + POS_OTP + " 'air_conditioning': 'yes'"
+                               "  'loyalty_card': 'yes', " + POS_HU_GEN + PAY_CASH + " 'air_conditioning': 'yes'"
         self.filename = self.filename + 'json'
 
     def types(self):

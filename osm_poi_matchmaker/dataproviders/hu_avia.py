@@ -13,6 +13,7 @@ try:
     from libs.geo import check_hu_boundary
     from libs.osm import query_postcode_osm_external
     from libs.poi_dataset import POIDataset
+    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from utils.data_provider import DataProvider
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
@@ -30,7 +31,7 @@ class hu_avia(DataProvider):
 
     def types(self):
         self.__type = [{'poi_code': 'huaviafu', 'poi_name': 'Avia', 'poi_type': 'fuel',
-                 'poi_tags': "{'amenity': 'fuel', 'brand': 'Avia', 'operator': 'AVIA Hungária Kft.',  'payment:mastercard': 'yes', 'payment:visa': 'yes', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'contact:email': 'avia@avia.hu', 'contact:facebook': 'https://www.facebook.com/AVIAHungary', 'contact:youtube': 'https://www.youtube.com/channel/UCjvjkjf2RgmKBuTnKSXk-Rg', }",
+                 'poi_tags': "{'amenity': 'fuel', 'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'contact:email': 'avia@avia.hu', 'contact:facebook': 'https://www.facebook.com/AVIAHungary', 'contact:youtube': 'https://www.youtube.com/channel/UCjvjkjf2RgmKBuTnKSXk-Rg', }",
                  'poi_url_base': 'https://www.avia.hu', 'poi_search_name': 'avia', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15}]
         return self.__type
 

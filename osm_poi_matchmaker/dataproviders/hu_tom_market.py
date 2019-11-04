@@ -10,6 +10,7 @@ try:
     from libs.address import extract_city_street_housenumber_address, clean_city
     from libs.osm import query_postcode_osm_external
     from libs.poi_dataset import POIDataset
+    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from utils.data_provider import DataProvider
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
@@ -30,7 +31,7 @@ class hu_tom_market(DataProvider):
     def types(self):
         self.__types = [
             {'poi_code': 'hutommacon', 'poi_name': 'Tom Market', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'convenience', 'brand': 'Tom Market',  'payment:debit_cards': 'yes'}",
+             'poi_tags': "{'shop': 'convenience', 'brand': 'Tom Market', " + POS_HU_GEN + PAY_CASH + "}",
              'poi_url_base': 'https://www.tommarket.hu', 'poi_search_name': 'tom market'}]
         return self.__types
 

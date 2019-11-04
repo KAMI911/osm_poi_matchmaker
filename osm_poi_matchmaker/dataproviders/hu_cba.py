@@ -13,6 +13,7 @@ try:
     from libs.geo import check_hu_boundary
     from libs.osm import query_postcode_osm_external
     from libs.poi_dataset import POIDataset
+    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from utils.data_provider import DataProvider
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
@@ -31,7 +32,7 @@ class hu_cba(DataProvider):
     def types(self):
         self.__types = [
             {'poi_code': 'hucbacon', 'poi_name': 'CBA', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'convenience', 'brand': 'CBA',  'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
+             'poi_tags': "{'shop': 'convenience', 'brand': 'CBA', " + POS_HU_GEN + PAY_CASH + "}",
              'poi_url_base': 'https://www.cba.hu', 'poi_search_name': '(cba abc|cba)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 5, 'preserve_original_name': True},
             {'poi_code': 'hucbasup', 'poi_name': 'CBA', 'poi_type': 'shop',
              'poi_tags': "{'shop': 'supermarket', 'brand': 'CBA',  'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",

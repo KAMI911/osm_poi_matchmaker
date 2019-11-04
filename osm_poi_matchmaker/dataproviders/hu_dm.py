@@ -11,6 +11,7 @@ try:
     from libs.geo import check_hu_boundary
     from libs.osm import query_postcode_osm_external
     from libs.poi_dataset import POIDataset
+    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from utils.data_provider import DataProvider
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
@@ -29,7 +30,7 @@ class hu_dm(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hudmche', 'poi_name': 'dm', 'poi_type': 'chemist',
-                 'poi_tags': "{'shop': 'chemist', 'operator': 'dm Kft.', 'brand': 'dm',  'brand:wikidata': 'Q266572', 'brand:wikipedia': 'en:Dm-drogerie markt', 'contact:facebook':'https://www.facebook.com/dm.Magyarorszag', 'contact:youtube': 'https://www.youtube.com/user/dmMagyarorszag', 'contact:instagram':'https://www.instagram.com/dm_magyarorszag', 'payment:cash': 'yes', 'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes', 'air_conditioning': 'yes'}",
+                 'poi_tags': "{'shop': 'chemist', 'operator': 'dm Kft.', 'brand': 'dm',  'brand:wikidata': 'Q266572', 'brand:wikipedia': 'en:Dm-drogerie markt', 'contact:facebook':'https://www.facebook.com/dm.Magyarorszag', 'contact:youtube': 'https://www.youtube.com/user/dmMagyarorszag', 'contact:instagram':'https://www.instagram.com/dm_magyarorszag', " + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.dm.hu', 'poi_search_name': 'dm', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15}]
         return self.__types
 

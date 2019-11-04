@@ -9,6 +9,7 @@ try:
     from libs.address import extract_street_housenumber_better_2, clean_city
     from libs.osm import query_postcode_osm_external
     from libs.poi_dataset import POIDataset
+    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from utils.data_provider import DataProvider
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
@@ -20,7 +21,7 @@ class hu_aldi(DataProvider):
 
     def constains(self):
         self.link = 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas'
-        self.POI_COMMON_TAGS = "'operator': 'ALDI Magyarország Élelmiszer Bt.', 'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi', 'ref:vatin:hu':'22234663-2-44', 'ref:vatin':'HU22234663', ,'brand:wikipedia':'hu:Aldi', ,'brand:wikidata':'Q125054',  'contact:facebook': 'https://www.facebook.com/ALDI.Magyarorszag', 'contact:youtube':'https://www.youtube.com/user/ALDIMagyarorszag', 'contact:instagram':'https://www.instagram.com/aldi.magyarorszag', 'payment:mastercard': 'yes', 'payment:visa': 'yes', 'air_conditioning': 'yes'}"
+        self.POI_COMMON_TAGS = "'operator': 'ALDI Magyarország Élelmiszer Bt.', 'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi', 'ref:vatin:hu':'22234663-2-44', 'ref:vatin':'HU22234663', ,'brand:wikipedia':'hu:Aldi', ,'brand:wikidata':'Q125054',  'contact:facebook': 'https://www.facebook.com/ALDI.Magyarorszag', 'contact:youtube':'https://www.youtube.com/user/ALDIMagyarorszag', 'contact:instagram':'https://www.instagram.com/aldi.magyarorszag', " + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}"
         self.filename = self.filename + 'html'
 
     def types(self):

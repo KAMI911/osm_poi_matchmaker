@@ -11,6 +11,7 @@ try:
     from libs.geo import check_hu_boundary
     from libs.osm import query_postcode_osm_external, query_osm_city_name_gpd, query_osm_city_name
     from libs.poi_dataset import POIDataset
+    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from utils.data_provider import DataProvider
     from libs.osm_tag_sets import POS_OTP
 except ImportError as err:
@@ -28,7 +29,7 @@ class hu_pepco(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hupepcoclo', 'poi_name': 'Pepco', 'poi_type': 'clothes',
-                 'poi_tags': "{'shop': 'clothes', 'brand': 'Pepco', 'brand:wikidata': 'Q11815580', 'brand:wikipedia': 'pl:Pepco', 'contact:facebook': 'https://www.facebook.com/pepcohu/', 'contact:website':'https://pepco.hu/', 'contact:linkedin': 'https://www.linkedin.com/company/pepco-poland', 'contact:phone': '+36 1 701 0424', 'contact:email': 'ugyfelszolgalat@pepco.eu', 'operator': 'Pepkor Hungary Kft.', 'operator:addr': '1138 Budapest, Váci út 187.', 'payment:cash': 'yes', 'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes' }",
+                 'poi_tags': "{'shop': 'clothes', 'brand': 'Pepco', 'brand:wikidata': 'Q11815580', 'brand:wikipedia': 'pl:Pepco', 'contact:facebook': 'https://www.facebook.com/pepcohu/', 'contact:website':'https://pepco.hu/', 'contact:linkedin': 'https://www.linkedin.com/company/pepco-poland', 'contact:phone': '+36 1 701 0424', 'contact:email': 'ugyfelszolgalat@pepco.eu', 'operator': 'Pepkor Hungary Kft.', 'operator:addr': '1138 Budapest, Váci út 187.', " + POS_HU_GEN + PAY_CASH + " }",
                  'poi_url_base': 'https://pepco.hu', 'poi_search_name': 'pepco', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 5}]
         return self.__types
 
