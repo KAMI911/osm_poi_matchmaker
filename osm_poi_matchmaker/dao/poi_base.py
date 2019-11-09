@@ -327,10 +327,10 @@ class POIBase:
                  ST_Y(ST_Transform(ST_PointOnSurface(way),4326)) as lat_in_b,
                  ST_X(ST_Transform(ST_PointOnSurface(way),4326)) as lon_in_b,
 
-                 ST_Y(ST_LineInterpolatePoint(ST_Intersection(ST_Transform(way, 4326),
-                 ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom)), :ibp)) as lat,
-                 ST_X(ST_LineInterpolatePoint(ST_Intersection(ST_Transform(way, 4326),
-                 ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom)), :ibp)) as lon,
+                 ST_Y(ST_LineInterpolatePoint(ST_GeometryN(ST_Intersection(ST_Transform(way, 4326),
+                 ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom)), 1), :ibp)) as lat,
+                 ST_X(ST_LineInterpolatePoint(ST_GeometryN(ST_Intersection(ST_Transform(way, 4326),
+                 ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom)), 1), :ibp)) as lon,
 
                 ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
                 ST_PointOnSurface(way) in_building, ST_AsEWKT(ST_Transform(way, 4326)) as way_ewkt,
