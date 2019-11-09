@@ -336,7 +336,7 @@ class POIBase:
                 ST_PointOnSurface(way) in_building, ST_AsEWKT(ST_Transform(way, 4326)) as way_ewkt,
                 ST_AsEWKT(ST_PointOnSurface(ST_Transform(way, 4326))) in_building_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE ST_Intersects(ST_Transform(way, 4326), point.geom) IS FALSE   AND building <> '' AND osm_id > 0
+            WHERE building <> '' AND osm_id > 0
                 {city_query} {postcode_query} {street_query} {housenumber_query}
                 AND ST_DWithin(ST_Buffer(ST_Transform(way, 4326), :buffer), point.geom, :distance)
             ORDER BY distance ASC LIMIT 1'''.format(city_query=city_query, postcode_query=postcode_query,
