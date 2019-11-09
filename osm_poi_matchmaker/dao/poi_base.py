@@ -53,6 +53,10 @@ class POIBase:
     def session(self):
         return self.Session()
 
+    def __del__(self):
+        self.session.close()
+        self.engine.dispose()
+
     def query_all_pd(self, table):
         '''
         Load all POI data from SQL
