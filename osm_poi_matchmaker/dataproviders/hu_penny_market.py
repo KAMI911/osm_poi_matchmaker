@@ -19,7 +19,7 @@ except ImportError as err:
     exit(128)
 
 
-class hu_dm(DataProvider):
+class hu_penny_market(DataProvider):
 
 
     def constains(self):
