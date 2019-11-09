@@ -292,7 +292,7 @@ class POIBase:
             return data
 
 
-    def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='', distance=60):
+    def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='', in_building_percentage=0.50, distance=60):
         '''
         Looking for a building (actually a way) around the POI node with same address with within a preconfigured distance.
         Actually this method helps to find a building for a single node.
@@ -302,6 +302,9 @@ class POIBase:
         :param: postcode: Postcode of area where the POI node is.
         :param: street_name: Name of street where the POI node is.
         :param: housenumber: House number of street where the POI node is.
+        :param: in_building_percentage: In building line argument is a float8 between 0 and 1 representing fraction of
+          total linestring length the point has to be located.
+          Documentation: https://postgis.net/docs/ST_LineInterpolatePoint.html
         :param: distance: Look buildings around the POI node within this radius (specified in meter).
         :return: A new node within the building with same address.
         '''
@@ -321,21 +324,19 @@ class POIBase:
             --- Make a line that connects the building and POI coords, using one point from union
             SELECT name, building, osm_id, 'way' AS node, "addr:housename",
                 "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                 ST_Y(ST_Transform(ST_PointOnSurface(way),4326)) as lat,
-                 ST_X(ST_Transform(ST_PointOnSurface(way),4326)) as lon,
-                 ST_Y(ST_Transform(ST_PointOnSurface(ST_Intersection(
-                 ST_Transform(way, 4326), ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom))) ,4326)) as lat_edge,
-                 ST_X(ST_Transform(ST_PointOnSurface(ST_Intersection(
-                 ST_Transform(way, 4326), ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom))) ,4326)) as lon_edge,
-                 ST_Y(ST_PointOnSurface(ST_Union(ST_BuildArea(ST_Transform(way, 4326)),
-                 ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom)))) as lat_test,
-                 ST_X(ST_PointOnSurface(ST_Union(ST_BuildArea(ST_Transform(way, 4326)),
-                 ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom)))) as lon_test,
+                 ST_Y(ST_Transform(ST_PointOnSurface(way),4326)) as lat_in_b,
+                 ST_X(ST_Transform(ST_PointOnSurface(way),4326)) as lon_in_b,
+
+                 ST_Y(ST_LineInterpolatePoint(ST_Intersection(ST_Transform(way, 4326),
+                 ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom)), :ibp)) as lat,
+                 ST_X(ST_LineInterpolatePoint(ST_Intersection(ST_Transform(way, 4326),
+                 ST_MakeLine(ST_PointOnSurface(ST_Transform(way, 4326)), point.geom)), :ibp)) as lon,
+
                 ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
                 ST_PointOnSurface(way) in_building, ST_AsEWKT(ST_Transform(way, 4326)) as way_ewkt,
                 ST_AsEWKT(ST_PointOnSurface(ST_Transform(way, 4326))) in_building_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE ST_Intersects(ST_Transform(way, 4326), point.geom) AND building <> '' AND osm_id > 0
+            WHERE ST_Intersects(ST_Transform(way, 4326), point.geom) IS FALSE   AND building <> '' AND osm_id > 0
                 {city_query} {postcode_query} {street_query} {housenumber_query}
                 AND ST_DWithin(ST_Buffer(ST_Transform(way, 4326), :buffer), point.geom, :distance)
             ORDER BY distance ASC LIMIT 1'''.format(city_query=city_query, postcode_query=postcode_query,
@@ -346,7 +347,8 @@ class POIBase:
                                                                                          'postcode': str(postcode),
                                                                                          'buffer': buffer,
                                                                                          'street_name': street_name,
-                                                                                         'housenumber': housenumber})
+                                                                                         'housenumber': housenumber,
+                                                                                         'ibp': in_building_percentage})
         if data.empty:
             return None
         else:

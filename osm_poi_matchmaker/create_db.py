@@ -298,10 +298,19 @@ def online_poi_matching(args):
                     logging.warning(traceback.print_exc())
             # This is a new POI
             else:
+                # Get the first character of then name of POI and generate a floating number between 0 and 1
+                # for a PostGIS function: https://postgis.net/docs/ST_LineInterpolatePoint.html
+                # If there is more than one POI in a building this will try to do a different location and
+                # not only on center or not only on edge
+                ib = row.get('poi_name', None)
+                if ib is not None:
+                    ibp = 1 - (((ord(ib[0]) // 16) + 1) / 17)
+                else:
+                    ibp = 0.50
                 logging.info('New {} type: {} POI: {} {}, {} {}'.format(row['poi_search_name'], row['poi_type'],
                     row['poi_postcode'], row['poi_city'], row['poi_addr_street'], row['poi_addr_housenumber']))
                 osm_bulding_q = db.query_osm_building_poi_gpd(row['poi_lon'], row['poi_lat'], row['poi_city'],
-                    row['poi_postcode'], row['poi_addr_street'], row['poi_addr_housenumber'])
+                    row['poi_postcode'], row['poi_addr_street'], row['poi_addr_housenumber'], in_building_percentage=ibp)
                 if osm_bulding_q is not None:
                     logging.info('Relocating POI coordinates to the building with same address: {} {}, {} {}'.format(
                         row['poi_lat'], row['poi_lon'], osm_bulding_q['lat'][0], osm_bulding_q['lon'][0]))
