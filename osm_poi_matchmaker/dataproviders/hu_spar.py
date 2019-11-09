@@ -32,16 +32,16 @@ class hu_spar(DataProvider):
 
     def types(self):
         self.__types = \
-               [{'poi_code': 'husparexp', 'poi_name': 'Spar Expressz', 'poi_type': 'shop',
+               [{'poi_code': 'husparecon', 'poi_name': 'Spar Expressz', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'convenience', " + self.POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
-                {'poi_code': 'husparint', 'poi_name': 'Interspar', 'poi_type': 'shop',
+                {'poi_code': 'husparisup', 'poi_name': 'Interspar', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', " + self.POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
                 {'poi_code': 'husparsup', 'poi_name': 'Spar', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'supermarket', " + self.POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
-                {'poi_code': 'hudespexp', 'poi_name': 'DeSpar', 'poi_type': 'shop',
+                {'poi_code': 'huspardcon', 'poi_name': 'DeSpar', 'poi_type': 'shop',
                  'poi_tags': "{'shop': 'convenience', " + self.POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.spar.hu', 'poi_search_name': 'spar',
                  'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
@@ -58,16 +58,16 @@ class hu_spar(DataProvider):
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                     if 'xpres' in poi_data['name']:
                         self.data.name = 'Spar Expressz'
-                        self.data.code = 'husparexp'
+                        self.data.code = 'husparecon'
                     elif 'INTER' in poi_data['name']:
                         self.data.name = 'Interspar'
-                        self.data.code = 'husparint'
+                        self.data.code = 'husparisup'
                     elif 'market' in poi_data['name']:
                         self.data.name = 'Spar'
                         self.data.code = 'husparsup'
                     elif 'DESPAR' in poi_data['name']:
                         self.data.name = 'DeSpar'
-                        self.data.code = 'hudespexp'
+                        self.data.code = 'huspardcon'
                     else:
                         self.data.name = 'Spar'
                         self.data.code = 'husparsup'

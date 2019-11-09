@@ -56,6 +56,7 @@ class hu_dm(DataProvider):
                   if 'id' in poi_data and poi_data['id'] != '':
                       self.data.ref = poi_data['id'].strip()
                   self.data.public_holiday_open = False
+                  # TODO: Parsing opening_hours from datasource
                   self.data.add()
         except Exception as e:
             logging.error(traceback.print_exc())
