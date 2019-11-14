@@ -138,7 +138,7 @@ class POIBase:
         query_type, distance = poitypes.getPOITypes(ptype)
         # If we have PO common definied unsafe search radius distance, then use it (or use defaults specified above)
         if name is not '':
-            query_name = ' AND (name ~* :name OR brand ~* :name)'
+            query_name = ' AND (LOWER(name) ~* LOWER(:name) OR LOWER(brand) ~* LOWER(:name))'
             # If we have PO common definied safe search radius distance, then use it (or use defaults specified above)
             if not isnan(distance_safe):
                 distance = distance_safe
@@ -155,11 +155,11 @@ class POIBase:
         else:
             metadata_fields = ''
         if street_name is not None and street_name != '':
-            street_query = ' AND "addr:street" = :street_name'
+            street_query = ' AND LOWER("addr:street") = LOWER(:street_name)'
         else:
             street_query = ''
         if housenumber is not None and housenumber != '':
-            housenumber_query = ' AND "addr:housenumber" = :housenumber'
+            housenumber_query = ' AND LOWER("addr:housenumber") = LOWER(:housenumber)'
         else:
             housenumber_query = ''
         # Looking for way (building)
@@ -316,10 +316,10 @@ class POIBase:
         # When we got all address parts, then we should try to fetch only one coordinate pair of building geometry
         if city is not None and city != '' and postcode is not None and postcode != '' and street_name is not None and \
             street_name != '' and housenumber is not None and housenumber != '':
-            city_query = ' AND "addr:city" = :city'
+            city_query = ' AND LOWER("addr:city") = LOWER(:city)'
             postcode_query = ' AND "addr:postcode" = :postcode'
-            street_query = ' AND "addr:street" = :street_name'
-            housenumber_query = ' AND "addr:housenumber" = :housenumber'
+            street_query = ' AND LOWER("addr:street") = LOWER(:street_name)'
+            housenumber_query = ' AND LOWER("addr:housenumber") = LOWER(:housenumber)'
         else:
             return None
         query = sqlalchemy.text('''
