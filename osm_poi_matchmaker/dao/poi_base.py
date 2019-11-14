@@ -314,10 +314,7 @@ class POIBase:
         '''
         buffer = 10
         # When we got all address parts, then we should try to fetch only one coordinate pair of building geometry
-        if city is not None and city != '' and postcode is not None and postcode != '' and street_name is not None and \
-            street_name != '' and housenumber is not None and housenumber != '':
-            city_query = ' AND LOWER("addr:city") = LOWER(:city)'
-            postcode_query = ' AND "addr:postcode" = :postcode'
+        if street_name is not None and street_name != '' and housenumber is not None and housenumber != '':
             street_query = ' AND LOWER("addr:street") = LOWER(:street_name)'
             housenumber_query = ' AND LOWER("addr:housenumber") = LOWER(:housenumber)'
         else:
@@ -341,14 +338,11 @@ class POIBase:
                 ST_AsEWKT(ST_PointOnSurface(ST_Transform(way, 4326))) in_building_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE building <> '' AND osm_id > 0
-                {city_query} {postcode_query} {street_query} {housenumber_query}
+                {street_query} {housenumber_query}
                 AND ST_DWithin(ST_Buffer(ST_Transform(way, 4326), :buffer), point.geom, :distance)
-            ORDER BY distance ASC LIMIT 1'''.format(city_query=city_query, postcode_query=postcode_query,
-                                                          street_query=street_query, housenumber_query=housenumber_query))
+            ORDER BY distance ASC LIMIT 1'''.format(street_query=street_query, housenumber_query=housenumber_query))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
                                                                                          'distance': distance,
-                                                                                         'city': city,
-                                                                                         'postcode': str(postcode),
                                                                                          'buffer': buffer,
                                                                                          'street_name': street_name,
                                                                                          'housenumber': housenumber,
