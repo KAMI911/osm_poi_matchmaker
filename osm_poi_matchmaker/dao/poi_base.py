@@ -173,7 +173,7 @@ class POIBase:
                        ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query} {housenumber_query}
-                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :distance_perfect)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_perfect
                 UNION ALL
                 --- The node selector with street name and housenumber
                 SELECT name, osm_id, {metadata_fields} 970 AS priority, 'node' AS node, shop, amenity, "addr:housename",
@@ -183,7 +183,7 @@ class POIBase:
                        ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
                 FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query} {housenumber_query}
-                    AND ST_DWithin(way,ST_Transform(point.geom, 3857), :distance_perfect)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_perfect
                 UNION ALL
                 --- The relation selector with street name and housenumber
                 SELECT name, osm_id, {metadata_fields} 970 AS priority, 'relation' AS node, shop, amenity,
@@ -192,7 +192,7 @@ class POIBase:
                        ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id < 0 {query_name} {street_query} {housenumber_query}
-                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :distance_perfect)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_perfect
                 UNION ALL
                 --- The way selector with street name
                 SELECT name, osm_id, {metadata_fields} 980 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -201,7 +201,7 @@ class POIBase:
                        ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query}
-                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :street_distance)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :street_distance
                 UNION ALL
                 --- The node selector with street name
                 SELECT name, osm_id, {metadata_fields} 980 AS priority, 'node' AS node, shop, amenity, "addr:housename",
@@ -211,7 +211,7 @@ class POIBase:
                        ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
                 FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query}
-                    AND ST_DWithin(way,ST_Transform(point.geom, 3857), :street_distance)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :street_distance
                 UNION ALL
                 --- The relation selector with street name
                 SELECT name, osm_id, {metadata_fields} 980 AS priority, 'relation' AS node, shop, amenity,
@@ -220,7 +220,7 @@ class POIBase:
                        ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id < 0 {query_name} {street_query}
-                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :street_distance)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :street_distance
                 UNION ALL
                 --- The way selector without street name
                 SELECT name, osm_id, {metadata_fields} 990 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -229,7 +229,7 @@ class POIBase:
                        ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name}
-                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :distance)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
                 UNION ALL
                 --- The node selector without street name
                 SELECT name, osm_id, {metadata_fields} 990 AS priority, 'node' AS node, shop, amenity, "addr:housename",
@@ -239,7 +239,7 @@ class POIBase:
                        ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
                 FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name}
-                    AND ST_DWithin(way,ST_Transform(point.geom, 3857), :distance)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
                 UNION ALL
                 --- The relation selector without street name
                 SELECT name, osm_id, {metadata_fields} 990 AS priority, 'relation' AS node, shop, amenity,
@@ -248,7 +248,7 @@ class POIBase:
                        ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id < 0 {query_name}
-                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :distance)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
                 ORDER BY priority ASC, distance ASC;'''.format(query_type=query_type, query_name=query_name,
                                                                metadata_fields=metadata_fields,
                                                                street_query=street_query,
@@ -262,7 +262,7 @@ class POIBase:
                        ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name}
-                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :distance)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
                 UNION ALL
                 SELECT name, osm_id, {metadata_fields} 999 AS priority, 'node' AS node, shop, amenity, "addr:housename",
                        "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
@@ -271,7 +271,7 @@ class POIBase:
                        ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
                 FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name}
-                    AND ST_DWithin(way,ST_Transform(point.geom, 3857), :distance)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
                 UNION ALL
                 SELECT name, osm_id, {metadata_fields} 997 AS priority, 'relation' AS node, shop, amenity,
                        "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
@@ -279,7 +279,7 @@ class POIBase:
                        ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id < 0 {query_name}
-                    AND ST_DWithin(ST_Buffer(way,:buffer),ST_Transform(point.geom, 3857), :distance)
+                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
                 ORDER BY priority ASC, distance ASC;'''.format(query_type=query_type, query_name=query_name,
                                                            metadata_fields=metadata_fields))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
@@ -337,9 +337,8 @@ class POIBase:
                 ST_PointOnSurface(way) in_building, ST_AsEWKT(ST_Transform(way, 4326)) as way_ewkt,
                 ST_AsEWKT(ST_PointOnSurface(ST_Transform(way, 4326))) in_building_ewkt
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE building <> '' AND osm_id > 0
+            WHERE building <> '' AND osm_id > 0 AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
                 {street_query} {housenumber_query}
-                AND ST_DWithin(ST_Buffer(ST_Transform(way, 4326), :buffer), point.geom, :distance)
             ORDER BY distance ASC LIMIT 1'''.format(street_query=street_query, housenumber_query=housenumber_query))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
                                                                                          'distance': distance,
@@ -360,7 +359,7 @@ class POIBase:
             SELECT osm_id, way, ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) as geom) point
             WHERE(water IS NOT NULL OR waterway IS NOT NULL)
-              AND ST_DWithin(way, ST_Transform(point.geom, 4326), :distance)
+              AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
             ORDER BY distance ASC ''')
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
                                                                                              'distance': distance})
@@ -389,7 +388,7 @@ class POIBase:
                 SELECT name, osm_id, highway, {metadata_fields} ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
                 FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE "name" = :name AND "highway" is not NULL
-                AND ST_DWithin(way,ST_Transform(point.geom, 3857), :distance)
+                AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
                 ORDER BY distance ASC;
                 '''.format(metadata_fields=metadata_fields))
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
@@ -423,7 +422,7 @@ class POIBase:
                 SELECT name, osm_id, highway, {metadata_fields} ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
                 FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
                 WHERE dmetaphone(name) = dmetaphone(:name) AND highway is not NULL
-                AND ST_DWithin(way,ST_Transform(point.geom,3857), :distance)
+                AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
                 ORDER BY distance ASC;
                 '''.format(metadata_fields=metadata_fields))
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
