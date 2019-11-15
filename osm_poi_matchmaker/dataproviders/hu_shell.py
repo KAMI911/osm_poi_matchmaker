@@ -29,7 +29,7 @@ class hu_shell(DataProvider):
     def types(self):
         self.__types = [{'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'Shell', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://www.shell.hu', 'poi_search_name': 'shell'},
+                 'poi_url_base': 'https://shell.hu', 'poi_search_name': 'shell'},
                 {'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'Mobil Petrol', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
                  'poi_url_base': 'http://mpetrol.hu/', 'poi_search_name': '(mobil metrol|shell)'}
