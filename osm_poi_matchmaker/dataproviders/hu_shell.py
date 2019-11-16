@@ -55,6 +55,8 @@ class hu_shell(DataProvider):
                         self.data.code = 'hushellfu'
                         self.data.website = 'https://shell.hu/'
                     elif poi_data['Brand'] == 'Mobilpetrol':
+                        # It seems Mobil Petrol data is outdated so do not process here
+                        continue
                         self.data.name = 'M. Petrol'
                         self.data.code = 'humobpefu'
                         self.data.website = 'http://mpetrol.hu/'
