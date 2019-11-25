@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from builtins import Exception, ImportError, range
+    from builtins import Exception, ImportError, range, isinstance
     from sys import exit
     import traceback
     import logging
@@ -13,6 +13,7 @@ try:
     from libs.address import clean_city, extract_street_housenumber_better_2, clean_phone_to_str, clean_javascript_variable
     from libs.geo import check_hu_boundary
     from libs.osm import query_postcode_osm_external
+    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from libs.poi_dataset import POIDataset
     from utils.data_provider import DataProvider
 except ImportError as err:
@@ -46,16 +47,16 @@ class hu_mobil_petrol(DataProvider):
                 data = m.group(0)
                 data = clean_javascript_variable(data, 'totem_stations')
                 text = json.loads(data)
-                for poi_data in text:
-                    self.data.name = 'M. Petrol'
+                for poi_data in text.values():
+                    self.data.name = 'Mobil Petrol'
                     self.data.code = 'humobpefu'
-                    self.data.website = poi_data['description']
-                    # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                    self.data.city = clean_city(poi_data['city'])
-                    self.data.original = poi_data['address']
+                    self.data.website = poi_data.get('description')
+                    self.data.city = clean_city(poi_data.get('city'))
+                    self.data.original = poi_data.get('address')
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data['location']['lat'], poi_data['location']['lng'])
+                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon, None)
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                        poi_data['address'])
+                        poi_data.get('address'))
                     self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                     self.data.public_holiday_open = False
                     if '0-24' in poi_data:
@@ -65,15 +66,19 @@ class hu_mobil_petrol(DataProvider):
                         if '6-22' in poi_data:
                             open_from = 6
                             open_to = 22
-                        if '5-22' in poi_data:
+                        elif '6-21' in poi_data:
+                            open_from = 6
+                            open_to = 21
+                        elif '5-22' in poi_data:
                             open_from = 5
                             open_to = 22
-                        if '6-18' in poi_data:
+                        elif '6-18' in poi_data:
                             open_from = 6
                             open_to = 18
-                        for i in range(0, 7):
-                            self.data.day_open(i, open_from)
-                            self.data.day_close(i, open_to)
+                        if 'open_from' in locals() and 'open_to' in locals():
+                            for i in range(0, 7):
+                                self.data.day_open(i, open_from)
+                                self.data.day_close(i, open_to)
                         self.data.public_holiday_open = False
                     self.data.add()
         except Exception as e:
