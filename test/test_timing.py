@@ -2,6 +2,9 @@
 
 try:
     import unittest
+    import traceback
+    import logging
+    from sys import exit
     import time
     from osm_poi_matchmaker.utils.timing import Timing
 except ImportError as err:

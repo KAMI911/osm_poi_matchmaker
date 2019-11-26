@@ -4,6 +4,7 @@ __author__ = 'kami911'
 try:
     import traceback
     import logging
+    from sys import exit
     from utils import config
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))

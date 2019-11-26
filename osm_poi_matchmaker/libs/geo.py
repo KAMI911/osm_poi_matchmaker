@@ -3,6 +3,7 @@
 try:
     import traceback
     import logging
+    from sys import exit
     from geoalchemy2 import WKTElement
     from utils import config
 except ImportError as err:

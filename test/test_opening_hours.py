@@ -2,6 +2,9 @@
 
 try:
     import unittest
+    import traceback
+    import logging
+    from sys import exit
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from test.test_opening_hours_data import OPENING_HOURS_TEST_DATA
 except ImportError as err:

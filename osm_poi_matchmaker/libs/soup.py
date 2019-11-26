@@ -3,6 +3,7 @@
 try:
     import traceback
     import logging
+    from sys import exit
     import requests
     import os
     from bs4 import BeautifulSoup

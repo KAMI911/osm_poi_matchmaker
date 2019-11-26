@@ -4,6 +4,7 @@ __author__ = 'kami911'
 try:
     import traceback
     import logging
+    from sys import exit
     import numpy as np
     import pandas as pd
     from utils.enums import WeekDaysShort, OpenClose, WeekDaysLongHU

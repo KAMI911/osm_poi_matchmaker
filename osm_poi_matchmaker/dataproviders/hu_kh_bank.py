@@ -3,6 +3,7 @@
 try:
     import traceback
     import logging
+    from sys import exit
     import json
     from dao.data_handlers import insert_poi_dataframe
     from libs.address import extract_all_address, clean_phone_to_str

@@ -3,6 +3,7 @@
 try:
     import traceback
     import logging
+    from sys import exit
     import sqlalchemy
     from sqlalchemy.orm import scoped_session, sessionmaker
     import geopandas as gpd

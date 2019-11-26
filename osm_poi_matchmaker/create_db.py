@@ -8,6 +8,7 @@ try:
     import traceback
     import logging
     import logging.config
+    from sys import exit
     import sqlalchemy
     import sqlalchemy.orm
     import numpy as np

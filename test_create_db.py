@@ -3,6 +3,9 @@
 
 try:
     import unittest
+    import traceback
+    import logging
+    from sys import exit
     from test.test_address import TestAddressResolver, TestFullAddressResolver, TestOpeningHoursClener, TestOpeningHoursClener2, \
         TestPhoneClener, TestPhoneClener_to_str, TestStringCleaner, TestURLCleaner
     from test.test_opening_hours import TestOpeningHours

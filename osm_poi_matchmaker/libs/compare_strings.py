@@ -3,6 +3,7 @@
 try:
     import traceback
     import logging
+    from sys import exit
     import re
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))

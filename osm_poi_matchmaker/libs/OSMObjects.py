@@ -3,6 +3,7 @@
 try:
     import traceback
     import logging
+    from sys import exit
     from libs.osm import timestamp_now
     from dao.data_structure import OSM_object_type
 except ImportError as err:

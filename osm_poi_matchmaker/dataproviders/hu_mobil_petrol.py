@@ -2,9 +2,9 @@
 
 try:
     from builtins import Exception, ImportError, range, isinstance
-    from sys import exit
     import traceback
     import logging
+    from sys import exit
     import json
     import os
     import re

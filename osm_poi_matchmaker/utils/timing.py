@@ -3,6 +3,7 @@
 try:
     import traceback
     import logging
+    from sys import exit
     import datetime
     import time
 except ImportError as err:

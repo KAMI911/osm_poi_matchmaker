@@ -3,6 +3,7 @@
 try:
     import traceback
     import logging
+    from sys import exit
     import os
     from lxml import etree
     from dao.data_handlers import insert_poi_dataframe

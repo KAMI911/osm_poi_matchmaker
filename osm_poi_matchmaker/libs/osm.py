@@ -2,6 +2,7 @@
 try:
     import traceback
     import logging
+    from sys import exit
     import sqlalchemy
     import geopandas as gpd
     import datetime

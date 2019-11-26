@@ -2,8 +2,9 @@
 
 try:
     import traceback
-    import configparser
     import logging
+    from sys import exit
+    import configparser
     import sys
     import os
     from enum import Enum

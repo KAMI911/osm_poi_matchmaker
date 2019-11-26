@@ -3,8 +3,8 @@
 try:
     import traceback
     import logging
+    from sys import exit
     import re
-    import logging
     import phonenumbers
     import json
 except ImportError as err:
