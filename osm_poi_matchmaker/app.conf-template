@@ -13,6 +13,7 @@ dir.cache_url=cache_url
 
 geo.default.projection=3857
 geo.default.poi.distance=70
+geo.default.poi.perfect.distance=500
 geo.default.poi.road.distance=600
 geo.amenity.atm.poi.distance=20
 geo.shop.conveience.poi.distance=50

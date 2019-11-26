@@ -140,12 +140,10 @@ class POIBase:
         if name is not '':
             query_name = ' AND (LOWER(name) ~* LOWER(:name) OR LOWER(brand) ~* LOWER(:name))'
             # If we have PO common definied safe search radius distance, then use it (or use defaults specified above)
-            if not isnan(distance_safe):
-                distance = distance_safe
-            else:
-                distance = config.get_geo_default_poi_distance()
-            if isnan(distance_perfect):
-                distance_perfect = 2000 # TODO: Config parameter
+            distance = float(config.get_geo_default_poi_distance()) if isnan(float(distance_safe)) \
+                else float(distance_safe)
+            distance_perfect = float(config.get_geo_default_poi_perfect_distance) if isnan(float(distance_perfect)) \
+                else float(distance_perfect)
         else:
             query_name = ''
             if not isnan(distance_unsafe):
