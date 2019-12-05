@@ -110,10 +110,17 @@ node,way   covered      text         linear
 node,way   culvert      text         linear
 node,way   cutting      text         linear
 node,way   denomination text         linear
+node,way   description  text         linear
 node,way   disused      text         linear
 node       ele          text         linear
 node,way   embankment   text         linear
 node,way   foot         text         linear
+node,way   fuel:adblue      text     linear
+node,way   fuel:octane_100  text     linear
+node,way   fuel:octane_98   text     linear
+node,way   fuel:GTL_diesel  text     linear
+node,way   fuel:diesel      text     linear
+node,way   fuel:lpg         text     linear
 node,way   generator:source    text  linear
 node,way   harbour      text         polygon
 node,way   highway      text         linear
