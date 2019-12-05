@@ -21,7 +21,7 @@ except ImportError as err:
     exit(128)
 
 __program__ = 'poi_dataset'
-__version__ = '0.0.1'
+__version__ = '0.0.5'
 
 POI_COLS = poi_array_structure.POI_COLS
 
@@ -45,6 +45,13 @@ class POIDataset:
         self.__name = None
         self.__branch = None
         self.__website = None
+        self.__description = None
+        self.__fuel_adblue = None
+        self.__fuel_octane_100 = None
+        self.__fuel_octane_95 = None
+        self.__fuel_diesel_gtl = None
+        self.__fuel_diesel = None
+        self.__fuel_lpg = None
         self.__original = None
         self.__street = None
         self.__housenumber = None
@@ -110,6 +117,62 @@ class POIDataset:
     @website.setter
     def website(self, data):
         self.__website = clean_url(data)
+
+    @property
+    def description(self):
+        return (self.__description)
+
+    @description.setter
+    def description(self, data):
+        self.__description = data
+
+    @property
+    def fuel_adblue(self):
+        return (self.__fuel_adblue)
+
+    @fuel_adblue.setter
+    def fuel_adblue(self, data):
+        self.__fuel_adblue = data
+
+    @property
+    def fuel_octane_100(self):
+        return (self.__fuel_octane_100)
+
+    @fuel_octane_100.setter
+    def fuel_octane_100(self, data):
+        self.__fuel_octane_100 = data
+
+    @property
+    def fuel_octane_95(self):
+        return (self.__fuel_octane_95)
+
+    @fuel_octane_95.setter
+    def fuel_octane_95(self, data):
+        self.__fuel_octane_95 = data
+
+    @property
+    def fuel_diesel_gtl(self):
+        return (self.__fuel_diesel_gtl)
+
+    @fuel_diesel_gtl.setter
+    def fuel_diesel_gtl(self, data):
+        self.__fuel_diesel_gtl = data
+
+    @property
+    def fuel_diesel(self):
+        return (self.__fuel_diesel)
+
+    @fuel_diesel.setter
+    def fuel_diesel(self, data):
+        self.__fuel_diesel = data
+
+    @property
+    def fuel_lpg(self):
+        return (self.__fuel_lpg)
+
+    @fuel_lpg.setter
+    def fuel_lpg(self, data):
+        self.__fuel_lpg = data
 
     @property
     def original(self):
@@ -559,7 +622,8 @@ class POIDataset:
             self.__good, self.__bad = pqc.process()
             self.insert_data.append(
                 [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website,
-                 self.__original, self.__street,
+                 self.__description, self.__fuel_adblue, self.__fuel_octane_100, self.__fuel_octane_95,
+                 self.__fuel_diesel_gtl, self.__fuel_diesel, self.__fuel_lpg, self.__original, self.__street,
                  self.__housenumber, self.__conscriptionnumber,
                  self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop,
                  self.__oh.at[WeekDaysShort.mo, OpenClose.open],
