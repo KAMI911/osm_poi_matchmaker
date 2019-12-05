@@ -62,6 +62,7 @@ class hu_foxpost(DataProvider):
                     self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
                                                                 self.data.postcode)
                     self.data.public_holiday_open = False
+                    self.data.description = poi_data.get('findme')
                     self.data.add()
         except Exception as e:
             logging.error(traceback.print_exc())
