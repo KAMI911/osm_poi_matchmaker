@@ -158,25 +158,12 @@ def online_poi_matching(args):
         osm_live_query = OsmApi()
         for i, row in data.iterrows():
         # for i, row in data[data['poi_code'].str.contains('tesco')].iterrows():
-            common_row = comm_data.loc[comm_data['pc_id'] == row['poi_common_id']]
+            common_row = comm_data.loc[comm_data['pc_id'] == row.get('poi_common_id')]
             # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
-            if row['poi_search_name'] is not None and row['poi_search_name'] != '':
-                if row['poi_addr_street'] is not None and row['poi_addr_street'] != '':
-                    # This search combinates two types of search - with and without OSM street name
-                    osm_query = db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
-                                                       row['poi_search_name'], row['poi_addr_street'],
-                                                       row['poi_addr_housenumber'], row['osm_search_distance_perfect'],
-                                                       row['osm_search_distance_safe'], row['osm_search_distance_unsafe'])
-                else:
-                    osm_query = db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(),
-                                               row['poi_search_name'], '', '', row['osm_search_distance_perfect'],
-                                               row['osm_search_distance_safe'], row['osm_search_distance_unsafe'])
-            # Try to search OSM POI with same type and without name within the specified distance
-            if (row['poi_search_name'] is None or row['poi_search_name'] == '') or osm_query is None:
-                osm_query = (
-                    db.query_osm_shop_poi_gpd(row['poi_lon'], row['poi_lat'], common_row['poi_type'].item(), '', '', '',
-                                              row['osm_search_distance_perfect'], row['osm_search_distance_safe'],
-                                              row['osm_search_distance_unsafe']))
+            osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
+                common_row.get('poi_type').item(), row.get('poi_search_name'), row.get('poi_addr_street'),
+                row.get('poi_addr_housenumber'), row.get('osm_search_distance_perfect'),
+                row.get('osm_search_distance_safe'), row.get('osm_search_distance_unsafe'))
             # Enrich our data with OSM database POI metadata
             if osm_query is not None:
                 # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
@@ -220,38 +207,38 @@ def online_poi_matching(args):
                             if cached_way is None:
                                 live_tags_container = osm_live_query.WayGet(osm_id)
                                 if live_tags_container is not None:
-                                    data.at[i, 'osm_live_tags'] = live_tags_container['tag']
-                                    cache_row = {'osm_id': int(osm_id), 'osm_live_tags': str(live_tags_container['tag']),
-                                             'osm_version': live_tags_container['version'],
-                                             'osm_user': live_tags_container['user'],
-                                             'osm_user_id': live_tags_container['uid'],
-                                             'osm_changeset': live_tags_container['changeset'],
-                                             'osm_timestamp': str(live_tags_container['timestamp']),
+                                    data.at[i, 'osm_live_tags'] = live_tags_container.get('tag')
+                                    cache_row = {'osm_id': int(osm_id), 'osm_live_tags': str(live_tags_container.get('tag')),
+                                             'osm_version': live_tags_container.get('version'),
+                                             'osm_user': live_tags_container.get('user'),
+                                             'osm_user_id': live_tags_container.get('uid'),
+                                             'osm_changeset': live_tags_container.get('changeset'),
+                                             'osm_timestamp': str(live_tags_container.get('timestamp')),
                                              'osm_object_type': osm_node,
                                              'osm_lat': None,
                                              'osm_lon': None,
-                                             'osm_nodes': str(live_tags_container['nd'])}
+                                             'osm_nodes': str(live_tags_container.get('nd'))}
                                     get_or_create(session, POI_OSM_cache, **cache_row)
                                     # Downloading referenced nodes of the way
                                     for way_nodes in live_tags_container['nd']:
                                         logging.debug('Getting node {} belongs to way {}'.format(way_nodes, osm_id))
                                         live_tags_node = osm_live_query.NodeGet(way_nodes)
-                                        cache_row = {'osm_id': int(way_nodes), 'osm_live_tags': str(live_tags_node['tag']),
-                                                     'osm_version': live_tags_node['version'],
-                                                     'osm_user': live_tags_node['user'],
-                                                     'osm_user_id': live_tags_node['uid'],
-                                                     'osm_changeset': live_tags_node['changeset'],
-                                                     'osm_timestamp': str(live_tags_node['timestamp']),
+                                        cache_row = {'osm_id': int(way_nodes), 'osm_live_tags': str(live_tags_node.get('tag')),
+                                                     'osm_version': live_tags_node.get('version'),
+                                                     'osm_user': live_tags_node.get('user'),
+                                                     'osm_user_id': live_tags_node.get('uid'),
+                                                     'osm_changeset': live_tags_node.get('changeset'),
+                                                     'osm_timestamp': str(live_tags_node.get('timestamp')),
                                                      'osm_object_type': OSM_object_type.node,
-                                                     'osm_lat': live_tags_node['lat'],
-                                                     'osm_lon': live_tags_node['lon'],
+                                                     'osm_lat': live_tags_node.get('lat'),
+                                                     'osm_lon': live_tags_node.get('lon'),
                                                      'osm_nodes': None}
                                         get_or_create(session, POI_OSM_cache, **cache_row)
                                     break
                                 else:
                                     logging.warning('Download of external data has failed.')
                             else:
-                                data.at[i, 'osm_live_tags'] = eval(cached_way['osm_live_tags'])
+                                data.at[i, 'osm_live_tags'] = eval(cached_way.get('osm_live_tags'))
                                 break
                         session.commit()
                     # Download OSM POI node live tags
@@ -262,17 +249,18 @@ def online_poi_matching(args):
                             if cached_node is None:
                                 live_tags_container = osm_live_query.NodeGet(osm_id)
                                 if live_tags_container is not None:
-                                    data.at[i, 'osm_live_tags'] = live_tags_container['tag']
-                                    cache_row = {'osm_id': int(osm_id), 'osm_live_tags': str(live_tags_container['tag']),
-                                                 'osm_version': live_tags_container['version'],
-                                                 'osm_user': live_tags_container['user'],
-                                                 'osm_user_id': live_tags_container['uid'],
-                                                 'osm_changeset': live_tags_container['changeset'],
-                                                 'osm_timestamp': str(live_tags_container['timestamp']),
-                                                 'osm_object_type': osm_node,
-                                                 'osm_lat': live_tags_container['lat'],
-                                                 'osm_lon': live_tags_container['lon'],
-                                                 'osm_nodes': None}
+                                    data.at[i, 'osm_live_tags'] = live_tags_container.get('tag')
+                                    cache_row = {'osm_id': int(osm_id),
+                                        'osm_live_tags': str(live_tags_container.get('tag')),
+                                        'osm_version': live_tags_container.get('version'),
+                                        'osm_user': live_tags_container.get('user'),
+                                        'osm_user_id': live_tags_container.get('uid'),
+                                        'osm_changeset': live_tags_container.get('changeset'),
+                                        'osm_timestamp': str(live_tags_container.get('timestamp')),
+                                        'osm_object_type': osm_node,
+                                        'osm_lat': live_tags_container.get('lat'),
+                                        'osm_lon': live_tags_container.get('lon'),
+                                        'osm_nodes': None}
                                     get_or_create(session, POI_OSM_cache, **cache_row)
                                     break
                                 else:
@@ -286,7 +274,7 @@ def online_poi_matching(args):
                             logging.info('Downloading OSM live tags to this relation: {}.'.format(osm_id))
                             live_tags_container = osm_live_query.RelationGet(abs(osm_id))
                             if live_tags_container is not None:
-                                data.at[i, 'osm_live_tags'] = live_tags_container['tag']
+                                data.at[i, 'osm_live_tags'] = live_tags_container.get('tag')
                                 break
                             else:
                                 logging.warning('Download of external data has failed.')
@@ -303,19 +291,21 @@ def online_poi_matching(args):
                 # for a PostGIS function: https://postgis.net/docs/ST_LineInterpolatePoint.html
                 # If there is more than one POI in a building this will try to do a different location and
                 # not only on center or not only on edge
-                ib = row.get('poi_name', None)
+                ib = row.get('poi_name')
                 if ib is not None:
                     ibp = 1 - (((ord(ib[0]) // 16) + 1) / 17)
                 else:
                     ibp = 0.50
-                logging.info('New {} type: {} POI: {} {}, {} {}'.format(row['poi_search_name'], row['poi_type'],
-                    row['poi_postcode'], row['poi_city'], row['poi_addr_street'], row['poi_addr_housenumber']))
-                osm_bulding_q = db.query_osm_building_poi_gpd(row['poi_lon'], row['poi_lat'], row['poi_city'],
-                    row['poi_postcode'], row['poi_addr_street'], row['poi_addr_housenumber'], in_building_percentage=ibp)
+                logging.info('New {} type: {} POI: {} {}, {} {}'.format(row.get('poi_search_name'), row.get('poi_type'),
+                    row.get('poi_postcode'), row.get('poi_city'), row.get('poi_addr_street'),
+                    row.get('poi_addr_housenumber')))
+                osm_bulding_q = db.query_osm_building_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
+                    row.get('poi_city'), row.get('poi_postcode'), row.get('poi_addr_street'),
+                    row.get('poi_addr_housenumber'), in_building_percentage=ibp)
                 if osm_bulding_q is not None:
                     logging.info('Relocating POI coordinates to the building with same address: {} {}, {} {}'.format(
-                        row['poi_lat'], row['poi_lon'], osm_bulding_q['lat'][0], osm_bulding_q['lon'][0]))
-                    row['poi_lat'], row['poi_lon'] = osm_bulding_q['lat'][0], osm_bulding_q['lon'][0]
+                        row.get('poi_lat'), row.get('poi_lon'), osm_bulding_q.get('lat')[0], osm_bulding_q.get('lon')[0])),
+                    row['poi_lat'], row['poi_lon'] = osm_bulding_q.get('lat')[0], osm_bulding_q.get('lon')[0]
                 else:
                     logging.info('The POI is already in its building or there is no building match. Keeping POI coordinates as is as.')
         session.commit()
