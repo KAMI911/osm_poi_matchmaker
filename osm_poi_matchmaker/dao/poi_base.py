@@ -142,7 +142,7 @@ class POIBase:
             # If we have PO common definied safe search radius distance, then use it (or use defaults specified above)
             distance = float(config.get_geo_default_poi_distance()) if isnan(float(distance_safe)) \
                 else float(distance_safe)
-            distance_perfect = float(config.get_geo_default_poi_perfect_distance) if isnan(float(distance_perfect)) \
+            distance_perfect = float(config.get_geo_default_poi_perfect_distance()) if isnan(float(distance_perfect)) \
                 else float(distance_perfect)
         else:
             query_name = ''
