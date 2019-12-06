@@ -59,7 +59,7 @@ class POI_address(Base):
     poi_geom = Column(Geometry('POINT, {}'.format(config.get_geo_default_projection())))
     original = Column(Unicode(128))
     poi_website = Column(Unicode(256))
-    poi_description = Column(Unicode(256))
+    poi_description = Column(Unicode(1024))
     poi_fuel_adblue = Column(Boolean)
     poi_fuel_octane_100 = Column(Boolean)
     poi_fuel_octane_95 = Column(Boolean)
