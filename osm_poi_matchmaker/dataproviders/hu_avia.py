@@ -33,7 +33,7 @@ class hu_avia(DataProvider):
     def types(self):
         self.__type = [{'poi_code': 'huaviafu', 'poi_name': 'Avia', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'contact:email': 'avia@avia.hu', 'contact:facebook': 'https://www.facebook.com/AVIAHungary', 'contact:youtube': 'https://www.youtube.com/channel/UCjvjkjf2RgmKBuTnKSXk-Rg', }",
-                 'poi_url_base': 'https://www.avia.hu', 'poi_search_name': 'avia', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15}]
+                 'poi_url_base': 'https://www.avia.hu', 'poi_search_name': 'avia', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60}]
         return self.__type
 
     def process(self):
@@ -75,6 +75,10 @@ class hu_avia(DataProvider):
                     else:
                         self.data.email = None
                     self.data.public_holiday_open = False
+                    self.data.fuel_octane_95 = True if poi_data.get('b95') == '1' or poi_data.get('b95g') == '1' else False
+                    self.data.fuel_diesel = True if poi_data.get('dies') == '1' or poi_data.get('gdies') == '1' else False
+                    self.data.fuel_octane_98 = True if poi_data.get('b98') == '1' else False
+                    self.data.fuel_lpg = True if poi_data.get('lpg') == '1' else False
                     self.data.add()
         except Exception as e:
             logging.error(traceback.print_exc())
