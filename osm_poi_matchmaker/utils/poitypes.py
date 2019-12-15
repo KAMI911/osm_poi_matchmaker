@@ -50,7 +50,8 @@ def getPOITypes(ptype):
         query_type = "amenity='vending_machine' AND vending='parcel_mail_in'"
         distance = config.get_geo_default_poi_distance()
     elif ptype == 'vending_machine_parcel_pickup_and_mail_in':
-        query_type = "amenity='vending_machine' AND vending='parcel_pickup;parcel_mail_in'"
+        query_type = "amenity='vending_machine' AND" \
+                     "(vending='parcel_pickup;parcel_mail_in' OR vending='parcel_mail_in;parcel_pickup' OR vending='parcel_pickup')"
         distance = config.get_geo_default_poi_distance()
     elif ptype == 'vending_machine_parking_tickets':
         query_type = "amenity='vending_machine' AND vending='parking_tickets'"

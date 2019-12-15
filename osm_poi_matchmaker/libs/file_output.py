@@ -185,6 +185,20 @@ def generate_osm_xml(df, session=None):
                     else:
                         # Rewrite simple contact tag to contact:* tag
                         tags['contact:' + tr] = tags.pop(tr, None)
+            if row.get('poi_description') is not None and row.get('poi_description') != '':
+                tags['description'] = row.get('poi_description')
+            if row.get('poi_fuel_adblue') is not None and row.get('poi_fuel_adblue') != '':
+                tags['fuel:adblue'] = 'yes' if row.get('poi_fuel_adblue') == True else 'no'
+            if row.get('poi_fuel_octane_100') is not None and row.get('poi_fuel_octane_100') != '':
+                tags['fuel:octane_100'] = 'yes' if row.get('poi_fuel_octane_100') == True else 'no'
+            if row.get('poi_fuel_octane_95') is not None and row.get('poi_fuel_octane_95') != '':
+                tags['fuel:octane_95'] = 'yes' if row.get('poi_fuel_octane_95') == True else 'no'
+            if row.get('poi_fuel_diesel_gtl') is not None and row.get('poi_fuel_diesel_gtl') != '':
+                tags['fuel:GTL_diesel'] = 'yes' if row.get('poi_fuel_diesel_gtl') == True else 'no'
+            if row.get('poi_fuel_diesel') is not None and row.get('poi_fuel_diesel') != '':
+                tags['fuel:diesel'] = 'yes' if row.get('poi_fuel_diesel') == True else 'no'
+            if row.get('poi_fuel_lpg') is not None and row.get('poi_fuel_lpg') != '':
+                tags['fuel:lpg'] = 'yes' if row.get('poi_fuel_lpg') == True else 'no'
             # Remove unwanted addr:country from file output as we discussed in Issue #33
             tags.pop('addr:country', None)
             # tags['import'] = 'osm_poi_matchmaker'
