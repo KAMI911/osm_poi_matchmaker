@@ -48,6 +48,7 @@ class POIDataset:
         self.__description = None
         self.__fuel_adblue = None
         self.__fuel_octane_100 = None
+        self.__fuel_octane_98 = None
         self.__fuel_octane_95 = None
         self.__fuel_diesel_gtl = None
         self.__fuel_diesel = None
@@ -141,6 +142,14 @@ class POIDataset:
     @fuel_octane_100.setter
     def fuel_octane_100(self, data):
         self.__fuel_octane_100 = data
+
+    @property
+    def fuel_octane_98(self):
+        return (self.__fuel_octane_98)
+
+    @fuel_octane_98.setter
+    def fuel_octane_98(self, data):
+        self.__fuel_octane_98 = data
 
     @property
     def fuel_octane_95(self):
@@ -622,7 +631,7 @@ class POIDataset:
             self.__good, self.__bad = pqc.process()
             self.insert_data.append(
                 [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website,
-                 self.__description, self.__fuel_adblue, self.__fuel_octane_100, self.__fuel_octane_95,
+                 self.__description, self.__fuel_adblue, self.__fuel_octane_100, self.__fuel_octane_98, self.__fuel_octane_95,
                  self.__fuel_diesel_gtl, self.__fuel_diesel, self.__fuel_lpg, self.__original, self.__street,
                  self.__housenumber, self.__conscriptionnumber,
                  self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop,

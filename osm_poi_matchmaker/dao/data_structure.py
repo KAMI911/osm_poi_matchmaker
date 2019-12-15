@@ -62,6 +62,7 @@ class POI_address(Base):
     poi_description = Column(Unicode(1024))
     poi_fuel_adblue = Column(Boolean)
     poi_fuel_octane_100 = Column(Boolean)
+    poi_fuel_octane_98 = Column(Boolean)
     poi_fuel_octane_95 = Column(Boolean)
     poi_fuel_diesel_gtl = Column(Boolean)
     poi_fuel_diesel = Column(Boolean)

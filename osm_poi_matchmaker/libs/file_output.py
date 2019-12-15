@@ -191,6 +191,8 @@ def generate_osm_xml(df, session=None):
                 tags['fuel:adblue'] = 'yes' if row.get('poi_fuel_adblue') == True else 'no'
             if row.get('poi_fuel_octane_100') is not None and row.get('poi_fuel_octane_100') != '':
                 tags['fuel:octane_100'] = 'yes' if row.get('poi_fuel_octane_100') == True else 'no'
+            if row.get('poi_fuel_octane_98') is not None and row.get('poi_fuel_octane_98') != '':
+                tags['fuel:octane_98'] = 'yes' if row.get('poi_fuel_octane_98') == True else 'no'
             if row.get('poi_fuel_octane_95') is not None and row.get('poi_fuel_octane_95') != '':
                 tags['fuel:octane_95'] = 'yes' if row.get('poi_fuel_octane_95') == True else 'no'
             if row.get('poi_fuel_diesel_gtl') is not None and row.get('poi_fuel_diesel_gtl') != '':
