@@ -35,7 +35,7 @@ class hu_omv(DataProvider):
     def types(self):
         self.__types = [{'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
                  'poi_tags': "{'amenity': 'fuel', 'name': 'OMV', 'brand': 'OMV', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes', 'brand:wikidata': 'Q168238', 'brand:wikipedia': 'en:OMV', 'operator': 'OMV Hungária Kft.', 'operator:addr': '1117 Budapest, Október huszonharmadika utca 6-10 5. emelet 5/A.', 'ref:vatin:hu': '10542925-2-44', 'ref:vatin': 'HU10542925', 'ref:HU:company': '01-09-071584', 'contact:email': 'info.hungary@omv.com', 'contact:facebook': 'https://www.facebook.com/omvmagyarorszag', 'contact:fax': '+36 1 381 9899', 'contact:twitter': 'omv', 'contact:linkedin': 'https://www.linkedin.com/company/omv', 'contact:instagram': 'https://www.instagram.com/omv/', 'contact:youtube': 'https://www.youtube.com/user/omvofficial', 'contact:phone': '+36 1 381 9700', 'contact:website': 'http://www.omv.hu/'}",
-                 'poi_url_base': 'https://www.omv.hu', 'poi_search_name': 'omv', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 5}]
+                 'poi_url_base': 'https://www.omv.hu', 'poi_search_name': 'omv', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 60}]
         return self.__types
 
 
