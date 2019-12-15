@@ -59,20 +59,20 @@ class hu_mobil_petrol(DataProvider):
                         poi_data.get('address'))
                     self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                     self.data.public_holiday_open = False
-                    if '0-24' in poi_data:
+                    if '0-24' in poi_data.get('services'):
                         self.data.nonstop = True
                         self.data.public_holiday_open = True
                     else:
-                        if '6-22' in poi_data:
+                        if '6-22' in poi_data.get('services'):
                             open_from = 6
                             open_to = 22
-                        elif '6-21' in poi_data:
+                        elif '6-21' in poi_data.get('services'):
                             open_from = 6
                             open_to = 21
-                        elif '5-22' in poi_data:
+                        elif '5-22' in poi_data.get('services'):
                             open_from = 5
                             open_to = 22
-                        elif '6-18' in poi_data:
+                        elif '6-18' in poi_data.get('services'):
                             open_from = 6
                             open_to = 18
                         if 'open_from' in locals() and 'open_to' in locals():
