@@ -162,8 +162,9 @@ def online_poi_matching(args):
             # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
             osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
                 common_row.get('poi_type').item(), row.get('poi_search_name'), row.get('poi_addr_street'),
-                row.get('poi_addr_housenumber'), row.get('osm_search_distance_perfect'),
-                row.get('osm_search_distance_safe'), row.get('osm_search_distance_unsafe'))
+                row.get('poi_addr_housenumber'), row.get('poi_addr_conscriptionnumber'), row.get('poi_addr_city'),
+                row.get('osm_search_distance_perfect'), row.get('osm_search_distance_safe'),
+                row.get('osm_search_distance_unsafe'))
             # Enrich our data with OSM database POI metadata
             if osm_query is not None:
                 # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
