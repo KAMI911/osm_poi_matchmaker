@@ -91,7 +91,10 @@ def init_log():
 
 def get_directory_output():
     setting = get_config_string(KEY_DIRECTORY_OUTPUT)
-    if None != setting:
+    env_setting = os.environ.get('OPM_DIRECTORY_OUTPUT')
+    if env_setting is not None:
+        return env_setting
+    if setting is not None:
         return setting
     else:
         return '.'
@@ -99,7 +102,10 @@ def get_directory_output():
 
 def get_directory_cache_url():
     setting = get_config_string(KEY_DIRECTORY_CACHE_URL)
-    if None != setting:
+    env_setting = os.environ.get('OPM_DIRECTORY_CACHE_URL')
+    if env_setting is not None:
+        return env_setting
+    if setting is not None:
         return setting
     else:
         return os.path.join('.', 'cache_url')
@@ -107,7 +113,10 @@ def get_directory_cache_url():
 
 def get_database_type():
     setting = get_config_string(KEY_DATABASE_TYPE)
-    if None != setting:
+    env_setting = os.environ.get('OPM_DATABASE_TYPE')
+    if env_setting:
+        return env_setting
+    if setting is not None:
         return setting
     else:
         return 'postgresql'
@@ -115,7 +124,10 @@ def get_database_type():
 
 def get_database_writer_host():
     setting = get_config_string(KEY_DATABASE_WRITE_HOST)
-    if None != setting:
+    env_setting = os.environ.get('OPM_DATABASE_WRITE_HOST')
+    if env_setting is not None:
+        setting = env_setting
+    if setting is not None:
         logging.info('Using "{}" for database host.'.format(setting))
         return setting
     else:
@@ -125,7 +137,10 @@ def get_database_writer_host():
 
 def get_database_writer_port():
     setting = get_config_int(KEY_DATABASE_WRITE_PORT)
-    if None != setting:
+    env_setting = os.environ.get('OPM_DATABASE_WRITE_PORT')
+    if env_setting is not None:
+        return env_setting
+    if setting is not None:
         return setting
     else:
         return '5432'
@@ -133,6 +148,9 @@ def get_database_writer_port():
 
 def get_database_writer_username():
     setting = get_config_string(KEY_DATABASE_WRITE_USERNAME)
+    env_setting = os.environ.get('OPM_DATABASE_WRITE_USERNAME')
+    if env_setting is not None:
+        setting = env_setting
     if setting == 'poi':
         logging.warning(
             'Using default username. For security concerns please change default username in the config file and the database.')
@@ -144,6 +162,9 @@ def get_database_writer_username():
 
 def get_database_writer_password():
     setting = get_config_string(KEY_DATABASE_WRITE_PASSWORD)
+    env_setting = os.environ.get('OPM_DATABASE_WRITE_PASSWORD')
+    if env_setting is not None:
+        setting = env_setting
     if setting == 'poitest':
         logging.warning(
             'Using default password. For security concerns please change default password in the config file and the database.')
@@ -155,7 +176,10 @@ def get_database_writer_password():
 
 def get_database_poi_database():
     setting = get_config_string(KEY_DATABASE_POI_DATABASE)
-    if None != setting:
+    env_setting = os.environ.get('OPM_DATABASE_POI_DATABASE')
+    if env_setting is not None:
+        return env_setting
+    if setting is not None:
         return setting
     else:
         return 'poi'
@@ -163,7 +187,7 @@ def get_database_poi_database():
 
 def get_geo_default_projection():
     setting = get_config_int(KEY_GEO_DEFAULT_PROJECTION)
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return 4326
@@ -171,28 +195,28 @@ def get_geo_default_projection():
 
 def get_geo_default_poi_distance():
     setting = get_config_int(KEY_GEO_DEFAULT_POI_DISTANCE)
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return 70
 
 def get_geo_default_poi_perfect_distance():
     setting = get_config_int(KEY_GEO_DEFAULT_POI_PERFECT_DISTANCE)
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return 2000
 
 def get_geo_default_poi_road_distance():
     setting = get_config_int(KEY_GEO_DEFAULT_POI_ROAD_DISTANCE)
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return 600
 
 def get_geo_amenity_atm_poi_distance():
     setting = get_config_int(KEY_GEO_AMENITY_ATM_POI_DISTANCE)
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return 20
@@ -200,7 +224,7 @@ def get_geo_amenity_atm_poi_distance():
 
 def get_geo_shop_poi_distance():
     setting = get_config_int(KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE)
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return 50
@@ -208,7 +232,7 @@ def get_geo_shop_poi_distance():
 
 def get_geo_amenity_post_office_poi_distance():
     setting = get_config_int(KEY_GEO_AMENITY_POST_OFFICE_POI_DISTANCE)
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return 250
@@ -216,7 +240,7 @@ def get_geo_amenity_post_office_poi_distance():
 
 def get_geo_prefer_osm_postcode():
     setting = get_config_bool(KEY_GEO_PREFER_OSM_POSTCODE)
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return True
@@ -224,7 +248,7 @@ def get_geo_prefer_osm_postcode():
 
 def get_download_verify_link():
     setting = get_config_bool(KEY_DOWNLOAD_VERIFY_LINK)
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return True
@@ -232,7 +256,7 @@ def get_download_verify_link():
 
 def get_download_use_cached_data():
     setting = get_config_bool(KEY_DOWNLOAD_USE_CACHED_DATA)
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return True
@@ -240,7 +264,10 @@ def get_download_use_cached_data():
 
 def get_dataproviders_modules_available():
     setting = get_config_list(KEY_DATAPROVIDERS_MODULES_AVAILABLE)
-    if None != setting:
+    env_setting = os.environ.get('OPM_DATAPROVIDERS_MODULES_AVAILABLE')
+    if env_setting is not None:
+        setting = env_setting
+    if setting is not None:
         return setting
     else:
         return True
@@ -248,7 +275,10 @@ def get_dataproviders_modules_available():
 
 def get_dataproviders_modules_enable():
     setting = get_config_list(KEY_DATAPROVIDERS_MODULES_ENABLE)
-    if None != setting:
+    env_setting = os.environ.get('OPM_DATAPROVIDERS_MODULES_ENABLE')
+    if env_setting is not None:
+        setting = env_setting
+    if setting is not None:
         return setting
     else:
         return True

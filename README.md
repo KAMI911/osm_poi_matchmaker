@@ -7,10 +7,11 @@
 1. [About][About]
 2. [Licensing][Licensing]
 3. [Installation][Installation]
-4. [Documentation][Documentation]
-5. [Support][Support]
-6. [Contributing][Contributing]
-7. [Donation][Donation]
+4. [Environment variables][Environment variables]
+5. [Documentation][Documentation]
+6. [Support][Support]
+7. [Contributing][Contributing]
+8. [Donation][Donation]
 
 ## About
 
@@ -62,6 +63,59 @@ You can try osm_poi_matchmaker with following steps.
 
       osm2pgsql -c -m -s -d poi --style osm2pgsql/default.style --extra-attributes --multi-geometry -C 8000 -U poi -W -H localhost ~/Downloads/hungary-latest.osm
 
+
+## Environment variables
+
+You can specify these environment variables to use instead of configured parameters in "app.conf" file:
+ 
+	OPM_DIRECTORY_OUTPUT
+
+Specify the output directory for processed and exported data (OSM and CSV files). This is the output directory.
+
+	OPM_DIRECTORY_CACHE_URL
+
+Specify the cache directory for downloaded external data (HTML,JS,CSV files).
+
+	OPM_DATABASE_TYPE
+
+Specify the supported a supported database for storing and matched data. Since OSM POI Matchmaker is using PostGIS,
+only "postgresql" is supported and tested this time. Default value is: "postgresql".
+
+	OPM_DATABASE_WRITE_HOST
+
+Hostname or IP address of database server. Default value is "localhost".
+
+	OPM_DATABASE_WRITE_PORT
+
+The connection port of database server. Default value is "5432".
+
+	OPM_DATABASE_WRITE_USERNAME
+
+The user name of wrinting user for the database connection. Default value is "poi".
+
+	OPM_DATABASE_WRITE_PASSWORD
+
+The password of wrinting user for the database connection. Default value is "poitest".
+
+    OPM_DATABASE_POI_DATABASE
+
+The database name where wrinting user will connect to the database connection. Default value is "poi".
+
+    OPM_DATAPROVIDERS_MODULES_AVAILABLE
+
+Comma separated list of available data providers module from "dataprovider" folder.
+Default values are:
+hu_aldi,hu_avia,hu_benu,hu_budapest_bank,hu_cba,hu_cib_bank,hu_dm,hu_foxpost,hu_kh_bank,hu_kulcs_patika,hu_mobil_petrol,
+hu_mol_bubi,hu_mol,hu_omv,hu_penny_market,hu_pepco,hu_posta_json,hu_posta,hu_rossmann,hu_shell,hu_spar,hu_tesco,hu_tom_market
+
+    OPM_DATAPROVIDERS_MODULES_ENABLE
+
+Comma separated list of available data providers module from "dataprovider" folder.
+Only the enabled data providers will have import during the run,but all imported files will be exported.
+Default values are:
+hu_posta,hu_aldi,hu_avia,hu_benu,hu_budapest_bank,hu_cba,hu_cib_bank,hu_dm,hu_foxpost,hu_kh_bank,hu_kulcs_patika,hu_mobil_petrol,
+hu_mol_bubi,hu_mol,hu_omv,hu_penny_market,hu_pepco,hu_posta_json,hu_rossmann,hu_shell,hu_spar,hu_tesco,hu_tom_market
+
 ## Documentation
 
 The documentation is located in the [doc/](doc/) directory.
@@ -93,6 +147,7 @@ If you find this useful, please consider a donation:
 [About]: #about
 [Licensing]: #licensing
 [Installation]: #installation
+[Environment variables]: #Environment_variables
 [Documentation]: #documentation
 [Support]: #support
 [Contributing]: #contributing
