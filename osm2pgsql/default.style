@@ -121,6 +121,12 @@ node,way   fuel:octane_95   text     linear
 node,way   fuel:GTL_diesel  text     linear
 node,way   fuel:diesel      text     linear
 node,way   fuel:lpg         text     linear
+node,way   fuel:e85         text     linear
+node,way   rent:lpg_bottles text     linear
+node,way   compressed_air   text     linear
+node,way   restaurant       text     linear
+node,way   food             text     linear
+node,way   truck            text     linear
 node,way   generator:source    text  linear
 node,way   harbour      text         polygon
 node,way   highway      text         linear

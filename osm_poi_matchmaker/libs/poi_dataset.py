@@ -53,6 +53,12 @@ class POIDataset:
         self.__fuel_diesel_gtl = None
         self.__fuel_diesel = None
         self.__fuel_lpg = None
+        self.__fuel_e85 = None
+        self.__rent_lpg_bottles = None
+        self.__compressed_air = None
+        self.__restaurant = None
+        self.__food = None
+        self.__truck = None
         self.__original = None
         self.__street = None
         self.__housenumber = None
@@ -182,6 +188,54 @@ class POIDataset:
     @fuel_lpg.setter
     def fuel_lpg(self, data):
         self.__fuel_lpg = data
+
+    @property
+    def fuel_e85(self):
+        return (self.__fuel_e85)
+
+    @fuel_e85.setter
+    def fuel_e85(self, data):
+        self.__fuel_e85 = data
+
+    @property
+    def rent_lpg_bottles(self):
+        return (self.__rent_lpg_bottles)
+
+    @rent_lpg_bottles.setter
+    def rent_lpg_bottles(self, data):
+        self.__rent_lpg_bottles = data
+
+    @property
+    def compressed_air(self):
+        return (self.__compressed_air)
+
+    @compressed_air.setter
+    def compressed_air(self, data):
+        self.__compressed_air = data
+
+    @property
+    def restaurant(self):
+        return (self.__restaurant)
+
+    @restaurant.setter
+    def restaurant(self, data):
+        self.__restaurant = data
+
+    @property
+    def food(self):
+        return (self.__food)
+
+    @food.setter
+    def food(self, data):
+        self.__food = data
+
+    @property
+    def truck(self):
+        return (self.__truck)
+
+    @truck.setter
+    def truck(self, data):
+        self.__truck = data
 
     @property
     def original(self):
@@ -631,9 +685,11 @@ class POIDataset:
             self.__good, self.__bad = pqc.process()
             self.insert_data.append(
                 [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website,
-                 self.__description, self.__fuel_adblue, self.__fuel_octane_100, self.__fuel_octane_98, self.__fuel_octane_95,
-                 self.__fuel_diesel_gtl, self.__fuel_diesel, self.__fuel_lpg, self.__original, self.__street,
-                 self.__housenumber, self.__conscriptionnumber,
+                 self.__description, self.__fuel_adblue, self.__fuel_octane_100, self.__fuel_octane_98,
+                 self.__fuel_octane_95, self.__fuel_diesel_gtl, self.__fuel_diesel, self.__fuel_lpg,
+                 self.__fuel_e85, self.__rent_lpg_bottles, self.__compressed_air, self.__restaurant, self.__food,
+                 self.__truck,
+                 self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
                  self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop,
                  self.__oh.at[WeekDaysShort.mo, OpenClose.open],
                  self.__oh.at[WeekDaysShort.tu, OpenClose.open],

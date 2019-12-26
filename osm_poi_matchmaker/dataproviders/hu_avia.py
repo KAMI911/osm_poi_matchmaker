@@ -79,6 +79,12 @@ class hu_avia(DataProvider):
                     self.data.fuel_diesel = True if poi_data.get('dies') == '1' or poi_data.get('gdies') == '1' else False
                     self.data.fuel_octane_98 = True if poi_data.get('b98') == '1' else False
                     self.data.fuel_lpg = True if poi_data.get('lpg') == '1' else False
+                    self.data.fuel_e85 = True if poi_data.get('e85') == '1' else False
+                    self.data.rent_lpg_bottles = True if poi_data.get('pgaz') == '1' else False
+                    self.data.compressed_air = True if poi_data.get('komp') == '1' else False
+                    self.data.restaurant = True if poi_data.get('etterem') == '1' else False
+                    self.data.food = True if poi_data.get('bufe') == '1' else False
+                    self.data.truck = True if poi_data.get('kpark') == '1' else False
                     self.data.add()
         except Exception as e:
             logging.error(traceback.print_exc())

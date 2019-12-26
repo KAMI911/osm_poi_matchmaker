@@ -201,6 +201,18 @@ def generate_osm_xml(df, session=None):
                 tags['fuel:diesel'] = 'yes' if row.get('poi_fuel_diesel') == True else 'no'
             if row.get('poi_fuel_lpg') is not None and row.get('poi_fuel_lpg') != '':
                 tags['fuel:lpg'] = 'yes' if row.get('poi_fuel_lpg') == True else 'no'
+            if row.get('poi_fuel_e85') is not None and row.get('poi_fuel_e85') != '':
+                tags['fuel:e85'] = 'yes' if row.get('poi_fuel_e85') == True else 'no'
+            if row.get('poi_rent_lpg_bottles') is not None and row.get('poi_rent_lpg_bottles') != '':
+                tags['rent:lpg_bottles'] = 'yes' if row.get('poi_rent_lpg_bottles') == True else 'no'
+            if row.get('poi_compressed_air') is not None and row.get('poi_compressed_air') != '':
+                tags['compressed_air'] = 'yes' if row.get('poi_compressed_air') == True else 'no'
+            if row.get('poi_restaurant') is not None and row.get('poi_restaurant') != '':
+                tags['restaurant'] = 'yes' if row.get('poi_restaurant') == True else 'no'
+            if row.get('poi_food') is not None and row.get('poi_food') != '':
+                tags['food'] = 'yes' if row.get('poi_food') == True else 'no'
+            if row.get('poi_truck') is not None and row.get('poi_truck') != '':
+                tags['truck'] = 'yes' if row.get('poi_truck') == True else 'no'
             # Remove unwanted addr:country from file output as we discussed in Issue #33
             tags.pop('addr:country', None)
             # tags['import'] = 'osm_poi_matchmaker'

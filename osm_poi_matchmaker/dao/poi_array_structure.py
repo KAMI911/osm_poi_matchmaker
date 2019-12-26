@@ -2,7 +2,9 @@
 
 POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'poi_description',
             'poi_fuel_adblue', 'poi_fuel_octane_100', 'poi_fuel_octane_98', 'poi_fuel_octane_95', 'poi_fuel_diesel_gtl',
-            'poi_fuel_diesel', 'poi_fuel_lpg', 'original', 'poi_addr_street', 'poi_addr_housenumber', 'poi_conscriptionnumber',
+            'poi_fuel_diesel', 'poi_fuel_lpg', 'poi_fuel_e85', 'poi_rent_lpg_bottles', 'poi_compressed_air',
+            'poi_restaurant', 'poi_food', 'poi_truck',
+            'original', 'poi_addr_street', 'poi_addr_housenumber', 'poi_conscriptionnumber',
             'poi_ref', 'poi_phone', 'poi_email',
             'poi_geom',
             'poi_opening_hours_nonstop',
