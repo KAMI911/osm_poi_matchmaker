@@ -83,7 +83,10 @@ class POIBase:
         :param table: Name of table where POI data is stored
         :return: Full table with poi_lat and poi_long fileds read from SQL database table
         '''
-        query = sqlalchemy.text('select * from {} where poi_geom is not NULL order by poi_common_id ASC, poi_postcode ASC'.format(table))
+        query = sqlalchemy.text('''SELECT * FROM {}
+                                     WHERE poi_geom is not NULL
+                                     ORDER BY poi_common_id ASC, poi_postcode ASC, poi_addr_street ASC,
+                                       poi_addr_housenumber ASC'''.format(table))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='poi_geom')
         data['poi_lat'] = data['poi_geom'].x
         data['poi_lon'] = data['poi_geom'].y
