@@ -213,38 +213,37 @@ class POIBase:
                 WHERE ({query_type}) AND osm_id < 0 {query_name} {street_query} {housenumber_query}
                     AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_perfect
                 ''')
-            else:
-                query_arr.append('''
-                --- WITH NAME, WITH STREETNAME, NO HOUSENUMBER OR WITH NAME, NO STREETNAME, NO HOUSENUMBER
-                --- The way selector with or without street name
-                SELECT name, osm_id, {metadata_fields} 960 AS priority, 'way' AS node, shop, amenity, "addr:housename",
-                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                       ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
-                       ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
-                FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE (({query_type}) AND osm_id > 0 {query_name} {street_query})
-                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
-                UNION ALL
-                --- The node selector with or without street name
-                SELECT name, osm_id, {metadata_fields} 960 AS priority, 'node' AS node, shop, amenity, "addr:housename",
-                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                       ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
-                       ST_AsEWKT(way) as way_ewkt,
-                       ST_X(ST_Transform(planet_osm_point.way,4326)) as lon,
-                       ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
-                FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE (({query_type}) AND osm_id > 0 {query_name} {street_query})
-                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
-                UNION ALL
-                --- The relation selector with or without street name
-                SELECT name, osm_id, {metadata_fields} 960 AS priority, 'relation' AS node, shop, amenity,
-                       "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                       ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
-                       ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
-                FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE (({query_type}) AND osm_id < 0 {query_name} {street_query})
-                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
-                ''')
+            query_arr.append('''
+            --- WITH NAME, WITH STREETNAME, NO HOUSENUMBER OR WITH NAME, NO STREETNAME, NO HOUSENUMBER
+            --- The way selector with or without street name
+            SELECT name, osm_id, {metadata_fields} 960 AS priority, 'way' AS node, shop, amenity, "addr:housename",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
+                   ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+            WHERE (({query_type}) AND osm_id > 0 {query_name} {street_query})
+                AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
+            UNION ALL
+            --- The node selector with or without street name
+            SELECT name, osm_id, {metadata_fields} 960 AS priority, 'node' AS node, shop, amenity, "addr:housename",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
+                   ST_AsEWKT(way) as way_ewkt,
+                   ST_X(ST_Transform(planet_osm_point.way,4326)) as lon,
+                   ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
+            FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+            WHERE (({query_type}) AND osm_id > 0 {query_name} {street_query})
+                AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
+            UNION ALL
+            --- The relation selector with or without street name
+            SELECT name, osm_id, {metadata_fields} 960 AS priority, 'relation' AS node, shop, amenity,
+                   "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
+                   ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+            WHERE (({query_type}) AND osm_id < 0 {query_name} {street_query})
+                AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
+            ''')
         else:
             if housenumber_query is not None and housenumber_query != '':
                 query_arr.append('''
@@ -278,38 +277,37 @@ class POIBase:
                 WHERE ({query_type}) AND osm_id < 0 {query_name} {housenumber_query}
                     AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
                 ''')
-            else:
-                query_arr.append('''
-                --- WITH NAME, NO STREETNAME, WITH HOUSENUMBER
-                --- The way selector with street name and housenumber
-                SELECT name, osm_id, {metadata_fields} 960 AS priority, 'way' AS node, shop, amenity, "addr:housename",
-                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                       ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
-                       ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
-                FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE (({query_type}) AND osm_id > 0 {query_name})
-                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
-                UNION ALL
-                --- The node selector with street name and housenumber
-                SELECT name, osm_id, {metadata_fields} 960 AS priority, 'node' AS node, shop, amenity, "addr:housename",
-                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                       ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
-                       ST_AsEWKT(way) as way_ewkt,
-                       ST_X(ST_Transform(planet_osm_point.way,4326)) as lon,
-                       ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
-                FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE (({query_type}) AND osm_id > 0 {query_name})
-                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
-                UNION ALL
-                --- The relation selector with street name and housenumber
-                SELECT name, osm_id, {metadata_fields} 960 AS priority, 'relation' AS node, shop, amenity,
-                       "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                       ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
-                       ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
-                FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE (({query_type}) AND osm_id < 0 {query_name})
-                    AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
-                ''')
+            query_arr.append('''
+            --- WITH NAME, NO STREETNAME, WITH HOUSENUMBER
+            --- The way selector with street name and housenumber
+            SELECT name, osm_id, {metadata_fields} 960 AS priority, 'way' AS node, shop, amenity, "addr:housename",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
+                   ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+            WHERE (({query_type}) AND osm_id > 0 {query_name})
+                AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
+            UNION ALL
+            --- The node selector with street name and housenumber
+            SELECT name, osm_id, {metadata_fields} 960 AS priority, 'node' AS node, shop, amenity, "addr:housename",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
+                   ST_AsEWKT(way) as way_ewkt,
+                   ST_X(ST_Transform(planet_osm_point.way,4326)) as lon,
+                   ST_Y(ST_Transform(planet_osm_point.way,4326)) as lat
+            FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+            WHERE (({query_type}) AND osm_id > 0 {query_name})
+                AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
+            UNION ALL
+            --- The relation selector with street name and housenumber
+            SELECT name, osm_id, {metadata_fields} 960 AS priority, 'relation' AS node, shop, amenity,
+                   "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,
+                   ST_AsEWKT(way) as way_ewkt, NULL as lon, NULL as lat
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+            WHERE (({query_type}) AND osm_id < 0 {query_name})
+                AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
+            ''')
         if conscriptionnumber_query is not None and conscriptionnumber_query != '' and \
             city_query is not None and city_query != '' :
             query_arr.append('''
