@@ -2,6 +2,17 @@
 
 Since OSM POI Matchmaker was written in Python languege, you can use any of your favorite tool to debug it. I am using PyCharm Community edition. This is a free tool for coding yout Python project.
 
+## Current number of importeble POIs grouped by POI names
+
+```
+SELECT poi_common_id, poi_name, COUNT(pa.pa_id)
+  FROM poi_address as pa
+  FULL OUTER JOIN poi_common as pc
+    ON pa.poi_common_id = pc.pc_id
+  GROUP BY poi_common_id, poi_name
+  ORDER BY poi_common_id;
+```
+
 # Debugging SQL queries
 
 There are a few longer but not so complex SQL squeries that are essential parts of the POI matching mechanism. Fine tuning of those queries are key to create useful output files.
