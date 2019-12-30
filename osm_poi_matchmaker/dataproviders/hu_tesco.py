@@ -56,7 +56,7 @@ class hu_tesco(DataProvider):
     def process(self):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-            if soup != None:
+            if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 # script = soup.find('div', attrs={'data-stores':True})
                 text = json.loads(soup.get_text())

@@ -53,7 +53,7 @@ class hu_spar(DataProvider):
     def process(self):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
-            if soup != None:
+            if soup is not None:
                 text = json.loads(soup.get_text())
                 for poi_data in text:
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom

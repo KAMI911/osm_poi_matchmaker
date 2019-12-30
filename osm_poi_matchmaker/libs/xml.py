@@ -29,7 +29,7 @@ def save_downloaded_xml(link, file, verify=config.get_download_verify_link()):
             page = content_file.read()
     else:
         page = download_xml(link, verify)
-        if page != None:
+        if page is not None:
             if not os.path.exists(config.get_directory_cache_url()):
                 os.makedirs(config.get_directory_cache_url())
             with open(file, mode='w', encoding='utf-8') as code:

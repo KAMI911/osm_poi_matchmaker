@@ -43,14 +43,14 @@ class hu_tesco():
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
         data = []
-        if soup != None:
+        if soup is not None:
             # parse the html using beautiful soap and store in variable `soup`
             table = soup.find('table', attrs={'class': 'tescoce-table'})
             table_body = table.find('tbody')
             rows = table_body.find_all('tr')
             for row in rows:
                 cols = row.find_all('td')
-                link = cols[0].find('a').get('href') if cols[0].find('a') != None else []
+                link = cols[0].find('a').get('href') if cols[0].find('a') is not None else []
                 cols = [element.text.strip() for element in cols]
                 cols[0] = cols[0].split('\n')[0]
                 del cols[-1]

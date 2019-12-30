@@ -40,7 +40,7 @@ class hu_rossmann(DataProvider):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), None,
                                         self.verify_link)
-            if soup != None:
+            if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 pattern = re.compile('^\s*var\s*places.*')
                 script = soup.find('script', text=pattern)

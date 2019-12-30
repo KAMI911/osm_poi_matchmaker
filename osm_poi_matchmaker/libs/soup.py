@@ -38,9 +38,9 @@ def save_downloaded_soup(link, file, post_data=None, verify=config.get_download_
         with open(file, 'r', encoding='utf-8') as content_file:
             soup = BeautifulSoup(content_file.read(), 'html.parser')
     else:
-        if link != None:
+        if link is not None:
             soup = download_soup(link, verify, post_data, headers)
-            if soup != None:
+            if soup is not None:
                 if not os.path.exists(config.get_directory_cache_url()):
                     os.makedirs(config.get_directory_cache_url())
                 with open(file, mode='w', encoding='utf-8') as code:
