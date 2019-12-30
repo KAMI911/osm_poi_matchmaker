@@ -38,8 +38,8 @@ class hu_mol(DataProvider):
         if soup is not None:
             text = json.loads(soup.get_text())
             for poi_data in text:
-                self.data.name = 'MOL'
-                self.data.code = 'humolfu'
+                self.data.name = 'Nemzeti Dohánybolt'
+                self.data.code = 'hunemdotob'
                 self.data.postcode = poi_data['postcode'].strip()
                 self.data.city = clean_city(poi_data['city'])
                 self.data.original = poi_data['address']
