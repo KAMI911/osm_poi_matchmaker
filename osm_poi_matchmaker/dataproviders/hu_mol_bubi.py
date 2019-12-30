@@ -39,7 +39,6 @@ class hu_mol_bubi(DataProvider):
         try:
             xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
             root = etree.fromstring(xml)
-            data = POIDataset()
             for e in root.iter('place'):
                 self.data.name = 'MOL Bubi'
                 self.data.code = 'hububibir'

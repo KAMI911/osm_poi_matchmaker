@@ -48,7 +48,6 @@ class hu_avia(DataProvider):
                 data = data.replace("'", '"')
                 data = clean_javascript_variable(data, 'markers')
                 text = json.loads(data)
-                data = POIDataset()
                 for poi_data in text:
                     self.data.name = 'Avia'
                     self.data.code = 'huaviafu'

@@ -39,7 +39,6 @@ class hu_penny_market(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
             if soup != None:
                 text = json.loads(soup.get_text())
-                data = POIDataset()
                 for poi_data in text['markets']:
                   self.data.name = 'Penny'
                   self.data.code = 'hupennysup'

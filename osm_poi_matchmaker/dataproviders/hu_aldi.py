@@ -39,7 +39,6 @@ class hu_aldi(DataProvider):
             table = soup.find('table', attrs={'class': 'contenttable is-header-top'})
             table_body = table.find('tbody')
             rows = table_body.find_all('tr')
-            data = POIDataset()
             for row in rows:
                 cols = row.find_all('td')
                 cols = [element.text.strip() for element in cols]
