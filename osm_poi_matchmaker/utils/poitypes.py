@@ -62,6 +62,9 @@ def getPOITypes(ptype):
     elif ptype == 'clothes':
         query_type = "shop='clothes' OR shop='fashion'"
         distance = config.get_geo_default_poi_distance()
+    elif ptype == 'doityourself':
+        query_type = "shop='doityourself'"
+        distance = config.get_geo_default_poi_distance()
     else:
         query_type = None
         distance = 0
