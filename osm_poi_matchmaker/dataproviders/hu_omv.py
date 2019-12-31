@@ -40,7 +40,7 @@ class hu_omv(DataProvider):
                                "'contact:linkedin': 'https://www.linkedin.com/company/omv', " \
                                "'contact:instagram': 'https://www.instagram.com/omv/', " \
                                "'contact:youtube': 'https://www.youtube.com/user/omvofficial', " \
-                               "'contact:phone': '+36 1 381 9700', 'contact:website': 'http://www.omv.hu/'}"
+                               "'contact:phone': '+36 1 381 9700', 'contact:website': 'http://www.omv.hu/', "
         self.filename = self.filename + 'json'
 
     def types(self):
