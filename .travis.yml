@@ -13,5 +13,5 @@ install:
 
 # command to run test
 script:
-  - python test_create_db.py
+  - python test/test_create_db.py
 
