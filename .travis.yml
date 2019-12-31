@@ -11,7 +11,9 @@ install:
   - "pip install --upgrade pip"
   - "pip install --pre -r requirements.txt"
 
+env:
+  - PYTHONPATH="."
+
 # command to run test
 script:
   - python test/test_create_db.py
-
