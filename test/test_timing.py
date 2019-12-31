@@ -12,7 +12,7 @@ except ImportError as err:
     exit(128)
 
 
-class Timing(unittest.TestCase):
+class TestTiming(unittest.TestCase):
     def setUp(self):
         self.one_sec = '0:00:00.10'
         self.one_sec_timer = 0.1

@@ -5,12 +5,12 @@ try:
     import logging
     from sys import exit
     import json
-    from dao.data_handlers import insert_poi_dataframe
-    from libs.address import extract_all_address, clean_city, clean_phone_to_str, extract_street_housenumber_better_2
-    from libs.osm import query_postcode_osm_external
-    from libs.geo import check_hu_boundary
-    from libs.poi_dataset import POIDataset
-    from utils.data_provider import DataProvider
+    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
+    from osm_poi_matchmaker.libs.address import extract_all_address, clean_city, clean_phone_to_str, extract_street_housenumber_better_2
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
+    from osm_poi_matchmaker.libs.geo import check_hu_boundary
+    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.utils.data_provider import DataProvider
 
 
 except ImportError as err:

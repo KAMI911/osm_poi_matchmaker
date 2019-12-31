@@ -5,13 +5,13 @@ try:
     import logging
     from sys import exit
     import os
-    from dao.data_handlers import insert_poi_dataframe
-    from libs.soup import save_downloaded_soup
-    from libs.address import extract_street_housenumber_better_2, clean_city
-    from libs.osm import query_postcode_osm_external
-    from libs.poi_dataset import POIDataset
-    from libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
-    from utils.data_provider import DataProvider
+    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
+    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
+    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
+    from osm_poi_matchmaker.utils.data_provider import DataProvider
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())

@@ -5,11 +5,11 @@ try:
     import logging
     from sys import exit
     import json
-    from dao.data_handlers import insert_poi_dataframe
-    from libs.address import extract_all_address, clean_phone_to_str
-    from libs.geo import check_hu_boundary
-    from libs.osm import query_postcode_osm_external
-    from libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
+    from osm_poi_matchmaker.libs.address import extract_all_address, clean_phone_to_str
+    from osm_poi_matchmaker.libs.geo import check_hu_boundary
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
+    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())

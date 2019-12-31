@@ -6,11 +6,11 @@ try:
     from sys import exit
     import os
     import json
-    from dao.data_handlers import insert_poi_dataframe
-    from libs.soup import save_downloaded_soup
-    from libs.address import extract_street_housenumber_better_2, clean_city
-    from libs.poi_dataset import POIDataset
-    from utils.data_provider import DataProvider
+    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
+    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
+    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.utils.data_provider import DataProvider
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())

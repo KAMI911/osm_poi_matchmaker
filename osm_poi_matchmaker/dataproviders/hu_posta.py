@@ -7,13 +7,13 @@ try:
     import os
     import re
     from lxml import etree
-    from dao.data_handlers import insert_poi_dataframe
-    from libs.xml import save_downloaded_xml
-    from libs.address import clean_city, clean_phone_to_str, clean_street, clean_street_type
-    from libs.geo import check_hu_boundary
-    from libs.poi_dataset import POIDataset
-    from utils.enums import WeekDaysLongHU
-    from utils.data_provider import DataProvider
+    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
+    from osm_poi_matchmaker.libs.xml import save_downloaded_xml
+    from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str, clean_street, clean_street_type
+    from osm_poi_matchmaker.libs.geo import check_hu_boundary
+    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.utils.enums import WeekDaysLongHU
+    from osm_poi_matchmaker.utils.data_provider import DataProvider
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
