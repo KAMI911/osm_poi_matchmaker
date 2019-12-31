@@ -1,0 +1,56 @@
+# OSM POI Matchmaker
+version: '2.1'
+volumes:
+  opm_dbdata:
+  opm_osmdata:
+  opm_outputdata:
+services:
+  db:
+    image: kartoza/postgis:11.0-2.5
+    container_name: opm_db
+    environment:
+      - POSTGRES_USER=poi
+      - POSTGRES_PASS=poitest
+      - POSTGRES_DBNAME=poi
+      - POSTGRES_MULTIPLE_EXTENSIONS=postgis,fuzzystrmatch
+      - ALLOW_IP_RANGE=0.0.0.0/0
+      #- DEFAULT_ENCODING=UTF8
+      #- DEFAULT_COLLATION=en_US.UTF-8
+      #- DEFAULT_CTYPE=en_US.UTF-8
+      - WAL_SIZE=8GB
+      - MIN_WAL_SIZE=2048MB
+      - WAL_SEGSIZE=1024
+      - MAINTAINANCE_WORK_MEM=128MB
+    ports:
+      - "15432:5432"
+    shm_size: 1G
+    volumes:
+      - ../container/dbdata:/var/lib/postgresql
+    restart: on-failure:10
+    oom_score_adj: -100
+  osm_load_app:
+    image: osm_loader:latest
+    container_name: opm_osm_load_app
+    environment:
+      - PGPASSWORD=poitest
+      - OSM2PGSQL_VERSION=1.0.0
+    volumes:
+      - ../container/osmdata:/opm/osm
+    depends_on:
+      - db
+    restart: on-failure:10
+    oom_score_adj: -100
+    mem_limit: 16g
+
+  poi_load_app:
+    image: osm_poi_matchmaker:latest
+    container_name: opm_poi_load_app
+    volumes:
+      - ../container/osmdata:/opm/osm
+      - ../container/importdata:/opm/osm_poi_matchmaker/output
+      - ../container/downloaddata:/opm/osm_poi_matchmaker/cache_url
+    depends_on:
+      - db
+    restart: on-failure:10
+    oom_score_adj: -100
+    mem_limit: 16g
