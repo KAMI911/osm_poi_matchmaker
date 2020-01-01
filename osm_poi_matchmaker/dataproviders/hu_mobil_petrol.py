@@ -63,17 +63,17 @@ class hu_mobil_petrol(DataProvider):
                         self.data.public_holiday_open = True
                     else:
                         if '6-22' in poi_data.get('services'):
-                            open_from = 6
-                            open_to = 22
+                            open_from = '06:00'
+                            open_to = '22:00'
                         elif '6-21' in poi_data.get('services'):
-                            open_from = 6
-                            open_to = 21
+                            open_from = '06:00'
+                            open_to = '21:00'
                         elif '5-22' in poi_data.get('services'):
-                            open_from = 5
-                            open_to = 22
+                            open_from = '05:00'
+                            open_to = '22:00'
                         elif '6-18' in poi_data.get('services'):
-                            open_from = 6
-                            open_to = 18
+                            open_from = '06:00'
+                            open_to = '18:00'
                         if 'open_from' in locals() and 'open_to' in locals():
                             for i in range(0, 7):
                                 self.data.day_open(i, open_from)
