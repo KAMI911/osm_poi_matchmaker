@@ -6,7 +6,6 @@ try:
     from sys import exit
     import os
     import json
-    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary

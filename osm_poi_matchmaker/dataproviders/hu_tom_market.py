@@ -6,7 +6,7 @@ try:
     from sys import exit
     import os
     import re
-    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe, search_for_postcode
+    from osm_poi_matchmaker.dao.data_handlers import search_for_postcode
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_city_street_housenumber_address, clean_city
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external

@@ -6,7 +6,6 @@ try:
     from sys import exit
     import os
     from lxml import etree
-    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
     from osm_poi_matchmaker.libs.address import clean_city
     from osm_poi_matchmaker.libs.geo import check_hu_boundary

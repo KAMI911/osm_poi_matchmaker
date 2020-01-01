@@ -5,7 +5,6 @@ try:
     import logging
     from sys import exit
     import os
-    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
