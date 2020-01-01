@@ -85,7 +85,9 @@ def extract_all_address(clearable):
                 clearable.split(',')[1].strip())
             return (postcode, city, street, housenumber, conscriptionnumber)
         else:
-            return postcode, city, None, None, None
+            space_separated = ' '.join(clearable.split(' ')[2:]).strip()
+            street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(space_separated)
+            return (postcode, city, street, housenumber, conscriptionnumber)
     else:
         return None, None, None, None, None
 
@@ -442,10 +444,10 @@ def clean_street(clearable):
     street = street.replace('Erzsébet Királyné út', 'Erzsébet királyné útja')
     street = street.replace('Mammut', '')
     street = street.replace('Szt. ', 'Szent ')
-    street = street.replace(' u.', ' utca')
-    street = street.replace(' U.', ' utca')
-    street = street.replace('.u.', ' utca')
-    street = street.replace(' u ', ' utca')
+    street = street.replace(' u.', ' utca ')
+    street = street.replace(' U.', ' utca ')
+    street = street.replace('.u.', ' utca ')
+    street = street.replace(' u ', ' utca ')
     street = street.replace(' krt.', ' körút')
     street = street.replace(' Krt.', ' körút')
     street = street.replace(' KRT.', ' körút')
