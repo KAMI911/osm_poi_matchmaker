@@ -247,7 +247,7 @@ class POIDataset:
 
     @property
     def street(self):
-        return (self.__original)
+        return (self.__street)
 
     @street.setter
     def street(self, data):
@@ -269,7 +269,7 @@ class POIDataset:
 
     @property
     def housenumber(self):
-        return (self.__original)
+        return (self.__housenumber)
 
     @housenumber.setter
     def housenumber(self, data):
@@ -277,7 +277,7 @@ class POIDataset:
 
     @property
     def conscriptionnumber(self):
-        return (self.__original)
+        return (self.__conscriptionnumber)
 
     @conscriptionnumber.setter
     def conscriptionnumber(self, data):
@@ -285,7 +285,7 @@ class POIDataset:
 
     @property
     def ref(self):
-        return (self.__original)
+        return (self.__ref)
 
     @ref.setter
     def ref(self, data):
@@ -293,7 +293,7 @@ class POIDataset:
 
     @property
     def phone(self):
-        return (self.__original)
+        return (self.__phone)
 
     @phone.setter
     def phone(self, data):
@@ -304,7 +304,7 @@ class POIDataset:
 
     @property
     def email(self):
-        return (self.__original)
+        return (self.__email)
 
     @email.setter
     def email(self, data):
@@ -315,7 +315,7 @@ class POIDataset:
 
     @property
     def geom(self):
-        return (self.__original)
+        return (self.__geom)
 
     @geom.setter
     def geom(self, data):
