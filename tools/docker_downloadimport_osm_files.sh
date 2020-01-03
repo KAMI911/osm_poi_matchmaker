@@ -26,16 +26,16 @@ fi
 if [ ! -f "${DOWNLOAD_FILE}" ]; then
   DOWNLOAD=1
 fi
-if [ -f "${INPORT_DS_FILE}" ]; then
-  DAYSTAMP=$(cat ${INPORT_DS_FILE})
+if [ -f "${IMPORT_DS_FILE}" ]; then
+  DAYSTAMP=$(cat ${IMPORT_DS_FILE})
   if [ "${DAYSTAMP}" == "${CURRENT_DAYSTAMP}" ]; then
     IMPORT=0
   else
-    echo "${CURRENT_DAYSTAMP}" > "${INPORT_DS_FILE}"
+    echo "${CURRENT_DAYSTAMP}" > "${IMPORT_DS_FILE}"
     IMPORT=1
   fi
 else
-  echo "${CURRENT_DAYSTAMP}" > "${INPORT_DS_FILE}"
+  echo "${CURRENT_DAYSTAMP}" > "${IMPORT_DS_FILE}"
   IMPORT=1
 fi
 if [ "${DOWNLOAD}" -eq "1" ]; then
