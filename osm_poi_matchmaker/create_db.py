@@ -167,6 +167,7 @@ def online_poi_matching(args):
                 row.get('osm_search_distance_unsafe'))
             # Enrich our data with OSM database POI metadata
             if osm_query is not None:
+                row['poi_new'] = False
                 # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
                 osm_id = osm_query['osm_id'].values[0]
                 if osm_query['node'].values[0] == 'node':
@@ -288,6 +289,7 @@ def online_poi_matching(args):
                     logging.warning(traceback.print_exc())
             # This is a new POI
             else:
+                row['poi_new'] = True
                 # Get the first character of then name of POI and generate a floating number between 0 and 1
                 # for a PostGIS function: https://postgis.net/docs/ST_LineInterpolatePoint.html
                 # If there is more than one POI in a building this will try to do a different location and

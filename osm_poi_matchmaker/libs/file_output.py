@@ -213,6 +213,8 @@ def generate_osm_xml(df, session=None):
                 tags['food'] = 'yes' if row.get('poi_food') == True else 'no'
             if row.get('poi_truck') is not None and row.get('poi_truck') != '':
                 tags['truck'] = 'yes' if row.get('poi_truck') == True else 'no'
+            if row.get('poi_new') is not None and row.get('poi_new') == True:
+                tags['fixme'] = 'verify import'
             # Remove unwanted addr:country from file output as we discussed in Issue #33
             tags.pop('addr:country', None)
             # tags['import'] = 'osm_poi_matchmaker'
