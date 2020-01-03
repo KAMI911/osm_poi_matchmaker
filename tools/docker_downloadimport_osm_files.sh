@@ -5,31 +5,42 @@ DOWNLOAD=0
 FILE="hungary-latest.osm.pbf"
 DOWNLOAD_FILE="${DOWNLOAD_URL}/${FILE}"
 OUTPUT_DIR="/opm/osm/"
+DOWNLOAD_DS_FILE="${OUTPUT_DIR}/download_daystamp"
+IMPORT_DS_FILE="${OUTPUT_DIR}/import_daystamp"
 CURRENT_DAYSTAMP=$(date +%Y%m%d)
 
 mkdir -p ${OUTPUT_DIR}
 
-if [ -f "${OUTPUT_DIR}/daystamp" ]; then
-  DAYSTAMP=$(cat ${OUTPUT_DIR}/daystamp)
+if [ -f "${DOWNLOAD_DS_FILE}" ]; then
+  DAYSTAMP=$(cat ${DOWNLOAD_DS_FILE})
   if [ "${DAYSTAMP}" == "${CURRENT_DAYSTAMP}" ]; then
     DOWNLOAD=0
   else
-    echo "${CURRENT_DAYSTAMP}" > "${OUTPUT_DIR}/daystamp"
+    echo "${CURRENT_DAYSTAMP}" > "${DOWNLOAD_DS_FILE}"
     DOWNLOAD=1
   fi
 else
-  echo "${CURRENT_DAYSTAMP}" > "${OUTPUT_DIR}/daystamp"
+  echo "${CURRENT_DAYSTAMP}" > "${DOWNLOAD_DS_FILE}"
   DOWNLOAD=1
 fi
-
 if [ ! -f "${DOWNLOAD_FILE}" ]; then
   DOWNLOAD=1
 fi
-
+if [ -f "${INPORT_DS_FILE}" ]; then
+  DAYSTAMP=$(cat ${INPORT_DS_FILE})
+  if [ "${DAYSTAMP}" == "${CURRENT_DAYSTAMP}" ]; then
+    IMPORT=0
+  else
+    echo "${CURRENT_DAYSTAMP}" > "${INPORT_DS_FILE}"
+    IMPORT=1
+  fi
+else
+  echo "${CURRENT_DAYSTAMP}" > "${INPORT_DS_FILE}"
+  IMPORT=1
+fi
 if [ "${DOWNLOAD}" -eq "1" ]; then
   echo "Will download OSM files"
 fi
-
 if [ -f "${OUTPUT_DIR}/do_osm_download" -a "${DOWNLOAD}" -eq "1" ]; then
   echo "Downloading OSM files"
   mkdir -p ${OUTPUT_DIR}
@@ -39,8 +50,7 @@ if [ -f "${OUTPUT_DIR}/do_osm_download" -a "${DOWNLOAD}" -eq "1" ]; then
   wget -O ${OUTPUT_DIR}/${FILE}.md5  ${DOWNLOAD_FILE}.md5
   rm "${OUTPUT_DIR}/osm_download.lock"
 fi
-
-if [ -f "${OUTPUT_DIR}/do_osm_import" ]; then
+if [ -f "${OUTPUT_DIR}/do_osm_import" -a "${IMPORT}" -eq "1" ]; then
   touch "${OUTPUT_DIR}/osm_import.lock"
   cd ${OUTPUT_DIR}
   md5sum -c ${OUTPUT_DIR}/${FILE}.md5
