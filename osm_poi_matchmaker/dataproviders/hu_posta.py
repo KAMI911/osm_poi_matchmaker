@@ -147,7 +147,7 @@ class hu_posta(DataProvider):
                         data.ref = ref_match.group(0)
                 '''
                 data.add()
-        if data.lenght() < 1:
+        if data is None or data.lenght() < 1:
             logging.warning('Resultset is empty. Skipping ...')
         else:
             insert_poi_dataframe(self.session, data.process())

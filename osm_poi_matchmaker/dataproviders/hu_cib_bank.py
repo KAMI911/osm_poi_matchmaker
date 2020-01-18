@@ -69,7 +69,7 @@ class hu_cib_bank():
                                 data.email = poi_data['email'].strip()
                             data.original = poi_data['fullAddress']
                             data.add()
-                if data.lenght() < 1:
+                if data is None or data.lenght() < 1:
                     logging.warning('Resultset is empty. Skipping ...')
                 else:
                     insert_poi_dataframe(self.session, data.process())

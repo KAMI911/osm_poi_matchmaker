@@ -54,7 +54,7 @@ class POI_address(Base):
     poi_addr_city = Column(ForeignKey('city.city_id'), index=True)
     poi_postcode = Column(Integer)
     poi_city = Column(Unicode(64))
-    poi_addr_street = Column(Unicode(64))
+    poi_addr_street = Column(Unicode(128))
     poi_addr_housenumber = Column(Unicode(16))
     poi_conscriptionnumber = Column(Unicode(16))
     poi_geom = Column(Geometry('POINT, {}'.format(config.get_geo_default_projection())))

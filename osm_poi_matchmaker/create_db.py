@@ -289,7 +289,8 @@ def online_poi_matching(args):
                     logging.warning(traceback.print_exc())
             # This is a new POI
             else:
-                row['poi_new'] = True
+                # This is a new POI - will add fix me tag to the new items.
+                data.at[i, 'poi_new'] = True
                 # Get the first character of then name of POI and generate a floating number between 0 and 1
                 # for a PostGIS function: https://postgis.net/docs/ST_LineInterpolatePoint.html
                 # If there is more than one POI in a building this will try to do a different location and

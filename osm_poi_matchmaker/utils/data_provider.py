@@ -46,7 +46,7 @@ class DataProvider():
         pass
 
     def export_list(self):
-        if self.data.lenght() < 1:
+        if self.data is None or self.data.lenght() < 1:
             logging.warning('Resultset is empty. Skipping ...')
         else:
             insert_poi_dataframe(self.session, self.data.process())
