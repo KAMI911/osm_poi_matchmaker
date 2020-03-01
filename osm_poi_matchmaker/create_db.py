@@ -18,7 +18,7 @@ try:
     from osmapi import OsmApi
     from osm_poi_matchmaker.utils import config, timing, dataproviders_loader
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
-    from osm_poi_matchmaker.libs.osm import timestamp_now, query_postcode_osm_external
+    from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
     from osm_poi_matchmaker.dao.data_handlers import insert_type, get_or_create
