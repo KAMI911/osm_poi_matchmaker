@@ -10,7 +10,6 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_city_street_housenumber_address, clean_city
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
-    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
 except ImportError as err:
