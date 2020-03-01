@@ -1,7 +1,7 @@
 
 FROM alpine:3.6
 
-MAINTAINER David Stefan <stefda@gmail.com>
+LABEL maintainer David Stefan <stefda@gmail.com>
 
 ENV PATH /usr/local/bin:$PATH
 ENV LANG C.UTF-8

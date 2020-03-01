@@ -1,5 +1,7 @@
 FROM buildpack-deps:stretch
 
+LABEL maintainer Kálmán Szalai (KAMI) <kami911@gmail.com>
+
 # ensure local python is preferred over distribution python
 ENV PATH /usr/local/bin:$PATH
 
