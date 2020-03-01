@@ -38,13 +38,11 @@ class hu_mol(DataProvider):
             for poi_data in text:
                 self.data.name = 'Nemzeti Dohánybolt'
                 self.data.code = 'hunemdotob'
-                self.data.postcode = poi_data['postcode'].strip()
+                self.data.postcode = poi_data.get('postcode').strip()
                 self.data.city = clean_city(poi_data['city'])
                 self.data.original = poi_data['address']
                 self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
                 self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['address'])
-                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                            self.data.postcode)
                 self.data.public_holiday_open = False
                 self.data.add()

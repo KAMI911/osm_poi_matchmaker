@@ -72,8 +72,7 @@ class hu_tesco(DataProvider):
                                 self.data.day_close(i, opening[ind][1])
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data['gpslat'], poi_data['gpslng'])
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data['address'])
-                        self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                                    None)
+                        self.data.postcode = poi_data.get('zipcode').strip()
                         self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
                         if 'xpres' in poi_data['name']:
                             if self.data.city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:

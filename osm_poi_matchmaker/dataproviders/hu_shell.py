@@ -58,11 +58,11 @@ class hu_shell(DataProvider):
                         self.data.name = 'M. Petrol'
                         self.data.code = 'humobpefu'
                         self.data.website = 'http://mpetrol.hu/'
-                    self.data.postcode = poi_data['Post code']
-                    steet_tmp = poi_data['Address'].lower().split()
-                    for i in range(0, len(steet_tmp) - 2):
-                        steet_tmp[i] = steet_tmp[i].capitalize()
-                    steet_tmp = ' '.join(steet_tmp)
+                    self.data.postcode = poi_data.get('Post code') if poi_data.get('Post code') != '' else None
+                    street_tmp = poi_data['Address'].lower().split()
+                    for i in range(0, len(street_tmp) - 2):
+                        street_tmp[i] = street_tmp[i].capitalize()
+                    street_tmp = ' '.join(street_tmp)
                     if poi_data['City'] != '':
                         self.data.city = clean_city(poi_data['City'].title())
                     else:
@@ -94,9 +94,7 @@ class hu_shell(DataProvider):
                     self.data.original = poi_data['Address']
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data['GPS Latitude'], poi_data['GPS Longitude'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                        steet_tmp)
-                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                                self.data.postcode)
+                        street_tmp)
                     if 'Telephone' in poi_data and poi_data['Telephone'] != '':
                         self.data.phone = clean_phone_to_str(str(poi_data['Telephone']))
                     else:

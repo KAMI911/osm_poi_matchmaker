@@ -57,8 +57,6 @@ class hu_budapest_bank(DataProvider):
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data['latitude'], poi_data['longitude'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         poi_data['addr'])
-                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                                self.data.postcode)
                     self.data.original = poi_data['address']
                     self.data.branch = poi_data['name']
                     self.data.add()

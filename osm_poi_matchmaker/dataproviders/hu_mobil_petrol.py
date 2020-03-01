@@ -52,7 +52,7 @@ class hu_mobil_petrol(DataProvider):
                     self.data.city = clean_city(poi_data.get('city'))
                     self.data.original = poi_data.get('address')
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data['location']['lat'], poi_data['location']['lng'])
-                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon, None)
+                    self.data.postcode = None
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         poi_data.get('address'))
                     self.data.phone = clean_phone_to_str(poi_data.get('phone'))

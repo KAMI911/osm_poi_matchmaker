@@ -43,9 +43,6 @@ def online_poi_matching(args):
                 row.get('poi_addr_housenumber'), row.get('poi_addr_conscriptionnumber'), row.get('poi_addr_city'),
                 row.get('osm_search_distance_perfect'), row.get('osm_search_distance_safe'),
                 row.get('osm_search_distance_unsafe'))
-           # Refine postcode
-            data.at[i, 'poi_postcode'] = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
-                                            row.get('poi_lon'), row.get('poi_lat'), row.get('poi_postcode'))
             # Enrich our data with OSM database POI metadata
             if osm_query is not None:
                 row['poi_new'] = False
@@ -63,6 +60,12 @@ def online_poi_matching(args):
                 if osm_node == OSM_object_type.node:
                     data.at[i, 'poi_lat'] = osm_query['lat'].values[0]
                     data.at[i, 'poi_lon'] = osm_query['lon'].values[0]
+                # Refine postcode
+                postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
+                                                       row.get('poi_lon'), row.get('poi_lat'), row.get('poi_postcode'))
+                if postcode != row.get('poi_postcode'):
+                    logging.info('Changing postcode from {} to {}.'.format(row.get('poi_postcode'), postcode))
+                    data.at[i, 'poi_postcode'] = postcode
                 data.at[i, 'osm_id'] = osm_id
                 data.at[i, 'osm_node'] = osm_node
                 data.at[i, 'osm_version'] = osm_query['osm_version'].values[0]

@@ -52,7 +52,7 @@ class hu_rossmann(DataProvider):
                     self.data.name = 'Rossmann'
                     self.data.code = 'hurossmche'
                     self.data.city = clean_city(poi_data['city'])
-                    self.data.postcode = poi_data['zip'].strip()
+                    self.data.postcode = poi_data.get('zip').strip()
                     for i in range(0, 7):
                         if poi_data['business_hours'][WeekDaysLong(i).name.lower()] is not None:
                             opening, closing = clean_opening_hours(poi_data['business_hours'][WeekDaysLong(i).name.lower()])
@@ -62,9 +62,6 @@ class hu_rossmann(DataProvider):
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data['position'][0], poi_data['position'][1])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         poi_data['address'])
-                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat,
-                                                                     self.data.lon,
-                                                                     self.data.postcode)
                     self.data.original = poi_data['address']
                     self.data.public_holiday_open = False
                     self.data.add()

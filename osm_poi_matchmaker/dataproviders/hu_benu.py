@@ -53,12 +53,10 @@ class hu_benu(DataProvider):
                         else:
                             self.data.website = None
                         self.data.city = clean_city(poi_data['city'])
-                        self.data.postcode = poi_data['postal_code'].strip()
+                        self.data.postcode = poi_data.get('postal_code').strip()
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data['street'])
-                        self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                                    self.data.postcode)
                         self.data.original = poi_data['street']
                         if 'phone' in poi_data and poi_data['phone'] != '':
                             self.data.phone = clean_phone_to_str(poi_data['phone'])

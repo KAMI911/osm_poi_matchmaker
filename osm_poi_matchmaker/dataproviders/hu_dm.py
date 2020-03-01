@@ -49,8 +49,6 @@ class hu_dm(DataProvider):
                       self.data.lat, self.data.lon = check_hu_boundary(poi_data['location']['lat'], poi_data['location']['lon'])
                       self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                           street_tmp.title())
-                      self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                                  self.data.postcode)
                       if 'phone' in poi_data and poi_data['phone'] != '':
                           self.data.phone = clean_phone_to_str(poi_data['phone'])
                       if 'storeNumber' in poi_data and poi_data['storeNumber'] != '':

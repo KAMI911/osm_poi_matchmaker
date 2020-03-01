@@ -31,20 +31,20 @@ def import_poi_data_module(module):
         logging.info('Processing {} module ...'.format(module))
         if module == 'hu_kh_bank':
             from osm_poi_matchmaker.dataproviders.hu_kh_bank import hu_kh_bank
-            work = hu_kh_bank(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(),
+            work = hu_kh_bank(session, config.get_directory_cache_url(),
                               os.path.join(config.get_directory_cache_url(), 'hu_kh_bank.json'), 'K&H bank')
             insert_type(session, work.types())
             work.process()
-            work = hu_kh_bank(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(),
+            work = hu_kh_bank(session, config.get_directory_cache_url(),
                               os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H')
             work.process()
         elif module == 'hu_cib_bank':
             from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
-            work = hu_cib_bank(session,  config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(),
+            work = hu_cib_bank(session,  config.get_directory_cache_url(),
                               os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.json'), 'CIB Bank')
             insert_type(session, work.types())
             work.process()
-            work = hu_cib_bank(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode(),
+            work = hu_cib_bank(session, config.get_directory_cache_url(),
                               os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.json'), 'CIB Bank ATM')
             work.process()
         elif module == 'hu_posta_json':
@@ -57,7 +57,7 @@ def import_poi_data_module(module):
             work.process()
         else:
             mo = dataproviders_loader.import_module('dataproviders.{0}'.format(module), module)
-            work = mo(session, config.get_directory_cache_url(), config.get_geo_prefer_osm_postcode())
+            work = mo(session, config.get_directory_cache_url())
             insert_type(session, work.types())
             work.process()
             work.export_list()

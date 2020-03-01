@@ -56,8 +56,6 @@ class hu_avia(DataProvider):
                     if poi_data['cim'] is not None and poi_data['cim'] != '':
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_all_address(
                             poi_data['cim'])
-                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                                self.data.postcode)
                     self.data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid'])) if poi_data[
                                                                                                 'kutid'] is not None and \
                                                                                             poi_data[

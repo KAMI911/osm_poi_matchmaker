@@ -61,8 +61,7 @@ class hu_kulcs_patika(DataProvider):
                                                                poi_data['marker_position']['longitude'])
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data['cim'])
-                        self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                                    poi_data['irsz'].strip())
+                        self.data.postcode = poi_data.get('irsz').strip()
                         self.data.original = poi_data['cim']
                         self.data.public_holiday_open = False
                         self.data.add()

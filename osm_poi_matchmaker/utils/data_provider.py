@@ -22,10 +22,9 @@ POI_DATA = ''
 class DataProvider():
 
 
-    def __init__(self, session, download_cache, prefer_osm_postcode, filetype='', verify_link = True):
+    def __init__(self, session, download_cache, filetype='', verify_link = True):
         self.session = session
         self.download_cache = download_cache
-        self.prefer_osm_postcode = prefer_osm_postcode
         self.filename = '{}.{}'.format(self.__class__.__name__, filetype)
         self.verify_link = verify_link
         self.constains()

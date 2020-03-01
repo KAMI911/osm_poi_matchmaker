@@ -48,9 +48,6 @@ class hu_aldi(DataProvider):
                 self.data.name = 'Aldi'
                 self.data.code = 'hualdisup'
                 self.data.postcode = poi_data[0].strip()
-                self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat,
-                                                                 self.data.lon,
-                                                                 self.data.postcode)
                 self.data.city = clean_city(poi_data[1])
                 self.data.original = poi_data[2]
                 self.data.public_holiday_open = False

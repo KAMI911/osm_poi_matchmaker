@@ -21,11 +21,10 @@ except ImportError as err:
 
 class hu_cib_bank():
 
-    def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
+    def __init__(self, session, download_cache, link, name):
         self.session = session
         self.download_cache = download_cache
         self.link = link
-        self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name
 
     @staticmethod
@@ -57,11 +56,9 @@ class hu_cib_bank():
                             data.lat, data.lon = check_hu_boundary(poi_data['location']['lat'],
                                                                    poi_data['location']['lon'])
                             data.city = clean_city(poi_data['city'])
-                            data.postcode = poi_data['zip'].strip()
+                            data.postcode = poi_data.get('zip').strip()
                             data.housenumber = poi_data['streetNo'].strip()
                             data.street = poi_data['streetName'].strip()
-                            data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat,
-                                                                        data.lon, data.postcode)
                             data.branch = poi_data['name']
                             if 'phone' in poi_data and poi_data['phone'] != '':
                                 data.phone = clean_phone_to_str(poi_data['phone'])

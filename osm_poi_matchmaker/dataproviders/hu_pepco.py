@@ -54,8 +54,7 @@ class hu_pepco(DataProvider):
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data['coordinates']['lat'], poi_data['coordinates']['lng'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data.get('streetAddress'))
-                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                                 poi_data.get('postalCode'))
+                    self.data.postcode = poi_data.get('postalCode')
                     # self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
                     # Assign opening_hours
                     opening = poi_data['openingHours']

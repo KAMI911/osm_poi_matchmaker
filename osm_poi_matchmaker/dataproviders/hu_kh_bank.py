@@ -59,8 +59,6 @@ class hu_kh_bank():
                                                                poi_data[first_element]['longitude'])
                         data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = extract_all_address(
                             poi_data[first_element]['address'])
-                        data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, data.lat,
-                                                                    data.lon, data.postcode)
                         data.original = poi_data[first_element]['address']
                         if 'phoneNumber' in poi_data and poi_data['phoneNumber'] != '':
                             data.phone = clean_phone_to_str(poi_data['phoneNumber'])

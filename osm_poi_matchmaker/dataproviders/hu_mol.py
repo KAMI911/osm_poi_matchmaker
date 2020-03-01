@@ -44,14 +44,12 @@ class hu_mol(DataProvider):
                 for poi_data in text:
                     self.data.name = 'MOL'
                     self.data.code = 'humolfu'
-                    self.data.postcode = poi_data['postcode'].strip()
+                    self.data.postcode = poi_data.get('postcode').strip()
                     self.data.city = clean_city(poi_data['city'])
                     self.data.original = poi_data['address']
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         poi_data['address'])
-                    self.data.postcode = query_postcode_osm_external(self.prefer_osm_postcode, self.session, self.data.lat, self.data.lon,
-                                                                self.data.postcode)
                     self.data.truck = True if 'kamion_parkolo' in poi_data.get('servicesin') else False
                     self.data.food = True if 'fresh_corner' in poi_data.get('servicesin') else False
                     self.data.rent_lpg_bottles = True if 'lpg' in poi_data.get('servicesin') else False
