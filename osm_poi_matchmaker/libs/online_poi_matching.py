@@ -3,8 +3,9 @@
 __author__ = 'kami911'
 
 try:
-    import logging
     import traceback
+    import logging
+    from sys import exit
     import pandas as pd
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osmapi import OsmApi

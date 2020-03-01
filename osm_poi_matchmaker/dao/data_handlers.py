@@ -2,8 +2,9 @@
 
 try:
     import traceback
-    import hashlib
     import logging
+    from sys import exit
+    import hashlib
     from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, Street_type
     from osm_poi_matchmaker.libs import address
     from osm_poi_matchmaker.dao import poi_array_structure

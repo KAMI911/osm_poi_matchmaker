@@ -3,6 +3,7 @@
 try:
     import traceback
     import logging
+    from sys import exit
     from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, UniqueConstraint
     from sqlalchemy import Boolean, Integer, BigInteger, Unicode, DateTime, Time, Enum, Float, func
     from sqlalchemy.ext.declarative import declarative_base

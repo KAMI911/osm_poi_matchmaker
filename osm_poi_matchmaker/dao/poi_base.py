@@ -2,6 +2,7 @@
 try:
     import traceback
     import logging
+    from sys import exit
     import geopandas as gpd
     import pandas as pd
     import sqlalchemy

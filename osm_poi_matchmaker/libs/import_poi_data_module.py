@@ -3,9 +3,10 @@
 __author__ = 'kami911'
 
 try:
-    import os
-    import logging
     import traceback
+    import logging
+    from sys import exit
+    import os
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.utils import config, dataproviders_loader
