@@ -46,6 +46,8 @@ class TestAddressResolver(unittest.TestCase):
              'conscriptionnumber': None},
             {'original': 'OLADI LTP. (DOLGOZÓK U.)', 'street': 'OLADI lakótelep', 'housenumber': None,
              'conscriptionnumber': None},
+            {'original': 'Fő út 24.', 'street': 'Fő út', 'housenumber': '24',
+             'conscriptionnumber': None},
         ]
 
     def test_extract_street_housenumber_better_2(self):
