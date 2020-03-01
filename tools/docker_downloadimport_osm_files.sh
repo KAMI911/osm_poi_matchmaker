@@ -23,12 +23,12 @@ else
   echo "${CURRENT_DAYSTAMP}" > "${DOWNLOAD_DS_FILE}"
   DOWNLOAD=1
 fi
-if [ ! -f "${DOWNLOAD_FILE}" ]; then
+if [ ! -f "${OUTPUT_DIR}/${FILE}" ]; then
   DOWNLOAD=1
 fi
 if [ -f "${IMPORT_DS_FILE}" ]; then
-  DAYSTAMP=$(cat ${IMPORT_DS_FILE})
-  if [ "${DAYSTAMP}" == "${CURRENT_DAYSTAMP}" ]; then
+  IMPORT_DAYSTAMP=$(cat ${IMPORT_DS_FILE})
+  if [ "${IMPORT_DAYSTAMP}" == "${CURRENT_DAYSTAMP}" ]; then
     IMPORT=0
   else
     echo "${CURRENT_DAYSTAMP}" > "${IMPORT_DS_FILE}"
