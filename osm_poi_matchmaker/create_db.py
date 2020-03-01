@@ -19,8 +19,6 @@ try:
     from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
-    from osm_poi_matchmaker.dao.data_handlers import insert_type
-    from osm_poi_matchmaker.dao.data_structure import OSM_object_type
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
