@@ -12,7 +12,6 @@ try:
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external, query_osm_city_name_gpd, query_osm_city_name
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
-    from osm_poi_matchmaker.libs.osm_tag_sets import POS_OTP
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())

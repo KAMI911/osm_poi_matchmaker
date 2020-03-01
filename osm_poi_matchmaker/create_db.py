@@ -13,16 +13,14 @@ try:
     import sys
     import numpy as np
     import pandas as pd
-    import geopandas as gpd
     import multiprocessing
-    from osmapi import OsmApi
-    from osm_poi_matchmaker.utils import config, timing, dataproviders_loader
+    from osm_poi_matchmaker.utils import config, timing
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
     from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
-    from osm_poi_matchmaker.dao.data_handlers import insert_type, get_or_create
-    from osm_poi_matchmaker.dao.data_structure import OSM_object_type, POI_OSM_cache
+    from osm_poi_matchmaker.dao.data_handlers import insert_type
+    from osm_poi_matchmaker.dao.data_structure import OSM_object_type
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
