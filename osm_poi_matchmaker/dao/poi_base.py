@@ -388,7 +388,7 @@ class POIBase:
             WHERE (({query_type}) AND osm_id < 0 {query_name})
                 AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance_safe
             ''')
-        query_arr.append('''   
+        query_arr.append('''
             --- NO NAME, NO STREETNAME, NO HOUSENUMBER
             --- The way selector without name and street name
             SELECT name, osm_id, {metadata_fields} 980 AS priority, 'way' AS node, shop, amenity, "addr:housename",

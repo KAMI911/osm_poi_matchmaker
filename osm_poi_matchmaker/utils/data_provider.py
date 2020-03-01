@@ -4,9 +4,6 @@ try:
     import traceback
     import logging
     import sys
-    import os
-    import re
-    import json
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \

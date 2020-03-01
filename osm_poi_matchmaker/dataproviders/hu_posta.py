@@ -22,7 +22,6 @@ except ImportError as err:
 POI_DATA = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
 POI_COMMON_TAGS = "'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'operator:addr': '1138 Budapest, Dunavirág utca 2-6.', 'ref:vatin:hu': '10901232-2-44', 'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614',  'contact:email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', 'contact:facebook': 'https://www.facebook.com/MagyarPosta', 'contact:youtube': 'https://www.youtube.com/user/magyarpostaofficial', 'contact:instagram': 'https://www.instagram.com/magyar_posta_zrt', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
 
-# REF_SEARCH = re.compile('\d{1,3}')
 
 class hu_posta(DataProvider):
     # Processing http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml file
@@ -140,12 +139,6 @@ class hu_posta(DataProvider):
                     logging.error('Non handled state!')
                 data.phone = clean_phone_to_str(e.find('phoneArea').text) if e.find('phoneArea') is not None else None
                 data.email = e.find('email').text.strip() if e.find('email') is not None else None
-                '''
-                if data.email is not None:
-                    ref_match = REF_SEARCH.search(data.email)
-                    if ref_match is not None:
-                        data.ref = ref_match.group(0)
-                '''
                 data.add()
         if data is None or data.lenght() < 1:
             logging.warning('Resultset is empty. Skipping ...')
