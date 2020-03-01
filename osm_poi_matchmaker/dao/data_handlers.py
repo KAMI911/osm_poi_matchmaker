@@ -129,7 +129,7 @@ def insert_poi_dataframe(session, poi_df):
         logging.info('Rolled back.')
         raise (e)
     else:
-        logging.info('Successfully added the dataset.')
+        logging.info('Successfully added {} items to the dataset.'.format(len(poi_dict)))
         session.commit()
 
 
@@ -142,7 +142,7 @@ def insert_type(session, type_data):
         logging.error(traceback.print_exc())
         session.rollback()
     else:
-        logging.info('Successfully added the dataset.')
+        logging.info('Successfully added {} type items to the dataset.'.format(len(type_data)))
         session.commit()
 
 
