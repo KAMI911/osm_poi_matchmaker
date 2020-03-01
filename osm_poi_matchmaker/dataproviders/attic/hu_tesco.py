@@ -13,7 +13,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://tesco.hu/aruhazak/nyitvatartas'

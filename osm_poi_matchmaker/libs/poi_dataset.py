@@ -4,7 +4,7 @@ __author__ = 'kami911'
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     import numpy as np
     import pandas as pd
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose, WeekDaysLongHU
@@ -18,7 +18,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 __program__ = 'poi_dataset'
 __version__ = '0.0.5'

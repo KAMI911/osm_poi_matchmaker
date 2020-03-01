@@ -5,7 +5,7 @@ try:
     import unittest
     import traceback
     import logging
-    from sys import exit
+    import sys
     from test.test_address import TestAddressResolver, TestFullAddressResolver, TestOpeningHoursClener, TestOpeningHoursClener2, \
         TestPhoneClener, TestPhoneClener_to_str, TestStringCleaner, TestURLCleaner
     from test.test_opening_hours import TestOpeningHours
@@ -16,7 +16,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 
 def testing_create_db():

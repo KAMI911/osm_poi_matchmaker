@@ -3,14 +3,14 @@
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     import re
     import phonenumbers
     import json
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 # Patterns for re
 PATTERN_POSTCODE_CITY = re.compile('^((\d){4})([.\s]{0,2})([a-zA-ZáÁéÉíÍóÓúÚüÜöÖőŐűŰ]{3,40})')

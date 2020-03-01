@@ -3,14 +3,14 @@
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     import sqlalchemy
     from sqlalchemy.orm import scoped_session, sessionmaker
     import geopandas as gpd
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 
 class POIQC:

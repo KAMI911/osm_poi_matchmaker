@@ -3,7 +3,7 @@
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     import hashlib
     from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, Street_type
     from osm_poi_matchmaker.libs import address
@@ -11,7 +11,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 POI_COLS = poi_array_structure.POI_COLS
 

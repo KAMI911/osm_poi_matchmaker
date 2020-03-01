@@ -3,7 +3,7 @@
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, UniqueConstraint
     from sqlalchemy import Boolean, Integer, BigInteger, Unicode, DateTime, Time, Enum, Float, func
     from sqlalchemy.ext.declarative import declarative_base
@@ -14,7 +14,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 Base = declarative_base()
 

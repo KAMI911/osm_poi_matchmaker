@@ -3,7 +3,7 @@
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     import os
     import re
     from lxml import etree
@@ -17,7 +17,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 POI_DATA = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
 POI_COMMON_TAGS = "'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'operator:addr': '1138 Budapest, Dunavirág utca 2-6.', 'ref:vatin:hu': '10901232-2-44', 'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614',  'contact:email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', 'contact:facebook': 'https://www.facebook.com/MagyarPosta', 'contact:youtube': 'https://www.youtube.com/user/magyarpostaofficial', 'contact:instagram': 'https://www.instagram.com/magyar_posta_zrt', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"

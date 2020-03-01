@@ -4,12 +4,12 @@ try:
     import unittest
     import traceback
     import logging
-    from sys import exit
+    import sys
     import time
     from osm_poi_matchmaker.utils.timing import Timing
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
-    exit(128)
+    sys.exit(128)
 
 
 class TestTiming(unittest.TestCase):

@@ -10,7 +10,7 @@ try:
     import traceback
     import logging
     import logging.config
-    from sys import exit
+    import sys
     import numpy as np
     import pandas as pd
     import geopandas as gpd
@@ -28,7 +28,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
             'poi_addr_street',
@@ -193,7 +193,7 @@ def main():
 
     except (KeyboardInterrupt, SystemExit):
         logging.info('Interrupt signal received')
-        exit(1)
+        sys.exit(1)
     except Exception as err:
         raise err
 

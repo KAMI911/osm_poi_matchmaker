@@ -3,12 +3,12 @@
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     from scipy.spatial import distance
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 
 def closest_point(point, points):

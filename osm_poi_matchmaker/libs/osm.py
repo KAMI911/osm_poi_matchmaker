@@ -2,7 +2,7 @@
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     import sqlalchemy
     import geopandas as gpd
     import datetime
@@ -12,7 +12,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 
 def get_area_id(area):

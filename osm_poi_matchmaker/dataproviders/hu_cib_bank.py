@@ -3,7 +3,7 @@
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     import json
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.address import extract_all_address, clean_city, clean_phone_to_str, extract_street_housenumber_better_2
@@ -16,7 +16,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 
 class hu_cib_bank():

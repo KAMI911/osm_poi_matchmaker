@@ -3,7 +3,7 @@
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     import os
     import re
     from osm_poi_matchmaker.dao.data_handlers import search_for_postcode
@@ -16,7 +16,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 PATTERN_TOM_MARKET = re.compile("title: '(.*)'")
 

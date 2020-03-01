@@ -4,12 +4,12 @@ __author__ = 'kami911'
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 def getPOITypes(ptype):
     distance = config.get_geo_default_poi_distance()

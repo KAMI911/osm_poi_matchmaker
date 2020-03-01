@@ -4,12 +4,12 @@ try:
     import unittest
     import traceback
     import logging
-    from sys import exit
+    import sys
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address, \
         clean_opening_hours, clean_opening_hours_2, clean_phone, clean_phone_to_str, clean_string, clean_url
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
-    exit(128)
+    sys.exit(128)
 
 
 class TestAddressResolver(unittest.TestCase):

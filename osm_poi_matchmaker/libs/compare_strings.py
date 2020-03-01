@@ -3,12 +3,12 @@
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     import re
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 def compare_strings(string1, string2 = ''):
     if (string1 is '' or string1 is None) and (string2 is not '' and string2 is not None):

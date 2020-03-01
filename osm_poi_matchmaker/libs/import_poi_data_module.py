@@ -5,7 +5,7 @@ __author__ = 'kami911'
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     import os
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
@@ -14,7 +14,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 def import_poi_data_module(module):
     try:

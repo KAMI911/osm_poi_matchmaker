@@ -5,7 +5,7 @@ __author__ = 'kami911'
 try:
     import traceback
     import logging
-    from sys import exit
+    import sys
     import pandas as pd
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osmapi import OsmApi
@@ -17,7 +17,7 @@ try:
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
-    exit(128)
+    sys.exit(128)
 
 RETRY = 3
 
