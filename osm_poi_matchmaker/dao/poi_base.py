@@ -562,7 +562,7 @@ class POIBase:
             # Looking for way (road)
             query = sqlalchemy.text('''
                 SELECT name, osm_id, highway, {metadata_fields}
-                ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
+                  ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
                 FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE "name" = :name AND "highway" is not NULL
                   AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
@@ -595,7 +595,8 @@ class POIBase:
                 metadata_fields = ''
             # Looking for way (road)
             query = sqlalchemy.text('''
-                SELECT name, osm_id, highway, {metadata_fields} ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
+                SELECT name, osm_id, highway, {metadata_fields}
+                  ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
                 FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
                 WHERE dmetaphone(name) = dmetaphone(:name) AND highway is not NULL
                 AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
