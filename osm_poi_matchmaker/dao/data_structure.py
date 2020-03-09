@@ -189,7 +189,7 @@ class Street_type(Base):
     street_type = Column(Unicode(20))
 
     def __repr__(self):
-        return '<Street type {}: {}>'.format(self.street_type_id, self.street_type)
+        return '<Street type {}: {}>'.format(self.st_id, self.street_type)
 
 
 class POI_osm(Base):
