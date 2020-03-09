@@ -531,11 +531,13 @@ class POIBase:
         distance = 1
         try:
             query = sqlalchemy.text('''
-            SELECT osm_id, way, ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance
-            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) as geom) point
-            WHERE (water IS NOT NULL OR waterway IS NOT NULL)
-              AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
-            ORDER BY distance ASC ''')
+            SELECT * FROM
+              (SELECT osm_id, way, ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance
+              FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) as geom) point
+              WHERE (water IS NOT NULL OR waterway IS NOT NULL)
+              ORDER BY distance ASC LIMIT 1) AS geo
+            WHERE geo.distance < :distance
+              ''')
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
                                                                                              'distance': distance})
             return data
@@ -561,12 +563,13 @@ class POIBase:
                 metadata_fields = ''
             # Looking for way (road)
             query = sqlalchemy.text('''
-                SELECT name, osm_id, highway, {metadata_fields}
-                  ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
-                FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE "name" = :name AND "highway" is not NULL
-                  AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
-                ORDER BY distance ASC;
+                SELECT * FROM
+                  (SELECT name, osm_id, highway, {metadata_fields}
+                    ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
+                  FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+                  WHERE "name" = :name AND "highway" is not NULL
+                  ORDER BY distance ASC LIMIT 1) AS geo
+                WHERE geo.distance < :distance
                 '''.format(metadata_fields=metadata_fields))
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
                                                                                              'distance': distance,
@@ -580,7 +583,8 @@ class POIBase:
 
     def query_name_metaphone_road_around(self, lon, lat, name='', with_metadata=True):
         '''
-        Search for road wit metaphone name (as pronounced) specified around the lon, lat point location in OpenStreetMap database based on within preconfigured distance
+        Search for road with metaphone name (as pronounced) specified around the lon, lat point location in
+        OpenStreetMap database based on within preconfigured distance
         :param lon:
         :param lat:
         :parm name:
@@ -595,12 +599,49 @@ class POIBase:
                 metadata_fields = ''
             # Looking for way (road)
             query = sqlalchemy.text('''
-                SELECT name, osm_id, highway, {metadata_fields}
-                  ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
-                FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-                WHERE dmetaphone(name) = dmetaphone(:name) AND highway is not NULL
-                AND ST_DistanceSphere(ST_Transform(way, 4326), point.geom) < :distance
-                ORDER BY distance ASC;
+                SELECT * FROM
+                  (SELECT name, osm_id, highway, {metadata_fields}
+                    ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
+                  FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
+                  WHERE dmetaphone(name) = dmetaphone(:name) AND highway is not NULL
+                  ORDER BY distance ASC LIMIT 1) AS geo
+                WHERE geo.distance < :distance
+                '''.format(metadata_fields=metadata_fields))
+            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
+                                                                                             'distance': distance,
+                                                                                             'name': '{}'.format(
+                                                                                                 name)})
+            data.sort_values(by=['distance'])
+            return data
+        except Exception as err:
+            logging.error(err)
+            logging.error(traceback.print_exc())
+
+    def query_name_and_metaphone_road_around(self, lon, lat, name='', with_metadata=True):
+        '''
+        Search for road with name and metaphone name (as pronounced) specified around the lon, lat point location in
+        OpenStreetMap database based on within preconfigured distance
+        :param lon:
+        :param lat:
+        :parm name:
+        :parm with_metadata:
+        :return:
+        '''
+        try:
+            distance = config.get_geo_default_poi_road_distance()
+            if with_metadata is True:
+                metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
+            else:
+                metadata_fields = ''
+            # Looking for way (road)
+            query = sqlalchemy.text('''
+                SELECT * FROM
+                  (SELECT name, osm_id, highway, {metadata_fields}
+                    ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
+                  FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
+                  WHERE ("name" = :name OR dmetaphone(name) = dmetaphone(:name)) AND highway is not NULL
+                  ORDER BY distance ASC LIMIT 1) AS geo
+                WHERE geo.distance < :distance
                 '''.format(metadata_fields=metadata_fields))
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
                                                                                              'distance': distance,
