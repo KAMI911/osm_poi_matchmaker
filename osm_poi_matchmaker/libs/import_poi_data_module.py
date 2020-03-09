@@ -32,11 +32,11 @@ def import_poi_data_module(module):
         if module == 'hu_kh_bank':
             from osm_poi_matchmaker.dataproviders.hu_kh_bank import hu_kh_bank
             work = hu_kh_bank(session, config.get_directory_cache_url(),
-                              os.path.join(config.get_directory_cache_url(), 'hu_kh_bank.json'), 'K&H bank')
+                              os.path.join(config.get_directory_cache_url(), 'hu_kh_bank.json'), 'K&H Bank')
             insert_type(session, work.types())
             work.process()
             work = hu_kh_bank(session, config.get_directory_cache_url(),
-                              os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H')
+                              os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H Bank ATM')
             work.process()
         elif module == 'hu_cib_bank':
             from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
