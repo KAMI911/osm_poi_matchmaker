@@ -19,6 +19,7 @@ POI_COLS = poi_array_structure.POI_COLS
 def get_or_create(session, model, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()
     if instance:
+        logging.debug('Already added: {}'.format(instance))
         return instance
     else:
         try:
@@ -26,7 +27,7 @@ def get_or_create(session, model, **kwargs):
             session.add(instance)
             return instance
         except Exception as e:
-            logging.error("Can't add to database.")
+            logging.error("Can't add to database. ({})".format(e))
             logging.error(traceback.print_exc())
             raise (e)
 
@@ -44,7 +45,7 @@ def get_or_create_poi(session, model, **kwargs):
         poi_addr_housenumber=kwargs['poi_addr_housenumber']).filter_by(
         poi_conscriptionnumber=kwargs['poi_conscriptionnumber']).first()
     if instance:
-        logging.info('Updates available: {}'.format(instance))
+        logging.debug('Already added: {}'.format(instance))
         return instance
     else:
         try:
@@ -52,6 +53,7 @@ def get_or_create_poi(session, model, **kwargs):
             session.add(instance)
             return instance
         except Exception as e:
+            logging.error("Can't add to database. ({})".format(e))
             logging.error(traceback.print_exc())
             raise (e)
 
@@ -63,11 +65,13 @@ def insert_city_dataframe(session, city_df):
             get_or_create(session, City, city_post_code=city_data['city_post_code'],
                           city_name=address.clean_city(city_data['city_name']))
     except Exception as e:
+
+        logging.error('Rolled back: {}.'.format(e))
         logging.error(city_data)
         logging.error(traceback.print_exc())
-        logging.error(e)
         session.rollback()
     else:
+        logging.info('Successfully added {} city items to the dataset.'.format(len(city_df)))
         session.commit()
 
 
@@ -77,11 +81,12 @@ def insert_street_type_dataframe(session, city_df):
         for index, city_data in city_df.iterrows():
             get_or_create(session, Street_type, street_type=city_data['street_type'])
     except Exception as e:
+        logging.error('Rolled back: {}.'.format(e))
         logging.error(city_data)
         logging.error(traceback.print_exc())
-        logging.error(e)
         session.rollback()
     else:
+        logging.info('Successfully added {} street type items to the dataset.'.format(len(city_df)))
         session.commit()
 
 
@@ -91,10 +96,12 @@ def insert_common_dataframe(session, common_df):
         for index, poi_common_data in common_df.iterrows():
             get_or_create(session, POI_common, **poi_common_data)
     except Exception as e:
+        logging.error('Rolled back: {}.'.format(e))
+        logging.error(poi_common_data)
         logging.error(traceback.print_exc())
-        logging.error(e)
         session.rollback()
     else:
+        logging.info('Successfully added {} common items to the dataset.'.format(len(common_df)))
         session.commit()
 
 
@@ -123,13 +130,13 @@ def insert_poi_dataframe(session, poi_df):
             if 'poi_code' in poi_data: del poi_data['poi_code']
             get_or_create_poi(session, POI_address, **poi_data)
     except Exception as e:
-        logging.error(e)
+        logging.error('Rolled back: {}.'.format(e))
+        logging.error(poi_data)
         logging.error(traceback.print_exc())
         session.rollback()
-        logging.info('Rolled back.')
         raise (e)
     else:
-        logging.info('Successfully added {} items to the dataset.'.format(len(poi_dict)))
+        logging.info('Successfully added {} POI items to the dataset.'.format(len(poi_dict)))
         session.commit()
 
 
@@ -138,7 +145,8 @@ def insert_type(session, type_data):
         for i in type_data:
             get_or_create(session, POI_common, **i)
     except Exception as e:
-        logging.error(e)
+        logging.error('Rolled back: {}.'.format(e))
+        logging.error(i)
         logging.error(traceback.print_exc())
         session.rollback()
     else:
@@ -161,9 +169,13 @@ def insert(session, **kwargs):
         if 'poi_name' in kwargs: del kwargs['poi_name']
         if 'poi_code' in kwargs: del kwargs['poi_code']
         get_or_create(session, POI_address, **kwargs)
-        session.commit()
     except Exception as e:
+        logging.error('Rolled back: {}.'.format(e))
+        logging.error(kwargs)
         logging.error(traceback.print_exc())
-        logging.error(e)
+        session.rollback()
+    else:
+        logging.debug('Successfully added the item to the dataset.')
+        session.commit()
     finally:
         session.close()
