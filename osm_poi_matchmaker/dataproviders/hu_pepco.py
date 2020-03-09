@@ -20,7 +20,6 @@ except ImportError as err:
 
 class hu_pepco(DataProvider):
 
-
     def constains(self):
         self.link = 'https://pepco.hu/uzleteink/uzletkereso/?type=1002&tx_pepco_mapplugin[action]=view&tx_pepco_mapplugin[controller]=Map&tx_pepco_mapplugin[loadall]=true'
         self.filename = self.filename + 'json'
