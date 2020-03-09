@@ -6,26 +6,18 @@ volumes:
   opm_outputdata:
 services:
   db:
-    image: kartoza/postgis:11.0-2.5
+    image: postgis/postgis:12-3.0-alpine
     container_name: opm_db
     environment:
       - POSTGRES_USER=poi
-      - POSTGRES_PASS=poitest
-      - POSTGRES_DBNAME=poi
-      - POSTGRES_MULTIPLE_EXTENSIONS=postgis,fuzzystrmatch
-      - ALLOW_IP_RANGE=0.0.0.0/0
-      #- DEFAULT_ENCODING=UTF8
-      #- DEFAULT_COLLATION=en_US.UTF-8
-      #- DEFAULT_CTYPE=en_US.UTF-8
-      - WAL_SIZE=8GB
-      - MIN_WAL_SIZE=2048MB
-      - WAL_SEGSIZE=1024
-      - MAINTAINANCE_WORK_MEM=128MB
+      - POSTGRES_PASSWORD=poitest
+      - POSTGRES_DB=poi
     ports:
       - "15432:5432"
     shm_size: 1G
     volumes:
       - ../container/dbdata:/var/lib/postgresql
+      - ./osm2pgsql/postgresql.conf:/var/postgresql/postgresql.conf
     restart: on-failure:10
     oom_score_adj: -100
   osm_load_app:
