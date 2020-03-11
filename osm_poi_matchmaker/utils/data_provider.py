@@ -27,6 +27,11 @@ class DataProvider():
         self.download_cache = download_cache
         self.filename = '{}.{}'.format(self.__class__.__name__, filetype)
         self.verify_link = verify_link
+        self.link = None
+        self.POI_COMMON_TAGS = None
+        self.headers = None
+        self.post = None
+        self.__types = None
         self.constains()
         self.data = POIDataset()
 
