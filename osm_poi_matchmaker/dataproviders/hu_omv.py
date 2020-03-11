@@ -19,9 +19,6 @@ except ImportError as err:
     sys.exit(128)
 
 
-POST_DATA = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'QRY': '|'}
-
-
 class hu_omv(DataProvider):
 
 
@@ -40,6 +37,7 @@ class hu_omv(DataProvider):
                                "'contact:youtube': 'https://www.youtube.com/user/omvofficial', " \
                                "'contact:phone': '+36 1 381 9700', 'contact:website': 'http://www.omv.hu/', "
         self.filename = self.filename + 'json'
+        self.post = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'ANZ': '5'}
 
     def types(self):
         self.__types = [{'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
@@ -51,7 +49,8 @@ class hu_omv(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), POST_DATA)
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.post)
             if soup is not None:
                 text = json.loads(soup.get_text())
                 for poi_data in text['results']:
