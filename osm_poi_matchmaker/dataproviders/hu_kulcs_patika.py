@@ -18,17 +18,15 @@ except ImportError as err:
     sys.exit(128)
 
 
-POST_DATA = {'kepnelkul': 'true', 'latitude': '47.498', 'longitude': '19.0399', 'tipus': 'patika'}
-
-
 class hu_kulcs_patika(DataProvider):
 
 
     def constains(self):
-        self.link = 'https://kulcspatika.hu/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=47.498&longitude=19.0399'
+        self.link = 'https://old.kulcspatikak.hu/_facebook/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=19.040164947509766&longitude=47.49801180144693'
         self.POI_COMMON_TAGS = ""
         self.filename = self.filename + 'json'
-        self.headers = {'Referer': 'https://kulcspatika.hu/patikak', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0', 'Accept': 'application/json, text/javascript, */*; q=0.01'}
+        self.headers = {'Referer': 'https://kulcspatikak.hu/patikakereso', 'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0', 'Accept': 'application/json, text/javascript, */*; q=0.01'}
+        self.post = {'kepnelkul': 'true', 'latitude': '47.498', 'longitude': '19.0399', 'tipus': 'patika'}
 
     def types(self):
         self.__types = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
@@ -39,14 +37,10 @@ class hu_kulcs_patika(DataProvider):
     def process(self):
         try:
             if self.link:
-                '''
-                soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), None,
-                                            self.verify_link, headers=self.headers)
+                soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache,
+                                            self.filename), self.post_data, self.verify_link, headers=self.headers)
                 if soup is not None:
-                text = json.loads(soup.get_text())
-                '''
-                with open(os.path.join(self.download_cache, self.filename), 'r') as f:
-                    text = json.load(f)
+                    text = json.loads(soup.get_text())
                     for poi_data in text:
                         if 'Kulcs patika' not in poi_data['nev']:
                             self.data.name = poi_data['nev'].strip()
