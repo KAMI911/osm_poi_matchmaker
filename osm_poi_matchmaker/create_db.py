@@ -31,6 +31,7 @@ POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'p
             'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
 RETRY = 3
 
+
 def init_log():
     logging.config.fileConfig('log.conf')
 
@@ -92,8 +93,10 @@ class WorkflowManager(object):
     def __init__(self):
         self.manager = multiprocessing.Manager()
         self.queue = self.manager.Queue()
-        self.NUMBER_OF_PROCESSES = multiprocessing.cpu_count()
+        self.NUMBER_OF_PROCESSES = multiprocessing.cpu_count()//2
         self.items = 0
+        self.pool = None
+        self.results = []
 
     def start_poi_harvest(self):
         for m in config.get_dataproviders_modules_enable():
