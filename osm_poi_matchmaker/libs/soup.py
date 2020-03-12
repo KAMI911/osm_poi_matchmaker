@@ -23,7 +23,7 @@ def download_soup(link, verify_link=config.get_download_verify_link(), post_parm
             logging.debug('Downloading with post parameters.')
             headers_static = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
             if headers is not None:
-                headers = headers.items() + headers_static.items()
+                headers.update(headers_static)
             else:
                 headers = headers_static
             page = requests.post(link, verify=verify_link, data=post_parm, headers=headers)
