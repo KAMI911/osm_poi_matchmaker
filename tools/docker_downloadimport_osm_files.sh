@@ -56,7 +56,8 @@ if [ -f "${OUTPUT_DIR}/do_osm_import" -a "${IMPORT}" -eq "1" ]; then
   md5sum -c ${OUTPUT_DIR}/${FILE}.md5
   exitcode=${?}
   if [ "$exitcode" == "0" ]; then
-    osm2pgsql -v -c -m -s -d poi --style /opm/osm2pgsql/default.style --number-processes 12 --extra-attributes --multi-geometry --cache-strategy optimized -C 400 -U poi -H opm_db ${OUTPUT_DIR}/${FILE}
+    sleep 15
+    osm2pgsql -v -c -l -s -d poi --style /opm/osm2pgsql/default.style --number-processes 12 --extra-attributes --multi-geometry --cache-strategy optimized -C 800 -U poi -H opm_db ${OUTPUT_DIR}/${FILE}
     exitcode=${?}
     if [ "$exitcode" != "0" ]; then
       echo "ERROR occured during OSM import!"
