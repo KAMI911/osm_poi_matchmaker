@@ -9,7 +9,6 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
-    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHUUnAccented
     from osm_poi_matchmaker.utils.data_provider import DataProvider
 except ImportError as err:
