@@ -55,8 +55,8 @@ class hu_budapest_bank(DataProvider):
                     else:
                         self.data.nonstop = False
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data['latitude'], poi_data['longitude'])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                        poi_data['addr'])
+                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                        extract_street_housenumber_better_2(poi_data['addr'])
                     self.data.original = poi_data['address']
                     self.data.branch = poi_data['name']
                     self.data.add()
