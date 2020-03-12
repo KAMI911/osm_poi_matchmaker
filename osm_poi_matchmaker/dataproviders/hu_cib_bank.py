@@ -21,10 +21,11 @@ except ImportError as err:
 
 class hu_cib_bank():
 
-    def __init__(self, session, download_cache, link, name):
+    def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
         self.session = session
         self.download_cache = download_cache
         self.link = link
+        self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name
 
     @staticmethod
@@ -73,3 +74,4 @@ class hu_cib_bank():
         except Exception as e:
             logging.error(traceback.print_exc())
             logging.error(e)
+            logging.error(poi_data)
