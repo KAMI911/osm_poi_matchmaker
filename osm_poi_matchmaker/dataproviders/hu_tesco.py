@@ -98,9 +98,10 @@ class hu_tesco(DataProvider):
                             self.data.ref = poi_data['goldid'].strip()
                         self.data.public_holiday_open = False
                         self.data.add()
-                    except Exception as err:
-                        logging.error(err)
+                    except Exception as e:
+                        logging.error(e)
+                        logging.error(poi_data)
                         logging.error(traceback.print_exc())
         except Exception as e:
-            logging.error(traceback.print_exc())
             logging.error(e)
+            logging.error(traceback.print_exc())
