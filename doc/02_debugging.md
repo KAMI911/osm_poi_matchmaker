@@ -5,12 +5,12 @@ Since OSM POI Matchmaker was written in Python languege, you can use any of your
 ## Current number of importeble POIs grouped by POI names
 
 ```
-SELECT poi_common_id, poi_name, COUNT(pa.pa_id)
+SELECT pc.pc_id, poi_name, COUNT(pa.pa_id)
   FROM poi_address as pa
   FULL OUTER JOIN poi_common as pc
     ON pa.poi_common_id = pc.pc_id
-  GROUP BY poi_common_id, poi_name
-  ORDER BY poi_common_id;
+  GROUP BY pc.pc_id, poi_name
+  ORDER BY poi_name, pc.pc_id;
 ```
 
 # Debugging SQL queries
