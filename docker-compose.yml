@@ -16,8 +16,8 @@ services:
       - "15432:5432"
     shm_size: 1G
     volumes:
-      - ../container/dbdata:/var/lib/postgresql
-      - ./osm2pgsql/postgresql.conf:/var/postgresql/postgresql.conf
+      - ../container/dbdata:/var/lib/postgresql/data/
+      - ${PWD}/osm2pgsql/postgresql.conf:/etc/postgresql/postgresql.conf
     restart: on-failure:10
     oom_score_adj: -100
   osm_load_app:
