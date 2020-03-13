@@ -49,6 +49,7 @@ class hu_tom_market(DataProvider):
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber,
                         # conscriptionnumber, ref, geom
+                        self.data.code = 'hutommacon'
                         if poi_data.get('name')[2] is not None and poi_data.get('name')[2] != '':
                             self.data.ref = poi_data.get('name')[2]
                         if poi_data.get('website') is not None and poi_data.get('website') != '':
@@ -59,7 +60,8 @@ class hu_tom_market(DataProvider):
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(poi_data.get('address'))
                         if poi_data.get('zip') is not None and poi_data.get('zip') != '':
-                            self.data.postcode = poi_data.get('zip').strip()
+                            self.data.postcode = poi_data.get('zip')
+                        self.data.original = poi_data.get('address')
                         if poi_data.get('settlement') is not None and poi_data.get('settlement') != '':
                             self.data.city = poi_data.get('settlement')
                         else:
