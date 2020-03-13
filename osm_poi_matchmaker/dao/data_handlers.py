@@ -40,10 +40,14 @@ def get_or_create_poi(session, model, **kwargs):
             logging.debug('Fully filled basic data record')
         else:
             logging.warning('Missing record data: {}'.format(kwargs))
-    instance = session.query(model).filter_by(poi_common_id=kwargs['poi_common_id']).filter_by(
-        poi_addr_city=kwargs['poi_addr_city']).filter_by(poi_addr_street=kwargs['poi_addr_street']).filter_by(
-        poi_addr_housenumber=kwargs['poi_addr_housenumber']).filter_by(
-        poi_conscriptionnumber=kwargs['poi_conscriptionnumber']).first()
+    instance = session.query(model)\
+        .filter_by(poi_common_id=kwargs['poi_common_id'])\
+        .filter_by(poi_addr_city=kwargs['poi_addr_city'])\
+        .filter_by(poi_addr_street=kwargs['poi_addr_street'])\
+        .filter_by(poi_addr_housenumber=kwargs['poi_addr_housenumber'])\
+        .filter_by(poi_conscriptionnumber=kwargs['poi_conscriptionnumber'])\
+        .filter_by(poi_branch=kwargs['poi_branch'])\
+        .first()
     if instance:
         logging.debug('Already added: {}'.format(instance))
         return instance
@@ -136,8 +140,12 @@ def insert_poi_dataframe(session, poi_df):
         session.rollback()
         raise (e)
     else:
-        logging.info('Successfully added {} POI items to the dataset.'.format(len(poi_dict)))
-        session.commit()
+        try:
+            session.commit()
+            logging.info('Successfully added {} POI items to the dataset.'.format(len(poi_dict)))
+        except Exception as e:
+            logging.error('Unsuccessfull commit: {}.'.format(e))
+            logging.error(traceback.print_exc())
 
 
 def insert_type(session, type_data):
