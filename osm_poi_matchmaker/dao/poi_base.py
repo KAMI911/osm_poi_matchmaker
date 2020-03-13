@@ -530,7 +530,7 @@ class POIBase:
         try:
             query = sqlalchemy.text('''
             SELECT * FROM
-              (SELECT osm_id, way, ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance
+              (SELECT osm_id, way, ST_DistanceSphere(way, point.geom) as distance
               FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) as geom) point
               WHERE (water IS NOT NULL OR waterway IS NOT NULL)
               ORDER BY distance ASC LIMIT 1) AS geo
@@ -563,7 +563,7 @@ class POIBase:
             query = sqlalchemy.text('''
                 SELECT * FROM
                   (SELECT name, osm_id, highway, {metadata_fields}
-                    ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
+                    ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
                   FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                   WHERE "name" = :name AND "highway" is not NULL
                   ORDER BY distance ASC LIMIT 1) AS geo
@@ -599,7 +599,7 @@ class POIBase:
             query = sqlalchemy.text('''
                 SELECT * FROM
                   (SELECT name, osm_id, highway, {metadata_fields}
-                    ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
+                    ST_DistanceSphere(way, point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
                   FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
                   WHERE dmetaphone(name) = dmetaphone(:name) AND highway is not NULL
                   ORDER BY distance ASC LIMIT 1) AS geo
@@ -635,7 +635,7 @@ class POIBase:
             query = sqlalchemy.text('''
                 SELECT * FROM
                   (SELECT name, osm_id, highway, {metadata_fields}
-                    ST_DistanceSphere(ST_Transform(way, 4326), point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
+                    ST_DistanceSphere(way, point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
                   FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
                   WHERE ("name" = :name OR dmetaphone(name) = dmetaphone(:name)) AND highway is not NULL
                   ORDER BY distance ASC LIMIT 1) AS geo
