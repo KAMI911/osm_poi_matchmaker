@@ -83,7 +83,7 @@ class hu_posta(DataProvider):
                     else:
                         logging.error('Non existing Posta type.')
                     self.data.postcode = e.get('zipCode')
-                    self.data.housenumber = e.find('street/houseNumber').text.strip().lower() if e.find(
+                    self.data.housenumber = e.find('street/houseNumber').text.strip() if e.find(
                         'street/houseNumber').text is not None else None
                     self.data.conscriptionnumber = None
                     self.data.city = clean_city(e.find('city').text)
@@ -140,7 +140,20 @@ class hu_posta(DataProvider):
                         self.data.street = '{} {}'.format(street_tmp_1, street_tmp_2)
                     else:
                         logging.error('Non handled state!')
-                    self.data.phone = clean_phone_to_str(e.find('phoneArea').text) if e.find('phoneArea') is not None else None
+                    street_tmp_1 = e.find('street/name').text.strip() if e.find(
+                        'street/name').text is not None else None
+                    street_tmp_2 = e.find('street/type').text.strip() if e.find(
+                        'street/type').text is not None else None
+                    street_tmp_3 = e.find('street/houseNumber').text.strip() if e.find(
+                        'street/houseNumber').text is not None else None
+                    if street_tmp_2 is None:
+                        self.data.original = '{} {}'.format(street_tmp_1, street_tmp_3)
+                    elif street_tmp_1 is not None and street_tmp_2 is not None:
+                        self.data.original = '{} {} {}'.format(street_tmp_1, street_tmp_2, street_tmp_3)
+                    else:
+                        logging.error('Non handled state!')
+                    self.data.phone = clean_phone_to_str(e.find('phoneArea').text) \
+                        if e.find('phoneArea') is not None else None
                     self.data.email = e.find('email').text.strip() if e.find('email') is not None else None
                     self.data.add()
         except Exception as e:
