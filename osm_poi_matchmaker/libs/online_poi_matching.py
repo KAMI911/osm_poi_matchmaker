@@ -36,10 +36,10 @@ def online_poi_matching(args):
         osm_live_query = OsmApi()
         for i, row in data.iterrows():
         # for i, row in data[data['poi_code'].str.contains('tesco')].iterrows():
-            common_row = comm_data.loc[comm_data['pc_id'] == row.get('poi_common_id')]
             # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
             osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
-                common_row.get('poi_type').item(), row.get('poi_search_name'), row.get('poi_addr_street'),
+                comm_data.loc[comm_data['pc_id'] == row.get('poi_common_id')]['poi_type'].values[0],
+                row.get('poi_search_name'), row.get('poi_addr_street'),
                 row.get('poi_addr_housenumber'), row.get('poi_addr_conscriptionnumber'), row.get('poi_addr_city'),
                 row.get('osm_search_distance_perfect'), row.get('osm_search_distance_safe'),
                 row.get('osm_search_distance_unsafe'))
