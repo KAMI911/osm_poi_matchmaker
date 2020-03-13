@@ -93,7 +93,7 @@ class WorkflowManager(object):
     def __init__(self):
         self.manager = multiprocessing.Manager()
         self.queue = self.manager.Queue()
-        self.NUMBER_OF_PROCESSES = multiprocessing.cpu_count()//2
+        self.NUMBER_OF_PROCESSES = multiprocessing.cpu_count()
         self.items = 0
         self.pool = None
         self.results = []
