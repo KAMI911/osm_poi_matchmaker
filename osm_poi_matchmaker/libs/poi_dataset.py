@@ -36,7 +36,43 @@ class POIDataset:
                                          config.get_database_writer_host(),
                                          config.get_database_writer_port(),
                                          config.get_database_poi_database()))
-        self.clear_all()
+        self.__code = None
+        self.__postcode = None
+        self.__city = None
+        self.__name = None
+        self.__branch = None
+        self.__website = None
+        self.__description = None
+        self.__fuel_adblue = None
+        self.__fuel_octane_100 = None
+        self.__fuel_octane_98 = None
+        self.__fuel_octane_95 = None
+        self.__fuel_diesel_gtl = None
+        self.__fuel_diesel = None
+        self.__fuel_lpg = None
+        self.__fuel_e85 = None
+        self.__rent_lpg_bottles = None
+        self.__compressed_air = None
+        self.__restaurant = None
+        self.__food = None
+        self.__truck = None
+        self.__original = None
+        self.__street = None
+        self.__housenumber = None
+        self.__conscriptionnumber = None
+        self.__ref = None
+        self.__phone = None
+        self.__email = None
+        self.__geom = None
+        self.__lat = None
+        self.__lon = None
+        self.__nonstop = None
+        self.__oh = pd.DataFrame(index=WeekDaysShort, columns=OpenClose)
+        self.__lunch_break = {'start': None, 'stop': None}
+        self.__opening_hours = None
+        self.__public_holiday_open = None
+        self.__good = []
+        self.__bad = []
 
     def clear_all(self):
         self.__code = None
