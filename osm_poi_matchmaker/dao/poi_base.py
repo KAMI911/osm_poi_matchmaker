@@ -384,8 +384,8 @@ class POIBase:
                    "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
                    ST_DistanceSphere(way, point.geom) as distance, way,
                    ST_AsEWKT(way) as way_ewkt,
-                   ST_X(planet_osm_polygon.way) as lon,
-                   ST_Y(planet_osm_polygon.way) as lat
+                   ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
+                   ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE (({query_type}) AND osm_id > 0 {query_name})
                 AND ST_DistanceSphere(way, point.geom) < :distance_safe
