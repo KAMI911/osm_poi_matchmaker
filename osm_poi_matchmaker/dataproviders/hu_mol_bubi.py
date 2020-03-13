@@ -37,18 +37,30 @@ class hu_mol_bubi(DataProvider):
         try:
             xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
             root = etree.fromstring(xml)
-            for e in root.iter('place'):
-                self.data.name = 'MOL Bubi'
-                self.data.code = 'hububibir'
-                self.data.city = 'Budapest'
-                self.data.branch = e.attrib['name'].split('-')[1].strip() if e.attrib['name'] is not None else None
-                self.data.ref = e.attrib['name'].split('-')[0].strip() if e.attrib['name'] is not None else None
-                self.data.nonstop = True
-                # self.data.capacity = e.attrib['bike_racks'].strip() if e.attrib['bike_racks'] is not None else None
-                self.data.lat, self.data.lon = check_hu_boundary(e.attrib['lat'].replace(',', '.'), e.attrib['lng'].replace(',', '.'))
-                self.data.postcode = None
-                self.data.public_holiday_open = True
-                self.data.add()
+            for pla in root.iter('place'):
+                try:
+                    self.data.name = 'MOL Bubi'
+                    self.data.code = 'hububibir'
+                    self.data.city = 'Budapest'
+                    if pla.attrib.get('name') is not None and pla.attrib.get('name') != '':
+                        self.data.branch = pla.attrib.get('name').split('-')[1].strip() \
+                            if pla.attrib.get('name') is not None else None
+                        self.data.ref = pla.attrib['name'].split('-')[0].strip() \
+                            if pla.attrib['name'] is not None else None
+                    self.data.nonstop = True
+                    # self.data.capacity = pla.attrib['bike_racks'].strip() \
+                    # if pla.attrib['bike_racks'] is not None else None
+                    self.data.lat, self.data.lon = \
+                        check_hu_boundary(pla.attrib.get('lat').replace(',', '.'),
+                                          pla.attrib.get('lng').replace(',', '.'))
+                    self.data.postcode = query_postcode_osm_external(True, self.session, self.data.lon,
+                                                                     self.data.lat, None)
+                    self.data.public_holiday_open = True
+                    self.data.add()
+                except Exception as e:
+                    logging.error(e)
+                    logging.error(pla)
+                    logging.error(traceback.print_exc())
         except Exception as e:
-            logging.error(traceback.print_exc())
             logging.error(e)
+            logging.error(traceback.print_exc())
