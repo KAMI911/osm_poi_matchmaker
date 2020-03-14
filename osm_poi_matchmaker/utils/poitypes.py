@@ -52,6 +52,8 @@ def getPOITypes(ptype):
         query_type = "shop='clothes' OR shop='fashion'"
     elif ptype == 'doityourself':
         query_type = "shop='doityourself'"
+    elif ptype == 'cosmetics':
+        query_type = "shop='cosmetics'"
     else:
         query_type = None
         distance = 0

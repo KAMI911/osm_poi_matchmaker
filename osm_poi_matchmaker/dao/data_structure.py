@@ -43,6 +43,7 @@ class POI_type(enum.Enum):
     tobacco = 14
     clothes = 15
     doityourself = 16
+    cosmetics = 17
 
 
 class POI_address(Base):

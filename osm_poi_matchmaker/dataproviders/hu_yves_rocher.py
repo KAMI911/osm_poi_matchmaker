@@ -21,15 +21,23 @@ class hu_dm(DataProvider):
 
 
     def constains(self):
-        #self.link = 'https://www.dm.hu/cms/restws/stores/find?requestingCountry=HU&countryCodes=DE%2CAT%2CBA%2CBG%2CSK%2CRS%2CHR%2CCZ%2CRO%2CSI%2CHU%2CMK%2CIT&mandantId=870&bounds=46.599301%2C17.325265%7C47.71978%2C21.681344&before=false&after=false&morningHour=9&eveningHour=18&_=1527413070144'
-        self.link = 'https://services.dm.de/storedata/stores/bbox/49%2C16%2C45%2C23'
-        self.POI_COMMON_TAGS = ""
+        self.link = 'https://storelocator.yves-rocher.eu/map/getstores'
+        self.POI_COMMON_TAGS = "'shop': 'cosmetics', 'operator': 'Yves Rocher Hungary Kft. '," \
+                               "'brand': 'Yves Rocher', 'brand:wikidata': 'Q28496595', " \
+                               "'brand:wikipedia': 'en:Yves Rocher (company)', " \
+                               "'contact:facebook': 'https://www.facebook.com/YvesRocherHungary/', " \
+                               "'contact:youtube': 'https://www.youtube.com/channel/UC6GA7lucPWgbNlC_MoomB9g', " \
+                               "'contact:instagram': 'https://www.instagram.com/yves_rocher_magyarorszag/', " \
+                               "'operator:addr': '1132 Budapest, Váci út 20-26.', 'ref:vatin': 'HU10618646', " \
+                               "'ref:vatin:hu': '10618646-2-41', 'ref:HU:company': '01-09-079930', "
         self.filename = self.filename + 'json'
 
     def types(self):
-        self.__types = [{'poi_code': 'hudmche', 'poi_name': 'dm', 'poi_type': 'chemist',
-                 'poi_tags': "{'shop': 'chemist', 'operator': 'dm Kft.', 'brand': 'dm',  'brand:wikidata': 'Q266572', 'brand:wikipedia': 'en:Dm-drogerie markt', 'contact:facebook':'https://www.facebook.com/dm.Magyarorszag', 'contact:youtube': 'https://www.youtube.com/user/dmMagyarorszag', 'contact:instagram':'https://www.instagram.com/dm_magyarorszag', " + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://www.dm.hu', 'poi_search_name': 'dm', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15}]
+        self.__types = [{'poi_code': 'huyvesrcos', 'poi_name': 'dm', 'poi_type': 'cosmetics',
+                 'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
+                 'poi_url_base': 'https://www.yves-rocher.hu/', 'poi_search_name': 'yves rocher',
+                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
+                         'osm_search_distance_unsafe': 15}]
         return self.__types
 
     def process(self):
@@ -38,22 +46,39 @@ class hu_dm(DataProvider):
             if soup is not None:
                 text = json.loads(soup.get_text())
                 for poi_data in text['stores']:
-                    if poi_data['localeCountry'].strip().upper() == 'HU':
-                      self.data.name = 'dm'
-                      self.data.code = 'hudmche'
-                      self.data.postcode = poi_data['address']['zip'].strip()
-                      street_tmp = poi_data['address']['street'].split(',')[0]
-                      self.data.city = clean_city(poi_data['address']['city'])
-                      self.data.original = poi_data['address']['street']
-                      self.data.lat, self.data.lon = check_hu_boundary(poi_data['location']['lat'], poi_data['location']['lon'])
-                      self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                          street_tmp.title())
-                      if 'phone' in poi_data and poi_data['phone'] != '':
-                          self.data.phone = clean_phone_to_str(poi_data['phone'])
-                      if 'storeNumber' in poi_data and poi_data['storeNumber'] != '':
-                          self.data.ref = poi_data['storeNumber'].strip()
-                      self.data.public_holiday_open = False
-                      self.data.add()
+                    try:
+                        if poi_data.get('country_id') != 3:
+                            continue
+                        else:
+                            self.data.name = 'Yves Rocher'
+                            self.data.code = 'huyvesrcos'
+                            self.data.website = 'https://www.yves-rocher.hu{}/'.format(poi_data.get('request_path'))
+                            opening = json.loads(poi_data.get('hours'))
+                            for i in range(0, 7):
+                                if i in opening:
+                                    self.data.day_open(i, opening[i]['hour_from'])
+                                    self.data.day_close(i, opening[i]['hour_to'])
+                            self.data.postcode = poi_data.get('zip')
+                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                                extract_street_housenumber_better_2(poi_data.get('address'))
+                            self.data.city = clean_city(poi_data.get('city'))
+                            self.data.original = poi_data.get('address')
+                            self.data.lat, self.data.lon = \
+                                check_hu_boundary(poi_data.get('latitude'), poi_data.get('longitude'))
+                            if poi_data.get('phone') is not None and poi_data.get('phone') != '':
+                                self.data.phone = clean_phone_to_str(poi_data.get('phone'))
+                            if poi_data.get('mobile') is not None and poi_data.get('mobile') != '' \
+                                    and self.data.phone is not None:
+                                self.data.phone = '{};{}'.format(self.data.phone, clean_phone_to_str(poi_data.get('mobile')))
+                            elif poi_data.get('mobile') is not None and poi_data.get('mobile') != '' \
+                                    and self.data.phone is None:
+                                self.data.phone = clean_phone_to_str(poi_data.get('mobile'))
+                            self.data.public_holiday_open = False
+                            self.data.add()
+                    except Exception as e:
+                        logging.error(e)
+                        logging.error(poi_data)
+                        logging.error(traceback.print_exc())
         except Exception as e:
-            logging.error(traceback.print_exc())
             logging.error(e)
+            logging.error(traceback.print_exc())
