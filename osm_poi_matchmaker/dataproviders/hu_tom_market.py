@@ -25,7 +25,7 @@ class hu_tom_market(DataProvider):
     def constains(self):
         self.link = 'https://tommarket.hu/boltkereso/get_stores/46?county=&settlement='
         self.POI_COMMON_TAGS = "'shop': 'convenience', 'name': 'Tom Market', " + \
-                               "'contact:facebook': 'https://www.facebook.com/TOM.Market.Magyarorszag'" + \
+                               "'contact:facebook': 'https://www.facebook.com/TOM.Market.Magyarorszag', " + \
                                POS_OTP + PAY_CASH
 
         self.filename = self.filename + 'json'
