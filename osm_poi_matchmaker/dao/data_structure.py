@@ -158,7 +158,7 @@ class POI_OSM_cache(Base):
     osm_object_type = Column(Enum(OSM_object_type))
     osm_version = Column(Integer, nullable=False, index=True)
     osm_user = Column(Unicode(64), nullable=True, index=False)
-    osm_user_id = Column(Integer, nullable=False, index=True)
+    osm_user_id = Column(Integer, nullable=True, index=True)
     osm_changeset = Column(Integer, nullable=False, index=True)
     osm_timestamp = Column(DateTime(True), nullable=False)
     osm_lat = Column(Float, nullable=True, index=True)
