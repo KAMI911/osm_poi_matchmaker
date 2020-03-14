@@ -17,8 +17,7 @@ except ImportError as err:
     sys.exit(128)
 
 
-class hu_dm(DataProvider):
-
+class hu_yves_rocher(DataProvider):
 
     def constains(self):
         self.link = 'https://storelocator.yves-rocher.eu/map/getstores'
@@ -45,15 +44,15 @@ class hu_dm(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
             if soup is not None:
                 text = json.loads(soup.get_text())
-                for poi_data in text['stores']:
+                for poi_data in text.get('stores').values():
                     try:
-                        if poi_data.get('country_id') != 3:
+                        if poi_data.get('country_id') != '3':
                             continue
                         else:
                             self.data.name = 'Yves Rocher'
                             self.data.code = 'huyvesrcos'
                             self.data.website = 'https://www.yves-rocher.hu{}/'.format(poi_data.get('request_path'))
-                            opening = json.loads(poi_data.get('hours'))
+                            opening = poi_data.get('hours')
                             for i in range(0, 7):
                                 if i in opening:
                                     self.data.day_open(i, opening[i]['hour_from'])
