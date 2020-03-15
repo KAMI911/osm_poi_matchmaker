@@ -24,6 +24,7 @@ class hu_yves_rocher(DataProvider):
         self.POI_COMMON_TAGS = "'shop': 'cosmetics', 'operator': 'Yves Rocher Hungary Kft. '," \
                                "'brand': 'Yves Rocher', 'brand:wikidata': 'Q28496595', " \
                                "'brand:wikipedia': 'en:Yves Rocher (company)', " \
+                               "'contact:email': 'vevoszolgalat@yrnet.com', " \
                                "'contact:facebook': 'https://www.facebook.com/YvesRocherHungary/', " \
                                "'contact:youtube': 'https://www.youtube.com/channel/UC6GA7lucPWgbNlC_MoomB9g', " \
                                "'contact:instagram': 'https://www.instagram.com/yves_rocher_magyarorszag/', " \
@@ -51,6 +52,8 @@ class hu_yves_rocher(DataProvider):
                         else:
                             self.data.name = 'Yves Rocher'
                             self.data.code = 'huyvesrcos'
+                            self.data.lat, self.data.lon = \
+                                check_hu_boundary(poi_data.get('latitude'), poi_data.get('longitude'))
                             self.data.website = 'https://www.yves-rocher.hu{}/'.format(poi_data.get('request_path'))
                             opening = poi_data.get('hours')
                             for i in range(0, 7):
@@ -62,8 +65,6 @@ class hu_yves_rocher(DataProvider):
                                 extract_street_housenumber_better_2(poi_data.get('address'))
                             self.data.city = clean_city(poi_data.get('city'))
                             self.data.original = poi_data.get('address')
-                            self.data.lat, self.data.lon = \
-                                check_hu_boundary(poi_data.get('latitude'), poi_data.get('longitude'))
                             if poi_data.get('phone') is not None and poi_data.get('phone') != '':
                                 self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                             if poi_data.get('mobile') is not None and poi_data.get('mobile') != '' \
