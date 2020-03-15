@@ -21,7 +21,6 @@ except ImportError as err:
 
 class hu_tom_market(DataProvider):
 
-
     def constains(self):
         self.link = 'https://tommarket.hu/boltkereso/get_stores/46?county=&settlement='
         self.POI_COMMON_TAGS = "'shop': 'convenience', 'name': 'Tom Market', " + \
@@ -63,7 +62,7 @@ class hu_tom_market(DataProvider):
                             self.data.postcode = poi_data.get('zip')
                         self.data.original = poi_data.get('address')
                         if poi_data.get('settlement') is not None and poi_data.get('settlement') != '':
-                            self.data.city = poi_data.get('settlement')
+                            self.data.city = clean_city(poi_data.get('settlement'))
                         else:
                             self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
                         if poi_data.get('phone') is not None and poi_data.get('phone') != '':
