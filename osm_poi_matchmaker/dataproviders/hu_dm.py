@@ -31,7 +31,7 @@ class hu_dm(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hudmche', 'poi_name': 'dm', 'poi_type': 'chemist',
-                 'poi_tags': "{" + self.POI_COMMON_TAGS +  + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
+                 'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.dm.hu', 'poi_search_name': 'dm',
                          'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
                          'osm_search_distance_unsafe': 15}]
@@ -66,5 +66,5 @@ class hu_dm(DataProvider):
                         logging.error(poi_data)
                         logging.error(traceback.print_exc())
         except Exception as e:
-        logging.error(e)
-        logging.error(traceback.print_exc())
+            logging.error(e)
+            logging.error(traceback.print_exc())
