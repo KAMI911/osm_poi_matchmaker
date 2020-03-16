@@ -6,7 +6,8 @@ try:
     import logging
     import sys
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address, \
-        clean_opening_hours, clean_opening_hours_2, clean_phone, clean_phone_to_str, clean_string, clean_url
+        clean_opening_hours, clean_opening_hours_2, clean_phone, clean_phone_to_str, clean_string, clean_url, \
+        clean_city
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     sys.exit(128)
@@ -47,6 +48,10 @@ class TestAddressResolver(unittest.TestCase):
             {'original': 'OLADI LTP. (DOLGOZÓK U.)', 'street': 'OLADI lakótelep', 'housenumber': None,
              'conscriptionnumber': None},
             {'original': 'Fő út 24.', 'street': 'Fő út', 'housenumber': '24',
+             'conscriptionnumber': None},
+            {'original': 'Törvényház u. 4.', 'street': 'Törvényház utca', 'housenumber': '4',
+             'conscriptionnumber': None},
+            {'original': 'Alkotás u. 53.', 'street': 'Alkotás utca', 'housenumber': '53',
              'conscriptionnumber': None},
         ]
 
@@ -95,7 +100,7 @@ class TestFullAddressResolver(unittest.TestCase):
                 self.assertEqual(conscriptionnumber, e)
 
 
-class TestOpeningHoursClener(unittest.TestCase):
+class TestOpeningHoursCleaner(unittest.TestCase):
     def setUp(self):
         self.opening_hours = [
             {'original': '05:20-19:38', 'opening_hours_open': '05:20', 'opening_hours_close': '19:38'},
@@ -116,7 +121,7 @@ class TestOpeningHoursClener(unittest.TestCase):
                 self.assertEqual(ohc, b)
 
 
-class TestOpeningHoursClener2(unittest.TestCase):
+class TestOpeningHoursCleaner2(unittest.TestCase):
     def setUp(self):
         self.opening_hours = [
             {'original': '600', 'converted': '06:00'},
@@ -153,7 +158,6 @@ class TestPhoneClener(unittest.TestCase):
                 self.assertEqual(ph, a)
 
 
-
 class TestPhoneClener_to_str(unittest.TestCase):
     def setUp(self):
         self.phones = [
@@ -187,6 +191,7 @@ class TestStringCleaner(unittest.TestCase):
             with self.subTest():
                 self.assertEqual(ph, a)
 
+
 class TestURLCleaner(unittest.TestCase):
     def setUp(self):
         self.urls = [
@@ -200,3 +205,22 @@ class TestURLCleaner(unittest.TestCase):
             a = clean_url(original)
             with self.subTest():
                 self.assertEqual(ph, a)
+
+
+class TestCityCleaner(unittest.TestCase):
+    def setUp(self):
+        self.addresses = [
+            {'original': 'Bük', 'city': 'Bük'},
+            {'original': 'Csanádapáca', 'city': 'Csanádapáca'},
+            {'original': 'Tordas', 'city': 'Tordas'},
+            {'original': 'Szentendre', 'city': 'Szentendre'},
+            {'original': 'Budapest I. Kerület', 'city': 'Budapest'},
+            {'original': 'Budapest Xxiii. Kerület', 'city': 'Budapest'},
+        ]
+
+    def test_clean_city(self):
+        for i in self.addresses:
+            original, city = i['original'], i['city']
+            a = clean_city(original)
+            with self.subTest():
+                self.assertEqual(city, a)

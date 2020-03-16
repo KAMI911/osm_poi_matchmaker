@@ -189,6 +189,7 @@ def clean_city(clearable):
         city = city.split('/')[0]
         city = city.split('/')[0]
         city = city.split('(')[0]
+        city = city.split(' ')[0]
         return city.title().strip()
     else:
         return None
