@@ -288,13 +288,21 @@ class POIDataset:
     @street.setter
     def street(self, data):
         # Try to find street name around
-        if self.lat is not None and self.lon is not None:
-            query = self.__db.query_name_and_metaphone_road_around(self.lon, self.lat, data, True)
-            if query.empty:
-                logging.warning('There is no street around named: {}'.format(data))
+        try:
+            if self.lat is not None and self.lon is not None:
+                query = self.__db.query_name_and_metaphone_road_around(self.lon, self.lat, data, True)
+                if query.empty:
+                    logging.warning('There is no street around named: {}'.format(data))
+                    self.__street = data
+                else:
+                    new_data = query.at[0, 'name']
+                    logging.info('There is a street around named: {}, original was: {}.'.format(new_data,data))
+                    self.__street = new_data
             else:
-                logging.info('There is a street around named: {}'.format(data))
-            self.__street = data
+                self.__street = data
+        except Exception as e:
+            logging.error(e)
+            logging.error(traceback.print_exc())
 
     @property
     def housenumber(self):
