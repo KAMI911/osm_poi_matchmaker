@@ -50,15 +50,14 @@ class hu_avia(DataProvider):
                     self.data.code = 'huaviafu'
                     if self.data.city is None:
                         self.data.city = poi_data['title']
-                    self.data.ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
+                    self.data.ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' \
+                        else None
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
                     if poi_data['cim'] is not None and poi_data['cim'] != '':
-                        self.data.postcode, self.data.city, self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_all_address(
-                            poi_data['cim'])
-                    self.data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid'])) if poi_data[
-                                                                                                'kutid'] is not None and \
-                                                                                            poi_data[
-                                                                                                'kutid'] != '' else None
+                        self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
+                        self.data.conscriptionnumber = extract_all_address(poi_data['cim'])
+                    self.data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid']))\
+                        if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
                     self.data.original = poi_data['cim']
                     if 'tel' in poi_data and poi_data['tel'] != '':
                         self.data.phone = clean_phone_to_str(poi_data['tel'])
@@ -69,8 +68,10 @@ class hu_avia(DataProvider):
                     else:
                         self.data.email = None
                     self.data.public_holiday_open = False
-                    self.data.fuel_octane_95 = True if poi_data.get('b95') == '1' or poi_data.get('b95g') == '1' else False
-                    self.data.fuel_diesel = True if poi_data.get('dies') == '1' or poi_data.get('gdies') == '1' else False
+                    self.data.fuel_octane_95 = True if poi_data.get('b95') == '1' or poi_data.get('b95g') == '1' \
+                        else False
+                    self.data.fuel_diesel = True if poi_data.get('dies') == '1' or poi_data.get('gdies') == '1' \
+                        else False
                     self.data.fuel_octane_98 = True if poi_data.get('b98') == '1' else False
                     self.data.fuel_lpg = True if poi_data.get('lpg') == '1' else False
                     self.data.fuel_e85 = True if poi_data.get('e85') == '1' else False
