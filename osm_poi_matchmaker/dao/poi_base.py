@@ -10,6 +10,7 @@ try:
     from math import isnan
     from osm_poi_matchmaker.utils import config, poitypes
     from osm_poi_matchmaker.dao.data_structure import Base, OSM_object_type
+    import psycopg2
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -183,6 +184,8 @@ class POIBase:
         else:
             city_query = ''
         # Looking for way (building)
+        logging.info('{} {}: {}, {}, {} {} {} ({})'.format(lon, lat, ptype, name, street_name, housenumber,
+            conscriptionnumber, city))
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
                 conscriptionnumber_query is not None and conscriptionnumber_query != '':
             query_text = '''
@@ -220,11 +223,11 @@ class POIBase:
                                                       city_query=city_query))
             # logging.debug(query)
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={
-                'name': '.*{}.*'.format(name), 'conscriptionnaumber': conscriptionnumber, 'city': city})
-            if not data.empty and len(data.index) == 1:
-                return data
+                'name': '.*{}.*'.format(name), 'conscriptionnumber': conscriptionnumber, 'city': city})
+            if not data.empty:
+                return data.iloc[[0]]
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
-        street_query is not None and street_query != '' and housenumber_query is not None and housenumber_query != '':
+            street_query is not None and street_query != '' and housenumber_query is not None and housenumber_query != '':
             query_text = '''
             --- WITH NAME, WITH CITY, WITH STREETNAME, WITH HOUSENUMBER
             --- The way selector with city, street name and housenumber
@@ -257,7 +260,6 @@ class POIBase:
             query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
                                                       metadata_fields=metadata_fields,
                                                       street_query=street_query,
-                                                      conscriptionnumber_query=conscriptionnumber_query,
                                                       city_query=city_query,
                                                       housenumber_query=housenumber_query))
             # logging.debug(query)
@@ -265,8 +267,8 @@ class POIBase:
                 params={'name': '.*{}.*'.format(name), 'street_name': street_name,
                         'city': city, 'housenumber': housenumber}
                 )
-            if not data.empty and len(data.index) == 1:
-                return data
+            if not data.empty:
+                return data.iloc[[0]]
         if street_query is not None and street_query != '':
             # Using street name for query
             if housenumber_query is not None and housenumber_query != '':
@@ -451,7 +453,6 @@ class POIBase:
         query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
                                               metadata_fields=metadata_fields,
                                               street_query=street_query,
-                                              conscriptionnumber_query=conscriptionnumber_query,
                                               city_query=city_query,
                                               housenumber_query=housenumber_query))
         # logging.debug(query)
@@ -465,11 +466,10 @@ class POIBase:
                                                                                           'conscriptionnaumber': conscriptionnumber,
                                                                                           'city': city,
                                                                                           'housenumber': housenumber})
-        if data.empty:
-            return None
+        if not data.empty:
+            return data.iloc[[0]]
         else:
-            return data
-
+            return None
 
     def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='', in_building_percentage=0.50, distance=60):
         '''
