@@ -88,6 +88,9 @@ def online_poi_matching(args):
                         # Add list of relation nodes to the dataframe
                         nodes = db.query_relation_nodes(osm_id)
                         data.at[i, 'osm_nodes'] = nodes
+                    logging.info('Old {} type: {} POI within {} m: {} {}, {} {} ({})'.format(row.get('poi_search_name'),
+                        row.get('poi_type'), row.get('distance'), row.get('poi_postcode'), row.get('poi_city'), row.get('poi_addr_street'),
+                        row.get('poi_addr_housenumber'), row.get('poi_conscriptionnumber')))
                     try:
                         # Download OSM POI way live tags
                         if osm_node == OSM_object_type.way:
@@ -188,9 +191,9 @@ def online_poi_matching(args):
                         ibp = 1 - (((ord(ib[0]) // 16) + 1) / 17)
                     else:
                         ibp = 0.50
-                    logging.info('New {} type: {} POI: {} {}, {} {}'.format(row.get('poi_search_name'), row.get('poi_type'),
-                        row.get('poi_postcode'), row.get('poi_city'), row.get('poi_addr_street'),
-                        row.get('poi_addr_housenumber')))
+                    logging.info('New {} type: {} POI: {} {}, {} {} ({})'.format(row.get('poi_search_name'),
+                        row.get('poi_type'), row.get('poi_postcode'), row.get('poi_city'), row.get('poi_addr_street'),
+                        row.get('poi_addr_housenumber'), row.get('poi_conscriptionnumber')))
                     # Refine postcode
                     data.at[i, 'poi_postcode'] = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
                         row.get('poi_lon'), row.get('poi_lat'), row.get('poi_postcode'))
