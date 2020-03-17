@@ -41,7 +41,7 @@ def online_poi_matching(args):
                 osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
                     comm_data.loc[comm_data['pc_id'] == row.get('poi_common_id')]['poi_type'].values[0],
                     row.get('poi_search_name'), row.get('poi_addr_street'),
-                    row.get('poi_addr_housenumber'), row.get('poi_addr_conscriptionnumber'), row.get('poi_addr_city'),
+                    row.get('poi_addr_housenumber'), row.get('poi_conscriptionnumber'), row.get('poi_city'),
                     row.get('osm_search_distance_perfect'), row.get('osm_search_distance_safe'),
                     row.get('osm_search_distance_unsafe'))
                 # Enrich our data with OSM database POI metadata
