@@ -52,7 +52,7 @@ class POIQC:
                 self.__good.append('standard_opening_hours')
 
     def __is_name_road_around(self):
-        data = self.__db.query_name_road_around(self.__lon, self.__lat, self.__street, True)
+        data = self.__db.query_name_road_around(self.__lon, self.__lat, self.__street, True, 'name')
         if data.empty:
             self.__bad.append('street_is_not_around')
         else:
@@ -60,7 +60,7 @@ class POIQC:
 
 
     def __is_name_metaphone_road_around(self):
-        data = self.__db.query_name_metaphone_road_around(self.__lon, self.__lat, self.__street, True)
+        data = self.__db.query_name_road_around(self.__lon, self.__lat, self.__street, True, 'metaphone')
         if data.empty:
             self.__bad.append('street_metaphone_is_not_around')
         else:

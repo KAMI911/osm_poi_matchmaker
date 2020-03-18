@@ -543,7 +543,7 @@ class POIBase:
             logging.error(err)
             logging.error(traceback.print_exc())
 
-    def query_name_road_around(self, lon, lat, name='', with_metadata=True):
+    def query_name_road_around(self, lon, lat, name='', with_metadata=True, mode='both'):
         '''
         Search for road with name specified around the lon, lat point location in OpenStreetMap database based on
         within preconfigured distance
@@ -551,6 +551,7 @@ class POIBase:
         :param lat: Latitude parameter. Looking for roads around this geom.
         :param name: Name of the road. Search OpenStreetMap "highway" tagged ways with this name tag.
         :param with_metadata: Query OpenStreetMap metadata information
+        :param mode: Looking for name, metaphone or both
         :return: GeoDataFrame of distance ordered result.
         '''
         try:
@@ -560,91 +561,27 @@ class POIBase:
             else:
                 metadata_fields = ''
             # Looking for way (road)
+            if mode == 'both':
+                name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name))'
+            elif name == 'name':
+                name_query = '("name" = :name)'
+            elif name == 'metaphone':
+                name_query = 'dmetaphone(name) = dmetaphone(:name)'
+            else:
+                name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name))'
             query = sqlalchemy.text('''
                 SELECT * FROM
                   (SELECT name, osm_id, highway, {metadata_fields}
                     ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
                   FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                  WHERE "name" = :name AND "highway" is not NULL
+                  WHERE "highway" is not NULL
+                    AND {name query}
                   ORDER BY distance ASC LIMIT 1) AS geo
                 WHERE geo.distance < :distance
-                '''.format(metadata_fields=metadata_fields))
+                '''.format(metadata_fields=metadata_fields, name_query=name_query))
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
                                                                                              'distance': distance,
                                                                                              'name': '{}'.format(name)})
-            data.sort_values(by=['distance'])
-            return data
-        except Exception as err:
-            logging.error(err)
-            logging.error(traceback.print_exc())
-
-
-    def query_name_metaphone_road_around(self, lon, lat, name='', with_metadata=True):
-        '''
-        Search for road with metaphone name (as pronounced) specified around the lon, lat point location in
-        OpenStreetMap database based on within preconfigured distance
-        :param lon:
-        :param lat:
-        :parm name:
-        :parm with_metadata:
-        :return:
-        '''
-        try:
-            distance = config.get_geo_default_poi_road_distance()
-            if with_metadata is True:
-                metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
-            else:
-                metadata_fields = ''
-            # Looking for way (road)
-            query = sqlalchemy.text('''
-                SELECT * FROM
-                  (SELECT name, osm_id, highway, {metadata_fields}
-                    ST_DistanceSphere(way, point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
-                  FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-                  WHERE dmetaphone(name) = dmetaphone(:name) AND highway is not NULL
-                  ORDER BY distance ASC LIMIT 1) AS geo
-                WHERE geo.distance < :distance
-                '''.format(metadata_fields=metadata_fields))
-            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
-                                                                                             'distance': distance,
-                                                                                             'name': '{}'.format(
-                                                                                                 name)})
-            data.sort_values(by=['distance'])
-            return data
-        except Exception as err:
-            logging.error(err)
-            logging.error(traceback.print_exc())
-
-    def query_name_and_metaphone_road_around(self, lon, lat, name='', with_metadata=True):
-        '''
-        Search for road with name and metaphone name (as pronounced) specified around the lon, lat point location in
-        OpenStreetMap database based on within preconfigured distance
-        :param lon:
-        :param lat:
-        :parm name:
-        :parm with_metadata:
-        :return:
-        '''
-        try:
-            distance = config.get_geo_default_poi_road_distance()
-            if with_metadata is True:
-                metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
-            else:
-                metadata_fields = ''
-            # Looking for way (road)
-            query = sqlalchemy.text('''
-                SELECT * FROM
-                  (SELECT name, osm_id, highway, {metadata_fields}
-                    ST_DistanceSphere(way, point.geom) as distance, way,  ST_AsEWKT(way) as way_ewkt
-                  FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat),4326) as geom) point
-                  WHERE ("name" = :name OR dmetaphone(name) = dmetaphone(:name)) AND highway is not NULL
-                  ORDER BY distance ASC LIMIT 1) AS geo
-                WHERE geo.distance < :distance
-                '''.format(metadata_fields=metadata_fields))
-            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
-                                                                                             'distance': distance,
-                                                                                             'name': '{}'.format(
-                                                                                                 name)})
             data.sort_values(by=['distance'])
             return data
         except Exception as err:
