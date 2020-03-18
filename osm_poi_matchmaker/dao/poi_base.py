@@ -563,9 +563,9 @@ class POIBase:
             # Looking for way (road)
             if mode == 'both':
                 name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name))'
-            elif name == 'name':
+            elif mode == 'name':
                 name_query = '("name" = :name)'
-            elif name == 'metaphone':
+            elif mode == 'metaphone':
                 name_query = 'dmetaphone(name) = dmetaphone(:name)'
             else:
                 name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name))'
@@ -575,7 +575,7 @@ class POIBase:
                     ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
                   FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                   WHERE "highway" is not NULL
-                    AND {name query}
+                    AND {name_query}
                   ORDER BY distance ASC LIMIT 1) AS geo
                 WHERE geo.distance < :distance
                 '''.format(metadata_fields=metadata_fields, name_query=name_query))
