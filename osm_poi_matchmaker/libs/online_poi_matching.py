@@ -65,17 +65,18 @@ def online_poi_matching(args):
                     data.at[i, 'osm_node'] = osm_node
                     # Refine postcode
                     postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
-                                                           row.get('poi_lon'), row.get('poi_lat'), row.get('poi_postcode'))
+                        row.get('poi_lon'), row.get('poi_lat'), row.get('poi_postcode'))
                     if postcode != row.get('poi_postcode'):
                         logging.info('Changing postcode from {} to {}.'.format(row.get('poi_postcode'), postcode))
                         data.at[i, 'poi_postcode'] = postcode
                     data.at[i, 'osm_version'] = osm_query['osm_version'].values[0] \
                         if osm_query['osm_version'] is not None else None
-                    data.at[i, 'osm_changeset'] = osm_query['osm_changeset'].values[0] if osm_query['osm_changeset'] is not None else None
+                    data.at[i, 'osm_changeset'] = osm_query['osm_changeset'].values[0] \
+                        if osm_query['osm_changeset'] is not None else None
                     data.at[i, 'osm_timestamp'] = \
                         '{:{dfmt}T{tfmt}Z}'.format(pd.to_datetime(str((osm_query['osm_timestamp'].values[0]))),
                          dfmt='%Y-%m-%d', tfmt='%H:%M:%S') if osm_query['osm_timestamp'] is not None else None
-                    data.loc[[i], 'poi_distance'] = osm_query.get('distance').values[0] \
+                    data.at[i, 'poi_distance'] = osm_query.get('distance').values[0] \
                         if osm_query.get('distance') is not None else None
                     # For OSM way also query node points
                     if osm_node == OSM_object_type.way:
@@ -88,9 +89,10 @@ def online_poi_matching(args):
                         # Add list of relation nodes to the dataframe
                         nodes = db.query_relation_nodes(osm_id)
                         data.at[i, 'osm_nodes'] = nodes
-                    logging.info('Old {} type: {} POI within {} m: {} {}, {} {} ({})'.format(row.get('poi_search_name'),
-                        row.get('poi_type'), row.get('distance'), row.get('poi_postcode'), row.get('poi_city'), row.get('poi_addr_street'),
-                        row.get('poi_addr_housenumber'), row.get('poi_conscriptionnumber')))
+                    logging.info('Old {} type: {} POI within {} m: {} {}, {} {} ({})'.format(
+                        data.at[i,'poi_search_name'], data.at[i,'poi_type'], data.at[i,'poi_distance'],
+                        data.at[i,'poi_postcode'], data.at[i,'poi_city'], data.at[i,'poi_addr_street'],
+                        data.at[i,'poi_addr_housenumber'], data.at[i,'poi_conscriptionnumber']))
                     try:
                         # Download OSM POI way live tags
                         if osm_node == OSM_object_type.way:
