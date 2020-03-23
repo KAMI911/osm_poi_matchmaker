@@ -53,8 +53,8 @@ def generate_osm_xml(df, session=None):
                                               config.get_database_writer_host(),
                                               config.get_database_writer_port(),
                                               config.get_database_poi_database()))
-    mysql_pool = db.pool
-    session_factory = sessionmaker(mysql_pool)
+    pgsql_pool = db.pool
+    session_factory = sessionmaker(pgsql_pool)
     Session = scoped_session(session_factory)
     session = Session()
     from lxml import etree
