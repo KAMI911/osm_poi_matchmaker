@@ -290,14 +290,20 @@ class POIDataset:
         # Try to find street name around
         try:
             if self.lat is not None and self.lon is not None:
-                query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'both')
-                if query.empty:
-                    logging.warning('There is no street around named: {}'.format(data))
-                    self.__street = data
+                query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'name')
+                if query is None or query.empty:
+                    query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'metaphone')
+                    if query is None or query.empty:
+                        logging.warning('There is no street around named or metaphone named: {}'.format(data))
+                        self.__street = data
+                    else:
+                        new_data = query.at[0, 'name']
+                        logging.info('There is a metaphone street around named: {}, original was: {}.'
+                            .format(new_data,data))
+                        self.__street = new_data
                 else:
-                    new_data = query.at[0, 'name']
-                    logging.info('There is a street around named: {}, original was: {}.'.format(new_data,data))
-                    self.__street = new_data
+                    logging.info('There is a street around named: {}.'.format(data))
+                    self.__street = data
             else:
                 self.__street = data
         except Exception as e:
