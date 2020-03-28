@@ -50,11 +50,17 @@ def online_poi_matching(args):
                     # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
                     osm_id = osm_query['osm_id'].values[0] if osm_query.get('osm_id') is not None else None
                     osm_node = osm_query.get('node').values[0] if osm_query.get('node') is not None else None
+                    # Set OSM POI coordinates for all kind of geom
+                    lat = osm_query.get('lat').values[0]
+                    lon = osm_query.get('lon').values[0]
+                    if data.at[i, 'poi_lat'] != lat and \
+                        data.at[i, 'poi_lon'] != lon:
+                        logging.info('Using new coodinates {} {} instead of {} {}.'.format(
+                            lat, lon, data.at[i, 'poi_lat'], data.at[i, 'poi_lon']))
+                        data.at[i, 'poi_lat'] = lat
+                        data.at[i, 'poi_lon'] = lon
                     if osm_node == 'node':
                         osm_node = OSM_object_type.node
-                        # Set OSM POI coordinates for the node
-                        data.at[i, 'poi_lat'] = osm_query.get('lat').values[0]
-                        data.at[i, 'poi_lon'] = osm_query.get('lon').values[0]
                     elif osm_node == 'way':
                         osm_node = OSM_object_type.way
                     elif osm_node == 'relation':
@@ -65,7 +71,7 @@ def online_poi_matching(args):
                     data.at[i, 'osm_node'] = osm_node
                     # Refine postcode
                     postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
-                        row.get('poi_lon'), row.get('poi_lat'), row.get('poi_postcode'))
+                        data.at[i, 'poi_lon'], data.at[i, 'poi_lat'], row.get('poi_postcode'))
                     if postcode != row.get('poi_postcode'):
                         logging.info('Changing postcode from {} to {}.'.format(row.get('poi_postcode'), postcode))
                         data.at[i, 'poi_postcode'] = postcode
@@ -193,12 +199,7 @@ def online_poi_matching(args):
                         ibp = 1 - (((ord(ib[0]) // 16) + 1) / 17)
                     else:
                         ibp = 0.50
-                    logging.info('New {} type: {} POI: {} {}, {} {} ({})'.format(row.get('poi_search_name'),
-                        row.get('poi_type'), row.get('poi_postcode'), row.get('poi_city'), row.get('poi_addr_street'),
-                        row.get('poi_addr_housenumber'), row.get('poi_conscriptionnumber')))
                     # Refine postcode
-                    data.at[i, 'poi_postcode'] = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
-                        row.get('poi_lon'), row.get('poi_lat'), row.get('poi_postcode'))
                     osm_bulding_q = db.query_osm_building_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
                         row.get('poi_city'), row.get('poi_postcode'), row.get('poi_addr_street'),
                         row.get('poi_addr_housenumber'), in_building_percentage=ibp)
@@ -208,6 +209,15 @@ def online_poi_matching(args):
                         row['poi_lat'], row['poi_lon'] = osm_bulding_q.get('lat')[0], osm_bulding_q.get('lon')[0]
                     else:
                         logging.info('The POI is already in its building or there is no building match. Keeping POI coordinates as is as.')
+                    postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
+                                                           data.at[i, 'poi_lon'], data.at[i, 'poi_lat'],
+                                                           row.get('poi_postcode'))
+                    if postcode != row.get('poi_postcode'):
+                        logging.info('Changing postcode from {} to {}.'.format(row.get('poi_postcode'), postcode))
+                        data.at[i, 'poi_postcode'] = postcode
+                    logging.info('New {} type: {} POI: {} {}, {} {} ({})'.format(row.get('poi_search_name'),
+                        row.get('poi_type'), row.get('poi_postcode'), row.get('poi_city'), row.get('poi_addr_street'),
+                        row.get('poi_addr_housenumber'), row.get('poi_conscriptionnumber')))
             except Exception as e:
                 logging.error(e)
                 logging.error(row)
