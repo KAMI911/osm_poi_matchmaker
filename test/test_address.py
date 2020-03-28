@@ -10,6 +10,7 @@ try:
         clean_city
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error(traceback.print_exc())
     sys.exit(128)
 
 

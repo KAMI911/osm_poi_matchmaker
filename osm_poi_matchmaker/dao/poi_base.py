@@ -9,7 +9,7 @@ try:
     import time
     from math import isnan
     from osm_poi_matchmaker.utils import config, poitypes
-    from osm_poi_matchmaker.dao.data_structure import Base, OSM_object_type
+    from osm_poi_matchmaker.dao.data_structure import Base
     import psycopg2
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
@@ -37,6 +37,7 @@ class POIBase:
         try:
             self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8', echo=False)
         except psycopg2.OperationalError as e:
+            logging.error('Database error: {}'.format(e))
             if self.retry_counter >= reco:
                 logging.error('Cannot connect to database with {} connection string'.format(self.db_connection))
             else:

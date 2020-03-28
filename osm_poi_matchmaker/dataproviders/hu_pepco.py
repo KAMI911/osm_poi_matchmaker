@@ -42,10 +42,11 @@ class hu_pepco(DataProvider):
                     In fact this depends on OSM extract but currently we use only Hungarian OSM extract
                     Select only Hungarian POIs
                     '''
-                    if 'city' in poi_data and (poi_data['city'] == '' or query_osm_city_name(self.session, poi_data['city']) is None):
+                    if 'city' in poi_data and (poi_data['city'] == '' or \
+                        query_osm_city_name(self.session, poi_data['city']) is None):
                         continue
                     elif 'city' in poi_data:
-                        self.data.city = poi_data['city']
+                        self.data.city = clean_city(poi_data['city'])
                     else:
                         continue
                     self.data.name = 'Pepco'

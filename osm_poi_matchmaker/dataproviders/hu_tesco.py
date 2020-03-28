@@ -88,7 +88,7 @@ class hu_tesco(DataProvider):
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(poi_data.get('address'))
                         self.data.postcode = poi_data.get('zipcode').strip()
-                        self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
+                        self.data.city = clean_city(query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon))
                         if 'xpres' in poi_data.get('name'):
                             if self.data.city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:
                                 self.data.name = 'Tesco Expressz'

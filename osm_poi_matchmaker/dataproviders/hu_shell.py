@@ -54,9 +54,11 @@ class hu_shell(DataProvider):
                     elif poi_data['Brand'] == 'Mobilpetrol':
                         # It seems Mobil Petrol data is outdated so do not process here
                         continue
+                        '''
                         self.data.name = 'M. Petrol'
                         self.data.code = 'humobpefu'
                         self.data.website = 'http://mpetrol.hu/'
+                        '''
                     self.data.postcode = poi_data.get('Post code') if poi_data.get('Post code') != '' else None
                     street_tmp = poi_data['Address'].lower().split()
                     for i in range(0, len(street_tmp) - 2):

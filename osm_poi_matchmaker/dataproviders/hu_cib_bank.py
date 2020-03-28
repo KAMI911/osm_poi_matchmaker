@@ -6,10 +6,9 @@ try:
     import sys
     import json
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_city, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
-    from osm_poi_matchmaker.utils.data_provider import DataProvider
 
 
 except ImportError as err:
