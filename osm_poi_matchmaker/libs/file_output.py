@@ -245,7 +245,11 @@ def generate_osm_xml(df, session=None):
             osm_xml_data.append(comment)
             osm_xml_data.append(main_data)
             id -= 1
-    except Exception as err:
-        logging.error(err)
+    except ValueError as e:
+        logging.error(e)
+        logging.error(comment)
+        logging.error(traceback.print_exc())
+    except Exception as e:
+        logging.error(e)
         logging.error(traceback.print_exc())
     return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")
