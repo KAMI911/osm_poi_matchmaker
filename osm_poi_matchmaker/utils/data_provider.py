@@ -9,7 +9,6 @@ try:
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
         clean_javascript_variable, clean_opening_hours_2, clean_phone
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
-    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
