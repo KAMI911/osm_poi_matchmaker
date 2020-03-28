@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from builtins import Exception, ImportError, range, isinstance
+    from builtins import Exception, ImportError, range
     import traceback
     import logging
     import sys
@@ -9,7 +9,8 @@ try:
     import os
     import re
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import clean_city, extract_street_housenumber_better_2, clean_phone_to_str, clean_javascript_variable
+    from osm_poi_matchmaker.libs.address import clean_city, extract_street_housenumber_better_2, clean_phone_to_str, \
+        clean_javascript_variable
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider

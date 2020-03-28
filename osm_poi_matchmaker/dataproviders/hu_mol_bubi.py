@@ -7,7 +7,6 @@ try:
     import os
     from lxml import etree
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
-    from osm_poi_matchmaker.libs.address import clean_city
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.utils.data_provider import DataProvider
