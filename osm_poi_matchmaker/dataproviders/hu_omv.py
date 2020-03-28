@@ -32,8 +32,7 @@ class hu_omv(DataProvider):
                                "'contact:fax': '+36 1 381 9899', 'contact:twitter': 'omv', " \
                                "'contact:linkedin': 'https://www.linkedin.com/company/omv', " \
                                "'contact:instagram': 'https://www.instagram.com/omv/', " \
-                               "'contact:youtube': 'https://www.youtube.com/user/omvofficial', " \
-                               "'contact:phone': '+36 1 381 9700', 'contact:website': 'http://www.omv.hu/', "
+                               "'contact:youtube': 'https://www.youtube.com/user/omvofficial', "
         self.filename = self.filename + 'json'
         self.post = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'ANZ': '5',
                      'HASH': '23126a64295e2cf2a5e41f33fd4b0c416e09b0b8', 'TS': '1583951283'}
@@ -80,8 +79,6 @@ class hu_omv(DataProvider):
                                 extract_street_housenumber_better_2(poi_data.get('address_l'))
                         if poi_data.get('telnr') is not None and poi_data.get('telnr') != '':
                             self.data.phone = clean_phone_to_str(poi_data.get('telnr'))
-                        else:
-                            self.data.phone = None
                         self.data.add()
                     except Exception as e:
                         logging.error(e)
