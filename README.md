@@ -116,6 +116,27 @@ Default values are:
 hu_posta,hu_aldi,hu_avia,hu_benu,hu_budapest_bank,hu_cba,hu_cib_bank,hu_dm,hu_foxpost,hu_kh_bank,hu_kulcs_patika,hu_mobil_petrol,
 hu_mol_bubi,hu_mol,hu_omv,hu_penny_market,hu_pepco,hu_posta_json,hu_rossmann,hu_shell,hu_spar,hu_tesco,hu_tom_market
 
+## Importing with this tool
+
+You can import the created OSM files to JOSM then upload to OpenStreetMap database.
+Since this is a mass data import tool, before any importation task, please refer and follow
+the [OpenStreetMap Import Guidlines](https://wiki.openstreetmap.org/wiki/Import/Guidelines).
+
+Please use these import tags for changeset and change them accordingly:
+
+ comment=Import Hungarian POIs of something
+ source=import;website
+ import:tool:url=https://github.com/KAMI911/osm_poi_matchmaker
+ import:tool:version=0.8.0
+ import:tool=osm_poi_matchmaker
+ import:area=hungary
+ mechanical=yes
+ is_in:country_code=HU
+ is_in:country=Hungary
+ import:discussion:url=https://groups.google.com/forum/#!topic/openstreetmap-hungary/GF8hYXD5wU0
+
+[An example](https://user-images.githubusercontent.com/5292264/77844511-b5b16380-71a7-11ea-9cca-80cbd6f2dcd9.png)
+
 ## Documentation
 
 The documentation is located in the [doc/](doc/) directory.
