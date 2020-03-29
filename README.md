@@ -124,16 +124,16 @@ the [OpenStreetMap Import Guidlines](https://wiki.openstreetmap.org/wiki/Import/
 
 Please use these import tags for changeset and change them accordingly:
 
- comment=Import Hungarian POIs of something
- source=import;website
- import:tool:url=https://github.com/KAMI911/osm_poi_matchmaker
- import:tool:version=0.8.0
- import:tool=osm_poi_matchmaker
- import:area=hungary
- mechanical=yes
- is_in:country_code=HU
- is_in:country=Hungary
- import:discussion:url=https://groups.google.com/forum/#!topic/openstreetmap-hungary/GF8hYXD5wU0
+    comment=Import Hungarian POIs of something
+    source=import;website
+    import:tool:url=https://github.com/KAMI911/osm_poi_matchmaker
+    import:tool:version=0.8.0
+    import:tool=osm_poi_matchmaker
+    import:area=hungary
+    mechanical=yes
+    is_in:country_code=HU
+    is_in:country=Hungary
+    import:discussion:url=https://groups.google.com/forum/#!topic/openstreetmap-hungary/GF8hYXD5wU0
 
 [An example](https://user-images.githubusercontent.com/5292264/77844602-2f495180-71a8-11ea-9f2a-36169cd822f9.png)
 
