@@ -135,7 +135,7 @@ Please use these import tags for changeset and change them accordingly:
  is_in:country=Hungary
  import:discussion:url=https://groups.google.com/forum/#!topic/openstreetmap-hungary/GF8hYXD5wU0
 
-[An example](https://user-images.githubusercontent.com/5292264/77844511-b5b16380-71a7-11ea-9cca-80cbd6f2dcd9.png)
+[An example](https://user-images.githubusercontent.com/5292264/77844602-2f495180-71a8-11ea-9f2a-36169cd822f9.png)
 
 ## Documentation
 
