@@ -21,16 +21,20 @@ class hu_budapest_bank(DataProvider):
 
     def constains(self):
         self.link = 'https://www.budapestbank.hu/info/fiokkereso/process/get_data.php?action=get_data_json'
-        self.POI_COMMON_TAGS = ""
+        self.POI_COMMON_TAGS = "'brand': 'Budapest Bank', 'brand:wikidata': 'Q27493463', " \
+                               "'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.'"
         self.filename = self.filename + 'json'
 
     def types(self):
         self.__types = [{'poi_code': 'hubpbank', 'poi_name': 'Budapest Bank', 'poi_type': 'bank',
-                 'poi_tags': "{'amenity': 'bank', 'brand': 'Budapest Bank', 'brand:wikidata': 'Q27493463', 'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.', 'bic': 'BUDAHUHB', 'atm': 'yes',  'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://www.budapestbank.hu', 'poi_search_name': '(budapest bank|bp bank)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 10},
+                 'poi_tags': "{'amenity': 'bank', 'bic': 'BUDAHUHB', 'atm': 'yes', " + self.POI_COMMON_TAGS +
+                 " 'air_conditioning': 'yes'}",
+                 'poi_url_base': 'https://www.budapestbank.hu', 'poi_search_name': '(budapest bank|bp bank)',
+                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 10},
                 {'poi_code': 'hubpatm', 'poi_name': 'Budapest Bank ATM', 'poi_type': 'atm',
-                 'poi_tags': "{'amenity': 'atm', 'brand': 'Budapest Bank', 'brand:wikidata': 'Q27493463', 'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.', }",
-                 'poi_url_base': 'https://www.budapestbank.hu', 'poi_search_name': '(budapest bank|bp bank)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 10}]
+                 'poi_tags': "{'amenity': 'atm', " + self.POI_COMMON_TAGS + " }",
+                 'poi_url_base': 'https://www.budapestbank.hu', 'poi_search_name': '(budapest bank|bp bank)',
+                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 10}]
         return self.__types
 
     def process(self):
