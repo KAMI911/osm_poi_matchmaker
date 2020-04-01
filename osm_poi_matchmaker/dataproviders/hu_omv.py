@@ -40,8 +40,9 @@ class hu_omv(DataProvider):
     def types(self):
         self.__types = [{'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
                  'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "}",
-                 'poi_url_base': 'https://www.omv.hu', 'poi_search_name': 'omv', 'osm_search_distance_perfect': 2000,
-                 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 60}]
+                 'poi_url_base': 'https://www.omv.hu', 'poi_search_name': '(omv|omw|ömv|ömw|ovm|owm)',
+                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 450,
+                 'osm_search_distance_unsafe': 60}]
         return self.__types
 
     def process(self):
@@ -79,6 +80,11 @@ class hu_omv(DataProvider):
                                 extract_street_housenumber_better_2(poi_data.get('address_l'))
                         if poi_data.get('telnr') is not None and poi_data.get('telnr') != '':
                             self.data.phone = clean_phone_to_str(poi_data.get('telnr'))
+                        self.data.fuel_octane_95 = True
+                        self.data.fuel_diesel = True
+                        self.data.fuel_octane_100 = True
+                        self.data.fuel_diesel_gtl = True
+                        self.data.compressed_air = True
                         self.data.add()
                     except Exception as e:
                         logging.error(e)
