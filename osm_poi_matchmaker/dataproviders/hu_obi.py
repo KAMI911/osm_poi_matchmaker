@@ -26,7 +26,6 @@ class hu_obi(DataProvider):
                                "'brand:wikipedia': 'en:Obi (store)', 'operator': 'OBI Hungary Retail Kft.', " \
                                "'operator:addr': '1097 Budapest, Könyves Kálmán körút 12-14', " \
                                "'ref:vatin:hu': '13136062-2-44', 'ref:vatin': 'HU13136062', " \
-                               "'contact:website': 'https://www.obi.hu/', " \
                                " 'wheelchair': 'yes', 'air_conditioning': 'yes', "
         self.filename = self.filename + 'json'
 
