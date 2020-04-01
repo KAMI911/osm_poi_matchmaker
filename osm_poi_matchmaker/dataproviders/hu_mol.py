@@ -32,7 +32,7 @@ class hu_mol(DataProvider):
         self.__types = [{'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
             'poi_tags': "{'amenity': 'fuel', 'brand': 'MOL', 'operator': 'MOL Nyrt.', "
             "'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.', 'ref:vatin:hu': '10625790-4-44', "
-            "'contact:website': 'https://mol.hu/', 'contact:facebook': 'https://www.facebook.com/mol.magyarorszag/', "
+            "'contact:facebook': 'https://www.facebook.com/mol.magyarorszag/', "
             "'contact:youtube': 'https://www.youtube.com/user/molgrouptv', "
             "'contact:instagram': 'https://www.instagram.com/mol.magyarorszag/', "
             "'brand:wikipedia': 'hu:MOL Magyar Olaj- és Gázipari Nyrt.', 'brand:wikidata': 'Q549181', "
