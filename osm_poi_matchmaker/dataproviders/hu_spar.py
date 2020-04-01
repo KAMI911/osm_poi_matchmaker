@@ -25,7 +25,11 @@ class hu_spar(DataProvider):
 
     def constains(self):
         self.link = 'https://www.spar.hu/uzletek/_jcr_content.stores.v2'
-        self.POI_COMMON_TAGS = "'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'brand:wikipedia': 'hu:Spar', 'brand:wikidata': 'Q610492',  'contact:email': 'vevoszolgalat@spar.hu', 'phone': '+36208237727', 'contact:facebook': 'https://www.facebook.com/sparmagyarorszag', 'contact:youtube': 'https://www.youtube.com/channel/UC9tu8COHiy4WkeTIN1k_Y8A', 'contact:instagram': 'https://www.instagram.com/sparmagyarorszag', " + POS_OTP + PAY_CASH
+        self.POI_COMMON_TAGS = "'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'," \
+            "'brand:wikipedia': 'hu:Spar', 'brand:wikidata': 'Q610492',  'contact:email': 'vevoszolgalat@spar.hu', " \
+            "'phone': '+36208237727', 'contact:facebook': 'https://www.facebook.com/sparmagyarorszag', " \
+            "'contact:youtube': 'https://www.youtube.com/channel/UC9tu8COHiy4WkeTIN1k_Y8A', " \
+            "'contact:instagram': 'https://www.instagram.com/sparmagyarorszag', " + POS_OTP + PAY_CASH
         self.filename = self.filename + 'json'
 
     def types(self):
