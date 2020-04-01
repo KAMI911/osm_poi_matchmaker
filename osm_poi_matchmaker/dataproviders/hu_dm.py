@@ -50,6 +50,7 @@ class hu_dm(DataProvider):
                             self.data.postcode = poi_data.get('address')['zip'].strip()
                             street_tmp = poi_data.get('address')['street'].split(',')[0]
                             self.data.city = clean_city(poi_data.get('address')['city'])
+                            self.data.website = 'https://www.dm.hu{}'.format(poi_data.get('storeUrlPath'))
                             self.data.original = poi_data.get('address')['street']
                             self.data.lat, self.data.lon = \
                                 check_hu_boundary(poi_data.get('location')['lat'], poi_data.get('location')['lon'])
