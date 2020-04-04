@@ -22,8 +22,7 @@ except ImportError as err:
 
 POI_TAGS = {'poi_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:postcode',
             'poi_addr_street': 'addr:street', 'poi_addr_housenumber': 'addr:housenumber',
-            'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email',
-            'poi_opening_hours': 'opening_hours'}
+            'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email'}
 
 
 def ascii_numcoder(text):
@@ -151,6 +150,23 @@ def generate_osm_xml(df, session=None):
             for k, v in POI_TAGS.items():
                 if row[k] is not None:
                     tags[v] = row[k]
+            if config.get_geo_alternative_opening_hours():
+                alternative_oh_tag = config.get_geo_alternative_opening_hours_tag()
+                # Alternative opening_hours handling for COVID-19 code path
+                if tags.get('opening_hours') is not None and tags.get('opening_hours') != '':
+                    if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
+                        if tags.get('opening_hours') == row.get('poi_opening_hours'):
+                            tags[alternative_oh_tag] = 'same'
+                        else:
+                            tags[alternative_oh_tag] = row.get('poi_opening_hours')
+                else:
+                    if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
+                        tags['opening_hours'] = row.get('poi_opening_hours')
+                        tags[alternative_oh_tag] = 'same'
+            else:
+                # Alternative opening_hours handling for NON COVID-19 code path: just simply add opening_hours to tags
+                if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
+                    tags['opening_hours'] == row.get('poi_opening_hours')
             # If we got POI phone tag use it as OSM contact:phone tag
             if row['poi_phone'] is not None and row['poi_phone'] != '':
                 tags['contact:phone'] = row['poi_phone']
@@ -228,13 +244,13 @@ def generate_osm_xml(df, session=None):
                 # Add original POI tags as comment
                 try:
                     if isinstance(v, str):
-                        v = v.replace('--', '\-\-').replace('\n', '')
+                        v = v.replace('-', '\-').replace('\n', '')
                     w = osm_live_tags[k]
                 except KeyError:
                     comment += "{:32} N\t\t'{}'\n".format(k, v)
                 else:
                     if isinstance(w, str):
-                        w = w.replace('--', '\-\-').replace('\n', '')
+                        w = w.replace('-', '\-').replace('\n', '')
                     comment += "{:32} {}\t\t'{}'\t\t\t'{}'\n".format(k, compare_strings(v,w), v, w)
             comment = etree.Comment(comment)
             # URL encode link and '--' in comment

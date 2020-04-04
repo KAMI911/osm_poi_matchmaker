@@ -19,6 +19,8 @@ geo.amenity.atm.poi.distance=20
 geo.shop.conveience.poi.distance=50
 geo.amenity.post.office.poi.distance=200
 geo.prefer.osm.postcode=True
+geo.alternative.opening.hours=False
+geo.alternative.opening.hours.tag=opening_hours:covid19
 
 download.verify.link=True
 download.use.cached.data=False

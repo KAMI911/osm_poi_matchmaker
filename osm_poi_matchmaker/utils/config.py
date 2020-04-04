@@ -56,6 +56,8 @@ KEY_GEO_AMENITY_ATM_POI_DISTANCE = 'geo.amenity.atm.poi.distance'
 KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE = 'geo.shop.conveience.poi.distance'
 KEY_GEO_AMENITY_POST_OFFICE_POI_DISTANCE = 'geo.amenity.post.office.poi.distance'
 KEY_GEO_PREFER_OSM_POSTCODE = 'geo.prefer.osm.postcode'
+KEY_GEO_ALTERNATIVE_OPENING_HOURS = 'geo.alternative.opening.hours'
+KEY_GEO_ALTERNATIVE_OPENING_HOURS_TAG = 'geo.alternative.opening.hours.tag'
 KEY_DOWNLOAD_VERIFY_LINK = 'download.verify.link'
 KEY_DOWNLOAD_USE_CACHED_DATA = 'download.use.cached.data'
 KEY_DATAPROVIDERS_MODULES_AVAILABLE = 'dataproviders.modules.available'
@@ -244,6 +246,22 @@ def get_geo_prefer_osm_postcode():
         return setting
     else:
         return True
+
+
+def get_geo_alternative_opening_hours():
+    setting = get_config_bool(KEY_GEO_ALTERNATIVE_OPENING_HOURS)
+    if setting is not None:
+        return setting
+    else:
+        return False
+
+
+def get_geo_alternative_opening_hours_tag():
+    setting = get_config_string(KEY_GEO_ALTERNATIVE_OPENING_HOURS_TAG)
+    if setting is not None:
+        return setting
+    else:
+        return None
 
 
 def get_download_verify_link():
