@@ -22,7 +22,7 @@ class hu_budapest_bank(DataProvider):
     def constains(self):
         self.link = 'https://www.budapestbank.hu/info/fiokkereso/process/get_data.php?action=get_data_json'
         self.POI_COMMON_TAGS = "'brand': 'Budapest Bank', 'brand:wikidata': 'Q27493463', " \
-                               "'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.'"
+                               "'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.', "
         self.filename = self.filename + 'json'
 
     def types(self):
