@@ -32,7 +32,7 @@ def query_osm_postcode_gpd(session, lon, lat):
     if lat is None or lat == '' or lon == '' or lon is None: return None
     query = sqlalchemy.text('''
         SELECT name
-        FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lat,:lon),4326) as geom) point
+        FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat),4326) as geom) point
         WHERE boundary='postal_code' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
     data = session.execute(query, {'lon': lon, 'lat': lat}).first()
     if data is None: return None
