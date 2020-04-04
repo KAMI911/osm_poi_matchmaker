@@ -31,13 +31,13 @@ class hu_posta(DataProvider):
         data = [{'poi_code': 'hupostapo', 'poi_name': 'Posta', 'poi_type': 'post_office',
                  'poi_tags': "{'amenity': 'post_office', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
-                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
-                 'osm_search_distance_unsafe': 300},
+                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 350,
+                 'osm_search_distance_unsafe': 220},
                 {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkautomata', 'poi_type': 'vending_machine_cheques',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'cheques', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
                  'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
-                 'osm_search_distance_unsafe': 300},
+                 'osm_search_distance_unsafe': 220},
                 {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata',
                  'poi_type': 'vending_machine_parcel_pickup',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup', " + POI_COMMON_TAGS + "}",
@@ -47,11 +47,11 @@ class hu_posta(DataProvider):
                  'poi_tags': "{'amenity': 'post_office', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(postapont|posta)',
                  'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
-                 'osm_search_distance_unsafe': 300},
+                 'osm_search_distance_unsafe': 220},
                 {'poi_code': 'hupostamp', 'poi_name': 'Mobilposta', 'poi_type': 'post_office',
                  'poi_tags': "{'amenity': 'post_office', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
-                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200}]
+                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300}]
         return data
 
     def process(self):
