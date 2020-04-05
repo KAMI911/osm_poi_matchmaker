@@ -62,6 +62,26 @@ class hu_budapest_bank(DataProvider):
                         extract_street_housenumber_better_2(poi_data['addr'])
                     self.data.original = poi_data['address']
                     self.data.branch = poi_data['name']
+                    # Processing opening hours
+                    oh = []
+                    if poi_data.get('opening') is not None:
+                        opening = poi_data.get('opening').split('||')
+                        for i in opening:
+                            if 'H:' in opening[i]:
+                                self.data.day_open(0,  opening[i].replace('H:','').split('-')[0].strip())
+                                self.data.day_close(0, opening[i].replace('H:','').split('-')[1].strip())
+                            elif 'K:' in opening[i]:
+                                self.data.day_open(1, opening[i].replace('K:', '').split('-')[0].strip())
+                                self.data.day_close(1, opening[i].replace('K:', '').split('-')[1].strip())
+                            elif 'Sz:' in opening[i]:
+                                self.data.day_open(2, opening[i].replace('Sz:', '').split('-')[0].strip())
+                                self.data.day_close(2, opening[i].replace('Sz:', '').split('-')[1].strip())
+                            elif 'Cs:' in opening[i]:
+                                self.data.day_open(3, opening[i].replace('Cs:', '').split('-')[0].strip())
+                                self.data.day_close(3, opening[i].replace('Cs:', '').split('-')[1].strip())
+                            elif 'P:' in opening[i]:
+                                self.data.day_open(4, opening[i].replace('P:', '').split('-')[0].strip())
+                                self.data.day_close(4, opening[i].replace('P:', '').split('-')[1].strip())
                     self.data.add()
         except Exception as e:
             logging.error(traceback.print_exc())
