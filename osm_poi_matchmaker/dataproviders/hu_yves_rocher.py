@@ -33,7 +33,7 @@ class hu_yves_rocher(DataProvider):
         self.filename = self.filename + 'json'
 
     def types(self):
-        self.__types = [{'poi_code': 'huyvesrcos', 'poi_name': 'dm', 'poi_type': 'cosmetics',
+        self.__types = [{'poi_code': 'huyvesrcos', 'poi_name': 'Yves Rocher', 'poi_type': 'cosmetics',
                  'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
                  'poi_url_base': 'https://www.yves-rocher.hu/', 'poi_search_name': 'yves rocher',
                          'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
