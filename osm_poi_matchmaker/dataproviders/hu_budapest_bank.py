@@ -66,22 +66,63 @@ class hu_budapest_bank(DataProvider):
                     oh = []
                     if poi_data.get('opening') is not None:
                         opening = poi_data.get('opening').split('||')
+                        self.data.nonstop = False
                         for i in opening:
-                            if 'H:' in opening[i]:
-                                self.data.day_open(0,  opening[i].replace('H:','').split('-')[0].strip())
-                                self.data.day_close(0, opening[i].replace('H:','').split('-')[1].strip())
-                            elif 'K:' in opening[i]:
-                                self.data.day_open(1, opening[i].replace('K:', '').split('-')[0].strip())
-                                self.data.day_close(1, opening[i].replace('K:', '').split('-')[1].strip())
-                            elif 'Sz:' in opening[i]:
-                                self.data.day_open(2, opening[i].replace('Sz:', '').split('-')[0].strip())
-                                self.data.day_close(2, opening[i].replace('Sz:', '').split('-')[1].strip())
-                            elif 'Cs:' in opening[i]:
-                                self.data.day_open(3, opening[i].replace('Cs:', '').split('-')[0].strip())
-                                self.data.day_close(3, opening[i].replace('Cs:', '').split('-')[1].strip())
-                            elif 'P:' in opening[i]:
-                                self.data.day_open(4, opening[i].replace('P:', '').split('-')[0].strip())
-                                self.data.day_close(4, opening[i].replace('P:', '').split('-')[1].strip())
+                            if 'H:' in i:
+                                try:
+                                    op = i.replace('H:', '').split('-')[0].strip()
+                                except IndexError as e:
+                                    op = None
+                                self.data.mo_o = op if open is not None and op != '' else None
+                                try:
+                                    cl = i.replace('H:', '').split('-')[1].strip()
+                                except IndexError as e:
+                                    cl = None
+                                self.data.mo_c = cl if open is not None and cl != '' else None
+                            elif 'K:' in i:
+                                try:
+                                    op = i.replace('K:', '').split('-')[0].strip()
+                                except IndexError as e:
+                                    op = None
+                                self.data.tu_o = op if open is not None and op != '' else None
+                                try:
+                                    cl = i.replace('K:', '').split('-')[1].strip()
+                                except IndexError as e:
+                                    cl = None
+                                self.data.tu_c = cl if open is not None and cl != '' else None
+                            elif 'Sz:' in i:
+                                try:
+                                    op = i.replace('Sz:', '').split('-')[0].strip()
+                                except IndexError as e:
+                                    op = None
+                                self.data.we_o = op if open is not None and op != '' else None
+                                try:
+                                    cl = i.replace('Sz:', '').split('-')[1].strip()
+                                except IndexError as e:
+                                    cl = None
+                                self.data.we_c = cl if open is not None and cl != '' else None
+                            elif 'Cs:' in i:
+                                try:
+                                    op = i.replace('Cs:', '').split('-')[0].strip()
+                                except IndexError as e:
+                                    op = None
+                                self.data.th_o = op if open is not None and op != '' else None
+                                try:
+                                    cl = i.replace('Cs:', '').split('-')[1].strip()
+                                except IndexError as e:
+                                    cl = None
+                                self.data.th_c = cl if open is not None and cl != '' else None
+                            elif 'P:' in i:
+                                try:
+                                    op = i.replace('P:', '').split('-')[0].strip()
+                                except IndexError as e:
+                                    op = None
+                                self.data.fr_o = op if open is not None and op != '' else None
+                                try:
+                                    cl = i.replace('P:', '').split('-')[1].strip()
+                                except IndexError as e:
+                                    cl = None
+                                self.data.fr_c = cl if open is not None and cl != '' else None
                     self.data.add()
         except Exception as e:
             logging.error(traceback.print_exc())
