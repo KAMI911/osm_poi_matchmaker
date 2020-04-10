@@ -26,7 +26,9 @@ class hu_dm(DataProvider):
                                "'brand:wikidata': 'Q266572', 'brand:wikipedia': 'en:Dm-drogerie markt', " \
                                "'contact:facebook':'https://www.facebook.com/dm.Magyarorszag', " \
                                "'contact:youtube': 'https://www.youtube.com/user/dmMagyarorszag', " \
-                               "'contact:instagram':'https://www.instagram.com/dm_magyarorszag', "
+                               "'contact:instagram':'https://www.instagram.com/dm_magyarorszag', " \
+                               "'ref:vatin': 'HU11181530', 'ref:vatin:hu': '11181530-2-44', " \
+                               "'ref:HU:company': '13 09 078006', "
         self.filename = self.filename + 'json'
 
     def types(self):
