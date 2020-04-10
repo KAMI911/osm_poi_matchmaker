@@ -30,7 +30,7 @@ class TestAddressResolver(unittest.TestCase):
             {'original': 'Kaszás u. 2.-Dózsa György út 87.', 'street': 'Dózsa György út',
              'housenumber': '87',
              'conscriptionnumber': None},
-            {'original': 'Bajcsy Zs. út 11.', 'street': 'Bajcsy-Zsilinszky Endre út', 'housenumber': '11',
+            {'original': 'Bajcsy Zs. út 11.', 'street': 'Bajcsy-Zsilinszky út', 'housenumber': '11',
              'conscriptionnumber': None},
             {'original': 'Hunyadi János út 19. - Savoya Park', 'street': 'Hunyadi János út', 'housenumber': '19',
              'conscriptionnumber': None},
@@ -40,7 +40,7 @@ class TestAddressResolver(unittest.TestCase):
              'conscriptionnumber': None},  # TODO: this is wrong
             {'original': 'Bajcsy-Zs. E. u. 31.', 'street': 'Bajcsy-Zsilinszky Endre utca', 'housenumber': '31',
              'conscriptionnumber': None},
-            {'original': 'Bajcsy Zs.u. 77.', 'street': 'Bajcsy-Zsilinszky Endre utca', 'housenumber': '77',
+            {'original': 'Bajcsy Zs.u. 77.', 'street': 'Bajcsy-Zsilinszky utca', 'housenumber': '77',
              'conscriptionnumber': None},
             {'original': 'Dózsa Gy.u.6.', 'street': 'Dózsa György utca', 'housenumber': '6',
              'conscriptionnumber': None},
@@ -169,6 +169,7 @@ class TestPhoneClener_to_str(unittest.TestCase):
             {'original': '06205089009(Központi Telszám: Benzinkút, Motel, Kávézó, Szobafoglalás)',
              'converted': '+36 20 508 9009'},
             {'original': '  ', 'converted': None},
+            {'original': '+36303035698', 'converted': '+36 30 303 5698'},
         ]
 
     def test_clean_phone(self):
