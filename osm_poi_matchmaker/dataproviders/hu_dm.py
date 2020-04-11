@@ -61,7 +61,7 @@ class hu_dm(DataProvider):
                             if poi_data.get('phone') is not None and poi_data.get('phone') != '':
                                 self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                             if poi_data.get('storeNumber') is not None and poi_data.get('storeNumber') != '':
-                                self.data.phone = clean_phone_to_str(poi_data.get('storeNumber'))
+                                self.data.ref = poi_data.get('storeNumber').strip()
                             self.data.public_holiday_open = False
                             self.data.add()
                     except Exception as e:
