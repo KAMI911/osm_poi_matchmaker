@@ -9,7 +9,7 @@ try:
     import json
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
-        clean_javascript_variable, clean_opening_hours
+        extract_javascript_variable, clean_opening_hours
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.enums import WeekDaysLong
@@ -39,12 +39,7 @@ class hu_rossmann(DataProvider):
                                         self.verify_link)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
-                pattern = re.compile('^\s*var\s*places.*')
-                script = soup.find('script', text=pattern)
-                m = pattern.match(script.get_text())
-                data = m.group(0)
-                data = clean_javascript_variable(data, 'places')
-                text = json.loads(data)
+                text = json.loads(extract_javascript_variable(soup, 'places'))
                 for poi_data in text:
                     poi_data = poi_data['addresses'][0]
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom

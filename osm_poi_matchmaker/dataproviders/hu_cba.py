@@ -9,7 +9,7 @@ try:
     import json
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
-        clean_javascript_variable, clean_opening_hours_2, clean_phone_to_str
+        extract_javascript_variable, clean_opening_hours_2, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -48,12 +48,7 @@ class hu_cba(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
-                pattern = re.compile('^\s*var\s*boltok_nyers.*')
-                script = soup.find('script', text=pattern)
-                m = pattern.match(script.get_text())
-                data = m.group(0)
-                data = clean_javascript_variable(data, 'boltok_nyers')
-                text = json.loads(data)
+                text = json.loads(extract_javascript_variable(soup, 'boltok_nyers'))
                 for poi_data in text:
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                     self.data.city = clean_city(poi_data.get('A_VAROS'))

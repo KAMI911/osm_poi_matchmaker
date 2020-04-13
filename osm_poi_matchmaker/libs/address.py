@@ -47,6 +47,35 @@ def clean_javascript_variable(clearable, removable):
     return re.sub(PATTERN_JS_2, '', data)
 
 
+def extract_javascript_variable(input_soup, removable, use_replace=False):
+    """Extract JavaScript variable from <script> tag from a soup.
+
+    :param sp: Input soup
+    :param removable: The name of Javascript variable
+    :param user_replace: Additional step to replace from ' to "
+    :return: Javascript clean text/JSON file
+    """
+    # Match on start
+    try:
+        pattern = re.compile('.*\s*var\s*{}\s*=\s*(.*?[}}\]]);'.format(removable), re.MULTILINE | re.DOTALL)
+        script = str(input_soup.find('script', text=pattern))
+        if use_replace is True: script = script.replace("'", '"')
+        m = pattern.match(script)
+        try:
+            if m is not None:
+                return m.group(1)
+            else:
+                return None
+        except AttributeError as e:
+            logging.warning('An exception has occured during JavaScript variable extraction.')
+    except Exception as e:
+        logging.error(e)
+        logging.error(traceback.print_exc())
+        logging.error(pattern)
+        logging.error(script)
+        logging.error(m.group(1))
+
+
 def extract_street_housenumber(clearable):
     '''Try to separate street and house number from a Hungarian style address string
 

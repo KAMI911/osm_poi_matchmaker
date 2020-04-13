@@ -8,7 +8,7 @@ try:
     import re
     import json
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_javascript_variable, clean_phone_to_str, \
+    from osm_poi_matchmaker.libs.address import extract_all_address, extract_javascript_variable, clean_phone_to_str, \
         clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
@@ -42,13 +42,7 @@ class hu_avia(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
-                pattern = re.compile('var\s*markers\s*=\s*((.*\n)*\]\;)', re.MULTILINE)
-                script = soup.find('script', text=pattern)
-                m = pattern.search(script.get_text())
-                data = m.group(0)
-                data = data.replace("'", '"')
-                data = clean_javascript_variable(data, 'markers')
-                text = json.loads(data)
+                text = json.loads(extract_javascript_variable(soup, 'markers', True))
                 for poi_data in text:
                     self.data.name = 'Avia'
                     self.data.code = 'huaviafu'
