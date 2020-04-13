@@ -62,6 +62,15 @@ class hu_dm(DataProvider):
                                 self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                             if poi_data.get('storeNumber') is not None and poi_data.get('storeNumber') != '':
                                 self.data.ref = poi_data.get('storeNumber').strip()
+                            opening = poi_data.get('openingDays')
+                            try:
+                                for i, d in enumerate(opening):
+                                    if d.get('weekDay') is not None and 1 <= d.get('weekDay') <= 7:
+                                        day = d.get('weekDay')
+                                        self.data.day_open(day-1, d.get('timeSlices')[0].get('opening'))
+                                        self.data.day_close(day-1, d.get('timeSlices')[0].get('closing'))
+                            except (IndexError, KeyError):
+                                logging.warning('Exception occurred during opening hours processing')
                             self.data.public_holiday_open = False
                             self.data.add()
                     except Exception as e:
