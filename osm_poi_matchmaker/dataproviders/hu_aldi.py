@@ -9,6 +9,7 @@ try:
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -18,7 +19,7 @@ except ImportError as err:
 class hu_aldi(DataProvider):
 
     def constains(self):
-        self.link = 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas'
+        self.link = 'https://www.aldi.hu/uzletek/'
         self.POI_COMMON_TAGS = "'operator': 'ALDI Magyarország Élelmiszer Bt.', " \
             "'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi', 'ref:vatin:hu':'22234663-2-44', "\
             "'ref:vatin':'HU22234663', 'ref:HU:company':'13 06 058506', 'brand:wikipedia':'hu:Aldi', " \
@@ -26,7 +27,8 @@ class hu_aldi(DataProvider):
             "'contact:youtube':'https://www.youtube.com/user/ALDIMagyarorszag', " \
             "'contact:instagram':'https://www.instagram.com/aldi.magyarorszag', " + POS_HU_GEN + PAY_CASH + \
             "'air_conditioning': 'yes', "
-        self.filename = self.filename + 'html'
+        self.filetype = FileType.html
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__types = [{'poi_code': 'hualdisup', 'poi_name': 'Aldi', 'poi_type': 'shop',
@@ -35,7 +37,8 @@ class hu_aldi(DataProvider):
         return self.__types
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
         poi_dataset = []
         if soup is not None:
             # parse the html using beautiful soap and store in variable `soup`

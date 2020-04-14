@@ -13,6 +13,7 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHU
     from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -25,7 +26,8 @@ class hu_posta(DataProvider):
 
     def constains(self):
         self.link = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
-        self.filename = self.filename + 'xml'
+        self.filetype = FileType.xml
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         data = [{'poi_code': 'hupostapo', 'poi_name': 'Posta', 'poi_type': 'post_office',
@@ -56,7 +58,8 @@ class hu_posta(DataProvider):
 
     def process(self):
         try:
-            xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+            xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
             root = etree.fromstring(xml)
             for e in root.findall('post'):
                 # If this is a closed post office, skip it

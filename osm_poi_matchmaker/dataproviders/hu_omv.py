@@ -12,6 +12,7 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -33,9 +34,10 @@ class hu_omv(DataProvider):
                                "'contact:linkedin': 'https://www.linkedin.com/company/omv', " \
                                "'contact:instagram': 'https://www.instagram.com/omv/', " \
                                "'contact:youtube': 'https://www.youtube.com/user/omvofficial', "
-        self.filename = self.filename + 'json'
         self.post = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'ANZ': '5',
                      'HASH': '23126a64295e2cf2a5e41f33fd4b0c416e09b0b8', 'TS': '1583951283'}
+        self.filetype = FileType.json
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__types = [{'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
@@ -48,7 +50,7 @@ class hu_omv(DataProvider):
     def process(self):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.post)
+                                        self.filetype, self.post)
             if soup is not None:
                 text = json.loads(soup.get_text())
                 for poi_data in text:

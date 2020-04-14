@@ -10,6 +10,7 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -22,7 +23,8 @@ class hu_shell(DataProvider):
     def constains(self):
         self.link = 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL'
         self.POI_COMMON_TAGS = ""
-        self.filename = self.filename + 'csv'
+        self.filetype = FileType.csv
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__types = [{'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel',
@@ -37,7 +39,8 @@ class hu_shell(DataProvider):
 
     def process(self):
         try:
-            csv = save_downloaded_pd('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+            csv = save_downloaded_pd('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
             if csv is not None:
                 csv[['Post code']] = csv[['Post code']].fillna('0000')
                 csv[['Post code']] = csv[['Post code']].astype(int)

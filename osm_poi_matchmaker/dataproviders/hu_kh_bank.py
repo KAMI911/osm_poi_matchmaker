@@ -9,6 +9,7 @@ try:
     from osm_poi_matchmaker.libs.address import extract_all_address, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -26,6 +27,8 @@ class hu_kh_bank():
             "'ref:vatin:hu': '10195664-4-44', 'ref:HU:company': '01 10 041043',"
         self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name
+        self.filetype = FileType.json
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         data = [{'poi_code': 'hukhbank', 'poi_name': 'K&H Bank', 'poi_type': 'bank',

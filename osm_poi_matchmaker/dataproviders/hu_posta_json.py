@@ -10,6 +10,7 @@ try:
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -27,6 +28,8 @@ class hu_posta_json():
     def __init__(self, session, link, download_cache, filename='hu_posta.json'):
         self.session = session
         self.link = link
+        self.filetype = FileType.json
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
         self.download_cache = download_cache
         self.filename = filename
 
@@ -51,7 +54,8 @@ class hu_posta_json():
         return data
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
         if soup is not None:
             text = json.loads(soup.get_text())
             data = POIDataset()

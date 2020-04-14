@@ -11,6 +11,7 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -28,7 +29,8 @@ class hu_magnet_bank(DataProvider):
                                "'operator:addr': '1062 Budapest, Andrássy út 98.', 'contact:fax': '+36 1 428 8889', " \
                                "'ref:HU:company': '01 10 046111', 'ref:vatin': 'HU14413591' ," \
                                "'re:vatin:hu': '14413591-4-44', "
-        self.filename = self.filename + 'json'
+        self.filetype = FileType.json
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__types = [

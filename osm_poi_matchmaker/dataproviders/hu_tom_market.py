@@ -12,6 +12,7 @@ try:
     from osm_poi_matchmaker.libs.osm import query_osm_city_name_gpd
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_OTP, PAY_CASH
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -25,8 +26,8 @@ class hu_tom_market(DataProvider):
         self.POI_COMMON_TAGS = "'shop': 'convenience', 'name': 'Tom Market', " + \
                                "'contact:facebook': 'https://www.facebook.com/TOM.Market.Magyarorszag', " + \
                                POS_OTP + PAY_CASH
-
-        self.filename = self.filename + 'json'
+        self.filetype = FileType.json
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__types = [{'poi_code': 'hutommacon', 'poi_name': 'Tom Market', 'poi_type': 'shop',
@@ -38,11 +39,12 @@ class hu_tom_market(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 # script = soup.find('div', attrs={'data-stores':True})
-                text = json.loads(soup.get_text())
+                text = json.loads(str(soup))
                 for poi_data in text['stores']:
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber,

@@ -10,6 +10,7 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -21,11 +22,12 @@ class hu_kulcs_patika(DataProvider):
     def constains(self):
         self.link = 'https://old.kulcspatikak.hu/_facebook/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=19.040164947509766&longitude=47.49801180144693'
         self.POI_COMMON_TAGS = ""
-        self.filename = self.filename + 'json'
         self.headers = {'Referer': 'https://kulcspatikak.hu/patikakereso',
                         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0',
                         'Accept': 'application/json, text/javascript, */*; q=0.01'}
         self.post = {'kepnelkul': 'true', 'latitude': '47.498', 'longitude': '19.0399', 'tipus': 'patika'}
+        self.filetype = FileType.json
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__types = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',

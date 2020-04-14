@@ -10,6 +10,7 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -23,7 +24,8 @@ class hu_mol_bubi(DataProvider):
     def constains(self):
         self.link = 'https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb'
         self.POI_COMMON_TAGS = ""
-        self.filename = self.filename + 'xml'
+        self.filetype = FileType.xml
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__types = [{'poi_code': 'hububibir', 'poi_name': 'MOL Bubi', 'poi_type': 'bicycle_rental',
@@ -34,7 +36,8 @@ class hu_mol_bubi(DataProvider):
 
     def process(self):
         try:
-            xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+            xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
             root = etree.fromstring(xml)
             for pla in root.iter('place'):
                 try:

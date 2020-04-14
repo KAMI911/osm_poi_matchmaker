@@ -61,3 +61,9 @@ class WeekDaysLongHUUnAccented(enum.Enum):
     Pentek = 4
     Szombat = 5
     Vasarnap = 6
+
+class FileType(enum.Enum):
+    html = 0
+    json = 1
+    csv = 2
+    xml = 3

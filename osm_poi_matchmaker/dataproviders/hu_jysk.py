@@ -13,6 +13,7 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -29,7 +30,8 @@ class hu_jysk(DataProvider):
             "'operator:addr': '1103 Budapest, Sibrik Miklós út 30.', 'operator': 'JYSK Kft.', " \
             "'ref:vatin': 'HU13353298', 'ref:vatin:hu': '13353298-2-44', 'ref:HU:company': '01 09 730940', " \
             + POS_HU_GEN + PAY_CASH
-        self.filename = self.filename + 'html'
+        self.filetype = FileType.html
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__type = [{'poi_code': 'hujyskfur', 'poi_name': 'Jysk', 'poi_type': 'furniture',
@@ -40,7 +42,8 @@ class hu_jysk(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
             if soup is not None:
                 soup_data = soup.find('script', {'data-drupal-selector': 'drupal-settings-json'})
                 json_data = json.loads(soup_data.text)

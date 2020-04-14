@@ -14,6 +14,7 @@ try:
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -26,7 +27,9 @@ class hu_mobil_petrol(DataProvider):
     def constains(self):
         self.link = 'http://www.mpetrol.hu/'
         self.POI_COMMON_TAGS = ""
-        self.filename = self.filename + 'json'
+        self.filetype = FileType.json
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+
 
     def types(self):
         self.__types = [{'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel',
@@ -36,7 +39,8 @@ class hu_mobil_petrol(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 text = json.loads(extract_javascript_variable(soup, 'totem_stations'))

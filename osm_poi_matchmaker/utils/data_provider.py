@@ -8,6 +8,7 @@ try:
     from osm_poi_matchmaker.libs.address import clean_city, \
         clean_javascript_variable, clean_opening_hours_2, clean_phone
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -19,7 +20,7 @@ POI_DATA = ''
 class DataProvider():
 
 
-    def __init__(self, session, download_cache, filetype='', verify_link = True):
+    def __init__(self, session, download_cache, filetype=FileType.json, verify_link = True):
         self.session = session
         self.download_cache = download_cache
         self.filename = '{}.{}'.format(self.__class__.__name__, filetype)
