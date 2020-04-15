@@ -1,12 +1,13 @@
 # OSM POI Matchmaker
-version: '2.1'
+version: '2.2'
 volumes:
   opm_dbdata:
   opm_osmdata:
   opm_outputdata:
 services:
   db:
-    image: postgis/postgis:12-3.0-alpine
+    image: postgis/postgis:9.6-3.0
+    # image: postgis/postgis:12-3.0
     container_name: opm_db
     environment:
       - POSTGRES_USER=poi
@@ -16,8 +17,10 @@ services:
       - "15432:5432"
     shm_size: 1G
     volumes:
-      - ../container/dbdata:/var/lib/postgresql/data/
-      - ${PWD}/osm2pgsql/postgresql.conf:/etc/postgresql/postgresql.conf
+      #- ../container/dbdata-9.6-2.5:/var/lib/postgresql/data/
+      # - ../container/dbdata-9.6:/var/lib/postgresql/data/
+      - ../container/dbdata-fresh:/var/lib/postgresql/data/
+      # - ${PWD}/osm2pgsql/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
     restart: on-failure:10
     oom_score_adj: -100
   osm_load_app:
@@ -32,8 +35,7 @@ services:
       - db
     restart: on-failure:10
     oom_score_adj: -100
-    mem_limit: 16g
-
+    mem_limit: 4g
   poi_load_app:
     image: osm_poi_matchmaker:latest
     container_name: opm_poi_load_app
@@ -45,4 +47,4 @@ services:
       - db
     restart: on-failure:10
     oom_score_adj: -100
-    mem_limit: 16g
+    mem_limit: 4g
