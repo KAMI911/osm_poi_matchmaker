@@ -8,7 +8,8 @@ try:
     import json
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, PATTERN_FULL_URL
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+        PATTERN_FULL_URL
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -21,7 +22,6 @@ except ImportError as err:
 
 class hu_benu(DataProvider):
 
-
     def constains(self):
         self.link = 'https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1'
         self.POI_COMMON_TAGS = ""
@@ -30,13 +30,13 @@ class hu_benu(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
-                 'poi_tags': "{'amenity': 'pharmacy', 'brand': 'Benu gyógyszertár', 'dispensing': 'yes', " \
-                 + POS_HU_GEN + PAY_CASH + " 'contact:facebook':'https://www.facebook.com/BENUgyogyszertar', " \
-                 "'contact:youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg', " \
-                 "'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://benu.hu', 'poi_search_name': '(benu gyogyszertár|benu)', \
-                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, \
-                 'osm_search_distance_unsafe': 20, 'preserve_original_name': True}]
+             'poi_tags': "{'amenity': 'pharmacy', 'brand': 'Benu gyógyszertár', 'dispensing': 'yes', "
+             + POS_HU_GEN + PAY_CASH + " 'contact:facebook':'https://www.facebook.com/BENUgyogyszertar', "
+             "'contact:youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg', "
+             "'air_conditioning': 'yes'}",
+             'poi_url_base': 'https://benu.hu', 'poi_search_name': '(benu gyogyszertár|benu)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
+             'osm_search_distance_unsafe': 20, 'preserve_original_name': True}]
         return self.__types
 
     def process(self):
@@ -44,9 +44,9 @@ class hu_benu(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
             if soup is not None:
-                try:
-                    text = json.loads(soup.get_text())
-                    for poi_data in text:
+                text = json.loads(str(soup))
+                for poi_data in text:
+                    try:
                         if 'BENU Gyógyszertár' not in poi_data['title']:
                             self.data.name = poi_data['title'].strip()
                             self.data.branch = None
@@ -71,13 +71,10 @@ class hu_benu(DataProvider):
                             self.data.phone = None
                         self.data.public_holiday_open = False
                         self.data.add()
-                except Exception as err:
-                    logging.error(err)
-                    logging.error(traceback.print_exc())
-                if self.data.lenght() < 1:
-                    logging.warning('Resultset is empty. Skipping ...')
-                else:
-                    insert_poi_dataframe(self.session, self.data.process())
+                    except Exception as e:
+                        logging.error(e)
+                        logging.error(poi_data)
+                        logging.error(traceback.print_exc())
         except Exception as e:
-            logging.error(traceback.print_exc())
             logging.error(e)
+            logging.error(traceback.print_exc())
