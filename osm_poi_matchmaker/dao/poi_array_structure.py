@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'poi_description',
+POI_COLS_RAW = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'poi_description',
             'poi_fuel_adblue', 'poi_fuel_octane_100', 'poi_fuel_octane_98', 'poi_fuel_octane_95', 'poi_fuel_diesel_gtl',
             'poi_fuel_diesel', 'poi_fuel_lpg', 'poi_fuel_e85', 'poi_rent_lpg_bottles', 'poi_compressed_air',
             'poi_restaurant', 'poi_food', 'poi_truck',
@@ -38,5 +38,7 @@ POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'p
             'poi_opening_hours_summer_su_close',
             'poi_opening_hours_lunch_break_start',
             'poi_opening_hours_lunch_break_stop', 'poi_public_holiday_open',
-            'poi_opening_hours', 'poi_good', 'poi_bad'
+            'poi_opening_hours'
             ]
+
+POI_COLS = POI_COLS_RAW + ['poi_good', 'poi_bad']

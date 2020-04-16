@@ -6,6 +6,7 @@ try:
     import os
     import re
     import pandas as pd
+    import sys
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
@@ -15,7 +16,6 @@ except ImportError as err:
     logging.error(traceback.print_exc())
     sys.exit(128)
 
-POI_COLS = poi_array_structure.POI_COLS
 POI_DATA = 'http://tesco.hu/aruhazak/nyitvatartas'
 
 
@@ -103,5 +103,4 @@ class hu_tesco():
                 logging.warning('Resultset is empty. Skipping ...')
             else:
                 df = pd.DataFrame(insert_data)
-                df.columns = POI_COLS
                 insert_poi_dataframe(self.session, df)

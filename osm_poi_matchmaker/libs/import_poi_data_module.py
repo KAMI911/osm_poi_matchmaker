@@ -60,7 +60,7 @@ def import_poi_data_module(module):
             work = mo(session, config.get_directory_cache_url())
             insert_type(session, work.types())
             work.process()
-            work.export_list()
+            work.export_list_raw()
     except Exception as err:
         logging.error(err)
         logging.error(traceback.print_exc())

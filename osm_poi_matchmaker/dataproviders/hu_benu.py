@@ -45,7 +45,7 @@ class hu_benu(DataProvider):
                                         self.filetype)
             if soup is not None:
                 try:
-                    text = json.loads(soup.get_text())
+                    text = json.loads(str(soup))
                     for poi_data in text:
                         if 'BENU Gyógyszertár' not in poi_data['title']:
                             self.data.name = poi_data['title'].strip()

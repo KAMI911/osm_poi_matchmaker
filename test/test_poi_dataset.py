@@ -5,7 +5,7 @@ try:
     import traceback
     import logging
     import sys
-    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRawImport
     from test.test_opening_hours_data import OPENING_HOURS_TEST_DATA
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
@@ -19,7 +19,7 @@ class TestPOIDataset(unittest.TestCase):
 
     def test_poi_dataset_opening_hours(self):
         for i in self.opening_hours:
-            p = POIDataset()
+            p = POIDatasetRawImport
             p.nonstop = i['nonstop']
             p.mo_o = i['mo_o']
             p.tu_o = i['tu_o']

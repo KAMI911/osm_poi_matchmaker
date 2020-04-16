@@ -24,9 +24,10 @@ __program__ = 'poi_dataset'
 __version__ = '0.0.5'
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
 
 
-class POIDataset:
+class POIDatasetRawImport(object):
 
     def __init__(self):
         self.insert_data = []
@@ -71,8 +72,6 @@ class POIDataset:
         self.__lunch_break = {'start': None, 'stop': None}
         self.__opening_hours = None
         self.__public_holiday_open = None
-        self.__good = []
-        self.__bad = []
 
     def clear_all(self):
         self.__code = None
@@ -110,8 +109,6 @@ class POIDataset:
         self.__lunch_break = {'start': None, 'stop': None}
         self.__opening_hours = None
         self.__public_holiday_open = None
-        self.__good = []
-        self.__bad = []
 
     @property
     def code(self):
@@ -287,28 +284,7 @@ class POIDataset:
 
     @street.setter
     def street(self, data):
-        # Try to find street name around
-        try:
-            if self.lat is not None and self.lon is not None:
-                query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'name')
-                if query is None or query.empty:
-                    query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'metaphone')
-                    if query is None or query.empty:
-                        logging.warning('There is no street around named or metaphone named: {}'.format(data))
-                        self.__street = data
-                    else:
-                        new_data = query.at[0, 'name']
-                        logging.info('There is a metaphone street around named: {}, original was: {}.'
-                            .format(new_data,data))
-                        self.__street = new_data
-                else:
-                    logging.info('There is a street around named: {}.'.format(data))
-                    self.__street = data
-            else:
-                self.__street = data
-        except Exception as e:
-            logging.error(e)
-            logging.error(traceback.print_exc())
+        self.__street = data
 
     @property
     def housenumber(self):
@@ -719,6 +695,181 @@ class POIDataset:
 
     def dump_opening_hours(self):
         print(self.__opening_hours)
+
+    def add(self):
+        try:
+            self.process_opening_hours()
+            self.process_geom()
+            self.insert_data.append(
+                [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website,
+                 self.__description, self.__fuel_adblue, self.__fuel_octane_100, self.__fuel_octane_98,
+                 self.__fuel_octane_95, self.__fuel_diesel_gtl, self.__fuel_diesel, self.__fuel_lpg,
+                 self.__fuel_e85, self.__rent_lpg_bottles, self.__compressed_air, self.__restaurant, self.__food,
+                 self.__truck,
+                 self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
+                 self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop,
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break['start'],
+                 self.__lunch_break['stop'],
+                 self.__public_holiday_open, self.__opening_hours])
+            self.clear_all()
+        except Exception as err:
+            logging.error(err)
+            logging.error(traceback.print_exc())
+
+    def process(self):
+        df = pd.DataFrame(self.insert_data)
+        df.columns = POI_COLS_RAW
+        return df.where((pd.notnull(df)), None)
+
+    def lenght(self):
+        return len(self.insert_data)
+
+
+class POIDataset(POIDatasetRawImport):
+
+    def __init__(self):
+        self.insert_data = []
+        self.__db = POIBase(
+            '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
+                                         config.get_database_writer_password(),
+                                         config.get_database_writer_host(),
+                                         config.get_database_writer_port(),
+                                         config.get_database_poi_database()))
+        self.__code = None
+        self.__postcode = None
+        self.__city = None
+        self.__name = None
+        self.__branch = None
+        self.__website = None
+        self.__description = None
+        self.__fuel_adblue = None
+        self.__fuel_octane_100 = None
+        self.__fuel_octane_98 = None
+        self.__fuel_octane_95 = None
+        self.__fuel_diesel_gtl = None
+        self.__fuel_diesel = None
+        self.__fuel_lpg = None
+        self.__fuel_e85 = None
+        self.__rent_lpg_bottles = None
+        self.__compressed_air = None
+        self.__restaurant = None
+        self.__food = None
+        self.__truck = None
+        self.__original = None
+        self.__street = None
+        self.__housenumber = None
+        self.__conscriptionnumber = None
+        self.__ref = None
+        self.__phone = None
+        self.__email = None
+        self.__geom = None
+        self.__lat = None
+        self.__lon = None
+        self.__nonstop = None
+        self.__oh = pd.DataFrame(index=WeekDaysShort, columns=OpenClose)
+        self.__lunch_break = {'start': None, 'stop': None}
+        self.__opening_hours = None
+        self.__public_holiday_open = None
+        self.__good = []
+        self.__bad = []
+
+    def clear_all(self):
+        self.__code = None
+        self.__postcode = None
+        self.__city = None
+        self.__name = None
+        self.__branch = None
+        self.__website = None
+        self.__description = None
+        self.__fuel_adblue = None
+        self.__fuel_octane_100 = None
+        self.__fuel_octane_98 = None
+        self.__fuel_octane_95 = None
+        self.__fuel_diesel_gtl = None
+        self.__fuel_diesel = None
+        self.__fuel_lpg = None
+        self.__fuel_e85 = None
+        self.__rent_lpg_bottles = None
+        self.__compressed_air = None
+        self.__restaurant = None
+        self.__food = None
+        self.__truck = None
+        self.__original = None
+        self.__street = None
+        self.__housenumber = None
+        self.__conscriptionnumber = None
+        self.__ref = None
+        self.__phone = None
+        self.__email = None
+        self.__geom = None
+        self.__lat = None
+        self.__lon = None
+        self.__nonstop = None
+        self.__oh = pd.DataFrame(index=WeekDaysShort, columns=OpenClose)
+        self.__lunch_break = {'start': None, 'stop': None}
+        self.__opening_hours = None
+        self.__public_holiday_open = None
+        self.__good = []
+        self.__bad = []
+
+    @property
+    def street(self):
+        return (self.__street)
+
+    @street.setter
+    def street(self, data):
+        # Try to find street name around
+        try:
+            if self.lat is not None and self.lon is not None:
+                query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'name')
+                if query is None or query.empty:
+                    query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'metaphone')
+                    if query is None or query.empty:
+                        logging.warning('There is no street around named or metaphone named: {}'.format(data))
+                        self.__street = data
+                    else:
+                        new_data = query.at[0, 'name']
+                        logging.info('There is a metaphone street around named: {}, original was: {}.'
+                            .format(new_data,data))
+                        self.__street = new_data
+                else:
+                    logging.info('There is a street around named: {}.'.format(data))
+                    self.__street = data
+            else:
+                self.__street = data
+        except Exception as e:
+            logging.error(e)
+            logging.error(traceback.print_exc())
+
+    def process_geom(self):
+        self.geom = check_geom(self.__lat, self.__lon)
 
     def add(self):
         try:

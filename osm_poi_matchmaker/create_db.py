@@ -50,12 +50,12 @@ def import_basic_data(session):
     work.process()
 
 
-def load_poi_data(database):
-    logging.info('Loading POI_data from database ...')
+def load_poi_data(database, table='poi_address_raw'):
+    logging.info('Loading {} table from database ...'.format(table))
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
     # Build Dataframe from our POI database
-    addr_data = database.query_all_gpd_in_order('poi_address')
+    addr_data = database.query_all_gpd_in_order(table)
     addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
     return addr_data
 
@@ -160,7 +160,7 @@ def main():
         manager.start_poi_harvest()
         manager.join()
         # Load basic dataset from database
-        poi_addr_data = load_poi_data(db)
+        poi_addr_data = load_poi_data(db, 'poi_address_raw')
         # Download and load POI dataset to database
         poi_common_data = load_common_data(db)
         logging.info('Merging dataframes ...')

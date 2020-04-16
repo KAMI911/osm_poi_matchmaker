@@ -7,7 +7,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.address import clean_city, \
         clean_javascript_variable, clean_opening_hours_2, clean_phone
-    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRawImport
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
@@ -17,8 +17,7 @@ except ImportError as err:
 POI_DATA = ''
 
 
-class DataProvider():
-
+class DataProvider(object):
 
     def __init__(self, session, download_cache, filetype=FileType.json, verify_link = True):
         self.session = session
@@ -31,7 +30,7 @@ class DataProvider():
         self.post = None
         self.__types = None
         self.constains()
-        self.data = POIDataset()
+        self.data = POIDatasetRawImport()
 
     def constains(self):
         self.POI_COMMON_TAGS = ""
@@ -44,8 +43,8 @@ class DataProvider():
     def process(self):
         pass
 
-    def export_list(self):
+    def export_list_raw(self):
         if self.data is None or self.data.lenght() < 1:
-            logging.warning('Resultset is empty. Skipping ...')
+            logging.warning('Result set is empty. Skipping ...')
         else:
-            insert_poi_dataframe(self.session, self.data.process())
+            insert_poi_dataframe(self.session, self.data.process(), True)

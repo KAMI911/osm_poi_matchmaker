@@ -8,7 +8,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
-    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRawImport
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
@@ -46,7 +46,7 @@ class hu_cib_bank():
             if self.link:
                 with open(self.link, 'r') as f:
                     text = json.load(f)
-                    data = POIDataset()
+                    data = POIDatasetRawImport()
                     for poi_data in text['availableLocations']:
                         if 'locationStatus' in poi_data and poi_data['locationStatus'] == 'IN_SERVICE':
                             if self.name == 'CIB Bank':
@@ -73,7 +73,7 @@ class hu_cib_bank():
                 if data is None or data.lenght() < 1:
                     logging.warning('Resultset is empty. Skipping ...')
                 else:
-                    insert_poi_dataframe(self.session, data.process())
+                    insert_poi_dataframe(self.session, data.process(), True)
         except Exception as e:
             logging.error(traceback.print_exc())
             logging.error(e)

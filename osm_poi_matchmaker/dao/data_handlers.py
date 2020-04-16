@@ -5,7 +5,7 @@ try:
     import logging
     import sys
     import hashlib
-    from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, Street_type
+    from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, POI_address_raw, Street_type
     from osm_poi_matchmaker.libs import address
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
@@ -14,6 +14,7 @@ except ImportError as err:
     sys.exit(128)
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
 
 
 def get_or_create(session, model, **kwargs):
@@ -118,8 +119,11 @@ def search_for_postcode(session, city_name):
         return None
 
 
-def insert_poi_dataframe(session, poi_df):
-    poi_df.columns = POI_COLS
+def insert_poi_dataframe(session, poi_df, raw = True):
+    if raw is True:
+        poi_df.columns = POI_COLS_RAW
+    else:
+        poi_df.columns = POI_COLS
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].fillna('0000')
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].astype(int)
     poi_dict = poi_df.to_dict('records')
@@ -132,7 +136,10 @@ def insert_poi_dataframe(session, poi_df):
             poi_data['poi_common_id'] = common_col
             if 'poi_name' in poi_data: del poi_data['poi_name']
             if 'poi_code' in poi_data: del poi_data['poi_code']
-            get_or_create_poi(session, POI_address, **poi_data)
+            if raw is True:
+                get_or_create_poi(session, POI_address_raw, **poi_data)
+            else:
+                get_or_create_poi(session, POI_address, **poi_data)
     except Exception as e:
         logging.error('Rolled back: {}.'.format(e))
         logging.error(poi_data)

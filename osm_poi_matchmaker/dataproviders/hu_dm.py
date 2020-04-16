@@ -45,7 +45,7 @@ class hu_dm(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
             if soup is not None:
-                text = json.loads(soup.get_text())
+                text = json.loads(str(soup))
                 for poi_data in text['stores']:
                     try:
                         if poi_data.get('localeCountry').strip().upper() == 'HU':
