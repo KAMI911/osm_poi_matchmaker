@@ -8,7 +8,7 @@ try:
     import re
     from lxml import etree
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.xml import save_downloaded_xml
+    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str, clean_street, clean_street_type
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHU
@@ -19,7 +19,14 @@ except ImportError as err:
     logging.error(traceback.print_exc())
     sys.exit(128)
 
-POI_COMMON_TAGS = "'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'operator:addr': '1138 Budapest, Dunavirág utca 2-6.', 'ref:vatin:hu': '10901232-2-44', 'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614',  'contact:email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', 'contact:facebook': 'https://www.facebook.com/MagyarPosta', 'contact:youtube': 'https://www.youtube.com/user/magyarpostaofficial', 'contact:instagram': 'https://www.instagram.com/magyar_posta_zrt', 'payment:cash': 'yes', 'payment:debit_cards': 'yes'"
+POI_COMMON_TAGS = "'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', " \
+                  "'operator:addr': '1138 Budapest, Dunavirág utca 2-6.', 'ref:vatin:hu': '10901232-2-44', " \
+                  "'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614', "\
+                  "'contact:email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', " \
+                  "'contact:facebook': 'https://www.facebook.com/MagyarPosta', " \
+                  "'contact:youtube': 'https://www.youtube.com/user/magyarpostaofficial', " \
+                  "'contact:instagram': 'https://www.instagram.com/magyar_posta_zrt', 'payment:cash': 'yes', " \
+                  "'payment:debit_cards': 'yes'"
 
 
 class hu_posta(DataProvider):
@@ -58,107 +65,131 @@ class hu_posta(DataProvider):
 
     def process(self):
         try:
-            xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
-            root = etree.fromstring(xml)
-            for e in root.findall('post'):
-                # If this is a closed post office, skip it
-                if e.get('isPostPoint') == '0':
-                    continue
-                #  The 'kirendeltség' post offices are not available to end users, so we remove them
-                if 'okmányiroda' in e.find('name').text.lower() or 'mol kirendeltség' in e.find('name').text.lower():
-                    logging.debug('Skipping non public post office.')
-                    continue
-                else:
-                    if e.find('ServicePointType').text == 'PM':
-                        self.data.name = 'Posta'
-                        self.data.code = 'hupostapo'
-                        self.data.public_holiday_open = False
-                    elif e.find('ServicePointType').text == 'CS':
-                        self.data.name = 'Posta csomagautomata'
-                        self.data.code = 'hupostacso'
-                        self.data.public_holiday_open = True
-                    elif e.find('ServicePointType').text == 'PP':
-                        self.data.name = 'PostaPont'
-                        self.data.code = 'hupostapp'
-                        self.data.public_holiday_open = False
+            for e in soup.findAll('post'):
+                try:
+                    # If this is a closed post office, skip it
+                    if e.get('ispostpoint') == '0':
+                        continue
+                    #  The 'kirendeltség' post offices are not available to end users, so we remove them
+                    if 'okmányiroda' in e.find('name').get_text().lower() or \
+                        'mol kirendeltség' in e.find('name').get_text().lower():
+                        logging.debug('Skipping non public post office.')
+                        continue
                     else:
-                        logging.error('Non existing Posta type.')
-                    self.data.postcode = e.get('zipCode')
-                    self.data.housenumber = e.find('street/houseNumber').text.strip() if e.find(
-                        'street/houseNumber').text is not None else None
-                    self.data.conscriptionnumber = None
-                    self.data.city = clean_city(e.find('city').text)
-                    self.data.branch = e.find('name').text if e.find('name').text is not None else None
-                    if self.data.code == 'hupostapo':
-                        self.data.branch = re.sub(r"(\d{1,3})", r"\1. számú", self.data.branch)
-                    day = e.findall('workingHours/days') if e.findall('workingHours/days') is not None else None
-                    oh_table = []
-                    for d in day:
-                        if len(d) != 0:
-                            day_key = WeekDaysLongHU[d[0].text].value
-                            if len(d) == 5:
-                                # Avoid duplicated values of opening and close
-                                if d[1].text != d[3].text and d[2].text != d[4].text:
-                                    oh_table.append([day_key, d[1].text, d[4].text, d[2].text, d[3].text])
+                        if e.servicepointtype.get_text() == 'PM':
+                            self.data.name = 'Posta'
+                            self.data.code = 'hupostapo'
+                            self.data.public_holiday_open = False
+                        elif e.servicepointtype.get_text() == 'CS':
+                            self.data.name = 'Posta csomagautomata'
+                            self.data.code = 'hupostacso'
+                            self.data.public_holiday_open = True
+                        elif e.servicepointtype.get_text() == 'PP':
+                            self.data.name = 'PostaPont'
+                            self.data.code = 'hupostapp'
+                            self.data.public_holiday_open = False
+                        else:
+                            logging.error('Non existing Posta type.')
+                        self.data.postcode = e.get('zipcode')
+                        self.data.housenumber = e.street.housenumber.get_text().strip() \
+                            if e.street.housenumber is not None else None
+                        self.data.conscriptionnumber = None
+                        self.data.city = clean_city(e.city.get_text())
+                        self.data.branch = e.find('name').get_text() if e.find('name') is not None else None
+                        if self.data.code == 'hupostapo':
+                            self.data.branch = re.sub(r"(\d{1,3})", r"\1. számú", self.data.branch)
+                        days = e.findAll('days') if e.findAll('days') is not None else None
+                        nonstop_num = 0
+                        for d in days:
+                            if len(d) != 0:
+                                day_key = None
+                                # Try to match day name in data source (day tag) with on of WeekDaysLongHU enum element
+                                # Select day based on d.day matching
+                                for rd in WeekDaysLongHU:
+                                    if rd.name == d.day.get_text():
+                                        day_key = rd.value
+                                        break
+                                    else:
+                                        day_key = None
+                                    # No day matching skip to next
+                                # Skip days that are not exist at data provider's
+                                if day_key is None:
+                                    logging.warning('Cannot find any opening hours information for day {}.'.
+                                                    format(rd.name))
+                                    continue
                                 else:
-                                    logging.warning(
-                                        'Dulicated opening hours in post office: {}: {}-{}; {}-{}.'.format(self.data.branch,
-                                                                                                           d[1].text,
-                                                                                                           d[2].text,
-                                                                                                           d[3].text,
-                                                                                                           d[4].text))
-                                    oh_table.append([day_key, d[1].text, d[2].text, None, None])
-                            elif len(d) == 3:
-                                oh_table.append([day_key, d[1].text, d[2].text, None, None])
+                                    # Extract from and to information
+                                    from1 = d.from1.get_text() if d.from1 is not None else None
+                                    to1 = d.to1.get_text() if d.to1 is not None else None
+                                    from2 = d.from2.get_text() if d.from2 is not None else None
+                                    to2 = d.to2.get_text() if d.to2 is not None else None
+                                    # Avoid duplicated values of opening and close
+                                    if from1 != from2 and to1 != to2:
+                                        logging.debug('Opening hours in post office: {}: {}-{}; {}-{}.'.
+                                                      format(self.data.branch, from1, to1, from2, to2))
+                                        self.data.day_open(day_key, from1)
+                                        if from2 is None or to2 is None:
+                                            self.data.day_close(day_key, from1)
+                                            # Count opening hours with nonstop like settings
+                                            if from1 in '0:00' and to1 in ['0:00', '23:59', '24:00']:
+                                                nonstop_num += 1
+                                        else:
+                                            # Check on Wednesday if there is a lunch break
+                                            # Only same lunch break is supported for every days
+                                            if day_key == 3:
+                                                self.data.lunch_break_start = to1
+                                                self.data.lunch_break_stop = from2
+                                            self.data.day_close(day_key, to2)
+                                            # Count opening hours with nonstop like settings
+                                            if from1 in '0:00' and to2 in ['0:00', '23:59', '24:00']:
+                                                nonstop_num += 1
+                                    else:
+                                        # It seems there are duplications in Posta data source
+                                        # Remove duplicates
+                                        logging.warning('Dulicated opening hours in post office: {}: {}-{}; {}-{}.'.
+                                                        format(self.data.branch, from1, to1, from2, to2))
+                                        from2, to2 = None, None
+                        # All times are open so it is non stop
+                        if nonstop_num >= 7:
+                            logging.debug('It is a non stop post office.')
+                            self.data.nonstop = True
+                        self.data.lat, self.data.lon = \
+                            check_hu_boundary(e.gpsdata.wgslat.get_text().replace(',', '.'),
+                                              e.gpsdata.wgslon.get_text().replace(',', '.'))
+                        # Get street name and type
+                        street_tmp_1 = clean_street(e.street.find('name').get_text().strip()) \
+                            if e.street.find('name') is not None else None
+                        street_tmp_2 = clean_street_type(e.street.type.get_text().strip()) \
+                            if e.street.type is not None else None
+                        # Streets without types
+                        if street_tmp_2 is None:
+                            self.data.street = street_tmp_1
+                            # Since there is no original address format we create one
+                            if self.data.housenumber is not None:
+                                self.data.original = '{} {}'.format(street_tmp_1, self.data.housenumber)
                             else:
-                                logging.warning('Errorous state.')
-                    nonstop_num = 0
-                    if oh_table is not None:
-                        try:
-                            # Set luch break if there is a lunch break on Monday
-                            if oh_table[0][3] is not None and oh_table[0][4] is not None:
-                                self.data.lunch_break_start = oh_table[0][3].replace('-', ':')
-                                self.data.lunch_break_stop = oh_table[0][4].replace('-', ':')
-                            for i in range(0, 7):
-                                if oh_table[i] is not None:
-                                    self.data.day_open(i, oh_table[i][1].replace('-', ':'))
-                                    self.data.day_close(i, oh_table[i][2].replace('-', ':'))
-                                    if '0:00' in oh_table[i][1] and (oh_table[i][2] in ['0:00', '23:59', '24:00']):
-                                        nonstop_num += 1
-                        except IndexError:
-                            pass
-                    if nonstop_num == 7:
-                        self.data.nonstop = True
-                    self.data.lat, self.data.lon = check_hu_boundary(e.find('gpsData/WGSLat').text.replace(',', '.'),
-                                                           e.find('gpsData/WGSLon').text.replace(',', '.'))
-                    street_tmp_1 = clean_street(e.find('street/name').text.strip()) if e.find(
-                        'street/name').text is not None else None
-                    street_tmp_2 = clean_street_type(e.find('street/type').text.strip()) if e.find(
-                        'street/type').text is not None else None
-                    if street_tmp_2 is None:
-                        self.data.street = street_tmp_1
-                    elif street_tmp_1 is not None and street_tmp_2 is not None:
-                        self.data.street = '{} {}'.format(street_tmp_1, street_tmp_2)
-                    else:
-                        logging.error('Non handled state!')
-                    street_tmp_1 = e.find('street/name').text.strip() if e.find(
-                        'street/name').text is not None else None
-                    street_tmp_2 = e.find('street/type').text.strip() if e.find(
-                        'street/type').text is not None else None
-                    street_tmp_3 = e.find('street/houseNumber').text.strip() if e.find(
-                        'street/houseNumber').text is not None else None
-                    if street_tmp_2 is None:
-                        self.data.original = '{} {}'.format(street_tmp_1, street_tmp_3)
-                    elif street_tmp_1 is not None and street_tmp_2 is not None:
-                        self.data.original = '{} {} {}'.format(street_tmp_1, street_tmp_2, street_tmp_3)
-                    else:
-                        logging.error('Non handled state!')
-                    self.data.phone = clean_phone_to_str(e.find('phoneArea').text) \
-                        if e.find('phoneArea') is not None else None
-                    self.data.email = e.find('email').text.strip() if e.find('email') is not None else None
-                    self.data.add()
-        except Exception as e:
+                                self.data.original = '{}'.format(street_tmp_1)
+                        # Street with types
+                        elif street_tmp_1 is not None and street_tmp_2 is not None:
+                            self.data.street = '{} {}'.format(street_tmp_1, street_tmp_2)
+                            # Since there is no original address format we create one
+                            if self.data.housenumber is not None:
+                                self.data.original = '{} {} {}'.format(street_tmp_1, street_tmp_2,
+                                    self.data.housenumber)
+                            else:
+                                self.data.original = '{} {}'.format(street_tmp_1, street_tmp_2)
+                        else:
+                            logging.error('Non handled state in street data processing!')
+                        self.data.phone = clean_phone_to_str(e.phonearea.get_text()) \
+                            if e.phonearea is not None else None
+                        self.data.email = e.email.get_text().strip() if e.email is not None else None
+                        self.data.add()
+                except Exception as err:
+                    logging.error(err)
+                    logging.error(e)
+                    logging.error(traceback.print_exc())
+        except Exception as err:
             logging.error(traceback.print_exc())
-            logging.error(e)
-
+            logging.error(err)

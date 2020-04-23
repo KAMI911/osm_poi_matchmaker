@@ -5,8 +5,7 @@ try:
     import logging
     import sys
     import os
-    from lxml import etree
-    from osm_poi_matchmaker.libs.xml import save_downloaded_xml
+    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -36,25 +35,24 @@ class hu_mol_bubi(DataProvider):
 
     def process(self):
         try:
-            xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
-            root = etree.fromstring(xml)
-            for pla in root.iter('place'):
+            for pla in soup.findAll('place'):
                 try:
                     self.data.name = 'MOL Bubi'
                     self.data.code = 'hububibir'
                     self.data.city = 'Budapest'
-                    if pla.attrib.get('name') is not None and pla.attrib.get('name') != '':
-                        self.data.branch = pla.attrib.get('name').split('-')[1].strip() \
-                            if pla.attrib.get('name') is not None else None
-                        self.data.ref = pla.attrib['name'].split('-')[0].strip() \
-                            if pla.attrib['name'] is not None else None
+                    if pla.get('name') is not None and pla.get('name') != '':
+                        self.data.branch = pla.get('name').split('-')[1].strip() \
+                            if pla.get('name') is not None else None
+                        self.data.ref = pla.get('name').split('-')[0].strip() \
+                            if pla.get('name') is not None else None
                     self.data.nonstop = True
                     # self.data.capacity = pla.attrib['bike_racks'].strip() \
                     # if pla.attrib['bike_racks'] is not None else None
                     self.data.lat, self.data.lon = \
-                        check_hu_boundary(pla.attrib.get('lat').replace(',', '.'),
-                                          pla.attrib.get('lng').replace(',', '.'))
+                        check_hu_boundary(pla.get('lat').replace(',', '.'),
+                                          pla.get('lng').replace(',', '.'))
                     self.data.postcode = query_postcode_osm_external(True, self.session, self.data.lon,
                                                                      self.data.lat, None)
                     self.data.public_holiday_open = True
@@ -66,3 +64,4 @@ class hu_mol_bubi(DataProvider):
         except Exception as e:
             logging.error(e)
             logging.error(traceback.print_exc())
+            logging.error(soup)

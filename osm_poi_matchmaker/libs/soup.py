@@ -20,6 +20,7 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
         if post_parm is None:
             logging.debug('Downloading without post parameters.')
             page = requests.get(link, verify=verify_link, headers=headers)
+            page.encoding = 'utf-8'
         else:
             logging.debug('Downloading with post parameters.')
             headers_static = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
@@ -28,6 +29,7 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
             else:
                 headers = headers_static
             page = requests.post(link, verify=verify_link, data=post_parm, headers=headers)
+            page.encoding = 'utf-8'
     except requests.exceptions.ConnectionError as e:
         logging.warning('Unable to open connection. ({})'.format(e))
         return None
@@ -48,7 +50,11 @@ def save_downloaded_soup(link, file, filetype, post_data=None, verify=config.get
                     if filetype == FileType.html:
                         soup = BeautifulSoup(soup, 'html.parser')
                         code.write(str(soup.prettify()))
-                    elif filetype == FileType.csv or filetype == FileType.json or filetype == FileType.xml:
+                    elif filetype == FileType.xml:
+                        soup = BeautifulSoup(soup, 'lxml', from_encoding='utf-8')
+                        logging.debug('original encoding: {}'.format(soup.original_encoding))
+                        code.write(str(soup.prettify()))
+                    elif filetype == FileType.csv or filetype == FileType.json:
                         code.write(str(soup))
                     else:
                         logging.error('Unexpected type to write: {}'.format(filetype))
@@ -63,6 +69,8 @@ def save_downloaded_soup(link, file, filetype, post_data=None, verify=config.get
                 soup = readfile(file, filetype)
                 if filetype == FileType.html:
                     soup = BeautifulSoup(soup, 'html.parser')
+                elif filetype == FileType.xml:
+                    soup = BeautifulSoup(soup, 'lxml')
                 logging.info('Using file only: {}. There is not downloadable URL only just the file. Do not forget to update file manually!'.format(file))
             else:
                 logging.warning('Cannot use download and file: {}. There is not downloadable URL, nor already downbloaded file.'.format(file))

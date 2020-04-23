@@ -27,7 +27,7 @@ class hu_mobil_petrol(DataProvider):
     def constains(self):
         self.link = 'http://www.mpetrol.hu/'
         self.POI_COMMON_TAGS = ""
-        self.filetype = FileType.json
+        self.filetype = FileType.html
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
 
