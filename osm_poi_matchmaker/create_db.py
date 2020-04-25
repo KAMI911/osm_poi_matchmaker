@@ -86,7 +86,14 @@ def export_grouped_poi_data(data):
     save_csv_file(output_dir, '{}.csv'.format(filename), rows, table)
     with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
         oxf.write(generate_osm_xml(rows))
-
+    batch = 50
+    len_rows = len(rows)
+    if len_rows > batch:
+        # Create sliced data output
+        for i in range(0, len(rows), batch):
+            stop = i + batch - 1 if len_rows > i + batch - 1 else len_rows
+            with open(os.path.join(output_dir, '{}_{:05d}-{:05d}.osm'.format(filename, i, stop)), 'wb') as oxf:
+                oxf.write(generate_osm_xml(rows[i:stop]))
 
 class WorkflowManager(object):
 
