@@ -93,7 +93,7 @@ def export_grouped_poi_data(data):
         for i in range(0, len(rows), batch):
             stop = i + batch - 1 if len_rows > i + batch - 1 else len_rows
             with open(os.path.join(output_dir, '{}_{:05d}-{:05d}.osm'.format(filename, i, stop)), 'wb') as oxf:
-                oxf.write(generate_osm_xml(rows[i:stop]))
+                oxf.write(generate_osm_xml(rows[i:stop+1]))
 
 class WorkflowManager(object):
 
