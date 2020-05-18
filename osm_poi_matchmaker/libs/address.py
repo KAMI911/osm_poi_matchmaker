@@ -258,7 +258,7 @@ def clean_phone(phone):
         phone = phone.split('(')[0]
     phone = phone.replace('-', ' ')
     if ',' in phone:
-        phone = phone.replace(',',';')
+        phone = phone.replace(',', ';')
     if ';' in phone:
         phone = phone.split(';')
     try:
@@ -268,7 +268,7 @@ def clean_phone(phone):
         else:
             pn = []
             pn.append(phonenumbers.parse(phone, 'HU'))
-    except phonenumbers.phonenumberutil.NumberParseException as err:
+    except phonenumbers.phonenumberutil.NumberParseException:
         logging.debug('This is string is cannot converted to phone number: {}'.format(phone))
         return None
     if pn is not None:
@@ -320,7 +320,7 @@ def clean_url(clearable):
     :return: Cleaned string
     '''
     if clearable is not None:
-        url_match = PATTERN_URL_SLASH.sub('/' , clearable)
+        url_match = PATTERN_URL_SLASH.sub('/', clearable)
         return url_match.strip()
     else:
         return None
