@@ -4,12 +4,15 @@ try:
     import traceback
     import logging
     import sys
+    import re
     from geoalchemy2 import WKTElement
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
     sys.exit(128)
+
+PATTERN_COORDINATE = re.compile('[\d]{1,3}.[\d]{2,5}')
 
 
 def geom_point(latitude, longitude, projection):
@@ -20,8 +23,30 @@ def geom_point(latitude, longitude, projection):
 
 
 def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
+    """
+    Basic check of latitude and longitude geom point
+    Are both coordinates are exist and extract only the right format
+
+    :param latitude: Coordinate latitude part of geom
+    :param longitude: Coordinate longitude part of geom
+    :param proj: Projection of geom
+    :return: Validated coordinates or None on error
+    """
     if (latitude is not None and latitude != '') and (longitude is not None and longitude != ''):
-        return geom_point(latitude, longitude, proj)
+        la = PATTERN_COORDINATE.search(latitude.replace(',', '.').strip())
+        lo = PATTERN_COORDINATE.search(longitude.replace(',', '.').strip())
+        try:
+            if la is not None and lo is not None:
+                lat = la.group()
+                lon = lo.group()
+            else:
+                return None
+        except (AttributeError, IndexError) as e:
+            logging.error('{};{}'.format(latitude,longitude))
+            logging.error(e)
+            logging.error(traceback.print_exc())
+            return None
+        return geom_point(lat, lon, proj)
     else:
         return None
 
