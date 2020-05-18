@@ -16,10 +16,11 @@ try:
     import multiprocessing
     import copy
     from osm_poi_matchmaker.utils import config, timing
-    from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
     from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
+    from osm_poi_matchmaker.libs.export import export_raw_poi_data, export_raw_poi_data_xml, export_grouped_poi_data, \
+        export_grouped_poi_data_with_postcode_groups
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
@@ -66,64 +67,6 @@ def load_common_data(database):
     return database.query_all_pd('poi_common')
 
 
-def export_raw_poi_data(addr_data, comm_data, postfix=''):
-    logging.info('Exporting CSV files ...')
-    # And merge and them into one Dataframe and save it to a CSV file
-    save_csv_file(config.get_directory_output(), 'poi_common{}.csv'.format(postfix), comm_data, 'poi_common')
-    save_csv_file(config.get_directory_output(), 'poi_address{}.csv'.format(postfix), addr_data, 'poi_address')
-
-
-def export_raw_poi_data_xml(addr_data, postfix=''):
-    with open(os.path.join(config.get_directory_output(), 'poi_address{}.osm'.format(postfix)), 'wb') as oxf:
-        oxf.write(generate_osm_xml(addr_data))
-
-
-def export_grouped_poi_data(data):
-    try:
-        # Generating CSV files group by poi_code
-        output_dir = data[0]
-        filename = data[1]
-        rows = data[2]
-        table = data[3]
-        # Generating CSV files group by poi_code
-        save_csv_file(output_dir, '{}.csv'.format(filename), rows, table)
-        with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
-            oxf.write(generate_osm_xml(rows))
-    except Exception as e:
-        logging.error(e)
-        logging.error(traceback.print_exc())
-
-
-def export_grouped_poi_data_with_postcode_groups(data):
-    try:
-        # Generating CSV files group by poi_code and postcode
-        output_dir = data[0]
-        filename = data[1]
-        rows = data[2]
-        # Maximum number of items in one file
-        batch = 100
-        # Minimum difference between postcode grouped data sets
-        postcode_gap = 200
-        # Postcode minimum value
-        postcode_start = 1000
-        # Postcode maximum value
-        postcode_stop = 9999
-        if len(rows) > batch:
-            # Create sliced data output
-            i = postcode_start
-            for i in range(postcode_start, postcode_stop, postcode_gap):
-                stop = i + postcode_gap - 1
-                xml_export = rows[rows['poi_postcode'].between(i, stop)]
-                print(xml_export.to_string())
-                if len(xml_export) != 0:
-                    with open(os.path.join(output_dir, '{}_{:04d}-{:04d}.osm'.format(filename, i, stop)), 'wb') as oxf:
-                        oxf.write(generate_osm_xml(xml_export))
-                i += postcode_gap
-    except Exception as e:
-        logging.error(e)
-        logging.error(traceback.print_exc())
-
-
 class WorkflowManager(object):
 
     def __init__(self):
@@ -148,6 +91,7 @@ class WorkflowManager(object):
             logging.error(e)
             logging.error(traceback.print_exc())
 
+
     def start_exporter(self, data: list, postfix: str = '', to_do = export_grouped_poi_data):
         poi_codes = data['poi_code'].unique()
         modules = [[config.get_directory_output(), 'poi_address_{}{}'.format(postfix, c), data[data.poi_code == c],
@@ -162,6 +106,7 @@ class WorkflowManager(object):
         except Exception as e:
             logging.error(e)
             logging.error(traceback.print_exc())
+
 
     def start_matcher(self, data, comm_data):
         try:
