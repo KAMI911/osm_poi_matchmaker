@@ -14,7 +14,6 @@ try:
     import numpy as np
     import pandas as pd
     import multiprocessing
-    import copy
     from osm_poi_matchmaker.utils import config, timing
     from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
