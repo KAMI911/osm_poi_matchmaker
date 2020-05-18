@@ -14,6 +14,7 @@ try:
     import numpy as np
     import pandas as pd
     import multiprocessing
+    import copy
     from osm_poi_matchmaker.utils import config, timing
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
     from osm_poi_matchmaker.libs.osm import timestamp_now
@@ -78,22 +79,50 @@ def export_raw_poi_data_xml(addr_data, postfix=''):
 
 
 def export_grouped_poi_data(data):
-    # Generating CSV files group by poi_code
-    output_dir = data[0]
-    filename = data[1]
-    rows = data[2]
-    table = data[3]
-    save_csv_file(output_dir, '{}.csv'.format(filename), rows, table)
-    with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
-        oxf.write(generate_osm_xml(rows))
-    batch = 50
-    len_rows = len(rows)
-    if len_rows > batch:
-        # Create sliced data output
-        for i in range(0, len(rows), batch):
-            stop = i + batch - 1 if len_rows > i + batch - 1 else len_rows
-            with open(os.path.join(output_dir, '{}_{:05d}-{:05d}.osm'.format(filename, i, stop)), 'wb') as oxf:
-                oxf.write(generate_osm_xml(rows[i:stop+1]))
+    try:
+        # Generating CSV files group by poi_code
+        output_dir = data[0]
+        filename = data[1]
+        rows = data[2]
+        table = data[3]
+        # Generating CSV files group by poi_code
+        save_csv_file(output_dir, '{}.csv'.format(filename), rows, table)
+        with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
+            oxf.write(generate_osm_xml(rows))
+    except Exception as e:
+        logging.error(e)
+        logging.error(traceback.print_exc())
+
+
+def export_grouped_poi_data_with_postcode_groups(data):
+    try:
+        # Generating CSV files group by poi_code and postcode
+        output_dir = data[0]
+        filename = data[1]
+        rows = data[2]
+        # Maximum number of items in one file
+        batch = 100
+        # Minimum difference between postcode grouped data sets
+        postcode_gap = 200
+        # Postcode minimum value
+        postcode_start = 1000
+        # Postcode maximum value
+        postcode_stop = 9999
+        if len(rows) > batch:
+            # Create sliced data output
+            i = postcode_start
+            for i in range(postcode_start, postcode_stop, postcode_gap):
+                stop = i + postcode_gap - 1
+                xml_export = rows[rows['poi_postcode'].between(i, stop)]
+                print(xml_export.to_string())
+                if len(xml_export) != 0:
+                    with open(os.path.join(output_dir, '{}_{:04d}-{:04d}.osm'.format(filename, i, stop)), 'wb') as oxf:
+                        oxf.write(generate_osm_xml(xml_export))
+                i += postcode_gap
+    except Exception as e:
+        logging.error(e)
+        logging.error(traceback.print_exc())
+
 
 class WorkflowManager(object):
 
@@ -119,7 +148,7 @@ class WorkflowManager(object):
             logging.error(e)
             logging.error(traceback.print_exc())
 
-    def start_exporter(self, data, postfix=''):
+    def start_exporter(self, data: list, postfix: str = '', to_do = export_grouped_poi_data):
         poi_codes = data['poi_code'].unique()
         modules = [[config.get_directory_output(), 'poi_address_{}{}'.format(postfix, c), data[data.poi_code == c],
                     'poi_address'] for c in poi_codes]
@@ -128,7 +157,7 @@ class WorkflowManager(object):
             logging.info('Starting processing on {} cores.'.format(self.NUMBER_OF_PROCESSES))
             self.results = []
             self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES)
-            self.results = self.pool.map_async(export_grouped_poi_data, modules)
+            self.results = self.pool.map_async(to_do, modules)
             self.pool.close()
         except Exception as e:
             logging.error(e)
@@ -141,7 +170,7 @@ class WorkflowManager(object):
             self.results = self.pool.map_async(online_poi_matching,
                                                [(d, comm_data) for d in np.array_split(data, workers)])
             self.pool.close()
-            return pd.concat(list(self.results.get()))
+            return pd.concat(list(self.results.get()), sort=False)
         except Exception as e:
             logging.error(e)
             logging.error(traceback.print_exc())
@@ -181,7 +210,7 @@ def main():
         poi_addr_data['osm_live_tags'] = None
         # Export non-transformed data
         export_raw_poi_data(poi_addr_data, poi_common_data)
-        export_raw_poi_data_xml(poi_addr_data)
+        #export_raw_poi_data_xml(poi_addr_data)
         logging.info('Saving poi_code grouped filesets...')
         # Export non-transformed filesets
         manager.start_exporter(poi_addr_data)
@@ -190,11 +219,13 @@ def main():
         poi_addr_data['osm_nodes'] = None
         poi_addr_data['poi_distance'] = None
         # Enrich POI datasets from online OpenStreetMap database
+        logging.info('Starting online POI matching part...')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
         # Export filesets
         export_raw_poi_data(poi_addr_data, poi_common_data, '_merge')
         manager.start_exporter(poi_addr_data, 'merge_')
+        manager.start_exporter(poi_addr_data, 'merge_', export_grouped_poi_data_with_postcode_groups)
         manager.join()
 
     except (KeyboardInterrupt, SystemExit):
