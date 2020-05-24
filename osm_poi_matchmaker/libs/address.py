@@ -213,6 +213,8 @@ def clean_city(clearable):
     '''
     if clearable is not None:
         city = re.sub(PATTERN_CITY, '', clearable)
+        city = city.replace('Mikolc', 'Miskolc')
+        city = city.replace('Iinárcs', 'Inárcs')
         city = city.split('-')[0]
         city = city.split(',')[0]
         city = city.split('/')[0]
