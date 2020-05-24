@@ -218,6 +218,8 @@ class TestCityCleaner(unittest.TestCase):
             {'original': 'Szentendre', 'city': 'Szentendre'},
             {'original': 'Budapest I. Kerület', 'city': 'Budapest'},
             {'original': 'Budapest Xxiii. Kerület', 'city': 'Budapest'},
+            {'original': 'Mikolc', 'city': 'Miskolc'},
+            {'original': 'Iinárcs', 'city': 'Inárcs'},
         ]
 
     def test_clean_city(self):
