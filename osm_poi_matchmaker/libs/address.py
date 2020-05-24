@@ -7,6 +7,7 @@ try:
     import re
     import phonenumbers
     import json
+    from functools import reduce
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
@@ -213,8 +214,8 @@ def clean_city(clearable):
     '''
     if clearable is not None:
         city = re.sub(PATTERN_CITY, '', clearable)
-        city = city.replace('Mikolc', 'Miskolc')
-        city = city.replace('Iinárcs', 'Inárcs')
+        repls = ('Mikolc', 'Miskolc'), ('Iinárcs', 'Inárcs')
+        city = reduce(lambda a, kv: a.replace(*kv), repls, city)
         city = city.split('-')[0]
         city = city.split(',')[0]
         city = city.split('/')[0]
@@ -334,163 +335,163 @@ def clean_street(clearable):
     :return:
     '''
 
-    street = clearable.replace('Nyúl 82. sz. főút', 'Kossuth Lajos út')
-    street = street.replace('Nyúl  82. sz. főút', '82. számú főközlekedési út')
-    street = street.replace('Budafoki út, 6-os sz. főút', '6. számú főközlekedési út')
-    street = street.replace('. Sz. Főút felső', '. számú főközlekedési út')
-    street = street.replace('. számú - Némedi út sarok', '. számú főközlekedési út')
-    street = street.replace('076/15. hrsz 86. számú főút mellett', '86. számú főközlekedési út')
-    street = street.replace('50.sz.út jobb oldal', '50. számú főközlekedési út')
-
-    street = street.replace('. sz. fkl.út', '. számú főközlekedési út')
-    street = street.replace('.sz. fkl. út', '. számú főközlekedési út')
-    street = street.replace('-es sz. főút', '. számú főközlekedési út')
-    street = street.replace('. sz. főút', '. számú főközlekedési út')
-    street = street.replace('.sz.fkl.', '. számú főközlekedési')
-    street = street.replace('. sz. fkl.', '. számú főközlekedési')
-    street = street.replace('. számú fkl. út', '. számú főközlekedési út')
-    street = street.replace('. Sz. főút', '. számú főközlekedési út')
-    street = street.replace('. számú főút', '. számú főközlekedési út')
-    street = street.replace('. főút', '. számú főközlekedési út')
-    street = street.replace('. sz út', '. számú főközlekedési út')
-    street = street.replace(' sz. főút', '. számú főközlekedési út')
-
-    street = street.replace('-es fő út', '. számú főközlekedési út')
-    street = street.replace('-es főút', '. számú főközlekedési út')
-    street = street.replace(' - es út', '. számú főközlekedési út')
-    street = street.replace('-es út', '. számú főközlekedési út')
-    street = street.replace('-as fő út', '. számú főközlekedési út')
-    street = street.replace('-as főút', '. számú főközlekedési út')
-    street = street.replace(' - as út', '. számú főközlekedési út')
-    street = street.replace('-as út', '. számú főközlekedési út')
-    street = street.replace('-ös fő út', '. számú főközlekedési út')
-    street = street.replace('-ös főút', '. számú főközlekedési út')
-    street = street.replace(' - ös út', '. számú főközlekedési út')
-    street = street.replace('-ös út', '. számú főközlekedési út')
-    street = street.replace('Omsz park', 'Omszk park')
-    street = street.replace('01.máj.', 'Május 1.')
-    street = street.replace('15.márc.', 'Március 15.')
-    street = street.replace('Ady E.', 'Ady Endre')
-    street = street.replace('Áchim A.', 'Áchim András')
-    street = street.replace('Bajcsy-Zs. E.', 'Bajcsy-Zsilinszky Endre')
-    street = street.replace('Bajcsy-Zs. E. u.', 'Bajcsy-Zsilinszky Endre utca')
-    street = street.replace('Bajcsy-Zs. u.', 'Bajcsy-Zsilinszky utca')
-    street = street.replace('Bajcsy Zs.u.', 'Bajcsy-Zsilinszky utca')
-    street = street.replace('Bajcsy-Zs. u.', 'Bajcsy-Zsilinszky utca')
-    street = street.replace('Bajcsy Zs. u.', 'Bajcsy-Zsilinszky utca')
-    street = street.replace('Bajcsy-Zs.', 'Bajcsy-Zsilinszky')
-    street = street.replace('Bajcsy Zs.', 'Bajcsy-Zsilinszky')
-    street = street.replace('Bartók B.', 'Bartók Béla')
-    street = street.replace('Baross G.', 'Baross Gábor')
-    street = street.replace('BERCSÉNYI U.', 'Bercsényi Miklós utca')
-    street = street.replace('Berzsenyi D.', 'Berzsenyi Dániel')
-    street = street.replace('Borics P.', 'Borics Pál')
-    street = street.replace('Corvin J.', 'Corvin')
-    street = street.replace('Dózsa Gy.u.', 'Dózsa György utca')
-    street = street.replace('Dózsa Gy.', 'Dózsa György')
-    street = street.replace('dr. Géfin Lajos', 'Dr. Géfin Lajos')
-    street = street.replace('Erkel F.', 'Erkel Ferenc')
-    street = street.replace('Hegedű/(Király)', 'Hegedű')
-    street = street.replace('Hevesi S.', 'Hevesi Sándor')
-    street = street.replace('Hunyadi J.', 'Hunyadi János')
-    street = street.replace('Ii. Rákóczi Ferenc', 'II. Rákóczi Ferenc')
-    street = street.replace('Innovációs kp. Fő út', 'Fő út')
-    street = street.replace('Ix. körzet', 'IX. körzet')
-    street = street.replace('Kölcsey F.', 'Kölcsey Ferenc')
-    street = street.replace('Kiss J.', 'Kiss József')
-    street = street.replace('Nagy L. király', 'Nagy Lajos király')
-    street = street.replace('Kaszás u. 2.-Dózsa György út', 'Dózsa György út')
-    street = street.replace('Váci út 117-119. „A” épület', 'Váci út')
-    street = street.replace('56-Osok tere', 'Ötvenhatosok tere')
-    street = street.replace('11-es út', '11. számú főközlekedési út')
-    street = street.replace('11-es Huszár út', 'Huszár út')
-    street = street.replace('Kölcsey-Pozsonyi út sarok', 'Kölcsey Ferenc utca ')
-    street = street.replace('Március 15-e', 'Március 15.')
-    street = street.replace('Tiszavasvári út - Alkotás u sarok', 'Tiszavasvári út')
-    street = street.replace('Tiszavasvári út- Alkotás út sarok', 'Tiszavasvári út')
-    street = street.replace('Hőforrás-Rákóczi utca', 'Rákóczi utca')
-    street = street.replace('Kiss Tábornok - Kandó Kálmán utca sarok', 'Kiss Tábornok utca')
-    street = street.replace('Soroksári út - Határ út sarok', 'Soroksári út')
-    street = street.replace('Szentendrei- Czetz János utca sarok', 'Szentendrei út')
-    street = street.replace('Külső - Kádártai utca', 'Külső-Kádártai utca')
-    street = street.replace('Károlyi út - Ságvári út', 'Károlyi Mihály utca')
-    street = street.replace('Szlovák út - Csömöri út sarok', 'Szlovák út')
-    street = street.replace('Maglódi út - Jászberényi út sarok', 'Maglódi út')
-    street = street.replace('Dobogókői út- Kesztölci út sarok', 'Dobogókői út')
-    street = street.replace('DR. KOCH L. UTCA', 'Dr. Koch László utca')
-    street = street.replace('DR KOCH L.', 'Dr. Koch László')
-    street = street.replace('Koch L.u.', 'Dr. Koch László utca')
-    street = street.replace('Kiss J. ', 'Kiss József')
-    street = street.replace('Kossuth L.u.', 'Kossuth Lajos utca ')
-    street = street.replace('Kossuth L.', 'Kossuth Lajos')
-    street = street.replace('Kossuth F. u', 'Kossuth Ferenc utca')
-    street = street.replace('Kossuth F.', 'Kossuth Ferenc')
-    street = street.replace('Korányi F.', 'Korányi Frigyes')
-    street = street.replace('Kőrösi Csoma S.', 'Kőrösi Csoma Sándor')
-    street = street.replace('Páter K.', 'Páter Károly')
-    street = street.replace('Petőfi S.', 'Petőfi Sándor')
-    street = street.replace('Somogyi B.', 'Somogyi Béla')
-    street = street.replace('Szondy', 'Szondi')
-    street = street.replace('Szt.István', 'Szent István')
-    street = street.replace('szt.istván', 'Szent István')
-    street = street.replace('Táncsics M.', 'Táncsics Mihály')
-    street = street.replace('Vass J.', 'Vass János')
-    street = street.replace('Vámház.', 'Vámház')
-    street = street.replace('Várkörút .', 'Várkörút')
-    street = street.replace('Vásárhelyi P.', 'Vásárhelyi Pál')
-    street = street.replace('Vi. utca', 'VI. utca')
-    street = street.replace('XXI. II. Rákóczi Ferenc', 'II. Rákóczi Ferenc')
-    street = street.replace('Zsolnay V.', 'Zsolnay Vilmos')
-    street = street.replace('Radnóti M.', 'Radnóti Miklós')
-    street = street.replace('Fehérvári út (Andor u. 1.)', 'Fehérvári')
-    street = street.replace('Szent István kir.', 'Szent István király')
-    street = street.replace('Dr Batthyány S. László', 'Dr. Batthyány-Strattmann László')
-    street = street.replace('Bacsinszky A.', 'Bacsinszky András')
-    street = street.replace('Fáy A.', 'Fáy András')
-    street = street.replace('József a.', 'József Attila')
-    street = street.replace('Juhász Gy. ', 'Juhász Gyula')
-    street = street.replace('Hock j.', 'Hock János')
-    street = street.replace('Vak B.', 'Vak Bottyán')
-    street = street.replace('Arany J.', 'Arany János')
-    street = street.replace('Könyves K.', 'Könyves Kálmán')
-    street = street.replace('Szilágyi E.', 'Szilágyi Erzsébet')
-    street = street.replace('Liszt F.', 'Liszt Ferenc')
-    street = street.replace('Bethlen G.', 'Bethlen Gábor')
-    street = street.replace('Gazdag E.', 'Gazdag Erzsi')
-    street = street.replace('Hátsókapu.', 'Hátsókapu')
-    street = street.replace('Herman O.', 'Herman Ottó')
-    street = street.replace('József A.', 'József Attila')
-    street = street.replace('Kazinczy F.', 'Kazinczy Ferenc')
-    street = street.replace('Király J.', 'Király Jenő')
-    street = street.replace('Királyhidai utca', 'Királyhidai út')
-    street = street.replace('Lackner K.', 'Lackner Kristóf')
-    street = street.replace('Mécs L.', 'Mécs László')
-    street = street.replace('Nagyváthy J.', 'Nagyváthy János')
-    street = street.replace('Szent I. kir.', 'Szent István király')
-    street = street.replace('Szigethy A. u.', 'Szigethy Attila út')
-    street = street.replace('Rákóczi F.', 'Rákóczi Ferenc')
-    street = street.replace('Jókai M.', 'Jókai Mór')
-    street = street.replace('Szabó D.', 'Szabó Dezső')
-    street = street.replace('Kossuth F.', 'Kossuth F.')
-    street = street.replace('Móricz Zs.', 'Móricz Zsigmond')
-    street = street.replace('Hunyadi J ', 'Hunyadi János')
-    street = street.replace('Szilágyi E ', 'Szilágyi Erzsébet fasor')
-    street = street.replace('Erzsébet Királyné út', 'Erzsébet királyné útja')
-    street = street.replace('Mammut', '')
-    street = street.replace('Szt. ', 'Szent ')
-    street = street.replace(' u.', ' utca ')
-    street = street.replace(' U.', ' utca ')
-    street = street.replace('.u.', ' utca ')
-    street = street.replace(' u ', ' utca ')
-    street = street.replace(' krt.', ' körút')
-    street = street.replace(' Krt.', ' körút')
-    street = street.replace(' KRT.', ' körút')
-    street = street.replace(' ltp.', ' lakótelep')
-    street = street.replace(' Ltp.', ' lakótelep')
-    street = street.replace(' LTP.', ' lakótelep')
-    street = street.replace(' ltp', ' lakótelep')
-    street = street.replace(' sgt.', ' sugárút')
-    street = street.replace('^4. sz$', '4. számú főközlekedési')
+    street = clearable.strip()
+    repls = ('Nyúl 82. sz. főút', 'Kossuth Lajos út'), \
+    ('Nyúl  82. sz. főút', '82. számú főközlekedési út'), \
+    ('Budafoki út, 6-os sz. főút', '6. számú főközlekedési út'), \
+    ('. Sz. Főút felső', '. számú főközlekedési út'), \
+    ('. számú - Némedi út sarok', '. számú főközlekedési út'), \
+    ('076/15. hrsz 86. számú főút mellett', '86. számú főközlekedési út'), \
+    ('50.sz.út jobb oldal', '50. számú főközlekedési út'), \
+    ('. sz. fkl.út', '. számú főközlekedési út'), \
+    ('.sz. fkl. út', '. számú főközlekedési út'), \
+    ('-es sz. főút', '. számú főközlekedési út'), \
+    ('. sz. főút', '. számú főközlekedési út'), \
+    ('.sz.fkl.', '. számú főközlekedési'), \
+    ('. sz. fkl.', '. számú főközlekedési'), \
+    ('. számú fkl. út', '. számú főközlekedési út'), \
+    ('. Sz. főút', '. számú főközlekedési út'), \
+    ('. számú főút', '. számú főközlekedési út'), \
+    ('. főút', '. számú főközlekedési út'), \
+    ('. sz út', '. számú főközlekedési út'), \
+    (' sz. főút', '. számú főközlekedési út'), \
+    ('-es fő út', '. számú főközlekedési út'), \
+    ('-es főút', '. számú főközlekedési út'), \
+    (' - es út', '. számú főközlekedési út'), \
+    ('-es út', '. számú főközlekedési út'), \
+    ('-as fő út', '. számú főközlekedési út'), \
+    ('-as főút', '. számú főközlekedési út'), \
+    (' - as út', '. számú főközlekedési út'), \
+    ('-as út', '. számú főközlekedési út'), \
+    ('-ös fő út', '. számú főközlekedési út'), \
+    ('-ös főút', '. számú főközlekedési út'), \
+    (' - ös út', '. számú főközlekedési út'), \
+    ('-ös út', '. számú főközlekedési út'), \
+    ('Omsz park', 'Omszk park'), \
+    ('01.máj.', 'Május 1.'), \
+    ('15.márc.', 'Március 15.'), \
+    ('Ady E.', 'Ady Endre'), \
+    ('Áchim A.', 'Áchim András'), \
+    ('Bajcsy-Zs. E.', 'Bajcsy-Zsilinszky Endre'), \
+    ('Bajcsy-Zs. E. u.', 'Bajcsy-Zsilinszky Endre utca'), \
+    ('Bajcsy-Zs. u.', 'Bajcsy-Zsilinszky utca'), \
+    ('Bajcsy Zs.u.', 'Bajcsy-Zsilinszky utca'), \
+    ('Bajcsy-Zs. u.', 'Bajcsy-Zsilinszky utca'), \
+    ('Bajcsy Zs. u.', 'Bajcsy-Zsilinszky utca'), \
+    ('Bajcsy-Zs.', 'Bajcsy-Zsilinszky'), \
+    ('Bajcsy Zs.', 'Bajcsy-Zsilinszky'), \
+    ('Bartók B.', 'Bartók Béla'), \
+    ('Baross G.', 'Baross Gábor'), \
+    ('BERCSÉNYI U.', 'Bercsényi Miklós utca'), \
+    ('Berzsenyi D.', 'Berzsenyi Dániel'), \
+    ('Borics P.', 'Borics Pál'), \
+    ('Corvin J.', 'Corvin'), \
+    ('Dózsa Gy.u.', 'Dózsa György utca'), \
+    ('Dózsa Gy.', 'Dózsa György'), \
+    ('dr. Géfin Lajos', 'Dr. Géfin Lajos'), \
+    ('Erkel F.', 'Erkel Ferenc'), \
+    ('Hegedű/(Király)', 'Hegedű'), \
+    ('Hevesi S.', 'Hevesi Sándor'), \
+    ('Hunyadi J.', 'Hunyadi János'), \
+    ('Ii. Rákóczi Ferenc', 'II. Rákóczi Ferenc'), \
+    ('Innovációs kp. Fő út', 'Fő út'), \
+    ('Ix. körzet', 'IX. körzet'), \
+    ('Kölcsey F.', 'Kölcsey Ferenc'), \
+    ('Kiss J.', 'Kiss József'), \
+    ('Nagy L. király', 'Nagy Lajos király'), \
+    ('Kaszás u. 2.-Dózsa György út', 'Dózsa György út'), \
+    ('Váci út 117-119. „A” épület', 'Váci út'), \
+    ('56-Osok tere', 'Ötvenhatosok tere'), \
+    ('11-es út', '11. számú főközlekedési út'), \
+    ('11-es Huszár út', 'Huszár út'), \
+    ('Kölcsey-Pozsonyi út sarok', 'Kölcsey Ferenc utca '), \
+    ('Március 15-e', 'Március 15.'), \
+    ('Tiszavasvári út - Alkotás u sarok', 'Tiszavasvári út'), \
+    ('Tiszavasvári út- Alkotás út sarok', 'Tiszavasvári út'), \
+    ('Hőforrás-Rákóczi utca', 'Rákóczi utca'), \
+    ('Kiss Tábornok - Kandó Kálmán utca sarok', 'Kiss Tábornok utca'), \
+    ('Soroksári út - Határ út sarok', 'Soroksári út'), \
+    ('Szentendrei- Czetz János utca sarok', 'Szentendrei út'), \
+    ('Külső - Kádártai utca', 'Külső-Kádártai utca'), \
+    ('Károlyi út - Ságvári út', 'Károlyi Mihály utca'), \
+    ('Szlovák út - Csömöri út sarok', 'Szlovák út'), \
+    ('Maglódi út - Jászberényi út sarok', 'Maglódi út'), \
+    ('Dobogókői út- Kesztölci út sarok', 'Dobogókői út'), \
+    ('DR. KOCH L. UTCA', 'Dr. Koch László utca'), \
+    ('DR KOCH L.', 'Dr. Koch László'), \
+    ('Koch L.u.', 'Dr. Koch László utca'), \
+    ('Kiss J. ', 'Kiss József'), \
+    ('Kossuth L.u.', 'Kossuth Lajos utca '), \
+    ('Kossuth L.', 'Kossuth Lajos'), \
+    ('Kossuth F. u', 'Kossuth Ferenc utca'), \
+    ('Kossuth F.', 'Kossuth Ferenc'), \
+    ('Korányi F.', 'Korányi Frigyes'), \
+    ('Kőrösi Csoma S.', 'Kőrösi Csoma Sándor'), \
+    ('Páter K.', 'Páter Károly'), \
+    ('Petőfi S.', 'Petőfi Sándor'), \
+    ('Somogyi B.', 'Somogyi Béla'), \
+    ('Szondy', 'Szondi'), \
+    ('Szt.István', 'Szent István'), \
+    ('szt.istván', 'Szent István'), \
+    ('Táncsics M.', 'Táncsics Mihály'), \
+    ('Vass J.', 'Vass János'), \
+    ('Vámház.', 'Vámház'), \
+    ('Várkörút .', 'Várkörút'), \
+    ('Vásárhelyi P.', 'Vásárhelyi Pál'), \
+    ('Vi. utca', 'VI. utca'), \
+    ('XXI. II. Rákóczi Ferenc', 'II. Rákóczi Ferenc'), \
+    ('Zsolnay V.', 'Zsolnay Vilmos'), \
+    ('Radnóti M.', 'Radnóti Miklós'), \
+    ('Fehérvári út (Andor u. 1.)', 'Fehérvári'), \
+    ('Szent István kir.', 'Szent István király'), \
+    ('Dr Batthyány S. László', 'Dr. Batthyány-Strattmann László'), \
+    ('Bacsinszky A.', 'Bacsinszky András'), \
+    ('Fáy A.', 'Fáy András'), \
+    ('József a.', 'József Attila'), \
+    ('Juhász Gy. ', 'Juhász Gyula'), \
+    ('Hock j.', 'Hock János'), \
+    ('Vak B.', 'Vak Bottyán'), \
+    ('Arany J.', 'Arany János'), \
+    ('Könyves K.', 'Könyves Kálmán'), \
+    ('Szilágyi E.', 'Szilágyi Erzsébet'), \
+    ('Liszt F.', 'Liszt Ferenc'), \
+    ('Bethlen G.', 'Bethlen Gábor'), \
+    ('Gazdag E.', 'Gazdag Erzsi'), \
+    ('Hátsókapu.', 'Hátsókapu'), \
+    ('Herman O.', 'Herman Ottó'), \
+    ('József A.', 'József Attila'), \
+    ('Kazinczy F.', 'Kazinczy Ferenc'), \
+    ('Király J.', 'Király Jenő'), \
+    ('Királyhidai utca', 'Királyhidai út'), \
+    ('Lackner K.', 'Lackner Kristóf'), \
+    ('Mécs L.', 'Mécs László'), \
+    ('Nagyváthy J.', 'Nagyváthy János'), \
+    ('Szent I. kir.', 'Szent István király'), \
+    ('Szigethy A. u.', 'Szigethy Attila út'), \
+    ('Rákóczi F.', 'Rákóczi Ferenc'), \
+    ('Jókai M.', 'Jókai Mór'), \
+    ('Szabó D.', 'Szabó Dezső'), \
+    ('Kossuth F.', 'Kossuth F.'), \
+    ('Móricz Zs.', 'Móricz Zsigmond'), \
+    ('Hunyadi J ', 'Hunyadi János'), \
+    ('Szilágyi E ', 'Szilágyi Erzsébet fasor'), \
+    ('Erzsébet Királyné út', 'Erzsébet királyné útja'), \
+    ('Mammut', ''), \
+    ('Szt. ', 'Szent '), \
+    (' u.', ' utca '), \
+    (' U.', ' utca '), \
+    ('.u.', ' utca '), \
+    (' u ', ' utca '), \
+    (' krt.', ' körút'), \
+    (' Krt.', ' körút'), \
+    (' KRT.', ' körút'), \
+    (' ltp.', ' lakótelep'), \
+    (' Ltp.', ' lakótelep'), \
+    (' LTP.', ' lakótelep'), \
+    (' ltp', ' lakótelep'), \
+    (' sgt.', ' sugárút'), \
+    ('^4. sz$', '4. számú főközlekedési')
+    street = reduce(lambda a, kv: a.replace(*kv), repls, street)
     return street
 
 def clean_street_type(clearable):
