@@ -365,7 +365,7 @@ def clean_street(clearable):
     street = street.replace('-ös főút', '. számú főközlekedési út')
     street = street.replace(' - ös út', '. számú főközlekedési út')
     street = street.replace('-ös út', '. számú főközlekedési út')
-
+    street = street.replace('Omsz park', 'Omszk park')
     street = street.replace('01.máj.', 'Május 1.')
     street = street.replace('15.márc.', 'Március 15.')
     street = street.replace('Ady E.', 'Ady Endre')
