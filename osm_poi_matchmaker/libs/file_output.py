@@ -172,7 +172,7 @@ def generate_osm_xml(df, session=None):
             else:
                 # Alternative opening_hours handling for NON COVID-19 code path: just simply add opening_hours to tags
                 if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
-                    tags['opening_hours'] == row.get('poi_opening_hours')
+                    tags['opening_hours'] = row.get('poi_opening_hours')
             # If we got POI phone tag use it as OSM contact:phone tag
             if row.get('poi_phone') is not None and row.get('poi_phone') != '':
                 tags['contact:phone'] = row.get('poi_phone')
