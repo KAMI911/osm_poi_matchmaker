@@ -1,7 +1,7 @@
 [matcher]
 # Database settings
 db.type=postgresql
-db.write.host=localhost
+db.write.host=opm_db # This is for container. Feel free to edit to localhost or your PostgreSQL and PostGIS servers name or address.
 db.write.port=5432
 db.write.username=poi
 db.write.password=poitest
