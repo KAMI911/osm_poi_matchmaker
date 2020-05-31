@@ -40,3 +40,8 @@ POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'p
             'poi_opening_hours_lunch_break_stop', 'poi_public_holiday_open',
             'poi_opening_hours', 'poi_good', 'poi_bad'
             ]
+
+POI_ADDR_COLS = ['poi_postcode', 'poi_city', 'poi_addr_street', 'poi_addr_housenumber',
+                 'poi_addr_conscriptionnumber'
+                 ]
+OSM_ADDR_COLS = ['addr:postcode', 'addr:city', 'addr:street', 'addr:housenumber', 'addr:conscriptionnumber']

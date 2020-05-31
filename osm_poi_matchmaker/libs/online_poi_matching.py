@@ -53,8 +53,7 @@ def online_poi_matching(args):
                     # Set OSM POI coordinates for all kind of geom
                     lat = osm_query.get('lat').values[0]
                     lon = osm_query.get('lon').values[0]
-                    if data.at[i, 'poi_lat'] != lat and \
-                        data.at[i, 'poi_lon'] != lon:
+                    if data.at[i, 'poi_lat'] != lat and data.at[i, 'poi_lon'] != lon:
                         logging.info('Using new coodinates {} {} instead of {} {}.'.format(
                             lat, lon, data.at[i, 'poi_lat'], data.at[i, 'poi_lon']))
                         data.at[i, 'poi_lat'] = lat
@@ -70,12 +69,19 @@ def online_poi_matching(args):
                     data.at[i, 'osm_id'] = osm_id
                     data.at[i, 'osm_node'] = osm_node
                     # Refine postcode
-                    if row['preserve_original_post_code'] != True:
+                    if row['preserve_original_post_code'] is not True:
                         postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
                             lon, lat, row.get('poi_postcode'))
-                        if postcode != row.get('poi_postcode'):
-                            logging.info('Changing postcode from {} to {}.'.format(row.get('poi_postcode'), postcode))
-                            data.at[i, 'poi_postcode'] = postcode
+                        force_postcode_change = False # TODO: Has to be a setting in app.conf
+                        if force_postcode_change is True:
+                            if postcode != row.get('poi_postcode'):
+                                logging.info('Changing postcode from {} to {}.'.
+                                             format(row.get('poi_postcode'), postcode))
+                                data.at[i, 'poi_postcode'] = postcode
+                        else:
+                            ch_posctode = smart_postcode_check(row, osm_query, postcode)
+                            if ch_posctode is not None:
+                                data.at[i, 'poi_postcode'] = ch_posctode
                     else:
                         logging.info('Preserving original postcode {}'.format(row.get('poi_postcode')))
                     data.at[i, 'osm_version'] = osm_query['osm_version'].values[0] \
@@ -212,7 +218,6 @@ def online_poi_matching(args):
                         row['poi_lat'], row['poi_lon'] = osm_bulding_q.get('lat')[0], osm_bulding_q.get('lon')[0]
                     else:
                         logging.info('The POI is already in its building or there is no building match. Keeping POI coordinates as is as.')
-
                     if row['preserve_original_post_code'] != True:
                         postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
                             data.at[i, 'poi_lon'], data.at[i, 'poi_lat'], row.get('poi_postcode'))
@@ -233,3 +238,27 @@ def online_poi_matching(args):
     except Exception as e:
         logging.error(e)
         logging.error(traceback.print_exc())
+
+def smart_postcode_check(curr_data, osm_data, pc):
+    # print(curr_data.to_string())
+    # print(osm_data.to_string())
+    '''
+    Enhancement for the former problem: addr:postcode was changed without
+    changing any other parts of address. Issue #78
+
+    When address or conscription number change or postcode is empty.
+    '''
+    # Change postcode when there is no postcode in OSM or the address was changed
+    if pc is not None and pc != '' and \
+        (osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] is None or
+        osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] == '' or
+        (curr_data.get('poi_addr_housenumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:housenumber')] or
+        curr_data.get('poi_addr_street') != osm_data.iloc[0, osm_data.columns.get_loc('addr:street')] or
+        curr_data.get('poi_city') != osm_data.iloc[0, osm_data.columns.get_loc('addr:city')] or
+        curr_data.get('poi_addr_conscriptionnumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:conscriptionnumber')])):
+        logging.info('Changing postcode from {} to {}.'.format(curr_data.get('poi_postcode'), pc))
+        return pc
+    else:
+        logging.debug('The postcode is {}.'.format(curr_data.get('poi_postcode')))
+        return None
+

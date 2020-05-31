@@ -9,6 +9,7 @@ try:
     from test.test_address import TestAddressResolver, TestFullAddressResolver, TestOpeningHoursCleaner, \
         TestOpeningHoursCleaner2, TestPhoneClener, TestPhoneClener_to_str, TestStringCleaner, TestURLCleaner, \
         TestCityCleaner
+    from test.test_online_poi_matching import TestSmartOnlinePOIMatching
     from test.test_opening_hours import TestOpeningHours
     # from test.test_poi_dataset import TestPOIDataset
     from test.test_timing import TestTiming
@@ -31,12 +32,14 @@ def testing_create_db():
     string_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestStringCleaner)
     url_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestURLCleaner)
     opening_hours_resolver = unittest.TestLoader().loadTestsFromTestCase(TestOpeningHours)
+    smart_online_poi_matching = unittest.TestLoader().loadTestsFromTestCase(TestSmartOnlinePOIMatching)
     # poi_dataset = unittest.TestLoader().loadTestsFromTestCase(TestPOIDataset)
     timing = unittest.TestLoader().loadTestsFromTestCase(TestTiming)
     osm = unittest.TestLoader().loadTestsFromTestCase(TestOSMRelationer)
     suite = unittest.TestSuite(
         [address_resolver, address_full_resolver, opening_hours_cleaner, opening_hours_cleaner2, city_cleaner,
-         phone_cleaner, phone_cleaner_to_str, string_cleaner, url_cleaner, opening_hours_resolver, timing, osm])
+         phone_cleaner, phone_cleaner_to_str, string_cleaner, url_cleaner, opening_hours_resolver,
+         smart_online_poi_matching, timing, osm])
     return unittest.TextTestRunner(verbosity=2).run(suite)
 
 

@@ -185,16 +185,16 @@ class POIBase:
             city_query = ' AND LOWER(TEXT("addr:city")) = LOWER(TEXT(:city))'
         else:
             city_query = ''
-        # Looking for way (building)
         logging.debug('{} {}: {}, {}, {} {} {} ({}) [{}, {}, {}]'.format(lon, lat, ptype, name, city,
             street_name, housenumber, conscriptionnumber, distance_perfect, distance_safe, distance_unsafe))
+        # Looking for way (building)
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
                 conscriptionnumber_query is not None and conscriptionnumber_query != '':
             query_text = '''
             --- WITH NAME, WITH CONSCRIPTINNUMBER, WITH CITY
             --- The way selector with conscriptionnumber and city
             SELECT name, osm_id, {metadata_fields} 965 AS priority, 'way' AS node, shop, amenity, "addr:housename",
-                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                    '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
@@ -203,7 +203,7 @@ class POIBase:
             UNION ALL
             --- The node selector with conscriptionnumber and city
             SELECT name, osm_id, {metadata_fields} 965 AS priority, 'node' AS node, shop, amenity, "addr:housename",
-                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                    '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
@@ -213,7 +213,7 @@ class POIBase:
             --- The relation selector with conscriptionnumber and city
             SELECT name, osm_id, {metadata_fields} 965 AS priority, 'relation' AS node, shop, amenity,
                    "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   "addr:conscriptionnumber", '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
@@ -235,7 +235,7 @@ class POIBase:
             --- WITH NAME, WITH CITY, WITH STREETNAME, WITH HOUSENUMBER
             --- The way selector with city, street name and housenumber
             SELECT name, osm_id, {metadata_fields} 940 AS priority, 'way' AS node, shop, amenity, "addr:housename",
-                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                    '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
@@ -244,7 +244,7 @@ class POIBase:
             UNION ALL
             --- The node selector with street name and housenumber
             SELECT name, osm_id, {metadata_fields} 940 AS priority, 'node' AS node, shop, amenity, "addr:housename",
-                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                    '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
@@ -254,7 +254,7 @@ class POIBase:
             --- The relation selector with street name and housenumber
             SELECT name, osm_id, {metadata_fields} 940 AS priority, 'relation' AS node, shop, amenity,
                    "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   "addr:conscriptionnumber", '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
@@ -280,7 +280,7 @@ class POIBase:
                 --- WITH NAME, WITH STREETNAME, WITH HOUSENUMBER
                 --- The way selector with street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 950 AS priority, 'way' AS node, shop, amenity, "addr:housename",
-                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                        ST_DistanceSphere(way, point.geom) as distance, way,
                        ST_AsEWKT(way) as way_ewkt,
                        ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
@@ -291,7 +291,7 @@ class POIBase:
                 UNION ALL
                 --- The node selector with street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 950 AS priority, 'node' AS node, shop, amenity, "addr:housename",
-                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                        ST_DistanceSphere(way, point.geom) as distance, way,
                        ST_AsEWKT(way) as way_ewkt,
                        ST_X(planet_osm_point.way) as lon,
@@ -303,7 +303,7 @@ class POIBase:
                 --- The relation selector with street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 950 AS priority, 'relation' AS node, shop, amenity,
                        "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                       ST_DistanceSphere(way, point.geom) as distance, way,
+                       "addr:conscriptionnumber", ST_DistanceSphere(way, point.geom) as distance, way,
                        ST_AsEWKT(way) as way_ewkt,
                        ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                        ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
@@ -315,7 +315,7 @@ class POIBase:
             --- WITH NAME, WITH STREETNAME, NO HOUSENUMBER
             --- The way selector with street name and without housenumber
             SELECT name, osm_id, {metadata_fields} 970 AS priority, 'way' AS node, shop, amenity, "addr:housename",
-                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                    ST_DistanceSphere(way, point.geom) as distance, way,
                    ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
@@ -326,7 +326,7 @@ class POIBase:
             UNION ALL
             --- The node selector with street name and without housenumber
             SELECT name, osm_id, {metadata_fields} 970 AS priority, 'node' AS node, shop, amenity, "addr:housename",
-                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                    ST_DistanceSphere(way, point.geom) as distance, way,
                    ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
@@ -338,7 +338,7 @@ class POIBase:
             --- The relation selector with street name and without housenumber
             SELECT name, osm_id, {metadata_fields} 970 AS priority, 'relation' AS node, shop, amenity,
                    "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                   ST_DistanceSphere(way, point.geom) as distance, way,
+                   "addr:conscriptionnumber", ST_DistanceSphere(way, point.geom) as distance, way,
                    ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
@@ -352,7 +352,7 @@ class POIBase:
                 --- WITH NAME, NO STREETNAME, WITH HOUSENUMBER
                 --- The way selector without street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 970 AS priority, 'way' AS node, shop, amenity, "addr:housename",
-                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                        ST_DistanceSphere(way, point.geom) as distance, way,
                        ST_AsEWKT(way) as way_ewkt,
                        ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
@@ -363,7 +363,7 @@ class POIBase:
                 UNION ALL
                 --- The node selector without street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 970 AS priority, 'node' AS node, shop, amenity, "addr:housename",
-                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                       "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                        ST_DistanceSphere(way, point.geom) as distance, way,
                        ST_AsEWKT(way) as way_ewkt,
                        ST_X(planet_osm_point.way) as lon,
@@ -375,6 +375,7 @@ class POIBase:
                 --- The relation selector without street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 970 AS priority, 'relation' AS node, shop, amenity,
                        "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                       "addr:conscriptionnumber",
                        ST_DistanceSphere(way, point.geom) as distance, way,
                        ST_AsEWKT(way) as way_ewkt,
                        ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
@@ -388,7 +389,7 @@ class POIBase:
         --- WITH NAME, NO STREETNAME, NO HOUSENUMBER
         --- The way selector without street name and without housenumber
         SELECT name, osm_id, {metadata_fields} 980 AS priority, 'way' AS node, shop, amenity, "addr:housename",
-               "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+               "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                ST_DistanceSphere(way, point.geom) as distance, way,
                ST_AsEWKT(way) as way_ewkt,
                ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
@@ -399,7 +400,7 @@ class POIBase:
         UNION ALL
         --- The node selector without street name and without housenumber
         SELECT name, osm_id, {metadata_fields} 980 AS priority, 'node' AS node, shop, amenity, "addr:housename",
-               "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+               "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                ST_DistanceSphere(way, point.geom) as distance, way,
                ST_AsEWKT(way) as way_ewkt,
                ST_X(planet_osm_point.way) as lon,
@@ -411,6 +412,7 @@ class POIBase:
         --- The relation selector without street name and without housenumber
         SELECT name, osm_id, {metadata_fields} 980 AS priority, 'relation' AS node, shop, amenity,
                "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+               "addr:conscriptionnumber",
                ST_DistanceSphere(way, point.geom) as distance, way,
                ST_AsEWKT(way) as way_ewkt,
                ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
@@ -423,7 +425,7 @@ class POIBase:
             --- NO NAME, NO STREETNAME, NO HOUSENUMBER
             --- The way selector without name and street name
             SELECT name, osm_id, {metadata_fields} 990 AS priority, 'way' AS node, shop, amenity, "addr:housename",
-                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                    ST_DistanceSphere(way, point.geom) as distance, way,
                    ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
@@ -434,7 +436,7 @@ class POIBase:
             UNION ALL
             --- The node selector without name and street name
             SELECT name, osm_id, {metadata_fields} 990 AS priority, 'node' AS node, shop, amenity, "addr:housename",
-                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                    ST_DistanceSphere(way, point.geom) as distance, way,
                    ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
@@ -446,6 +448,7 @@ class POIBase:
             --- The relation selector without name street name
             SELECT name, osm_id, {metadata_fields} 990 AS priority, 'relation' AS node, shop, amenity,
                    "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                   "addr:conscriptionnumber",
                    ST_DistanceSphere(way, point.geom) as distance, way,
                    ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
@@ -505,7 +508,7 @@ class POIBase:
             --- city, postcode, street name and housenumber of building
             --- Make a line that connects the building and POI coords, using one point from union
             SELECT name, building, osm_id, 'way' AS node, "addr:housename",
-                "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
+                "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
                  ST_Y(ST_PointOnSurface(way)) as lat_in_b,
                  ST_X(ST_PointOnSurface(way)) as lon_in_b,
                  ST_Y(ST_LineInterpolatePoint(ST_GeometryN(ST_Intersection(way,
