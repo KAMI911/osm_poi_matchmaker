@@ -70,8 +70,8 @@ class hu_posta(DataProvider):
             for e in soup.findAll('post'):
                 try:
                     # If this is a closed post office, skip it
-                    if e.get('ispostpoint') == '0':
-                        continue
+                    # if e.get('ispostpoint') == '0':
+                    #    continue
                     #  The 'kirendeltség' post offices are not available to end users, so we remove them
                     if 'okmányiroda' in e.find('name').get_text().lower() or \
                         'mol kirendeltség' in e.find('name').get_text().lower():
