@@ -240,14 +240,25 @@ def online_poi_matching(args):
         logging.error(traceback.print_exc())
 
 def smart_postcode_check(curr_data, osm_data, pc):
-    # print(curr_data.to_string())
-    # print(osm_data.to_string())
+    logging.critical(curr_data.to_string())
+    logging.critical(osm_data.to_string())
+    logging.critical(pc)
     '''
     Enhancement for the former problem: addr:postcode was changed without
     changing any other parts of address. Issue #78
 
     When address or conscription number change or postcode is empty.
     '''
+    logging.critical(curr_data.get('poi_postcode'))
+    logging.critical(osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')])
+    logging.critical(pc)
+    logging.critical(curr_data.get('poi_city'))
+    logging.critical(osm_data.iloc[0, osm_data.columns.get_loc('addr:city')])
+    logging.critical(curr_data.get('poi_addr_housenumber'))
+    logging.critical(osm_data.iloc[0, osm_data.columns.get_loc('addr:housenumber')])
+    logging.critical(curr_data.get('poi_addr_street'))
+    logging.critical(osm_data.iloc[0, osm_data.columns.get_loc('addr:street')])
+
     # Change postcode when there is no postcode in OSM or the address was changed
     if pc is not None and pc != '' and \
         (osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] is None or
