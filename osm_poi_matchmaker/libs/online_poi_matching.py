@@ -270,6 +270,6 @@ def smart_postcode_check(curr_data, osm_data, pc):
         logging.info('Changing postcode from {} to {}.'.format(curr_data.get('poi_postcode'), pc))
         return pc
     else:
-        logging.debug('The postcode is {}.'.format(curr_data.get('poi_postcode')))
-        return None
+        logging.debug('The postcode is {}.'.format(osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')]))
+        return osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')]
 
