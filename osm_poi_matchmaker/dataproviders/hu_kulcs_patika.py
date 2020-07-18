@@ -20,12 +20,12 @@ except ImportError as err:
 class hu_kulcs_patika(DataProvider):
 
     def constains(self):
-        self.link = 'https://old.kulcspatikak.hu/_facebook/inc/getPagerContent.php?tipus=patika&kepnelkul=true&latitude=19.040164947509766&longitude=47.49801180144693'
+        self.link = 'https://kulcspatikak.hu/gykeress_feed.php'
         self.POI_COMMON_TAGS = ""
         self.headers = {'Referer': 'https://kulcspatikak.hu/patikakereso',
                         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0',
                         'Accept': 'application/json, text/javascript, */*; q=0.01'}
-        self.post = {'kepnelkul': 'true', 'latitude': '47.498', 'longitude': '19.0399', 'tipus': 'patika'}
+        self.post = {'megyeid':-1, 'quality_check': 0, 'animal_check': 0, 'nonstop_check': 0, 'hetvege_check': 0}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
