@@ -190,7 +190,6 @@ node,way   authentication:membership_card   text     linear
 node,way   capacity   text     linear
 node,way   fee        text     linear
 node,way   parking:fee text     linear
-node,way   motorcar   text     linear
 node,way   socket:chademo text     linear
 node,way   socket:chademo:output text     linear
 node,way   socket:type1_combo text     linear
