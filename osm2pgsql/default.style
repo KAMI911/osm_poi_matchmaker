@@ -146,6 +146,16 @@ node,way   natural      text         polygon  # natural=coastline tags are disca
 node,way   office       text         polygon
 node,way   oneway       text         linear
 node,way   operator     text         linear
+node,way   operator:addr  text         linear
+node,way   ref:vatin      text         linear
+node,way   ref:vatin:hu   text         linear
+node,way   ref:HU:company text         linear
+node,way   contact:website text        linear
+node,way   contact:email  text         linear
+node,way   contact:phone  text         linear
+node,way   contact:fax    text         linear
+node,way   contact:youtube text        linear
+node,way   contact:instagram text      linears
 node,way   place        text         polygon
 node       poi          text         linear
 node,way   population   text         linear
