@@ -146,6 +146,16 @@ node,way   natural      text         polygon  # natural=coastline tags are disca
 node,way   office       text         polygon
 node,way   oneway       text         linear
 node,way   operator     text         linear
+node,way   operator:addr  text         linear
+node,way   ref:vatin      text         linear
+node,way   ref:vatin:hu   text         linear
+node,way   ref:HU:company text         linear
+node,way   contact:website text        linear
+node,way   contact:email  text         linear
+node,way   contact:phone  text         linear
+node,way   contact:fax    text         linear
+node,way   contact:youtube text        linear
+node,way   contact:instagram text      linears
 node,way   place        text         polygon
 node       poi          text         linear
 node,way   population   text         linear
@@ -173,6 +183,22 @@ node,way   width        text         linear
 node,way   wood         text         linear
 node,way   z_order      int4         linear # This is calculated during import
 way        way_area     real         linear # This is calculated during import
+
+node,way   authentication:app               text     linear
+node,way   authentication:none              text     linear
+node,way   authentication:membership_card   text     linear
+node,way   capacity   text     linear
+node,way   fee        text     linear
+node,way   parking:fee text     linear
+node,way   motorcar   text     linear
+node,way   socket:chademo text     linear
+node,way   socket:chademo:output text     linear
+node,way   socket:type1_combo text     linear
+node,way   socket:type1_combo:output text     linear
+node,way   socket:type2_cable text     linear
+node,way   socket:type2_cable:output text     linear
+node,way   manufacturer text     linear
+node,way   model        text     linear
 
 # Area tags
 # We don't make columns for these tags, but objects with them are areas.

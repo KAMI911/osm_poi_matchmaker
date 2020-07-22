@@ -45,6 +45,7 @@ class POI_type(enum.Enum):
     doityourself = 16
     cosmetics = 17
     furniture = 18
+    charging_station = 19
 
 
 class POI_address(Base):
@@ -77,9 +78,24 @@ class POI_address(Base):
     poi_restaurant = Column(Boolean)
     poi_food = Column(Boolean)
     poi_truck = Column(Boolean)
-    poi_ref = Column(Unicode(16))
+    poi_ref = Column(Unicode(32))
     poi_phone = Column(Unicode(64))
     poi_email = Column(Unicode(64))
+    poi_authentication_app = Column(Boolean)
+    poi_authentication_none = Column(Boolean)
+    poi_authentication_membership_card = Column(Boolean)
+    poi_capacity = Column(Integer)
+    poi_fee = Column(Boolean)
+    poi_parking_fee = Column(Boolean)
+    poi_motorcar = Column(Boolean)
+    poi_socket_chademo = Column(Integer)
+    poi_socket_chademo_output = Column(Unicode(16))
+    poi_socket_type1_combo = Column(Integer)
+    poi_socket_type1_combo_output = Column(Unicode(16))
+    poi_socket_type2_cable = Column(Integer)
+    poi_socket_type2_cable_output= Column(Unicode(16))
+    poi_manufacturer = Column(Unicode(32))
+    poi_model = Column(Unicode(32))
     poi_opening_hours_nonstop = Column(Boolean)
     poi_opening_hours_mo_open = Column(Time)
     poi_opening_hours_tu_open = Column(Time)
