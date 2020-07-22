@@ -56,6 +56,20 @@ class POIDataset:
         self.__restaurant = None
         self.__food = None
         self.__truck = None
+        self.__authentication_app = None
+        self.__authentication_membership_card = None
+        self.__capacity = None
+        self.__fee = None
+        self.__parking_fee = None
+        self.__motorcar = None
+        self.__socket_chademo = None
+        self.__socket_chademo_output = None
+        self.__socket_type1_combo = None
+        self.__socket_type1_combo_output = None
+        self.__socket_type2_cable = None
+        self.__socket_type2_cable_output = None
+        self.__manufacturer = None
+        self.__model = None
         self.__original = None
         self.__street = None
         self.__housenumber = None
@@ -95,6 +109,20 @@ class POIDataset:
         self.__restaurant = None
         self.__food = None
         self.__truck = None
+        self.__authentication_app = None
+        self.__authentication_membership_card = None
+        self.__capacity = None
+        self.__fee = None
+        self.__parking_fee = None
+        self.__motorcar = None
+        self.__socket_chademo = None
+        self.__socket_chademo_output = None
+        self.__socket_type1_combo = None
+        self.__socket_type1_combo_output = None
+        self.__socket_type2_cable = None
+        self.__socket_type2_cable_output = None
+        self.__manufacturer = None
+        self.__model = None
         self.__original = None
         self.__street = None
         self.__housenumber = None
@@ -272,6 +300,118 @@ class POIDataset:
     @truck.setter
     def truck(self, data):
         self.__truck = data
+
+    @property
+    def authentication_app(self):
+        return self.__authentication_app
+
+    @authentication_app.setter
+    def authentication_app(self, data):
+        self.__authentication_app = data
+
+    @property
+    def authentication_membership_card(self):
+        return self.__authentication_membership_card
+
+    @authentication_membership_card.setter
+    def authentication_membership_card(self, data):
+        self.__authentication_membership_card = data
+
+    @property
+    def capacity(self):
+        return self.__capacity
+
+    @capacity.setter
+    def capacity(self, data):
+        self.__capacity = data
+
+    @property
+    def fee(self):
+        return self.__fee
+
+    @fee.setter
+    def fee(self, data):
+        self.__fee = data
+
+    @property
+    def parking_fee(self):
+        return self.__parking_fee
+
+    @parking_fee.setter
+    def parking_fee(self, data):
+        self.__parking_fee = data
+
+    @property
+    def motorcar(self):
+        return self.__motorcar
+
+    @motorcar.setter
+    def motorcar(self, data):
+        self.__motorcar = data
+
+    @property
+    def socket_chademo(self):
+        return self.__socket_chademo
+
+    @socket_chademo.setter
+    def socket_chademo(self, data):
+        self.__socket_chademo = data
+
+    @property
+    def socket_chademo_output(self):
+        return self.__socket_chademo_output
+
+    @socket_chademo_output.setter
+    def socket_chademo_output(self, data):
+        self.__socket_chademo_output = data
+
+    @property
+    def socket_type1_combo(self):
+        return self.__socket_type1_combo
+
+    @socket_type1_combo.setter
+    def socket_type1_combo(self, data):
+        self.__socket_type1_combo = data
+
+    @property
+    def socket_type1_combo_output(self):
+        return self.__socket_type1_combo_output
+
+    @socket_type1_combo_output.setter
+    def socket_type1_combo_output(self, data):
+        self.__socket_type1_combo_output = data
+
+    @property
+    def socket_type2_cable(self):
+        return self.__socket_type2_cable
+
+    @socket_type2_cable.setter
+    def socket_type2_cable(self, data):
+        self.__socket_type2_cable = data
+
+    @property
+    def socket_type2_cable_output(self):
+        return self.__socket_type2_cable_output
+
+    @socket_type2_cable_output.setter
+    def socket_type2_cable_output(self, data):
+        self.__socket_type2_cable_output = data
+
+    @property
+    def manufacturer(self):
+        return self.__manufacturer
+
+    @manufacturer.setter
+    def manufacturer(self, data):
+        self.__manufacturer = data
+
+    @property
+    def model(self):
+        return self.__model
+
+    @model.setter
+    def model(self, data):
+        self.__model = data
 
     @property
     def original(self):
@@ -732,6 +872,10 @@ class POIDataset:
                  self.__fuel_octane_95, self.__fuel_diesel_gtl, self.__fuel_diesel, self.__fuel_lpg,
                  self.__fuel_e85, self.__rent_lpg_bottles, self.__compressed_air, self.__restaurant, self.__food,
                  self.__truck,
+                 self.__authentication_app, self.__authentication_membership_card, self.__capacity, self.__fee,
+                 self.__parking_fee, self.__motorcar, self.__socket_chademo, self.__socket_chademo_output,
+                 self.__socket_type1_combo, self.__socket_type1_combo_output,
+                 self.__socket_type2_cable, self.__socket_type2_cable_output, self.__manufacturer, self.__model,
                  self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
                  self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop,
                  self.__oh.at[WeekDaysShort.mo, OpenClose.open],
