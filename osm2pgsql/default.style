@@ -197,8 +197,6 @@ node,way   socket:type1_combo text     linear
 node,way   socket:type1_combo:output text     linear
 node,way   socket:type2_cable text     linear
 node,way   socket:type2_cable:output text     linear
-node,way   socket:type2_cable text     linear
-node,way   socket:type2_cable:output text     linear
 node,way   manufacturer text     linear
 node,way   model        text     linear
 
