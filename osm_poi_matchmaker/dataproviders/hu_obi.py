@@ -44,7 +44,7 @@ class hu_obi(DataProvider):
             if soup is not None:
                 text = json.loads(soup)
                 for poi_data in text.get('stores'):
-                    self.data.name = 'obi'
+                    self.data.name = 'OBI'
                     self.data.code = 'huobidiy'
                     self.data.postcode = poi_data['address']['zip'].strip()
                     self.data.city = clean_city(poi_data['address']['city'])

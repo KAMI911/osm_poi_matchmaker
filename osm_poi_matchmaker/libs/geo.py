@@ -33,19 +33,34 @@ def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
     :return: Validated coordinates or None on error
     """
     if (latitude is not None and latitude != '') and (longitude is not None and longitude != ''):
-        la = PATTERN_COORDINATE.search(latitude.replace(',', '.').strip())
-        lo = PATTERN_COORDINATE.search(longitude.replace(',', '.').strip())
-        try:
-            if la is not None and lo is not None:
-                lat = la.group()
-                lon = lo.group()
-            else:
+        if not isinstance(latitude, float):
+            la = PATTERN_COORDINATE.search(latitude.replace(',', '.').strip())
+            try:
+                if la is not None:
+                    lat = la.group()
+                else:
+                    return None
+            except (AttributeError, IndexError) as e:
+                logging.error('{};{}'.format(latitude, longitude))
+                logging.error(e)
+                logging.error(traceback.print_exc())
                 return None
-        except (AttributeError, IndexError) as e:
-            logging.error('{};{}'.format(latitude,longitude))
-            logging.error(e)
-            logging.error(traceback.print_exc())
-            return None
+        else:
+            lat = latitude
+        if not isinstance(longitude, float):
+            lo = PATTERN_COORDINATE.search(longitude.replace(',', '.').strip())
+            try:
+                if lo is not None:
+                    lon = lo.group()
+                else:
+                    return None
+            except (AttributeError, IndexError) as e:
+                logging.error('{};{}'.format(latitude, longitude))
+                logging.error(e)
+                logging.error(traceback.print_exc())
+                return None
+        else:
+            lon = longitude
         return geom_point(lat, lon, proj)
     else:
         return None

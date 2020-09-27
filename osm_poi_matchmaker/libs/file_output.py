@@ -24,6 +24,12 @@ POI_TAGS = {'poi_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:p
             'poi_addr_street': 'addr:street', 'poi_addr_housenumber': 'addr:housenumber',
             'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email'}
 
+POI_EV_TAGS = {'poi_capacity': 'capacity',
+               'poi_socket_chademo': 'socket:chademo', 'poi_socket_chademo_output': 'socket:chademo:output',
+               'poi_socket_type1_combo': 'socket:type1_combo', 'poi_socket_type1_combo_output': 'socket:type1_combo:output',
+               'poi_socket_type2_cable': 'socket:type2_cable', 'poi_socket_type2_cable_output': 'socket:type2_cable:output',
+               'poi_manufacturer': 'manufacturer', 'poi_model': 'model'}
+
 
 def ascii_numcoder(text):
     output = ''
@@ -235,6 +241,19 @@ def generate_osm_xml(df, session=None):
                 tags['food'] = 'yes' if row.get('poi_food') == True else 'no'
             if row.get('poi_truck') is not None and row.get('poi_truck') != '':
                 tags['truck'] = 'yes' if row.get('poi_truck') == True else 'no'
+            if row.get('poi_authentication_app') is not None and row.get('poi_authentication_app') != '':
+                tags['authentication:app'] = 'yes' if row.get('poi_authentication_app') == True else 'no'
+            if row.get('poi_authentication_membership_card') is not None and row.get('poi_authentication_membership_card') != '':
+                tags['authentication:membership_card'] = 'yes' if row.get('poi_authentication_membership_card') == True else 'no'
+            if row.get('poi_fee') is not None and row.get('poi_fee') != '':
+                tags['fee'] = 'yes' if row.get('poi_fee') == True else 'no'
+            if row.get('poi_parking_fee') is not None and row.get('poi_parking_fee') != '':
+                tags['parking_fee'] = 'yes' if row.get('poi_parking_fee') == True else 'no'
+            if row.get('poi_motorcar') is not None and row.get('poi_motorcar') != '':
+                tags['motorcar'] = 'yes' if row.get('poi_motorcar') == True else 'no'
+            for k, v in POI_EV_TAGS.items():
+                if not (row.get(k) is None or math.isnan(row.get(k))):
+                    tags[v] = row.get(k)
             # This is a new POI - will add fix me tag to the new items.
             if row.get('poi_new') is not None and row.get('poi_new') == True:
                 tags['fixme'] = 'verify import'
