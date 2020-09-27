@@ -147,8 +147,8 @@ def extract_street_housenumber_better_2(clearable):
     return: Separated street and housenumber
     '''
     # Split and clean up street
-    clearable = clearable.strip()
-    if clearable is not None and clearable != '':
+    if clearable is not None and clearable.strip() != '':
+        clearable = clearable.strip()
         # Remove bulding names
         clearable = clearable.replace(' - Savoya Park', '')
         clearable = clearable.replace('Park Center,', '')
