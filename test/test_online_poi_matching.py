@@ -29,7 +29,7 @@ class TestSmartOnlinePOIMatching(unittest.TestCase):
             pd.Series(data=['1029', 'Budapest', 'Hidegkúti út', '1', None], index=POI_ADDR_COLS),
             pd.Series(data=['1028', 'Budapest', 'Hidegkúti út', '1', None], index=POI_ADDR_COLS),
             pd.Series(data=['5662', 'Csanádapáca', None, None, None], index=POI_ADDR_COLS),
-
+            pd.Series(data=['1036', 'Budapest', 'Bécsi út', '136', None], index=POI_ADDR_COLS),
         ]
         self.osm_addresses = pd.DataFrame(
             [
@@ -45,6 +45,7 @@ class TestSmartOnlinePOIMatching(unittest.TestCase):
             ['1029', 'Budapest', 'Hidegkúti út', '1', None],
             ['1028', 'Budapest', 'Hidegkúti út', '1', None],
             ['5662', 'Csanádapáca', None, None, None],
+            ['1032', 'Budapest', 'Bécsi út', '136', None],
             ])
         '''
         ['5662', 'Csanádapáca', None, None, None],
@@ -52,8 +53,8 @@ class TestSmartOnlinePOIMatching(unittest.TestCase):
         ['2000', 'Szentendre', 'Vasvári Pál utca', None, '2794/16'],
         '''
         self.osm_addresses.columns = OSM_ADDR_COLS
-        self.postcodes = [9737, 9739, 9740, 9741, 9737, 9742, 9743, 1029, 1029, 1029, 1029, None]
-        self.good_codes = [None, None, 9740, 9741, None, 9742, 9743, None, 1029, None, None, None]
+        self.postcodes = [9737, 9739, 9740, 9741, 9737, 9742, 9743, 1029, 1029, 1029, 1029, None, 1037]
+        self.good_codes = [None, None, 9740, 9741, None, 9742, 9743, None, 1029, None, None, None, None]
 
     def test_smart_online_poi_matching(self):
         for i in range(0, len(self.addresses)):
