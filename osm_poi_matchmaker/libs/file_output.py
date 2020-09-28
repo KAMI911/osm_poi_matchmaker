@@ -252,8 +252,12 @@ def generate_osm_xml(df, session=None):
             if row.get('poi_motorcar') is not None and row.get('poi_motorcar') != '':
                 tags['motorcar'] = 'yes' if row.get('poi_motorcar') == True else 'no'
             for k, v in POI_EV_TAGS.items():
-                if not (row.get(k) is None or math.isnan(row.get(k))):
-                    tags[v] = row.get(k)
+                if row.get(k) is not None and row.get(k) != '':
+                    if isinstance(row.get(k), float):
+                        if not math.isnan(row.get(k)):
+                            tags[v] = int(row.get(k))
+                    else:
+                        tags[v] = row.get(k)
             # This is a new POI - will add fix me tag to the new items.
             if row.get('poi_new') is not None and row.get('poi_new') == True:
                 tags['fixme'] = 'verify import'
