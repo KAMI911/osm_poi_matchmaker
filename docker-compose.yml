@@ -6,8 +6,7 @@ volumes:
   opm_outputdata:
 services:
   db:
-    image: postgis/postgis:9.6-3.0
-    # image: postgis/postgis:12-3.0
+    image: postgis/postgis:13-3.0
     container_name: opm_db
     environment:
       - POSTGRES_USER=poi
