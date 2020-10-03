@@ -15,12 +15,12 @@ except ImportError as err:
     sys.exit(128)
 
 
-def download_content(link, verify_link=config.get_download_verify_link(), post_parm=None, headers=None):
+def download_content(link, verify_link=config.get_download_verify_link(), post_parm=None, headers=None, encoding='utf-8'):
     try:
         if post_parm is None:
             logging.debug('Downloading without post parameters.')
             page = requests.get(link, verify=verify_link, headers=headers)
-            page.encoding = 'utf-8'
+            page.encoding = encoding
         else:
             logging.debug('Downloading with post parameters.')
             headers_static = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
@@ -29,7 +29,7 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
             else:
                 headers = headers_static
             page = requests.post(link, verify=verify_link, data=post_parm, headers=headers)
-            page.encoding = 'utf-8'
+            page.encoding = encoding
     except requests.exceptions.ConnectionError as e:
         logging.warning('Unable to open connection. ({})'.format(e))
         return None
