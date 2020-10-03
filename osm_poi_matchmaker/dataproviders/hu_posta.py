@@ -93,7 +93,7 @@ class hu_posta(DataProvider):
                         else:
                             logging.error('Non existing Posta type.')
                         self.data.postcode = e.get('zipcode')
-                        self.data.housenumber = e.street.housenumber.get_text().strip() \
+                        self.data.housenumber = e.street.housenumber.get_text().split('(', 1)[0].strip() \
                             if e.street.housenumber is not None else None
                         self.data.conscriptionnumber = None
                         self.data.city = clean_city(e.city.get_text())
