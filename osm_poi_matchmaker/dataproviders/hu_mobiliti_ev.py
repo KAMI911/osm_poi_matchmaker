@@ -35,7 +35,7 @@ class hu_mobiliti_ev(DataProvider):
                                      "'opening_hours': '24/7', 'ref:vatin': 'HU23443486', 'ref:vatin:hu': '23443486-2-42',"
                                      "'ref:HU:company': '01-09-965868', 'contact:website': 'https://www.mobiliti.hu/emobilitas',"
                                      "'contact:email': 'help@mobiliti.hu', 'contact:phone': '+36 62 565 758'}",
-                         'poi_url_base': 'https://www.mobiliti.hu', 'poi_search_name': 'mobility',
+                         'poi_url_base': 'https://www.mobiliti.hu', 'poi_search_name': '(mobility|emobi)',
                          'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
                          'osm_search_distance_unsafe': 60},
                         ]
