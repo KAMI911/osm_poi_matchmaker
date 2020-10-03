@@ -39,8 +39,7 @@ class hu_shell(DataProvider):
 
     def process(self):
         try:
-            csv = save_downloaded_pd('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
+            csv = save_downloaded_pd('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
             if csv is not None:
                 csv[['Post code']] = csv[['Post code']].fillna('0000')
                 csv[['Post code']] = csv[['Post code']].astype(int)

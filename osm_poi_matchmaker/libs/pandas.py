@@ -8,21 +8,35 @@ try:
     import os
     import pandas as pd
     from osm_poi_matchmaker.utils import config
+    from osm_poi_matchmaker.libs.soup import download_content
 except ImportError as err:
     logging.error('Error {0} import module: {1}'.format(__name__, err))
     logging.error(traceback.print_exc())
     sys.exit(128)
 
-
-def save_downloaded_pd(link, file, verify=config.get_download_verify_link()):
-    if config.get_download_use_cached_data() == True and os.path.isfile(file):
+def save_downloaded_pd(link, file, verify=config.get_download_verify_link(), headers=None):
+    if config.get_download_use_cached_data() is True and os.path.isfile(file):
         df = pd.read_csv(file)
     else:
-        df = pd.read_csv(link, encoding='UTF-16', sep='\t')
-        if df is not None:
-            if not os.path.exists(config.get_directory_cache_url()):
-                os.makedirs(config.get_directory_cache_url())
-            df.to_csv(file)
+        if link is not None:
+            cvs = download_content(link, verify, None, None, 'utf-16')
+            if cvs is not None:
+                logging.info('We got content, write to file.')
+                if not os.path.exists(config.get_directory_cache_url()):
+                    os.makedirs(config.get_directory_cache_url())
+                with open(file, mode='w', encoding='utf-8') as code:
+                  code.write(cvs)
+                df = pd.read_csv(file, encoding='UTF-8', sep='\t', skiprows=0)
+            else:
+                if os.path.exists(file):
+                    logging.info('The {} link returned error code other than 200 but there is an already downloaded file. Try to open it.'.format(link))
+                    df = pd.read_csv(file, encoding='UTF-8', sep='\t', skiprows=0)
+                else:
+                    logging.warning('Skipping dataset: {}. There is not downloadable URL, nor already downbloaded file.'.format(link))
         else:
-            logging.warning('Skipping dataset.')
+            if os.path.exists(file):
+                df = pd.read_csv(file, encoding='UTF-8', sep='\t', skiprows=0)
+                logging.info('Using file only: {}. There is not downloadable URL only just the file. Do not forget to update file manually!'.format(file))
+            else:
+                logging.warning('Cannot use download and file: {}. There is not downloadable URL, nor already downbloaded file.'.format(file))
     return df
