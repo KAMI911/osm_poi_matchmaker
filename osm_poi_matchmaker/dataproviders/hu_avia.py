@@ -45,7 +45,7 @@ class hu_avia(DataProvider):
                                         self.filetype)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
-                text = json.loads(extract_javascript_variable(soup, 'markers', True))
+                text = json.loads(extract_javascript_variable(soup, 'markers', True), strict=False)
                 for poi_data in text:
                     self.data.name = 'Avia'
                     self.data.code = 'huaviafu'
