@@ -21,7 +21,7 @@ except ImportError as err:
 class hu_yves_rocher(DataProvider):
 
     def constains(self):
-        self.link = 'https://storelocator.yves-rocher.eu/map/getstores'
+        self.link = 'https://storelocator.yves-rocher.eu/api/v1/map/stores'
         self.POI_COMMON_TAGS = "'shop': 'cosmetics', 'operator': 'Yves Rocher Hungary Kft. '," \
                                "'brand': 'Yves Rocher', 'brand:wikidata': 'Q28496595', " \
                                "'brand:wikipedia': 'en:Yves Rocher (company)', " \
@@ -48,9 +48,9 @@ class hu_yves_rocher(DataProvider):
                                         self.filetype)
             if soup is not None:
                 text = json.loads(str(soup))
-                for poi_data in text.get('stores').values():
+                for poi_data in text.get('list'):
                     try:
-                        if poi_data.get('country_id') != '3':
+                        if poi_data.get('country_id') != 3:
                             continue
                         else:
                             self.data.name = 'Yves Rocher'
