@@ -42,7 +42,7 @@ class hu_posta(DataProvider):
                  'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
                  'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 350,
                  'osm_search_distance_unsafe': 220, 'preserve_original_post_code': True},
-                {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkautomata', 'poi_type': 'vending_machine_cheques',
+                {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkbefizető automata', 'poi_type': 'vending_machine_cheques',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'cheques', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
                  'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
