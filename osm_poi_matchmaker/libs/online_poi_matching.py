@@ -70,15 +70,18 @@ def online_poi_matching(args):
                     data.at[i, 'osm_node'] = osm_node
                     # Refine postcode
                     if row['preserve_original_post_code'] is not True:
+                        # Current OSM postcode based on lat,long query.
                         postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
                             lon, lat, row.get('poi_postcode'))
                         force_postcode_change = False # TODO: Has to be a setting in app.conf
                         if force_postcode_change is True:
+                            # Force to use datasource postcode
                             if postcode != row.get('poi_postcode'):
                                 logging.info('Changing postcode from {} to {}.'.
                                              format(row.get('poi_postcode'), postcode))
                                 data.at[i, 'poi_postcode'] = postcode
                         else:
+                            # Try to use smart method for postcode check
                             ch_posctode = smart_postcode_check(row, osm_query, postcode)
                             if ch_posctode is not None:
                                 data.at[i, 'poi_postcode'] = ch_posctode
@@ -240,33 +243,20 @@ def online_poi_matching(args):
         logging.error(traceback.print_exc())
 
 def smart_postcode_check(curr_data, osm_data, pc):
-    logging.critical(curr_data.to_string())
-    logging.critical(osm_data.to_string())
-    logging.critical(pc)
     '''
     Enhancement for the former problem: addr:postcode was changed without
     changing any other parts of address. Issue #78
 
     When address or conscription number change or postcode is empty.
     '''
-    logging.critical(curr_data.get('poi_postcode'))
-    logging.critical(osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')])
-    logging.critical(pc)
-    logging.critical(curr_data.get('poi_city'))
-    logging.critical(osm_data.iloc[0, osm_data.columns.get_loc('addr:city')])
-    logging.critical(curr_data.get('poi_addr_housenumber'))
-    logging.critical(osm_data.iloc[0, osm_data.columns.get_loc('addr:housenumber')])
-    logging.critical(curr_data.get('poi_addr_street'))
-    logging.critical(osm_data.iloc[0, osm_data.columns.get_loc('addr:street')])
-
     # Change postcode when there is no postcode in OSM or the address was changed
-    if pc is not None and pc != '' and \
+    if pc is not None and pc != '' and osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] != pc and \
         (osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] is None or
-        osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] == '' or
+        osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] == '') or \
         (curr_data.get('poi_addr_housenumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:housenumber')] or
         curr_data.get('poi_addr_street') != osm_data.iloc[0, osm_data.columns.get_loc('addr:street')] or
         curr_data.get('poi_city') != osm_data.iloc[0, osm_data.columns.get_loc('addr:city')] or
-        curr_data.get('poi_addr_conscriptionnumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:conscriptionnumber')])):
+        curr_data.get('poi_addr_conscriptionnumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:conscriptionnumber')]):
         logging.info('Changing postcode from {} to {}.'.format(curr_data.get('poi_postcode'), pc))
         return pc
     else:
