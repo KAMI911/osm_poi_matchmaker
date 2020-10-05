@@ -63,8 +63,9 @@ class hu_mol_plugee_ev(DataProvider):
                     self.data.socket_type1_combo_output = poi_data.get('Teljesítmény (CCS)')
                     self.data.socket_type2_cable = poi_data.get('Darab (Type 2)')
                     self.data.socket_type2_cable_output = poi_data.get('Teljesítmény (Type 2)')
-                    self.__manufacturer = poi_data.get('Gyártó')
-                    self.__model = poi_data.get('Típus')
+                    self.data.manufacturer = poi_data.get('Gyártó')
+                    self.data.model = poi_data.get('Típus')
+                    self.data.capacity = poi_data.get('Kapacitás')
                     self.data.add()
         except Exception as e:
             logging.error(traceback.print_exc())
