@@ -38,13 +38,13 @@ def init_log():
 
 
 def import_basic_data(session):
-    logging.info('Importing cities ...'.format())
+    logging.info('Importing cities ...')
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',
                                      config.get_directory_cache_url())
     work.process()
 
-    logging.info('Importing street types ...'.format())
+    logging.info('Importing street types ...')
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
     work = hu_street_types_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml',
                                     config.get_directory_cache_url())
