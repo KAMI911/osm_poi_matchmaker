@@ -437,7 +437,7 @@ class POIDataset:
                         self.__street = data
                     else:
                         new_data = query.at[0, 'name']
-                        logging.info('There is a metaphone street around named: {street}, original was: {original}.', street=new_data, original=data))
+                        logging.info('There is a metaphone street around named: {street}, original was: {original}.', street=new_data, original=data)
                         self.__street = new_data
                 else:
                     logging.info('There is a street around named: {}.', data)
