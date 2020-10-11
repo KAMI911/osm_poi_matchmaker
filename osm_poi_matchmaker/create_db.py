@@ -23,7 +23,7 @@ try:
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
-    logging.error('Error {0} import module: {1}',__name__, err))
+    logging.error('Error {error} import module: {modeule}', module=__name__, error=err))
     logging.error(traceback.print_exc())
     sys.exit(128)
 
