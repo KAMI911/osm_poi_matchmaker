@@ -6,7 +6,7 @@ try:
     import logging
     import sys
     import pandas as pd
-    from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose, WeekDaysLongHU
+    from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
     from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch
