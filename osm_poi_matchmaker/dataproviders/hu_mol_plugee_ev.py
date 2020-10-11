@@ -14,7 +14,7 @@ try:
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
-    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error('Error {error} import module: {module}', module=__name__, error=err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 
@@ -37,8 +37,8 @@ class hu_mol_plugee_ev(DataProvider):
                          "'contact:email': 'info@molplugee.hu', 'contact:phone': '+36 1 998 9888', "
                          "'contact:website': 'https://molplugee.hu/', 'motorcar': 'yes'}",
                          'poi_url_base': 'https://molplugee.hu', 'poi_search_name': '(mol plugee|plugee)',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
-                         'osm_search_distance_unsafe': 60},
+                         'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
+                         'osm_search_distance_unsafe': 10},
                         ]
         return self.__types
 

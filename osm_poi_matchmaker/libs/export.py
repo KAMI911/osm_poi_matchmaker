@@ -8,7 +8,7 @@ try:
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
-    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error('Error {error} import module: {module}', module=__name__, error=err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 

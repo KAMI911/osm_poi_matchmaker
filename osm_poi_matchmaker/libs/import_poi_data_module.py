@@ -12,7 +12,7 @@ try:
     from osm_poi_matchmaker.utils import config, dataproviders_loader
     from osm_poi_matchmaker.dao.data_handlers import insert_type, get_or_create
 except ImportError as err:
-    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error('Error {error} import module: {module}', module=__name__, error=err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 

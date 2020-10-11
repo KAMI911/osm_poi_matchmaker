@@ -12,7 +12,7 @@ try:
     import enum
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
-    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error('Error {error} import module: {module}', module=__name__, error=err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 

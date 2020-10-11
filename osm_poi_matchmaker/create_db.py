@@ -23,7 +23,7 @@ try:
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
-    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error('Error {error} import module: {module}', module=__name__, error=err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 
@@ -38,13 +38,13 @@ def init_log():
 
 
 def import_basic_data(session):
-    logging.info('Importing cities ...'.format())
+    logging.info('Importing cities ...')
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',
                                      config.get_directory_cache_url())
     work.process()
 
-    logging.info('Importing street types ...'.format())
+    logging.info('Importing street types ...')
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
     work = hu_street_types_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml',
                                     config.get_directory_cache_url())
@@ -81,7 +81,7 @@ class WorkflowManager(object):
             self.queue.put(m)
         try:
             # Start multiprocessing in case multiple cores
-            logging.info('Starting processing on {} cores.'.format(self.NUMBER_OF_PROCESSES))
+            logging.info('Starting processing on {} cores.', self.NUMBER_OF_PROCESSES)
             self.results = []
             self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES)
             self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable())
@@ -97,7 +97,7 @@ class WorkflowManager(object):
                     'poi_address'] for c in poi_codes]
         try:
             # Start multiprocessing in case multiple cores
-            logging.info('Starting processing on {} cores.'.format(self.NUMBER_OF_PROCESSES))
+            logging.info('Starting processing on {} cores.', self.NUMBER_OF_PROCESSES)
             self.results = []
             self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES)
             self.results = self.pool.map_async(to_do, modules)
@@ -124,7 +124,7 @@ class WorkflowManager(object):
 
 
 def main():
-    logging.info('Starting {0} ...'.format(__program__))
+    logging.info('Starting {0} ...', __program__)
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                               config.get_database_writer_password(),
                                               config.get_database_writer_host(),
@@ -184,4 +184,4 @@ if __name__ == '__main__':
     init_log()
     timer = timing.Timing()
     main()
-    logging.info('Total duration of process: {}. Finished, exiting and go home ...'.format(timer.end()))
+    logging.info('Total duration of process: {}. Finished, exiting and go home ...', timer.end())

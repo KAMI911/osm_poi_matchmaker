@@ -9,7 +9,7 @@ try:
         clean_opening_hours, clean_opening_hours_2, clean_phone, clean_phone_to_str, clean_string, clean_url, \
         clean_city
 except ImportError as err:
-    logging.error('Error {0} import module: {1}'.format(__name__, err))
+    logging.error('Error {error} import module: {module}', module=__name__, error=err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 
