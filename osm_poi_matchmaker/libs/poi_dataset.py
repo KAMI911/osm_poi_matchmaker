@@ -915,7 +915,7 @@ class POIDataset:
     def process(self):
         df = pd.DataFrame(self.insert_data)
         df.columns = POI_COLS
-        return df.where((pd.notnull(df)), None
+        return df.where((pd.notnull(df)), None)
 
     def lenght(self):
         return len(self.insert_data)
