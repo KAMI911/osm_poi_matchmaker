@@ -65,30 +65,30 @@ def generate_osm_xml(df, session=None):
     from lxml import etree
     import lxml
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
-    id = -1
-    current_id = id
+    default_osm_id = -1
+    current_osm_id = default_osm_id
     added_nodes = []
     try:
         for index, row in df.iterrows():
-            current_id = id if row.get('osm_id') is None else row.get('osm_id')
+            current_osm_id = osm_id if row.get('osm_id') is None else row.get('osm_id')
             osm_timestamp = timestamp_now() if row.get('osm_timestamp') is None else row.get('osm_timestamp')
             osm_version = '99999' if row.get('osm_version') is None else row.get('osm_version')
             if row.get('osm_node') is None or row.get('osm_node') == OSM_object_type.node:
-                main_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(current_id),
+                main_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(current_osm_id),
                     lat='{}'.format(row.get('poi_lat')), lon='{}'.format(row.get('poi_lon')),
                     user='{}'.format('osm_poi_matchmaker'), timestamp='{}'.format(osm_timestamp),
                     uid='{}'.format('8635934'),
                     version='{}'.format(osm_version))
-                josm_object = 'n{}'.format(current_id)
-                if current_id > 0:
-                    comment = etree.Comment(' OSM link: https://osm.org/node/{} '.format(str(current_id)))
+                josm_object = 'n{}'.format(current_osm_id)
+                if current_osm_id > 0:
+                    comment = etree.Comment(' OSM link: https://osm.org/node/{} '.format(str(current_osm_id)))
                     osm_xml_data.append(comment)
             elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.way:
-                main_data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_id),
+                main_data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_osm_id),
                     user='{}'.format('osm_poi_matchmaker'), timestamp='{}'.format(osm_timestamp),
                     uid='{}'.format('8635934'),
                     version='{}'.format(osm_version))
-                josm_object = 'w{}'.format(current_id)
+                josm_object = 'w{}'.format(current_osm_id)
                 # Add way nodes without any modification)
                 try:
                     for n in row.get('osm_nodes'):
@@ -114,15 +114,15 @@ def generate_osm_xml(df, session=None):
                     logging.warning('Missing nodes on this way: {}.'.format(row.get('osm_id')))
                     logging.warning(traceback.print_exc())
                 # Add node reference as comment for existing POI
-                if current_id > 0:
-                    comment = etree.Comment(' OSM link: https://osm.org/way/{} '.format(str(current_id)))
+                if current_osm_id > 0:
+                    comment = etree.Comment(' OSM link: https://osm.org/way/{} '.format(str(current_osm_id)))
                     osm_xml_data.append(comment)
             elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.relation:
-                main_data = etree.SubElement(osm_xml_data, 'relation', action='modify', id=str(current_id),
+                main_data = etree.SubElement(osm_xml_data, 'relation', action='modify', id=str(current_osm_id),
                     user='{}'.format('osm_poi_matchmaker'), timestamp='{}'.format(osm_timestamp),
                     uid='{}'.format('8635934'),
                     version='{}'.format(osm_version))
-                josm_object = 'r{}'.format(current_id)
+                josm_object = 'r{}'.format(current_osm_id)
                 relations = relationer(row.get('osm_nodes'))
                 try:
                     for i in relations:
@@ -289,7 +289,8 @@ def generate_osm_xml(df, session=None):
             comment = etree.Comment(' JOSM magic link: {}?new_layer=false&objects={}&addtags={} '.format('http://localhost:8111/load_object', josm_object, josm_link))
             osm_xml_data.append(comment)
             osm_xml_data.append(main_data)
-            id -= 1
+            # Next deafult OSM id is one more less for non existing objects
+            default_osm_id -= 1
     except ValueError as e:
         logging.error(e)
         logging.error(comment)
