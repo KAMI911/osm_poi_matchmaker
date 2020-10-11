@@ -142,7 +142,7 @@ class POIDataset:
 
     @property
     def code(self):
-        return (self.__code)
+        return self.__code
 
     @code.setter
     def code(self, data):
@@ -150,7 +150,7 @@ class POIDataset:
 
     @property
     def postcode(self):
-        return (self.__postcode)
+        return self.__postcode
 
     @postcode.setter
     def postcode(self, data):
@@ -158,7 +158,7 @@ class POIDataset:
 
     @property
     def city(self):
-        return (self.__city)
+        return self.__city
 
     @city.setter
     def city(self, data):
@@ -166,7 +166,7 @@ class POIDataset:
 
     @property
     def name(self):
-        return (self.__name)
+        return self.__name
 
     @name.setter
     def name(self, data):
@@ -174,7 +174,7 @@ class POIDataset:
 
     @property
     def branch(self):
-        return (self.__branch)
+        return self.__branch
 
     @branch.setter
     def branch(self, data):
@@ -182,7 +182,7 @@ class POIDataset:
 
     @property
     def website(self):
-        return (self.__website)
+        return self.__website
 
     @website.setter
     def website(self, data):
@@ -190,7 +190,7 @@ class POIDataset:
 
     @property
     def description(self):
-        return (self.__description)
+        return self.__description
 
     @description.setter
     def description(self, data):
@@ -198,7 +198,7 @@ class POIDataset:
 
     @property
     def fuel_adblue(self):
-        return (self.__fuel_adblue)
+        return self.__fuel_adblue
 
     @fuel_adblue.setter
     def fuel_adblue(self, data):
@@ -206,7 +206,7 @@ class POIDataset:
 
     @property
     def fuel_octane_100(self):
-        return (self.__fuel_octane_100)
+        return self.__fuel_octane_100
 
     @fuel_octane_100.setter
     def fuel_octane_100(self, data):
@@ -214,7 +214,7 @@ class POIDataset:
 
     @property
     def fuel_octane_98(self):
-        return (self.__fuel_octane_98)
+        return self.__fuel_octane_98
 
     @fuel_octane_98.setter
     def fuel_octane_98(self, data):
@@ -222,7 +222,7 @@ class POIDataset:
 
     @property
     def fuel_octane_95(self):
-        return (self.__fuel_octane_95)
+        return self.__fuel_octane_95
 
     @fuel_octane_95.setter
     def fuel_octane_95(self, data):
@@ -230,7 +230,7 @@ class POIDataset:
 
     @property
     def fuel_diesel_gtl(self):
-        return (self.__fuel_diesel_gtl)
+        return self.__fuel_diesel_gtl
 
     @fuel_diesel_gtl.setter
     def fuel_diesel_gtl(self, data):
@@ -238,7 +238,7 @@ class POIDataset:
 
     @property
     def fuel_diesel(self):
-        return (self.__fuel_diesel)
+        return self.__fuel_diesel
 
     @fuel_diesel.setter
     def fuel_diesel(self, data):
@@ -246,7 +246,7 @@ class POIDataset:
 
     @property
     def fuel_lpg(self):
-        return (self.__fuel_lpg)
+        return self.__fuel_lpg
 
     @fuel_lpg.setter
     def fuel_lpg(self, data):
@@ -254,7 +254,7 @@ class POIDataset:
 
     @property
     def fuel_e85(self):
-        return (self.__fuel_e85)
+        return self.__fuel_e85
 
     @fuel_e85.setter
     def fuel_e85(self, data):
@@ -262,7 +262,7 @@ class POIDataset:
 
     @property
     def rent_lpg_bottles(self):
-        return (self.__rent_lpg_bottles)
+        return self.__rent_lpg_bottles
 
     @rent_lpg_bottles.setter
     def rent_lpg_bottles(self, data):
@@ -270,7 +270,7 @@ class POIDataset:
 
     @property
     def compressed_air(self):
-        return (self.__compressed_air)
+        return self.__compressed_air
 
     @compressed_air.setter
     def compressed_air(self, data):
@@ -278,7 +278,7 @@ class POIDataset:
 
     @property
     def restaurant(self):
-        return (self.__restaurant)
+        return self.__restaurant
 
     @restaurant.setter
     def restaurant(self, data):
@@ -286,7 +286,7 @@ class POIDataset:
 
     @property
     def food(self):
-        return (self.__food)
+        return self.__food
 
     @food.setter
     def food(self, data):
@@ -294,7 +294,7 @@ class POIDataset:
 
     @property
     def truck(self):
-        return (self.__truck)
+        return self.__truck
 
     @truck.setter
     def truck(self, data):
@@ -414,7 +414,7 @@ class POIDataset:
 
     @property
     def original(self):
-        return (self.__original)
+        return self.__original
 
     @original.setter
     def original(self, data):
@@ -422,7 +422,7 @@ class POIDataset:
 
     @property
     def street(self):
-        return (self.__street)
+        return self.__street
 
     @street.setter
     def street(self, data):
@@ -451,7 +451,7 @@ class POIDataset:
 
     @property
     def housenumber(self):
-        return (self.__housenumber)
+        return self.__housenumber
 
     @housenumber.setter
     def housenumber(self, data):
@@ -459,7 +459,7 @@ class POIDataset:
 
     @property
     def conscriptionnumber(self):
-        return (self.__conscriptionnumber)
+        return self.__conscriptionnumber
 
     @conscriptionnumber.setter
     def conscriptionnumber(self, data):
@@ -467,7 +467,7 @@ class POIDataset:
 
     @property
     def ref(self):
-        return (self.__ref)
+        return self.__ref
 
     @ref.setter
     def ref(self, data):
@@ -475,7 +475,7 @@ class POIDataset:
 
     @property
     def phone(self):
-        return (self.__phone)
+        return self.__phone
 
     @phone.setter
     def phone(self, data):
@@ -486,7 +486,7 @@ class POIDataset:
 
     @property
     def email(self):
-        return (self.__email)
+        return self.__email
 
     @email.setter
     def email(self, data):
@@ -497,7 +497,7 @@ class POIDataset:
 
     @property
     def geom(self):
-        return (self.__geom)
+        return self.__geom
 
     @geom.setter
     def geom(self, data):
@@ -524,7 +524,7 @@ class POIDataset:
 
     @property
     def opening_hours_table(self):
-        return (self.__oh)
+        return self.__oh
 
     @opening_hours_table.setter
     def opening_hours_table(self, data):
@@ -532,7 +532,7 @@ class POIDataset:
 
     @property
     def nonstop(self):
-        return (self.__nonstop)
+        return self.__nonstop
 
     @nonstop.setter
     def nonstop(self, data):
@@ -540,7 +540,7 @@ class POIDataset:
 
     @property
     def mo_o(self):
-        return (self.__oh.at[WeekDaysShort.mo, OpenClose.open])
+        return self.__oh.at[WeekDaysShort.mo, OpenClose.open]
 
     @mo_o.setter
     def mo_o(self, data):
@@ -548,7 +548,7 @@ class POIDataset:
 
     @property
     def tu_o(self):
-        return (self.__oh.at[WeekDaysShort.tu, OpenClose.open])
+        return self.__oh.at[WeekDaysShort.tu, OpenClose.open]
 
     @tu_o.setter
     def tu_o(self, data):
@@ -556,7 +556,7 @@ class POIDataset:
 
     @property
     def we_o(self):
-        return (self.__oh.at[WeekDaysShort.we, OpenClose.open])
+        return self.__oh.at[WeekDaysShort.we, OpenClose.open]
 
     @we_o.setter
     def we_o(self, data):
@@ -564,7 +564,7 @@ class POIDataset:
 
     @property
     def th_o(self):
-        return (self.__oh.at[WeekDaysShort.th, OpenClose.open])
+        return self.__oh.at[WeekDaysShort.th, OpenClose.open]
 
     @th_o.setter
     def th_o(self, data):
@@ -572,7 +572,7 @@ class POIDataset:
 
     @property
     def fr_o(self):
-        return (self.__oh.at[WeekDaysShort.fr, OpenClose.open])
+        return self.__oh.at[WeekDaysShort.fr, OpenClose.open]
 
     @fr_o.setter
     def fr_o(self, data):
@@ -580,7 +580,7 @@ class POIDataset:
 
     @property
     def sa_o(self):
-        return (self.__oh.at[WeekDaysShort.sa, OpenClose.open])
+        return self.__oh.at[WeekDaysShort.sa, OpenClose.open]
 
     @sa_o.setter
     def sa_o(self, data):
@@ -588,7 +588,7 @@ class POIDataset:
 
     @property
     def su_o(self):
-        return (self.__oh.at[WeekDaysShort.su, OpenClose.open])
+        return self.__oh.at[WeekDaysShort.su, OpenClose.open]
 
     @su_o.setter
     def su_o(self, data):
@@ -596,7 +596,7 @@ class POIDataset:
 
     @property
     def mo_c(self):
-        return (self.__oh.at[WeekDaysShort.mo, OpenClose.close])
+        return self.__oh.at[WeekDaysShort.mo, OpenClose.close]
 
     @mo_c.setter
     def mo_c(self, data):
@@ -604,7 +604,7 @@ class POIDataset:
 
     @property
     def tu_c(self):
-        return (self.__oh.at[WeekDaysShort.tu, OpenClose.close])
+        return self.__oh.at[WeekDaysShort.tu, OpenClose.close]
 
     @tu_c.setter
     def tu_c(self, data):
@@ -612,7 +612,7 @@ class POIDataset:
 
     @property
     def we_c(self):
-        return (self.__oh.at[WeekDaysShort.we, OpenClose.close])
+        return self.__oh.at[WeekDaysShort.we, OpenClose.close]
 
     @we_c.setter
     def we_c(self, data):
@@ -620,7 +620,7 @@ class POIDataset:
 
     @property
     def th_c(self):
-        return (self.__oh.at[WeekDaysShort.th, OpenClose.close])
+        return self.__oh.at[WeekDaysShort.th, OpenClose.close]
 
     @th_c.setter
     def th_c(self, data):
@@ -628,7 +628,7 @@ class POIDataset:
 
     @property
     def fr_c(self):
-        return (self.__oh.at[WeekDaysShort.fr, OpenClose.close])
+        return self.__oh.at[WeekDaysShort.fr, OpenClose.close]
 
     @fr_c.setter
     def fr_c(self, data):
@@ -636,7 +636,7 @@ class POIDataset:
 
     @property
     def sa_c(self):
-        return (self.__oh.at[WeekDaysShort.sa, OpenClose.close])
+        return self.__oh.at[WeekDaysShort.sa, OpenClose.close]
 
     @sa_c.setter
     def sa_c(self, data):
@@ -644,7 +644,7 @@ class POIDataset:
 
     @property
     def su_c(self):
-        return (self.__oh.at[WeekDaysShort.su, OpenClose.close])
+        return self.__oh.at[WeekDaysShort.su, OpenClose.close]
 
     @su_c.setter
     def su_c(self, data):
@@ -652,7 +652,7 @@ class POIDataset:
 
     @property
     def summer_mo_o(self):
-        return (self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open])
+        return self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open]
 
     @summer_mo_o.setter
     def summer_mo_o(self, data):
@@ -660,7 +660,7 @@ class POIDataset:
 
     @property
     def summer_tu_o(self):
-        return (self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open])
+        return self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open]
 
     @summer_tu_o.setter
     def summer_tu_o(self, data):
@@ -668,7 +668,7 @@ class POIDataset:
 
     @property
     def summer_we_o(self):
-        return (self.__oh.at[WeekDaysShort.we, OpenClose.summer_open])
+        return self.__oh.at[WeekDaysShort.we, OpenClose.summer_open]
 
     @summer_we_o.setter
     def summer_we_o(self, data):
@@ -676,7 +676,7 @@ class POIDataset:
 
     @property
     def summer_th_o(self):
-        return (self.__oh.at[WeekDaysShort.th, OpenClose.summer_open])
+        return self.__oh.at[WeekDaysShort.th, OpenClose.summer_open]
 
     @summer_th_o.setter
     def summer_th_o(self, data):
@@ -684,7 +684,7 @@ class POIDataset:
 
     @property
     def summer_fr_o(self):
-        return (self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open])
+        return self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open]
 
     @summer_fr_o.setter
     def summer_fr_o(self, data):
@@ -692,7 +692,7 @@ class POIDataset:
 
     @property
     def summer_sa_o(self):
-        return (self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open])
+        return self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open]
 
     @summer_sa_o.setter
     def summer_sa_o(self, data):
@@ -700,7 +700,7 @@ class POIDataset:
 
     @property
     def summer_su_o(self):
-        return (self.__oh.at[WeekDaysShort.su, OpenClose.summer_open])
+        return self.__oh.at[WeekDaysShort.su, OpenClose.summer_open]
 
     @summer_su_o.setter
     def summer_su_o(self, data):
@@ -708,7 +708,7 @@ class POIDataset:
 
     @property
     def summer_mo_c(self):
-        return (self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close])
+        return self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close]
 
     @summer_mo_c.setter
     def summer_mo_c(self, data):
@@ -716,7 +716,7 @@ class POIDataset:
 
     @property
     def summer_tu_c(self):
-        return (self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close])
+        return self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close]
 
     @summer_tu_c.setter
     def summer_tu_c(self, data):
@@ -724,7 +724,7 @@ class POIDataset:
 
     @property
     def summer_we_c(self):
-        return (self.__oh.at[WeekDaysShort.we, OpenClose.summer_close])
+        return self.__oh.at[WeekDaysShort.we, OpenClose.summer_close]
 
     @summer_we_c.setter
     def summer_we_c(self, data):
@@ -732,7 +732,7 @@ class POIDataset:
 
     @property
     def summer_th_c(self):
-        return (self.__oh.at[WeekDaysShort.th, OpenClose.summer_close])
+        return self.__oh.at[WeekDaysShort.th, OpenClose.summer_close]
 
     @summer_th_c.setter
     def summer_th_c(self, data):
@@ -740,7 +740,7 @@ class POIDataset:
 
     @property
     def summer_fr_c(self):
-        return (self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close])
+        return self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close]
 
     @summer_fr_c.setter
     def summer_fr_c(self, data):
@@ -748,7 +748,7 @@ class POIDataset:
 
     @property
     def summer_sa_c(self):
-        return (self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close])
+        return self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close]
 
     @summer_sa_c.setter
     def summer_sa_c(self, data):
@@ -756,7 +756,7 @@ class POIDataset:
 
     @property
     def summer_su_c(self):
-        return (self.__oh.at[WeekDaysShort.su, OpenClose.summer_close])
+        return self.__oh.at[WeekDaysShort.su, OpenClose.summer_close]
 
     @summer_su_c.setter
     def summer_su_c(self, data):
@@ -764,7 +764,7 @@ class POIDataset:
 
     @property
     def lunch_break(self):
-        return (self.__lunch_break['start'], self.__lunch_break['stop'])
+        return self.__lunch_break['start'], self.__lunch_break['stop']
 
     @lunch_break.setter
     def lunch_break(self, lunch_break_start, lunch_break_stop):
@@ -772,7 +772,7 @@ class POIDataset:
 
     @property
     def lunch_break_start(self):
-        return (self.__lunch_break['start'])
+        return self.__lunch_break['start']
 
     @lunch_break_start.setter
     def lunch_break_start(self, data):
@@ -780,7 +780,7 @@ class POIDataset:
 
     @property
     def lunch_break_stop(self):
-        return (self.__lunch_break['stop'])
+        return self.__lunch_break['stop']
 
     @lunch_break_stop.setter
     def lunch_break_stop(self, data):
@@ -808,7 +808,7 @@ class POIDataset:
 
     @property
     def opening_hours(self):
-        return (self.__opening_hours)
+        return self.__opening_hours
 
     @opening_hours.setter
     def opening_hours(self, data):
@@ -816,7 +816,7 @@ class POIDataset:
 
     @property
     def public_holiday_open(self):
-        return (self.__public_holiday_open)
+        return self.__public_holiday_open
 
     @public_holiday_open.setter
     def public_holiday_open(self, data):
@@ -915,7 +915,7 @@ class POIDataset:
     def process(self):
         df = pd.DataFrame(self.insert_data)
         df.columns = POI_COLS
-        return df.where((pd.notnull(df)), None)
+        return df.where((pd.notnull(df)), None
 
     def lenght(self):
         return len(self.insert_data)
