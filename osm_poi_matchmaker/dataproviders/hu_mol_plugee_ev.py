@@ -37,8 +37,8 @@ class hu_mol_plugee_ev(DataProvider):
                          "'contact:email': 'info@molplugee.hu', 'contact:phone': '+36 1 998 9888', "
                          "'contact:website': 'https://molplugee.hu/', 'motorcar': 'yes'}",
                          'poi_url_base': 'https://molplugee.hu', 'poi_search_name': '(mol plugee|plugee)',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
-                         'osm_search_distance_unsafe': 60},
+                         'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
+                         'osm_search_distance_unsafe': 10},
                         ]
         return self.__types
 
