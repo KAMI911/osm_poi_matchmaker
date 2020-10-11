@@ -5,7 +5,6 @@ try:
     import traceback
     import logging
     import sys
-    import numpy as np
     import pandas as pd
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose, WeekDaysLongHU
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
