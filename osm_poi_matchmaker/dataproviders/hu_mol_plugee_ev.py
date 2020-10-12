@@ -63,6 +63,8 @@ class hu_mol_plugee_ev(DataProvider):
                     self.data.socket_type2_combo_output = poi_data.get('Teljesítmény (CCS)')
                     self.data.socket_type2_cable = poi_data.get('Darab (Type 2)')
                     self.data.socket_type2_cable_output = poi_data.get('Teljesítmény (Type 2)')
+                    self.data.socket_type2 = poi_data.get('Darab (Type 2 – kábel nélkül)')
+                    self.data.socket_type2_output = poi_data.get('Teljesítmény (Type 2 – kábel nélkül)')
                     self.data.manufacturer = poi_data.get('Gyártó')
                     self.data.model = poi_data.get('Típus')
                     self.data.capacity = poi_data.get('Kapacitás')

@@ -94,6 +94,8 @@ class POI_address(Base):
     poi_socket_type2_combo_output = Column(Unicode(16))
     poi_socket_type2_cable = Column(Integer)
     poi_socket_type2_cable_output= Column(Unicode(16))
+    poi_socket_type2 = Column(Integer)
+    poi_socket_type2_output = Column(Unicode(16))
     poi_manufacturer = Column(Unicode(32))
     poi_model = Column(Unicode(32))
     poi_opening_hours_nonstop = Column(Boolean)

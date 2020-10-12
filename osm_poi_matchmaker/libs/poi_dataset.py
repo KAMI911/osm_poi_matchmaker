@@ -67,6 +67,8 @@ class POIDataset:
         self.__socket_type2_combo_output = None
         self.__socket_type2_cable = None
         self.__socket_type2_cable_output = None
+        self.__socket_type2 = None
+        self.__socket_type2_output = None
         self.__manufacturer = None
         self.__model = None
         self.__original = None
@@ -120,6 +122,8 @@ class POIDataset:
         self.__socket_type2_combo_output = None
         self.__socket_type2_cable = None
         self.__socket_type2_cable_output = None
+        self.__socket_type2 = None
+        self.__socket_type2_output = None
         self.__manufacturer = None
         self.__model = None
         self.__original = None
@@ -395,6 +399,22 @@ class POIDataset:
     @socket_type2_cable_output.setter
     def socket_type2_cable_output(self, data):
         self.__socket_type2_cable_output = data
+
+    @property
+    def socket_type2(self):
+        return self.__socket_type2
+
+    @socket_type2.setter
+    def socket_type2(self, data):
+        self.__socket_type2 = data
+
+    @property
+    def socket_type2_output(self):
+        return self.__socket_type2_output
+
+    @socket_type2_output.setter
+    def socket_type2_output(self, data):
+        self.__socket_type2_output = data
 
     @property
     def manufacturer(self):
@@ -873,7 +893,8 @@ class POIDataset:
                  self.__authentication_app, self.__authentication_membership_card, self.__capacity, self.__fee,
                  self.__parking_fee, self.__motorcar, self.__socket_chademo, self.__socket_chademo_output,
                  self.__socket_type2_combo, self.__socket_type2_combo_output,
-                 self.__socket_type2_cable, self.__socket_type2_cable_output, self.__manufacturer, self.__model,
+                 self.__socket_type2_cable, self.__socket_type2_cable_output,
+                 self.__socket_type2, self.__socket_type2_output, self.__manufacturer, self.__model,
                  self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
                  self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop,
                  self.__oh.at[WeekDaysShort.mo, OpenClose.open],

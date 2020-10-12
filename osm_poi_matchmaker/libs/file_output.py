@@ -28,6 +28,7 @@ POI_EV_TAGS = {'poi_capacity': 'capacity',
                'poi_socket_chademo': 'socket:chademo', 'poi_socket_chademo_output': 'socket:chademo:output',
                'poi_socket_type2_combo': 'socket:type2_combo', 'poi_socket_type2_combo_output': 'socket:type2_combo:output',
                'poi_socket_type2_cable': 'socket:type2_cable', 'poi_socket_type2_cable_output': 'socket:type2_cable:output',
+               'poi_socket_type2': 'socket:type2', 'poi_socket_type2_output': 'socket:type2:output',
                'poi_manufacturer': 'manufacturer', 'poi_model': 'model'}
 
 
