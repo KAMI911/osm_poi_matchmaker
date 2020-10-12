@@ -63,8 +63,8 @@ class POIDataset:
         self.__motorcar = None
         self.__socket_chademo = None
         self.__socket_chademo_output = None
-        self.__socket_type1_combo = None
-        self.__socket_type1_combo_output = None
+        self.__socket_type2_combo = None
+        self.__socket_type2_combo_output = None
         self.__socket_type2_cable = None
         self.__socket_type2_cable_output = None
         self.__manufacturer = None
@@ -116,8 +116,8 @@ class POIDataset:
         self.__motorcar = None
         self.__socket_chademo = None
         self.__socket_chademo_output = None
-        self.__socket_type1_combo = None
-        self.__socket_type1_combo_output = None
+        self.__socket_type2_combo = None
+        self.__socket_type2_combo_output = None
         self.__socket_type2_cable = None
         self.__socket_type2_cable_output = None
         self.__manufacturer = None
@@ -365,20 +365,20 @@ class POIDataset:
         self.__socket_chademo_output = data
 
     @property
-    def socket_type1_combo(self):
-        return self.__socket_type1_combo
+    def socket_type2_combo(self):
+        return self.__socket_type2_combo
 
-    @socket_type1_combo.setter
-    def socket_type1_combo(self, data):
-        self.__socket_type1_combo = data
+    @socket_type2_combo.setter
+    def socket_type2_combo(self, data):
+        self.__socket_type2_combo = data
 
     @property
-    def socket_type1_combo_output(self):
-        return self.__socket_type1_combo_output
+    def socket_type2_combo_output(self):
+        return self.__socket_type2_combo_output
 
-    @socket_type1_combo_output.setter
-    def socket_type1_combo_output(self, data):
-        self.__socket_type1_combo_output = data
+    @socket_type2_combo_output.setter
+    def socket_type2_combo_output(self, data):
+        self.__socket_type2_combo_output = data
 
     @property
     def socket_type2_cable(self):
@@ -872,7 +872,7 @@ class POIDataset:
                  self.__truck,
                  self.__authentication_app, self.__authentication_membership_card, self.__capacity, self.__fee,
                  self.__parking_fee, self.__motorcar, self.__socket_chademo, self.__socket_chademo_output,
-                 self.__socket_type1_combo, self.__socket_type1_combo_output,
+                 self.__socket_type2_combo, self.__socket_type2_combo_output,
                  self.__socket_type2_cable, self.__socket_type2_cable_output, self.__manufacturer, self.__model,
                  self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
                  self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop,

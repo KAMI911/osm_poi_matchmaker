@@ -26,7 +26,7 @@ POI_TAGS = {'poi_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:p
 
 POI_EV_TAGS = {'poi_capacity': 'capacity',
                'poi_socket_chademo': 'socket:chademo', 'poi_socket_chademo_output': 'socket:chademo:output',
-               'poi_socket_type1_combo': 'socket:type1_combo', 'poi_socket_type1_combo_output': 'socket:type1_combo:output',
+               'poi_socket_type2_combo': 'socket:type2_combo', 'poi_socket_type2_combo_output': 'socket:type2_combo:output',
                'poi_socket_type2_cable': 'socket:type2_cable', 'poi_socket_type2_cable_output': 'socket:type2_cable:output',
                'poi_manufacturer': 'manufacturer', 'poi_model': 'model'}
 
