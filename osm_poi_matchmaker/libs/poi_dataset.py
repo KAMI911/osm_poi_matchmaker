@@ -15,7 +15,7 @@ try:
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.libs.poi_qc import POIQC
 except ImportError as err:
-    logging.error('Error {error} import module: {module}', module=__name__, error=err)
+    logging.error('Error %s import module: %s', module=__name__, error=err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 
@@ -453,14 +453,14 @@ class POIDataset:
                 if query is None or query.empty:
                     query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'metaphone')
                     if query is None or query.empty:
-                        logging.warning('There is no street around named or metaphone named: {}', data)
+                        logging.warning('There is no street around named or metaphone named: %s', data)
                         self.__street = data
                     else:
                         new_data = query.at[0, 'name']
-                        logging.info('There is a metaphone street around named: {street}, original was: {original}.', street=new_data, original=data)
+                        logging.info('There is a metaphone street around named: %s, original was: %s.', new_data, data)
                         self.__street = new_data
                 else:
-                    logging.info('There is a street around named: {}.', data)
+                    logging.info('There is a street around named: %s.', data)
                     self.__street = data
             else:
                 self.__street = data
