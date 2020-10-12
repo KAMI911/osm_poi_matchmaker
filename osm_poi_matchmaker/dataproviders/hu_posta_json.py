@@ -12,7 +12,7 @@ try:
     from osm_poi_matchmaker.libs.poi_dataset import POIDataset
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
-    logging.error('Error {error} import module: {module}', module=__name__, error=err)
+    logging.error('Error %s import module: %s', __name__, err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 

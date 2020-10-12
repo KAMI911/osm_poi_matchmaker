@@ -7,7 +7,7 @@ try:
     from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
 except ImportError as err:
-    logging.error('Error {error} import module: {module}', module=__name__, error=err)
+    logging.error('Error %s import module: %s', __name__, err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 

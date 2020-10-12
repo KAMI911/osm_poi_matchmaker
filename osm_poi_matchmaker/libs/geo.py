@@ -8,7 +8,7 @@ try:
     from geoalchemy2 import WKTElement
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
-    logging.error('Error {error} import module: {module}', module=__name__, error=err)
+    logging.error('Error %s import module: %s', __name__, err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 

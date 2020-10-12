@@ -9,7 +9,7 @@ try:
     import os
     from enum import Enum
 except ImportError as err:
-    logging.error('Error {error} import module: {module}', module=__name__, error=err)
+    logging.error('Error %s import module: %s', __name__, err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 

@@ -10,7 +10,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_city_dataframe, insert_street_type_dataframe
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
 except ImportError as err:
-    logging.error('Error {error} import module: {module}', module=__name__, error=err)
+    logging.error('Error %s import module: %s', __name__, err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 

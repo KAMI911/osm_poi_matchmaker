@@ -23,7 +23,7 @@ try:
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
-    logging.error('Error {error} import module: {module}', module=__name__, error=err)
+    logging.error('Error %s import module: %s', __name__, err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 
@@ -81,7 +81,7 @@ class WorkflowManager(object):
             self.queue.put(m)
         try:
             # Start multiprocessing in case multiple cores
-            logging.info('Starting processing on {} cores.', self.NUMBER_OF_PROCESSES)
+            logging.info('Starting processing on %s cores.', self.NUMBER_OF_PROCESSES)
             self.results = []
             self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES)
             self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable())
@@ -97,7 +97,7 @@ class WorkflowManager(object):
                     'poi_address'] for c in poi_codes]
         try:
             # Start multiprocessing in case multiple cores
-            logging.info('Starting processing on {} cores.', self.NUMBER_OF_PROCESSES)
+            logging.info('Starting processing on %s cores.', self.NUMBER_OF_PROCESSES)
             self.results = []
             self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES)
             self.results = self.pool.map_async(to_do, modules)

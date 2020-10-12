@@ -14,12 +14,12 @@ try:
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
-    logging.error('Error {error} import module: {module}', module=__name__, error=err)
+    logging.error('Error %s import module: %s', __name__, err)
     logging.error(traceback.print_exc())
     sys.exit(128)
 
 
-class hu_e-mobi_ev(DataProvider):
+class hu_emobi_ev(DataProvider):
 
     def constains(self):
         self.link = os.path.join(config.get_directory_cache_url(), 'hu_e-mobi_ev.csv')
