@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import traceback
     import logging
     import sys
     import json
@@ -13,7 +12,7 @@ try:
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 
@@ -88,12 +87,12 @@ class hu_sber_bank(DataProvider):
                                 self.data.day_close(i, ch)
                             except Exception as e:
                                 logging.info(opening)
-                                logging.error(traceback.print_exc())
+                                logging.exception("Exception occurred")
                                 logging.error(e)
                                 continue
                         else:
                             logging.debug('There is no opening hours on day: {}.'.format(i))
                     self.data.add()
         except Exception as e:
-            logging.error(traceback.print_exc())
+            logging.exception("Exception occurred")
             logging.error(e)

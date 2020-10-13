@@ -2,7 +2,6 @@
 
 try:
     import unittest
-    import traceback
     import logging
     import sys
     import pandas as pd
@@ -10,7 +9,7 @@ try:
     from osm_poi_matchmaker.dao.poi_array_structure import POI_ADDR_COLS, OSM_ADDR_COLS
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import traceback
     import logging
     import sys
     import math
@@ -17,7 +16,7 @@ try:
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 POI_TAGS = {'poi_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:postcode',
@@ -50,7 +49,7 @@ def save_csv_file(path, file, data, message):
         logging.info('The %s was sucessfully saved', file)
     except Exception as err:
         logging.error(err)
-        logging.error(traceback.print_exc())
+        logging.exception("Exception occurred")
 
 
 def generate_osm_xml(df, session=None):
@@ -295,8 +294,8 @@ def generate_osm_xml(df, session=None):
     except ValueError as e:
         logging.error(e)
         logging.error(comment)
-        logging.error(traceback.print_exc())
+        logging.exception("Exception occurred")
     except Exception as e:
         logging.error(e)
-        logging.error(traceback.print_exc())
+        logging.exception("Exception occurred")
     return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")

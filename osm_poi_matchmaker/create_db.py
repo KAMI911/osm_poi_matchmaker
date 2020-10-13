@@ -7,7 +7,6 @@ __version__ = '0.7.0'
 
 try:
     import os
-    import traceback
     import logging
     import logging.config
     import sys
@@ -24,7 +23,7 @@ try:
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
@@ -88,7 +87,7 @@ class WorkflowManager(object):
             self.pool.close()
         except Exception as e:
             logging.error(e)
-            logging.error(traceback.print_exc())
+            logging.exception("Exception occurred")
 
 
     def start_exporter(self, data: list, postfix: str = '', to_do = export_grouped_poi_data):
@@ -104,7 +103,7 @@ class WorkflowManager(object):
             self.pool.close()
         except Exception as e:
             logging.error(e)
-            logging.error(traceback.print_exc())
+            logging.exception("Exception occurred")
 
 
     def start_matcher(self, data, comm_data):
@@ -117,7 +116,7 @@ class WorkflowManager(object):
             return pd.concat(list(self.results.get()), sort=False)
         except Exception as e:
             logging.error(e)
-            logging.error(traceback.print_exc())
+            logging.exception("Exception occurred")
 
     def join(self):
         self.pool.join()

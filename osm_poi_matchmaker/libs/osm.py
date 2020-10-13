@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 try:
-    import traceback
     import logging
     import sys
     import sqlalchemy
@@ -11,7 +10,7 @@ try:
     from OSMPythonTools.overpass import overpassQueryBuilder
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 

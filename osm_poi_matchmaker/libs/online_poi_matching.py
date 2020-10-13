@@ -3,7 +3,6 @@
 __author__ = 'kami911'
 
 try:
-    import traceback
     import logging
     import sys
     import pandas as pd
@@ -16,7 +15,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import get_or_create
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 RETRY = 3
@@ -234,12 +233,12 @@ def online_poi_matching(args):
             except Exception as e:
                 logging.error(e)
                 logging.error(row)
-                logging.error(traceback.print_exc())
+                logging.exception("Exception occurred")
         session.commit()
         return data
     except Exception as e:
         logging.error(e)
-        logging.error(traceback.print_exc())
+        logging.exception("Exception occurred")
 
 def smart_postcode_check(curr_data, osm_data, pc):
     '''

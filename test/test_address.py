@@ -2,7 +2,6 @@
 
 try:
     import unittest
-    import traceback
     import logging
     import sys
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address, \
@@ -10,7 +9,7 @@ try:
         clean_city
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 

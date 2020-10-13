@@ -2,13 +2,12 @@
 
 try:
     import unittest
-    import traceback
     import logging
     import sys
     from osm_poi_matchmaker.libs.osm import relationer
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 

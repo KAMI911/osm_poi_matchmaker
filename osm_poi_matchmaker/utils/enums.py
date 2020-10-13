@@ -2,13 +2,12 @@
 __author__ = 'kami911'
 
 try:
-    import traceback
     import logging
     import sys
     import enum
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 __program__ = 'enums'

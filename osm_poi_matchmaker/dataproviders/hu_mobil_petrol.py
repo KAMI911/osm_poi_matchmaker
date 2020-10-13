@@ -2,7 +2,6 @@
 
 try:
     from builtins import Exception, ImportError, range
-    import traceback
     import logging
     import sys
     import json
@@ -17,7 +16,7 @@ try:
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 
@@ -79,5 +78,5 @@ class hu_mobil_petrol(DataProvider):
                         self.data.public_holiday_open = False
                     self.data.add()
         except Exception as e:
-            logging.error(traceback.print_exc())
+            logging.exception("Exception occurred")
             logging.error(e)

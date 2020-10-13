@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import traceback
     import logging
     import sys
     import requests
@@ -11,7 +10,7 @@ try:
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 
@@ -92,4 +91,4 @@ def readfile(r_filename, r_filetype):
             return None
     except Exception as e:
         logging.error(e)
-        logging.error(traceback.print_exc())
+        logging.exception("Exception occurred")

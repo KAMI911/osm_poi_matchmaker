@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import traceback
     import logging
     import sys
     import json
@@ -14,7 +13,7 @@ try:
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 
@@ -73,5 +72,5 @@ class hu_magnet_bank(DataProvider):
                             self.data.original = poi_data.get('address')
                         self.data.add()
         except Exception as e:
-            logging.error(traceback.print_exc())
+            logging.exception("Exception occurred")
             logging.error(e)

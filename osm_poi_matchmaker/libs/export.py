@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import traceback
     import logging
     import sys
     import os
@@ -9,7 +8,7 @@ try:
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 
@@ -38,7 +37,7 @@ def export_grouped_poi_data(data):
             oxf.write(generate_osm_xml(rows))
     except Exception as e:
         logging.error(e)
-        logging.error(traceback.print_exc())
+        logging.exception("Exception occurred")
 
 
 def export_grouped_poi_data_with_postcode_groups(data):
@@ -68,4 +67,4 @@ def export_grouped_poi_data_with_postcode_groups(data):
                 i += postcode_gap
     except Exception as e:
         logging.error(e)
-        logging.error(traceback.print_exc())
+        logging.exception("Exception occurred")

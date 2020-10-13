@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import traceback
     import logging
     import sys
     import os
@@ -15,7 +14,7 @@ try:
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
@@ -91,5 +90,5 @@ class hu_spar(DataProvider):
                     self.data.public_holiday_open = False
                     self.data.add()
         except Exception as e:
-            logging.error(traceback.print_exc())
+            logging.exception("Exception occurred")
             logging.error(e)

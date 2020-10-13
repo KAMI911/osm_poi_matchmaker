@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import traceback
     import logging
     import os
     import re
@@ -12,7 +11,7 @@ try:
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.error(traceback.print_exc())
+    logging.exception("Exception occurred")
     sys.exit(128)
 
 POI_COLS = poi_array_structure.POI_COLS
