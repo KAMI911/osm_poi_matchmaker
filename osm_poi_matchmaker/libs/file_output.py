@@ -71,7 +71,7 @@ def generate_osm_xml(df, session=None):
     added_nodes = []
     try:
         for index, row in df.iterrows():
-            current_osm_id = osm_id if row.get('osm_id') is None else row.get('osm_id')
+            current_osm_id = default_osm_id if row.get('osm_id') is None else row.get('osm_id')
             osm_timestamp = timestamp_now() if row.get('osm_timestamp') is None else row.get('osm_timestamp')
             osm_version = '99999' if row.get('osm_version') is None else row.get('osm_version')
             if row.get('osm_node') is None or row.get('osm_node') == OSM_object_type.node:
