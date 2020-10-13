@@ -184,4 +184,4 @@ if __name__ == '__main__':
     init_log()
     timer = timing.Timing()
     main()
-    logging.info('Total duration of process: {}. Finished, exiting and go home ...', timer.end())
+    logging.info('Total duration of process: %s. Finished, exiting and go home ...', timer.end())
