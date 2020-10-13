@@ -27,7 +27,7 @@ def get_or_create(session, model, **kwargs):
             session.add(instance)
             return instance
         except Exception as e:
-            logging.error('Can't add to database. (%s)', e)
+            logging.error('Cannot add to the database. (%s)', e)
             logging.error(traceback.print_exc())
             raise (e)
 
@@ -57,7 +57,7 @@ def get_or_create_poi(session, model, **kwargs):
             session.add(instance)
             return instance
         except Exception as e:
-            logging.error('Can't add to database. (%s)', e)
+            logging.error('Cannot add to the database. (%s)', e)
             logging.error(traceback.print_exc())
             raise (e)
 
