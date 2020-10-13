@@ -45,9 +45,9 @@ def ascii_numcoder(text):
 def save_csv_file(path, file, data, message):
     try:
         # Save file to CSV file
-        logging.info('Saving {0} to file: {1}'.format(message, file))
+        logging.info('Saving {%s to file: %s', message, file)
         res = data.to_csv(os.path.join(path, file))
-        logging.info('The {0} was sucessfully saved'.format(file))
+        logging.info('The %s was sucessfully saved', file)
     except Exception as err:
         logging.error(err)
         logging.error(traceback.print_exc())
@@ -112,7 +112,7 @@ def generate_osm_xml(df, session=None):
                                         version='{}'.format(way_node.get('osm_version')))
                             osm_xml_data.append(node_data)
                 except TypeError as err:
-                    logging.warning('Missing nodes on this way: {}.'.format(row.get('osm_id')))
+                    logging.warning('Missing nodes on this way: %s.', row.get('osm_id'))
                     logging.warning(traceback.print_exc())
                 # Add node reference as comment for existing POI
                 if current_osm_id > 0:
@@ -130,7 +130,7 @@ def generate_osm_xml(df, session=None):
                         data = etree.SubElement(main_data, 'member',
                             type=i.get('type'), ref=i.get('ref'), role=i.get('role'))
                 except TypeError as err:
-                    logging.warning('Missing nodes on this relation: {}.'.format(row['osm_id']))
+                    logging.warning('Missing nodes on this relation: %s.', row['osm_id'])
             # Add original POI coordinates as comment
             comment = etree.Comment(' Original coordinates: {} '.format(row.get('poi_geom')))
             osm_xml_data.append(comment)

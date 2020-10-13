@@ -29,14 +29,14 @@ def save_downloaded_pd(link, file, verify=config.get_download_verify_link(), hea
                 df = pd.read_csv(file, encoding='UTF-8', sep='\t', skiprows=0)
             else:
                 if os.path.exists(file):
-                    logging.info('The {} link returned error code other than 200 but there is an already downloaded file. Try to open it.'.format(link))
+                    logging.info('The %s link returned error code other than 200 but there is an already downloaded file. Try to open it.', link)
                     df = pd.read_csv(file, encoding='UTF-8', sep='\t', skiprows=0)
                 else:
-                    logging.warning('Skipping dataset: {}. There is not downloadable URL, nor already downbloaded file.'.format(link))
+                    logging.warning('Skipping dataset: %s. There is not downloadable URL, nor already downbloaded file.', link)
         else:
             if os.path.exists(file):
                 df = pd.read_csv(file, encoding='UTF-8', sep='\t', skiprows=0)
-                logging.info('Using file only: {}. There is not downloadable URL only just the file. Do not forget to update file manually!'.format(file))
+                logging.info('Using file only: %s. There is not downloadable URL only just the file. Do not forget to update file manually!', file)
             else:
-                logging.warning('Cannot use download and file: {}. There is not downloadable URL, nor already downbloaded file.'.format(file))
+                logging.warning('Cannot use download and file: %s. There is not downloadable URL, nor already downbloaded file.', file)
     return df

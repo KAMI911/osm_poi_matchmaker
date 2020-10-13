@@ -127,8 +127,8 @@ class hu_posta(DataProvider):
                                     to2 = d.to2.get_text() if d.to2 is not None else None
                                     # Avoid duplicated values of opening and close
                                     if from1 != from2 and to1 != to2:
-                                        logging.debug('Opening hours in post office: {}: {}-{}; {}-{}.'.
-                                                      format(self.data.branch, from1, to1, from2, to2))
+                                        logging.debug('Opening hours in post office: %s: %s-%s; %s-%s.',
+                                            self.data.branch, from1, to1, from2, to2)
                                         self.data.day_open(day_key, from1)
                                         if from2 is None or to2 is None:
                                             self.data.day_close(day_key, from1)
@@ -148,8 +148,8 @@ class hu_posta(DataProvider):
                                     else:
                                         # It seems there are duplications in Posta data source
                                         # Remove duplicates
-                                        logging.warning('Dulicated opening hours in post office: {}: {}-{}; {}-{}.'.
-                                                        format(self.data.branch, from1, to1, from2, to2))
+                                        logging.warning('Dulicated opening hours in post office: %s: %s-%s; %s-%s.', 
+                                            self.data.branch, from1, to1, from2, to2)
                                         from2, to2 = None, None
                         # All times are open so it is non stop
                         if nonstop_num >= 7:

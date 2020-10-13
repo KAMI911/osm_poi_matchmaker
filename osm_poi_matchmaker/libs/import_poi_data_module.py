@@ -28,7 +28,7 @@ def import_poi_data_module(module):
         Session = scoped_session(session_factory)
         session = Session()
         module = module.strip()
-        logging.info('Processing {} module ...'.format(module))
+        logging.info('Processing %s module ...', module)
         if module == 'hu_kh_bank':
             from osm_poi_matchmaker.dataproviders.hu_kh_bank import hu_kh_bank
             work = hu_kh_bank(session, config.get_directory_cache_url(), True,

@@ -162,12 +162,12 @@ def extract_street_housenumber_better_2(clearable):
             conscriptionnumber = cn_match_1.group(2) if cn_match_1.group(2) is not None else None
             cnn_length = len(cn_match_1.group(0))
             logging.debug(
-                'Matching conscription number with method 1: {} from {}'.format(conscriptionnumber, clearable))
+                'Matching conscription number with method 1: %s from %s', conscriptionnumber, clearable)
         elif cn_match_2 is not None:
             conscriptionnumber = cn_match_2.group(2) if cn_match_2.group(2) is not None else None
             cnn_length = len(cn_match_2.group(0))
             logging.debug(
-                'Matching conscription number with method 2: {} from {}'.format(conscriptionnumber, clearable))
+                'Matching conscription number with method 2: %s from %s', conscriptionnumber, clearable)
         else:
             conscriptionnumber = None
             cnn_length = None
@@ -175,7 +175,7 @@ def extract_street_housenumber_better_2(clearable):
         street_corrected = clean_street(data)
         street_match = PATTERN_STREET_RICH.search(street_corrected)
         if street_match is None:
-            logging.debug('Non matching street: {}'.format(clearable))
+            logging.debug('Non matching street: %s', clearable)
             street, housenumber = None, None
         else:
             # Normalize street
@@ -199,7 +199,7 @@ def extract_street_housenumber_better_2(clearable):
             else:
                 housenumber = None
         if 'street_type' in locals():
-            return '{} {}'.format(street, street_type).strip(), housenumber, conscriptionnumber
+            return '%s %s'.format(street, street_type).strip(), housenumber, conscriptionnumber
         else:
             return street, housenumber, conscriptionnumber
     else:
@@ -272,7 +272,7 @@ def clean_phone(phone):
             pn = []
             pn.append(phonenumbers.parse(phone, 'HU'))
     except phonenumbers.phonenumberutil.NumberParseException:
-        logging.debug('This is string is cannot converted to phone number: {}'.format(phone))
+        logging.debug('This is string is cannot converted to phone number: %s', phone)
         return None
     if pn is not None:
         return [ phonenumbers.format_number(i, phonenumbers.PhoneNumberFormat.INTERNATIONAL) for i in pn ]

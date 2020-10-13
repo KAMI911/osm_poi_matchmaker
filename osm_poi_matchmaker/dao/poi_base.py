@@ -31,17 +31,17 @@ class POIBase:
         self.db_connection = db_connection
         self.db_filename = None
         if '://' not in db_connection:
-            self.db_connection = 'sqlite:///%s' % self.db_connection
+            self.db_connection = 'sqlite:///{}'.format(self.db_connection)
         if self.db_connection.startswith('sqlite'):
             self.db_filename = self.db_connection
         try:
             self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8', echo=False)
         except psycopg2.OperationalError as e:
-            logging.error('Database error: {}'.format(e))
+            logging.error('Database error: %s', e)
             if self.retry_counter >= reco:
-                logging.error('Cannot connect to database with {} connection string'.format(self.db_connection))
+                logging.error('Cannot connect to database with %s connection string', self.db_connection)
             else:
-                logging.error('Cannot connect to the database. It will retry within {} seconds. [{}/{}]'.format(self.db_retry_sleep, reco, self.db_retry_counter))
+                logging.error('Cannot connect to the database. It will retry within %s seconds. [%s/%s]', self.db_retry_sleep, reco, self.db_retry_counter)
                 time.sleep(self.db_retry_sleep)
                 self.engine = sqlalchemy.create_engine(self.db_connection, echo=False)
                 self.db_retry_counter += 1
@@ -185,8 +185,8 @@ class POIBase:
             city_query = ' AND LOWER(TEXT("addr:city")) = LOWER(TEXT(:city))'
         else:
             city_query = ''
-        logging.debug('{} {}: {}, {}, {} {} {} ({}) [{}, {}, {}]'.format(lon, lat, ptype, name, city,
-            street_name, housenumber, conscriptionnumber, distance_perfect, distance_safe, distance_unsafe))
+        logging.debug('%s %s: %s, %s, %s %s %s (%s) [%s, %s, %s]', lon, lat, ptype, name, city,
+            street_name, housenumber, conscriptionnumber, distance_perfect, distance_safe, distance_unsafe)
         # Looking for way (building)
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
                 conscriptionnumber_query is not None and conscriptionnumber_query != '':

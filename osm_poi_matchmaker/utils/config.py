@@ -28,14 +28,14 @@ __mode = Mode.matcher
 
 def set_mode(mode):
     if not isinstance(mode, Mode):
-        raise ValueError("Cannot set mode to {}".format(mode))
+        raise ValueError('Cannot set mode to %s', mode)
 
     global __mode
     __mode = mode
 
 
 if not config.has_section(__mode.name):
-    logging.fatal("Config section missing for server {}".format(__mode.name))
+    logging.fatal('Config section missing for server %s', __mode.name)
     sys.exit(-1)
 
 currentConfig = config[__mode.name]
@@ -130,7 +130,7 @@ def get_database_writer_host():
     if env_setting is not None:
         setting = env_setting
     if setting is not None:
-        logging.info('Using "{}" for database host.'.format(setting))
+        logging.info('Using "%s" for database host.', setting)
         return setting
     else:
         logging.info('Using localhost for database host.')

@@ -31,7 +31,7 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
             page = requests.post(link, verify=verify_link, data=post_parm, headers=headers)
             page.encoding = encoding
     except requests.exceptions.ConnectionError as e:
-        logging.warning('Unable to open connection. ({})'.format(e))
+        logging.warning('Unable to open connection. (%s)', e)
         return None
     return page.text if page.status_code == 200 else None
 
@@ -52,18 +52,18 @@ def save_downloaded_soup(link, file, filetype, post_data=None, verify=config.get
                         code.write(str(soup.prettify()))
                     elif filetype == FileType.xml:
                         soup = BeautifulSoup(soup, 'lxml', from_encoding='utf-8')
-                        logging.debug('original encoding: {}'.format(soup.original_encoding))
+                        logging.debug('original encoding: %s', soup.original_encoding)
                         code.write(str(soup.prettify()))
                     elif filetype == FileType.csv or filetype == FileType.json:
                         code.write(str(soup))
                     else:
-                        logging.error('Unexpected type to write: {}'.format(filetype))
+                        logging.error('Unexpected type to write: %s', filetype)
             else:
                 if os.path.exists(file):
-                    logging.info('The {} link returned error code other than 200 but there is an already downloaded file. Try to open it.'.format(link))
+                    logging.info('The %s link returned error code other than 200 but there is an already downloaded file. Try to open it.', link)
                     soup = readfile(file, filetype)
                 else:
-                    logging.warning('Skipping dataset: {}. There is not downloadable URL, nor already downbloaded file.'.format(link))
+                    logging.warning('Skipping dataset: %s. There is not downloadable URL, nor already downbloaded file.', link)
         else:
             if os.path.exists(file):
                 soup = readfile(file, filetype)
@@ -71,9 +71,9 @@ def save_downloaded_soup(link, file, filetype, post_data=None, verify=config.get
                     soup = BeautifulSoup(soup, 'html.parser')
                 elif filetype == FileType.xml:
                     soup = BeautifulSoup(soup, 'lxml')
-                logging.info('Using file only: {}. There is not downloadable URL only just the file. Do not forget to update file manually!'.format(file))
+                logging.info('Using file only: %s. There is not downloadable URL only just the file. Do not forget to update file manually!', file)
             else:
-                logging.warning('Cannot use download and file: {}. There is not downloadable URL, nor already downbloaded file.'.format(file))
+                logging.warning('Cannot use download and file: %s. There is not downloadable URL, nor already downbloaded file.', file)
     return soup
 
 
@@ -86,7 +86,7 @@ def readfile(r_filename, r_filetype):
                 elif r_filetype == FileType.csv or r_filetype == FileType.json or r_filetype == FileType.xml:
                     soup = code.read()
                 else:
-                    logging.error('Unexpected type to read: {}'.format(r_filetype))
+                    logging.error('Unexpected type to read: %s', r_filetype)
             return soup
         else:
             return None

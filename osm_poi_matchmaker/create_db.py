@@ -124,7 +124,7 @@ class WorkflowManager(object):
 
 
 def main():
-    logging.info('Starting {0} ...', __program__)
+    logging.info('Starting %s ...', __program__)
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                               config.get_database_writer_password(),
                                               config.get_database_writer_host(),

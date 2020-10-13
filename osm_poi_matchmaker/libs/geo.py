@@ -41,7 +41,7 @@ def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
                 else:
                     return None
             except (AttributeError, IndexError) as e:
-                logging.error('{};{}'.format(latitude, longitude))
+                logging.error('%s;%s', latitude, longitude)
                 logging.error(e)
                 logging.error(traceback.print_exc())
                 return None
@@ -55,7 +55,7 @@ def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
                 else:
                     return None
             except (AttributeError, IndexError) as e:
-                logging.error('{};{}'.format(latitude, longitude))
+                logging.error('%s;%s', latitude, longitude)
                 logging.error(e)
                 logging.error(traceback.print_exc())
                 return None
@@ -71,8 +71,8 @@ def check_hu_boundary(latitude, longitude):
         # This is a workaround because original datasource may contains swapped lat / lon parameters
         if float(latitude) < 44:
             logging.warning(
-                'Latitude-longitude replacement. Originally was: latitude: {}, longitude: {}.'.format(latitude,
-                                                                                                      longitude))
+                'Latitude-longitude replacement. Originally was: latitude: %s, longitude: %s.',
+                     latitude, longitude)
             longitude, latitude = latitude, longitude
         # Another workaround to insert missing decimal point
         if float(longitude) > 200:
