@@ -9,7 +9,8 @@ try:
     from functools import reduce
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.exception("Exception occurred")
+    logging.exception('Exception occurred')
+
     sys.exit(128)
 
 # Patterns for re
@@ -70,7 +71,8 @@ def extract_javascript_variable(input_soup, removable, use_replace=False):
             logging.warning('An exception has occured during JavaScript variable extraction.')
     except Exception as e:
         logging.error(e)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+
         logging.error(pattern)
         logging.error(script)
         logging.error(m.group(1))

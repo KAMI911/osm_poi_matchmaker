@@ -8,7 +8,8 @@ try:
     from test.test_opening_hours_data import OPENING_HOURS_TEST_DATA
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.exception("Exception occurred")
+    logging.exception('Exception occurred')
+
     sys.exit(128)
 
 

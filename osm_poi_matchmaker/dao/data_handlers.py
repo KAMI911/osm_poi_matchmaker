@@ -9,7 +9,8 @@ try:
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.exception("Exception occurred")
+    logging.exception('Exception occurred')
+
     sys.exit(128)
 
 POI_COLS = poi_array_structure.POI_COLS
@@ -27,7 +28,8 @@ def get_or_create(session, model, **kwargs):
             return instance
         except Exception as e:
             logging.error('Cannot add to the database. (%s)', e)
-            logging.exception("Exception occurred")
+            logging.exception('Exception occurred')
+
             raise (e)
 
 
@@ -57,7 +59,8 @@ def get_or_create_poi(session, model, **kwargs):
             return instance
         except Exception as e:
             logging.error('Cannot add to the database. (%s)', e)
-            logging.exception("Exception occurred")
+            logging.exception('Exception occurred')
+
             raise (e)
 
 
@@ -71,7 +74,8 @@ def insert_city_dataframe(session, city_df):
 
         logging.error('Rolled back: %s.', e)
         logging.error(city_data)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+
         session.rollback()
     else:
         logging.info('Successfully added %s city items to the dataset.', len(city_df))
@@ -86,7 +90,8 @@ def insert_street_type_dataframe(session, city_df):
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(city_data)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+
         session.rollback()
     else:
         logging.info('Successfully added %s street type items to the dataset.', len(city_df))
@@ -101,7 +106,8 @@ def insert_common_dataframe(session, common_df):
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(poi_common_data)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+
         session.rollback()
     else:
         logging.info('Successfully added %s common items to the dataset.', len(common_df))
@@ -135,7 +141,8 @@ def insert_poi_dataframe(session, poi_df):
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(poi_data)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+
         session.rollback()
         raise (e)
     else:
@@ -144,7 +151,8 @@ def insert_poi_dataframe(session, poi_df):
             logging.info('Successfully added %s POI items to the dataset.', len(poi_dict))
         except Exception as e:
             logging.error('Unsuccessfull commit: %s.', e)
-            logging.exception("Exception occurred")
+            logging.exception('Exception occurred')
+
 
 
 def insert_type(session, type_data):
@@ -154,7 +162,8 @@ def insert_type(session, type_data):
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(i)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+
         session.rollback()
     else:
         logging.info('Successfully added %s type items to the dataset.', len(type_data))
@@ -179,7 +188,8 @@ def insert(session, **kwargs):
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(kwargs)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+
         session.rollback()
     else:
         logging.debug('Successfully added the item to the dataset.')

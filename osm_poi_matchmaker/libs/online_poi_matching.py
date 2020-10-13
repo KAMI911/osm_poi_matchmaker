@@ -15,7 +15,8 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import get_or_create
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.exception("Exception occurred")
+    logging.exception('Exception occurred')
+
     sys.exit(128)
 
 RETRY = 3
@@ -195,7 +196,7 @@ def online_poi_matching(args):
 
                     except Exception as err:
                         logging.warning('There was an error during OSM request: %s.', err)
-                        logging.warning(traceback.print_exc())
+                        logging.exception('Exception occurred')
                 # This is a new POI
                 else:
                     # This is a new POI - will add fix me tag to the new items.
@@ -233,12 +234,14 @@ def online_poi_matching(args):
             except Exception as e:
                 logging.error(e)
                 logging.error(row)
-                logging.exception("Exception occurred")
+                logging.exception('Exception occurred')
+
         session.commit()
         return data
     except Exception as e:
         logging.error(e)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+
 
 def smart_postcode_check(curr_data, osm_data, pc):
     '''

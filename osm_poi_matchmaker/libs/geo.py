@@ -8,7 +8,8 @@ try:
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.exception("Exception occurred")
+    logging.exception('Exception occurred')
+
     sys.exit(128)
 
 PATTERN_COORDINATE = re.compile('[\d]{1,3}.[\d]{2,5}')
@@ -42,7 +43,8 @@ def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
             except (AttributeError, IndexError) as e:
                 logging.error('%s;%s', latitude, longitude)
                 logging.error(e)
-                logging.exception("Exception occurred")
+                logging.exception('Exception occurred')
+
                 return None
         else:
             lat = latitude
@@ -56,7 +58,8 @@ def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
             except (AttributeError, IndexError) as e:
                 logging.error('%s;%s', latitude, longitude)
                 logging.error(e)
-                logging.exception("Exception occurred")
+                logging.exception('Exception occurred')
+
                 return None
         else:
             lon = longitude

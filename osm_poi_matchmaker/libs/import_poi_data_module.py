@@ -12,7 +12,8 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_type, get_or_create
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.exception("Exception occurred")
+    logging.exception('Exception occurred')
+
     sys.exit(128)
 
 def import_poi_data_module(module):
@@ -62,4 +63,5 @@ def import_poi_data_module(module):
             work.export_list()
     except Exception as err:
         logging.error(err)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+

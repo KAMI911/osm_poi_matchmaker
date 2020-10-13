@@ -11,7 +11,8 @@ try:
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.exception("Exception occurred")
+    logging.exception('Exception occurred')
+
     sys.exit(128)
 
 
@@ -59,8 +60,10 @@ class hu_mol_bubi(DataProvider):
                 except Exception as e:
                     logging.error(e)
                     logging.error(pla)
-                    logging.exception("Exception occurred")
+                    logging.exception('Exception occurred')
+
         except Exception as e:
             logging.error(e)
-            logging.exception("Exception occurred")
+            logging.exception('Exception occurred')
+
             logging.error(soup)

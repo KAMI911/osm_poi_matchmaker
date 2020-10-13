@@ -12,7 +12,8 @@ try:
     import psycopg2
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.exception("Exception occurred")
+    logging.exception('Exception occurred')
+
     sys.exit(128)
 
 
@@ -549,7 +550,8 @@ class POIBase:
             return data
         except Exception as err:
             logging.error(err)
-            logging.exception("Exception occurred")
+            logging.exception('Exception occurred')
+
 
     def query_name_road_around(self, lon, lat, name='', with_metadata=True, mode='both'):
         '''
@@ -594,4 +596,5 @@ class POIBase:
             return data
         except Exception as err:
             logging.error(err)
-            logging.exception("Exception occurred")
+            logging.exception('Exception occurred')
+

@@ -16,7 +16,8 @@ try:
     from osm_poi_matchmaker.dao.poi_base import POIBase
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
-    logging.exception("Exception occurred")
+    logging.exception('Exception occurred')
+
     sys.exit(128)
 
 POI_TAGS = {'poi_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:postcode',
@@ -49,7 +50,8 @@ def save_csv_file(path, file, data, message):
         logging.info('The %s was sucessfully saved', file)
     except Exception as err:
         logging.error(err)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+
 
 
 def generate_osm_xml(df, session=None):
@@ -112,7 +114,7 @@ def generate_osm_xml(df, session=None):
                             osm_xml_data.append(node_data)
                 except TypeError as err:
                     logging.warning('Missing nodes on this way: %s.', row.get('osm_id'))
-                    logging.warning(traceback.print_exc())
+                    logging.exception('Exception occurred')
                 # Add node reference as comment for existing POI
                 if current_osm_id > 0:
                     comment = etree.Comment(' OSM link: https://osm.org/way/{} '.format(str(current_osm_id)))
@@ -294,8 +296,10 @@ def generate_osm_xml(df, session=None):
     except ValueError as e:
         logging.error(e)
         logging.error(comment)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+
     except Exception as e:
         logging.error(e)
-        logging.exception("Exception occurred")
+        logging.exception('Exception occurred')
+
     return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")

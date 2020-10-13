@@ -15,7 +15,8 @@ try:
     from osm_poi_matchmaker.libs.poi_qc import POIQC
 except ImportError as err:
     logging.error('Error %s import module: %s', module=__name__, error=err)
-    logging.exception("Exception occurred")
+    logging.exception('Exception occurred')
+
     sys.exit(128)
 
 __program__ = 'poi_dataset'
@@ -465,7 +466,8 @@ class POIDataset:
                 self.__street = data
         except Exception as e:
             logging.error(e)
-            logging.exception("Exception occurred")
+            logging.exception('Exception occurred')
+
 
     @property
     def housenumber(self):
@@ -929,7 +931,8 @@ class POIDataset:
             self.clear_all()
         except Exception as err:
             logging.error(err)
-            logging.exception("Exception occurred")
+            logging.exception('Exception occurred')
+
 
     def process(self):
         df = pd.DataFrame(self.insert_data)
