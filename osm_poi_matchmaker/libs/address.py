@@ -200,7 +200,7 @@ def extract_street_housenumber_better_2(clearable):
             else:
                 housenumber = None
         if 'street_type' in locals():
-            return '%s %s'.format(street, street_type).strip(), housenumber, conscriptionnumber
+            return '{} {}'.format(street, street_type).strip(), housenumber, conscriptionnumber
         else:
             return street, housenumber, conscriptionnumber
     else:
