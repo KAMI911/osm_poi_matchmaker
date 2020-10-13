@@ -22,7 +22,7 @@ except ImportError as err:
 class hu_emobi_ev(DataProvider):
 
     def constains(self):
-        self.link = os.path.join(config.get_directory_cache_url(), 'hu_e-mobi_ev.csv')
+        self.link = os.path.join(config.get_directory_cache_url(), 'hu_emobi_ev.csv')
         self.POI_COMMON_TAGS = ""
         self.filetype = FileType.csv
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
@@ -38,7 +38,7 @@ class hu_emobi_ev(DataProvider):
                                      "'alt_name': 'e-mobi', 'contact:website': 'https://e-mobi.hu/hu',"
                                      "'contact:email': 'kapcsolat@e-mobi.hu', 'contact:phone': '+36 80 210 012', "
                                      "'contact:facebook': 'https://www.facebook.com/elektromobilitas' }",
-                         'poi_url_base': 'https://www.mobiliti.hu', 'poi_search_name': '(e-mobi|emobi|e-töltőpont)',
+                         'poi_url_base': 'https://e-mobi.hu/', 'poi_search_name': '(e-mobi|emobi|e-töltőpont)',
                          'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
                          'osm_search_distance_unsafe': 10},
                         ]
