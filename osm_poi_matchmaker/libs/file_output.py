@@ -14,6 +14,8 @@ try:
     from osm_poi_matchmaker.libs.compare_strings import compare_strings
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
+    from lxml import etree
+    import lxml
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -53,6 +55,56 @@ def save_csv_file(path, file, data, message):
         logging.exception('Exception occurred')
 
 
+def add_osm_node(osm_id: int, node_data) -> str:
+    """Generate OpenStreetMap node header information as string
+
+    Args:
+        osm_id (int): [description]
+        node_data ([type]): [description]
+
+    Returns:
+        str: [description]
+    """    
+    osm_timestamp = timestamp_now() if node_data.get('osm_timestamp') is None else node_data.get('osm_timestamp')
+    osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
+    osm_data = { 'action': 'modify', 'id': str(osm_id), \
+        'lat': '{}'.format(node_data.get('poi_lat')), 'lon': '{}'.format(node_data.get('poi_lon')), \
+        'user': '{}'.format('osm_poi_matchmaker'), 'timestamp': '{}'.format(osm_timestamp), \
+        'uid': '{}'.format('8635934'), 'version': '{}'.format(osm_version) }
+    return osm_data
+
+
+def add_osm_way(osm_id: int, node_data) -> str:
+    """Generate OpenStreetMap way header information as string
+
+    Args:
+        osm_id (int): [description]
+        node_data ([type]): [description]
+
+    Returns:
+        str: [description]
+    """    
+    osm_timestamp = timestamp_now() if node_data.get('osm_timestamp') is None else node_data.get('osm_timestamp')
+    osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
+    osm_data = { 'action': 'modify', 'id': str(osm_id), 
+        'user': '{}'.format('osm_poi_matchmaker'), 'timestamp': '{}'.format(osm_timestamp),
+        'uid': '{}'.format('8635934'), 'version': '{}'.format(osm_version) }
+    return osm_data
+
+
+def add_osm_link_comment(osm_id: int, osm_type) -> str:
+    """[summary]
+
+    Args:
+        osm_id (int): [description]
+        osm_type ([type]): [description]
+
+    Returns:
+        str: [description]
+    """    
+    osm_comment = ' OSM link: https://osm.org/{}/{} '.format(osm_type.name ,str(osm_id))
+    return osm_comment
+
 
 def generate_osm_xml(df, session=None):
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
@@ -64,8 +116,6 @@ def generate_osm_xml(df, session=None):
     session_factory = sessionmaker(pgsql_pool)
     Session = scoped_session(session_factory)
     session = Session()
-    from lxml import etree
-    import lxml
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
     default_osm_id = -1
     current_osm_id = default_osm_id
@@ -76,20 +126,10 @@ def generate_osm_xml(df, session=None):
             osm_timestamp = timestamp_now() if row.get('osm_timestamp') is None else row.get('osm_timestamp')
             osm_version = '99999' if row.get('osm_version') is None else row.get('osm_version')
             if row.get('osm_node') is None or row.get('osm_node') == OSM_object_type.node:
-                main_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(current_osm_id),
-                    lat='{}'.format(row.get('poi_lat')), lon='{}'.format(row.get('poi_lon')),
-                    user='{}'.format('osm_poi_matchmaker'), timestamp='{}'.format(osm_timestamp),
-                    uid='{}'.format('8635934'),
-                    version='{}'.format(osm_version))
                 josm_object = 'n{}'.format(current_osm_id)
-                if current_osm_id > 0:
-                    comment = etree.Comment(' OSM link: https://osm.org/node/{} '.format(str(current_osm_id)))
-                    osm_xml_data.append(comment)
+                main_data = etree.SubElement(osm_xml_data, 'node', add_osm_node(osm_version, row))
             elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.way:
-                main_data = etree.SubElement(osm_xml_data, 'way', action='modify', id=str(current_osm_id),
-                    user='{}'.format('osm_poi_matchmaker'), timestamp='{}'.format(osm_timestamp),
-                    uid='{}'.format('8635934'),
-                    version='{}'.format(osm_version))
+                main_data = etree.SubElement(osm_xml_data, 'way', add_osm_way(osm_version, row))
                 josm_object = 'w{}'.format(current_osm_id)
                 # Add way nodes without any modification)
                 try:
@@ -115,15 +155,8 @@ def generate_osm_xml(df, session=None):
                 except TypeError as err:
                     logging.warning('Missing nodes on this way: %s.', row.get('osm_id'))
                     logging.exception('Exception occurred')
-                # Add node reference as comment for existing POI
-                if current_osm_id > 0:
-                    comment = etree.Comment(' OSM link: https://osm.org/way/{} '.format(str(current_osm_id)))
-                    osm_xml_data.append(comment)
             elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.relation:
-                main_data = etree.SubElement(osm_xml_data, 'relation', action='modify', id=str(current_osm_id),
-                    user='{}'.format('osm_poi_matchmaker'), timestamp='{}'.format(osm_timestamp),
-                    uid='{}'.format('8635934'),
-                    version='{}'.format(osm_version))
+                main_data = etree.SubElement(osm_xml_data, 'relation', add_osm_way(osm_version, row))
                 josm_object = 'r{}'.format(current_osm_id)
                 relations = relationer(row.get('osm_nodes'))
                 try:
@@ -132,6 +165,9 @@ def generate_osm_xml(df, session=None):
                             type=i.get('type'), ref=i.get('ref'), role=i.get('role'))
                 except TypeError as err:
                     logging.warning('Missing nodes on this relation: %s.', row['osm_id'])
+            # Add already existing node, way, relation OpenStreetMap reference as comment
+            if current_osm_id > 0:
+                osm_xml_data.append(etree.Comment(add_osm_link_comment(current_osm_id, row.get('osm_node'))))
             # Add original POI coordinates as comment
             comment = etree.Comment(' Original coordinates: {} '.format(row.get('poi_geom')))
             osm_xml_data.append(comment)
