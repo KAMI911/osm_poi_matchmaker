@@ -26,6 +26,15 @@ POI_TAGS = {'poi_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:p
             'poi_addr_street': 'addr:street', 'poi_addr_housenumber': 'addr:housenumber',
             'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email'}
 
+POI_YESNO_TAGS = {'poi_fuel_adblue': 'fuel:adblue', 'poi_fuel_octane_100': 'fuel:octane_100',
+                  'poi_fuel_octane_98': 'fuel:octane_98', 'poi_fuel_octane_95': 'fuel:octane_95',
+                  'poi_fuel_diesel_gtl': 'fuel:GTL_diesel', 'poi_fuel_diesel': 'fuel:diesel',
+                  'poi_fuel_lpg': 'fuel:lpg', 'poi_fuel_e85': 'fuel:e85', 'poi_rent_lpg_bottles': 'rent:lpg_bottles',
+                  'poi_compressed_air': 'compressed_air', 'poi_restaurant': 'restaurant', 'poi_food': 'food',
+                  'poi_truck': 'truck', 'poi_authentication_app': 'authentication:app',
+                  'poi_authentication_membership_card': 'authentication:membership_card', 'poi_fee': 'fee',
+                  'poi_parking_fee': 'parking_fee', 'poi_motorcar': 'motorcar' }
+
 POI_EV_TAGS = {'poi_capacity': 'capacity',
                'poi_socket_chademo': 'socket:chademo', 'poi_socket_chademo_output': 'socket:chademo:output',
                'poi_socket_type2_combo': 'socket:type2_combo', 'poi_socket_type2_combo_output': 'socket:type2_combo:output',
@@ -253,42 +262,9 @@ def generate_osm_xml(df, session=None):
                         tags['contact:' + tr] = tags.pop(tr, None)
             if row.get('poi_description') is not None and row.get('poi_description') != '':
                 tags['description'] = row.get('poi_description')
-            if row.get('poi_fuel_adblue') is not None and row.get('poi_fuel_adblue') != '':
-                tags['fuel:adblue'] = 'yes' if row.get('poi_fuel_adblue') == True else 'no'
-            if row.get('poi_fuel_octane_100') is not None and row.get('poi_fuel_octane_100') != '':
-                tags['fuel:octane_100'] = 'yes' if row.get('poi_fuel_octane_100') == True else 'no'
-            if row.get('poi_fuel_octane_98') is not None and row.get('poi_fuel_octane_98') != '':
-                tags['fuel:octane_98'] = 'yes' if row.get('poi_fuel_octane_98') == True else 'no'
-            if row.get('poi_fuel_octane_95') is not None and row.get('poi_fuel_octane_95') != '':
-                tags['fuel:octane_95'] = 'yes' if row.get('poi_fuel_octane_95') == True else 'no'
-            if row.get('poi_fuel_diesel_gtl') is not None and row.get('poi_fuel_diesel_gtl') != '':
-                tags['fuel:GTL_diesel'] = 'yes' if row.get('poi_fuel_diesel_gtl') == True else 'no'
-            if row.get('poi_fuel_diesel') is not None and row.get('poi_fuel_diesel') != '':
-                tags['fuel:diesel'] = 'yes' if row.get('poi_fuel_diesel') == True else 'no'
-            if row.get('poi_fuel_lpg') is not None and row.get('poi_fuel_lpg') != '':
-                tags['fuel:lpg'] = 'yes' if row.get('poi_fuel_lpg') == True else 'no'
-            if row.get('poi_fuel_e85') is not None and row.get('poi_fuel_e85') != '':
-                tags['fuel:e85'] = 'yes' if row.get('poi_fuel_e85') == True else 'no'
-            if row.get('poi_rent_lpg_bottles') is not None and row.get('poi_rent_lpg_bottles') != '':
-                tags['rent:lpg_bottles'] = 'yes' if row.get('poi_rent_lpg_bottles') == True else 'no'
-            if row.get('poi_compressed_air') is not None and row.get('poi_compressed_air') != '':
-                tags['compressed_air'] = 'yes' if row.get('poi_compressed_air') == True else 'no'
-            if row.get('poi_restaurant') is not None and row.get('poi_restaurant') != '':
-                tags['restaurant'] = 'yes' if row.get('poi_restaurant') == True else 'no'
-            if row.get('poi_food') is not None and row.get('poi_food') != '':
-                tags['food'] = 'yes' if row.get('poi_food') == True else 'no'
-            if row.get('poi_truck') is not None and row.get('poi_truck') != '':
-                tags['truck'] = 'yes' if row.get('poi_truck') == True else 'no'
-            if row.get('poi_authentication_app') is not None and row.get('poi_authentication_app') != '':
-                tags['authentication:app'] = 'yes' if row.get('poi_authentication_app') == True else 'no'
-            if row.get('poi_authentication_membership_card') is not None and row.get('poi_authentication_membership_card') != '':
-                tags['authentication:membership_card'] = 'yes' if row.get('poi_authentication_membership_card') == True else 'no'
-            if row.get('poi_fee') is not None and row.get('poi_fee') != '':
-                tags['fee'] = 'yes' if row.get('poi_fee') == True else 'no'
-            if row.get('poi_parking_fee') is not None and row.get('poi_parking_fee') != '':
-                tags['parking_fee'] = 'yes' if row.get('poi_parking_fee') == True else 'no'
-            if row.get('poi_motorcar') is not None and row.get('poi_motorcar') != '':
-                tags['motorcar'] = 'yes' if row.get('poi_motorcar') == True else 'no'
+            # Write tags with yes/no value
+            for k, v in POI_YESNO_TAGS.items():
+                tags[v] = 'yes' if row.get(k) is True else 'no'
             for k, v in POI_EV_TAGS.items():
                 if row.get(k) is not None and row.get(k) != '':
                     if isinstance(row.get(k), float):
