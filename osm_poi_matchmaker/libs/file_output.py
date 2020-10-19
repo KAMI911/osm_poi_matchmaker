@@ -64,7 +64,7 @@ def save_csv_file(path, file, data, message):
         logging.exception('Exception occurred')
 
 
-def add_osm_node(osm_id: int, node_data) -> str:
+def add_osm_node(osm_id: int, node_data, prefix = 'poi') -> str:
     """Generate OpenStreetMap node header information as string
 
     Args:
@@ -73,13 +73,16 @@ def add_osm_node(osm_id: int, node_data) -> str:
 
     Returns:
         str: [description]
-    """    
+    """
+    osm_user = 'osm_poi_matchmaker' if node_data.get('osm_user') is None else node_data.get('osm_user')
+    osm_user_id = '8635934' if node_data.get('osm_user_id') is None else node_data.get('osm_user_id')
     osm_timestamp = timestamp_now() if node_data.get('osm_timestamp') is None else node_data.get('osm_timestamp')
     osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
     osm_data = { 'action': 'modify', 'id': str(osm_id), \
-        'lat': '{}'.format(node_data.get('poi_lat')), 'lon': '{}'.format(node_data.get('poi_lon')), \
-        'user': '{}'.format('osm_poi_matchmaker'), 'timestamp': '{}'.format(osm_timestamp), \
-        'uid': '{}'.format('8635934'), 'version': '{}'.format(osm_version) }
+        'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))), \
+        'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))), \
+        'user': '{}'.format(osm_user), 'timestamp': '{}'.format(osm_timestamp), \
+        'uid': '{}'.format(osm_user_id), 'version': '{}'.format(osm_version) }
     return osm_data
 
 
@@ -152,14 +155,7 @@ def generate_osm_xml(df, session=None):
                                 added_nodes.append(n)
                                 way_node = db.query_from_cache(n, OSM_object_type.node)
                                 if way_node is not None:
-                                    node_data = etree.SubElement(osm_xml_data, 'node', action='modify', id=str(n),
-                                        lat='{}'.format(way_node.get('osm_lat')),
-                                        lon='{}'.format(way_node.get('osm_lon')),
-                                        user='{}'.format(way_node.get('osm_user')),
-                                        timestamp='{:{dfmt}T{tfmt}Z}'.
-                                            format(way_node.get('osm_timestamp'),dfmt='%Y-%m-%d', tfmt='%H:%M:%S'),
-                                        uid='{}'.format(way_node.get('osm_user_id')),
-                                        version='{}'.format(way_node.get('osm_version')))
+                                    node_data = etree.SubElement(osm_xml_data, 'node', add_osm_node(n, way_node, 'osm'))
                             osm_xml_data.append(node_data)
                 except TypeError as err:
                     logging.warning('Missing nodes on this way: %s.', row.get('osm_id'))
