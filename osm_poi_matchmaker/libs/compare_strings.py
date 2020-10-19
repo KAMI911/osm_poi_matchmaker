@@ -10,7 +10,8 @@ except ImportError as err:
 
     sys.exit(128)
 
-def compare_strings(string1, string2 = ''):
+
+def compare_strings(string1, string2=''):
     # New string
     if (string1 is '' or string1 is None) and (string2 is not '' and string2 is not None):
         return 'N'
@@ -18,7 +19,7 @@ def compare_strings(string1, string2 = ''):
     elif (string1 is not '' and string1 is not None) and (string2 is '' or string2 is None):
         return 'D'
     # Modified string
-    elif  str(string1) != str(string2):
+    elif str(string1) != str(string2):
         return 'M'
     # Equal string
     elif str(string1) == str(string2):

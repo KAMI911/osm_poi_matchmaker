@@ -468,7 +468,6 @@ class POIDataset:
             logging.error(e)
             logging.exception('Exception occurred')
 
-
     @property
     def housenumber(self):
         return self.__housenumber
@@ -929,10 +928,9 @@ class POIDataset:
                  self.__lunch_break['stop'],
                  self.__public_holiday_open, self.__opening_hours, self.__good, self.__bad])
             self.clear_all()
-        except Exception as err:
-            logging.error(err)
+        except Exception as e:
+            logging.error(e)
             logging.exception('Exception occurred')
-
 
     def process(self):
         df = pd.DataFrame(self.insert_data)

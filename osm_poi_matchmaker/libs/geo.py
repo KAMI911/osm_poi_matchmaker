@@ -69,12 +69,13 @@ def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
 
 
 def check_hu_boundary(latitude, longitude):
-    if (latitude is not None and latitude != '' and latitude != 0.0 ) and (longitude is not None and longitude != '' and longitude != 0.0 ):
+    if (latitude is not None and latitude != '' and latitude != 0.0) and (
+            longitude is not None and longitude != '' and longitude != 0.0):
         # This is a workaround because original datasource may contains swapped lat / lon parameters
         if float(latitude) < 44:
             logging.warning(
                 'Latitude-longitude replacement. Originally was: latitude: %s, longitude: %s.',
-                     latitude, longitude)
+                latitude, longitude)
             longitude, latitude = latitude, longitude
         # Another workaround to insert missing decimal point
         if float(longitude) > 200:

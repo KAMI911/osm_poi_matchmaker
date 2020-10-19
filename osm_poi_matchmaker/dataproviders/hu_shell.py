@@ -19,7 +19,6 @@ except ImportError as err:
 
 class hu_shell(DataProvider):
 
-
     def constains(self):
         self.link = 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL'
         self.POI_COMMON_TAGS = ""
@@ -28,14 +27,15 @@ class hu_shell(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel',
-                 'poi_tags': "{'amenity': 'fuel', 'brand': 'Shell', 'contact:phone': '+36 1 480 1114', 'contact:fax': '+36 1 999 8673', 'contact:website': 'https://shell.hu/', 'contact:facebook': 'https://www.facebook.com/ShellMagyarorszag/', 'contact:twitter': 'shell', " + POS_HU_GEN + PAY_CASH + " 'brand:wikidata': 'Q154950', 'brand:wikipedia': 'hu:Royal Dutch Shell', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://shell.hu', 'poi_search_name': 'shell', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
-                # {'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel',
-                #  'poi_tags': "{'amenity': 'fuel', 'brand': 'Mobil Petrol', 'contact:email': 'info@mpetrol.hu', 'contact:facebook': 'https://www.facebook.com/mpetrolofficial/', 'name': 'Mobil Petrol', 'operator:addr': '1095 Budapest, Ipar utca 2.', 'operator': 'MPH Power Zrt.', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
-                #  'poi_url_base': 'http://mpetrol.hu/', 'poi_search_name': '(m petrol|m. petrol|mobil metrol|shell)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60}
-                ]
+                         'poi_tags': "{'amenity': 'fuel', 'brand': 'Shell', 'contact:phone': '+36 1 480 1114', 'contact:fax': '+36 1 999 8673', 'contact:website': 'https://shell.hu/', 'contact:facebook': 'https://www.facebook.com/ShellMagyarorszag/', 'contact:twitter': 'shell', " + POS_HU_GEN + PAY_CASH + " 'brand:wikidata': 'Q154950', 'brand:wikipedia': 'hu:Royal Dutch Shell', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
+                         'poi_url_base': 'https://shell.hu', 'poi_search_name': 'shell',
+                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
+                         'osm_search_distance_unsafe': 60},
+                        # {'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel',
+                        #  'poi_tags': "{'amenity': 'fuel', 'brand': 'Mobil Petrol', 'contact:email': 'info@mpetrol.hu', 'contact:facebook': 'https://www.facebook.com/mpetrolofficial/', 'name': 'Mobil Petrol', 'operator:addr': '1095 Budapest, Ipar utca 2.', 'operator': 'MPH Power Zrt.', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
+                        #  'poi_url_base': 'http://mpetrol.hu/', 'poi_search_name': '(m petrol|m. petrol|mobil metrol|shell)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60}
+                        ]
         return self.__types
-
 
     def process(self):
         try:
@@ -95,7 +95,8 @@ class hu_shell(DataProvider):
                         self.data.su_c = '22:00'
                         self.data.public_holiday_open = False
                     self.data.original = poi_data['Address']
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['GPS Latitude'], poi_data['GPS Longitude'])
+                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['GPS Latitude'],
+                                                                     poi_data['GPS Longitude'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         street_tmp)
                     if 'Telephone' in poi_data and poi_data['Telephone'] != '':

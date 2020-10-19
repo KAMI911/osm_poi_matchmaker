@@ -43,7 +43,7 @@ class OpeningHours(object):
 
     @property
     def nonstop(self):
-        return (self.non_stop)
+        return self.non_stop
 
     @nonstop.setter
     def nonstop(self, value):
@@ -51,7 +51,7 @@ class OpeningHours(object):
 
     @property
     def public_holiday_open(self):
-        return (self.__public_holiday_open)
+        return self.__public_holiday_open
 
     @public_holiday_open.setter
     def public_holiday_open(self, value):
@@ -59,7 +59,7 @@ class OpeningHours(object):
 
     @property
     def lunch_break(self):
-        return (self.lunchbreak)
+        return self.lunchbreak
 
     @lunch_break.setter
     def lunch_break(self, lunch_break_start, lunch_break_stop):
@@ -108,7 +108,7 @@ class OpeningHours(object):
                                                     self.lunchbreak['stop'], self.df_dup.at[k, 'close']))
                 oh = '; '.join(oh_list)
                 oh = oh + oh_ph
-        if self.non_stop == True or 'Mo-Su 00:00-24:00' in oh:
+        if self.non_stop is True or 'Mo-Su 00:00-24:00' in oh:
             try:
                 return '24/7{}'.format(oh_ph)
             except:

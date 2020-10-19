@@ -80,14 +80,15 @@ class TestFullAddressResolver(unittest.TestCase):
             {'original': '2463 Tordas Köztársaság u.8/a.', 'postcode': '2463', 'city': 'Tordas',
              'street': 'Köztársaság utca', 'housenumber': '8/A', 'conscriptionnumber': None},
             {'original': '2000 Szentendre Vasvári Pál u. 2794/16 hrsz.', 'postcode': '2000', 'city': 'Szentendre',
-             'street': 'Vasvári Pál utca', 'housenumber':  None, 'conscriptionnumber': '2794/16'},
+             'street': 'Vasvári Pál utca', 'housenumber': None, 'conscriptionnumber': '2794/16'},
         ]
 
     def test_extract_all_address(self):
         for i in self.addresses:
-            original, postcode, city, street, housenumber, conscriptionnumber = i['original'], i['postcode'], i['city'], \
-                                                                                i['street'], i['housenumber'], i[
-                                                                                    'conscriptionnumber']
+            original, postcode, city, street, housenumber, conscriptionnumber = i['original'], i['postcode'], \
+                                                                                i['city'], i['street'], \
+                                                                                i['housenumber'], \
+                                                                                i['conscriptionnumber']
             a, b, c, d, e = extract_all_address(original)
             with self.subTest():
                 self.assertEqual(postcode, a)

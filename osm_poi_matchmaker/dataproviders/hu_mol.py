@@ -17,12 +17,10 @@ except ImportError as err:
 
     sys.exit(128)
 
-
 POST_DATA = {'country': 'Magyarország', 'lat': '47.162494', 'lng': '19.503304100000037', 'radius': 20}
 
 
 class hu_mol(DataProvider):
-
 
     def constains(self):
         self.link = 'http://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json'
@@ -32,18 +30,18 @@ class hu_mol(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
-            'poi_tags': "{'amenity': 'fuel', 'brand': 'MOL', 'operator': 'MOL Nyrt.', "
-            "'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.', 'ref:vatin:hu': '10625790-4-44', "
-            "'contact:facebook': 'https://www.facebook.com/mol.magyarorszag/', "
-            "'contact:youtube': 'https://www.youtube.com/user/molgrouptv', "
-            "'contact:instagram': 'https://www.instagram.com/mol.magyarorszag/', "
-            "'brand:wikipedia': 'hu:MOL Magyar Olaj- és Gázipari Nyrt.', 'brand:wikidata': 'Q549181', "
-            "'ref:HU:company': '01-10-041683', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', "
-            "'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
-            'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol', 'osm_search_distance_perfect': 2000,
-            'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60}]
+                         'poi_tags': "{'amenity': 'fuel', 'brand': 'MOL', 'operator': 'MOL Nyrt.', "
+                                     "'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.', 'ref:vatin:hu': '10625790-4-44', "
+                                     "'contact:facebook': 'https://www.facebook.com/mol.magyarorszag/', "
+                                     "'contact:youtube': 'https://www.youtube.com/user/molgrouptv', "
+                                     "'contact:instagram': 'https://www.instagram.com/mol.magyarorszag/', "
+                                     "'brand:wikipedia': 'hu:MOL Magyar Olaj- és Gázipari Nyrt.', 'brand:wikidata': 'Q549181', "
+                                     "'ref:HU:company': '01-10-041683', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', "
+                                                                                                    "'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
+                         'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
+                         'osm_search_distance_perfect': 2000,
+                         'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60}]
         return self.__types
-
 
     def process(self):
         try:

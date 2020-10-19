@@ -98,7 +98,7 @@ def add_osm_way(osm_id: int, node_data) -> dict:
 
     Returns:
         str: [description]
-    """    
+    """
     osm_timestamp = timestamp_now() if node_data.get('osm_timestamp') is None else node_data.get('osm_timestamp')
     osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
     osm_data = {'action': 'modify', 'id': str(osm_id),
@@ -116,7 +116,7 @@ def add_osm_link_comment(osm_id: int, osm_type) -> str:
 
     Returns:
         str: [description]
-    """    
+    """
     osm_comment = ' OSM link: https://osm.org/{}/{} '.format(osm_type.name, str(osm_id))
     return osm_comment
 
@@ -201,7 +201,7 @@ def generate_osm_xml(df, session=None):
                 tags.update(eval(row.get('poi_tags')))
             # Save live name tags if preserve name is enabled
             try:
-                if row.get('preserve_original_name') == True:
+                if row.get('preserve_original_name') is True:
                     preserved_name = tags.get('name')
             except KeyError as err:
                 logging.debug('No name tag is specified to save in original OpenStreetMap data.')
@@ -273,7 +273,7 @@ def generate_osm_xml(df, session=None):
                     else:
                         tags[v] = row.get(k)
             # This is a new POI - will add fix me tag to the new items.
-            if row.get('poi_new') is not None and row.get('poi_new') == True:
+            if row.get('poi_new') is not None and row.get('poi_new') is True:
                 tags['fixme'] = 'verify import'
             # Remove unwanted addr:country from file output as we discussed in Issue #33
             tags.pop('addr:country', None)
@@ -294,13 +294,14 @@ def generate_osm_xml(df, session=None):
                 else:
                     if isinstance(w, str):
                         w = w.replace('-', '\-').replace('\n', '')
-                    comment += "{:32} {}\t\t'{}'\t\t\t'{}'\n".format(k, compare_strings(v,w), v, w)
+                    comment += "{:32} {}\t\t'{}'\t\t\t'{}'\n".format(k, compare_strings(v, w), v, w)
             comment = etree.Comment(comment)
             osm_xml_data.append(comment)
             # URL encode link and '--' in comment
             josm_link = quote(josm_link)
             josm_link = josm_link.replace('--', '%2D%2D')
-            comment = etree.Comment(' JOSM magic link: {}?new_layer=false&objects={}&addtags={} '.format('http://localhost:8111/load_object', josm_object, josm_link))
+            comment = etree.Comment(' JOSM magic link: {}?new_layer=false&objects={}&addtags={} '.format
+                                    ('http://localhost:8111/load_object', josm_object, josm_link))
             osm_xml_data.append(comment)
             osm_xml_data.append(main_data)
             # Next deafult OSM id is one more less for non existing objects

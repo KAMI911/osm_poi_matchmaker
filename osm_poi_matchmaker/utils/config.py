@@ -202,6 +202,7 @@ def get_geo_default_poi_distance():
     else:
         return 70
 
+
 def get_geo_default_poi_perfect_distance():
     setting = get_config_int(KEY_GEO_DEFAULT_POI_PERFECT_DISTANCE)
     if setting is not None:
@@ -209,12 +210,14 @@ def get_geo_default_poi_perfect_distance():
     else:
         return 2000
 
+
 def get_geo_default_poi_road_distance():
     setting = get_config_int(KEY_GEO_DEFAULT_POI_ROAD_DISTANCE)
     if setting is not None:
         return setting
     else:
         return 600
+
 
 def get_geo_amenity_atm_poi_distance():
     setting = get_config_int(KEY_GEO_AMENITY_ATM_POI_DISTANCE)

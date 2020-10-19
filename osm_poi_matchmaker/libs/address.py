@@ -276,7 +276,7 @@ def clean_phone(phone):
         logging.debug('This is string is cannot converted to phone number: %s', phone)
         return None
     if pn is not None:
-        return [ phonenumbers.format_number(i, phonenumbers.PhoneNumberFormat.INTERNATIONAL) for i in pn ]
+        return [phonenumbers.format_number(i, phonenumbers.PhoneNumberFormat.INTERNATIONAL) for i in pn]
     else:
         return None
 
@@ -329,6 +329,7 @@ def clean_url(clearable):
     else:
         return None
 
+
 def clean_street(clearable):
     '''
 
@@ -338,162 +339,163 @@ def clean_street(clearable):
 
     street = clearable.strip()
     repls = ('Nyúl 82. sz. főút', 'Kossuth Lajos út'), \
-    ('Nyúl  82. sz. főút', '82. számú főközlekedési út'), \
-    ('Budafoki út, 6-os sz. főút', '6. számú főközlekedési út'), \
-    ('. Sz. Főút felső', '. számú főközlekedési út'), \
-    ('. számú - Némedi út sarok', '. számú főközlekedési út'), \
-    ('076/15. hrsz 86. számú főút mellett', '86. számú főközlekedési út'), \
-    ('50.sz.út jobb oldal', '50. számú főközlekedési út'), \
-    ('. sz. fkl.út', '. számú főközlekedési út'), \
-    ('.sz. fkl. út', '. számú főközlekedési út'), \
-    ('-es sz. főút', '. számú főközlekedési út'), \
-    ('. sz. főút', '. számú főközlekedési út'), \
-    ('.sz.fkl.', '. számú főközlekedési'), \
-    ('. sz. fkl.', '. számú főközlekedési'), \
-    ('. számú fkl. út', '. számú főközlekedési út'), \
-    ('. Sz. főút', '. számú főközlekedési út'), \
-    ('. számú főút', '. számú főközlekedési út'), \
-    ('. főút', '. számú főközlekedési út'), \
-    ('. sz út', '. számú főközlekedési út'), \
-    (' sz. főút', '. számú főközlekedési út'), \
-    ('-es fő út', '. számú főközlekedési út'), \
-    ('-es főút', '. számú főközlekedési út'), \
-    (' - es út', '. számú főközlekedési út'), \
-    ('-es út', '. számú főközlekedési út'), \
-    ('-as fő út', '. számú főközlekedési út'), \
-    ('-as főút', '. számú főközlekedési út'), \
-    (' - as út', '. számú főközlekedési út'), \
-    ('-as út', '. számú főközlekedési út'), \
-    ('-ös fő út', '. számú főközlekedési út'), \
-    ('-ös főút', '. számú főközlekedési út'), \
-    (' - ös út', '. számú főközlekedési út'), \
-    ('-ös út', '. számú főközlekedési út'), \
-    ('Omsz park', 'Omszk park'), \
-    ('01.máj.', 'Május 1.'), \
-    ('15.márc.', 'Március 15.'), \
-    ('Ady E.', 'Ady Endre'), \
-    ('Áchim A.', 'Áchim András'), \
-    ('Bajcsy-Zs. E.', 'Bajcsy-Zsilinszky Endre'), \
-    ('Bajcsy-Zs. E. u.', 'Bajcsy-Zsilinszky Endre utca'), \
-    ('Bajcsy-Zs. u.', 'Bajcsy-Zsilinszky utca'), \
-    ('Bajcsy Zs.u.', 'Bajcsy-Zsilinszky utca'), \
-    ('Bajcsy-Zs. u.', 'Bajcsy-Zsilinszky utca'), \
-    ('Bajcsy Zs. u.', 'Bajcsy-Zsilinszky utca'), \
-    ('Bajcsy-Zs.', 'Bajcsy-Zsilinszky'), \
-    ('Bajcsy Zs.', 'Bajcsy-Zsilinszky'), \
-    ('Bartók B.', 'Bartók Béla'), \
-    ('Baross G.', 'Baross Gábor'), \
-    ('BERCSÉNYI U.', 'Bercsényi Miklós utca'), \
-    ('Berzsenyi D.', 'Berzsenyi Dániel'), \
-    ('Borics P.', 'Borics Pál'), \
-    ('Corvin J.', 'Corvin'), \
-    ('Dózsa Gy.u.', 'Dózsa György utca'), \
-    ('Dózsa Gy.', 'Dózsa György'), \
-    ('dr. Géfin Lajos', 'Dr. Géfin Lajos'), \
-    ('Erkel F.', 'Erkel Ferenc'), \
-    ('Hegedű/(Király)', 'Hegedű'), \
-    ('Hevesi S.', 'Hevesi Sándor'), \
-    ('Hunyadi J.', 'Hunyadi János'), \
-    ('Ii. Rákóczi Ferenc', 'II. Rákóczi Ferenc'), \
-    ('Innovációs kp. Fő út', 'Fő út'), \
-    ('Ix. körzet', 'IX. körzet'), \
-    ('Kölcsey F.', 'Kölcsey Ferenc'), \
-    ('Kiss J.', 'Kiss József'), \
-    ('Nagy L. király', 'Nagy Lajos király'), \
-    ('Kaszás u. 2.-Dózsa György út', 'Dózsa György út'), \
-    ('Váci út 117-119. „A” épület', 'Váci út'), \
-    ('56-Osok tere', 'Ötvenhatosok tere'), \
-    ('11-es út', '11. számú főközlekedési út'), \
-    ('11-es Huszár út', 'Huszár út'), \
-    ('Kölcsey-Pozsonyi út sarok', 'Kölcsey Ferenc utca '), \
-    ('Március 15-e', 'Március 15.'), \
-    ('Tiszavasvári út - Alkotás u sarok', 'Tiszavasvári út'), \
-    ('Tiszavasvári út- Alkotás út sarok', 'Tiszavasvári út'), \
-    ('Hőforrás-Rákóczi utca', 'Rákóczi utca'), \
-    ('Kiss Tábornok - Kandó Kálmán utca sarok', 'Kiss Tábornok utca'), \
-    ('Soroksári út - Határ út sarok', 'Soroksári út'), \
-    ('Szentendrei- Czetz János utca sarok', 'Szentendrei út'), \
-    ('Külső - Kádártai utca', 'Külső-Kádártai utca'), \
-    ('Károlyi út - Ságvári út', 'Károlyi Mihály utca'), \
-    ('Szlovák út - Csömöri út sarok', 'Szlovák út'), \
-    ('Maglódi út - Jászberényi út sarok', 'Maglódi út'), \
-    ('Dobogókői út- Kesztölci út sarok', 'Dobogókői út'), \
-    ('DR. KOCH L. UTCA', 'Dr. Koch László utca'), \
-    ('DR KOCH L.', 'Dr. Koch László'), \
-    ('Koch L.u.', 'Dr. Koch László utca'), \
-    ('Kiss J. ', 'Kiss József'), \
-    ('Kossuth L.u.', 'Kossuth Lajos utca '), \
-    ('Kossuth L.', 'Kossuth Lajos'), \
-    ('Kossuth F. u', 'Kossuth Ferenc utca'), \
-    ('Kossuth F.', 'Kossuth Ferenc'), \
-    ('Korányi F.', 'Korányi Frigyes'), \
-    ('Kőrösi Csoma S.', 'Kőrösi Csoma Sándor'), \
-    ('Páter K.', 'Páter Károly'), \
-    ('Petőfi S.', 'Petőfi Sándor'), \
-    ('Somogyi B.', 'Somogyi Béla'), \
-    ('Szondy', 'Szondi'), \
-    ('Szt.István', 'Szent István'), \
-    ('szt.istván', 'Szent István'), \
-    ('Táncsics M.', 'Táncsics Mihály'), \
-    ('Vass J.', 'Vass János'), \
-    ('Vámház.', 'Vámház'), \
-    ('Várkörút .', 'Várkörút'), \
-    ('Vásárhelyi P.', 'Vásárhelyi Pál'), \
-    ('Vi. utca', 'VI. utca'), \
-    ('XXI. II. Rákóczi Ferenc', 'II. Rákóczi Ferenc'), \
-    ('Zsolnay V.', 'Zsolnay Vilmos'), \
-    ('Radnóti M.', 'Radnóti Miklós'), \
-    ('Fehérvári út (Andor u. 1.)', 'Fehérvári'), \
-    ('Szent István kir.', 'Szent István király'), \
-    ('Dr Batthyány S. László', 'Dr. Batthyány-Strattmann László'), \
-    ('Bacsinszky A.', 'Bacsinszky András'), \
-    ('Fáy A.', 'Fáy András'), \
-    ('József a.', 'József Attila'), \
-    ('Juhász Gy. ', 'Juhász Gyula'), \
-    ('Hock j.', 'Hock János'), \
-    ('Vak B.', 'Vak Bottyán'), \
-    ('Arany J.', 'Arany János'), \
-    ('Könyves K.', 'Könyves Kálmán'), \
-    ('Szilágyi E.', 'Szilágyi Erzsébet'), \
-    ('Liszt F.', 'Liszt Ferenc'), \
-    ('Bethlen G.', 'Bethlen Gábor'), \
-    ('Gazdag E.', 'Gazdag Erzsi'), \
-    ('Hátsókapu.', 'Hátsókapu'), \
-    ('Herman O.', 'Herman Ottó'), \
-    ('József A.', 'József Attila'), \
-    ('Kazinczy F.', 'Kazinczy Ferenc'), \
-    ('Király J.', 'Király Jenő'), \
-    ('Királyhidai utca', 'Királyhidai út'), \
-    ('Lackner K.', 'Lackner Kristóf'), \
-    ('Mécs L.', 'Mécs László'), \
-    ('Nagyváthy J.', 'Nagyváthy János'), \
-    ('Szent I. kir.', 'Szent István király'), \
-    ('Szigethy A. u.', 'Szigethy Attila út'), \
-    ('Rákóczi F.', 'Rákóczi Ferenc'), \
-    ('Jókai M.', 'Jókai Mór'), \
-    ('Szabó D.', 'Szabó Dezső'), \
-    ('Kossuth F.', 'Kossuth F.'), \
-    ('Móricz Zs.', 'Móricz Zsigmond'), \
-    ('Hunyadi J ', 'Hunyadi János'), \
-    ('Szilágyi E ', 'Szilágyi Erzsébet fasor'), \
-    ('Erzsébet Királyné út', 'Erzsébet királyné útja'), \
-    ('Mammut', ''), \
-    ('Szt. ', 'Szent '), \
-    (' u.', ' utca '), \
-    (' U.', ' utca '), \
-    ('.u.', ' utca '), \
-    (' u ', ' utca '), \
-    (' krt.', ' körút'), \
-    (' Krt.', ' körút'), \
-    (' KRT.', ' körút'), \
-    (' ltp.', ' lakótelep'), \
-    (' Ltp.', ' lakótelep'), \
-    (' LTP.', ' lakótelep'), \
-    (' ltp', ' lakótelep'), \
-    (' sgt.', ' sugárút'), \
-    ('^4. sz$', '4. számú főközlekedési')
+            ('Nyúl  82. sz. főút', '82. számú főközlekedési út'), \
+            ('Budafoki út, 6-os sz. főút', '6. számú főközlekedési út'), \
+            ('. Sz. Főút felső', '. számú főközlekedési út'), \
+            ('. számú - Némedi út sarok', '. számú főközlekedési út'), \
+            ('076/15. hrsz 86. számú főút mellett', '86. számú főközlekedési út'), \
+            ('50.sz.út jobb oldal', '50. számú főközlekedési út'), \
+            ('. sz. fkl.út', '. számú főközlekedési út'), \
+            ('.sz. fkl. út', '. számú főközlekedési út'), \
+            ('-es sz. főút', '. számú főközlekedési út'), \
+            ('. sz. főút', '. számú főközlekedési út'), \
+            ('.sz.fkl.', '. számú főközlekedési'), \
+            ('. sz. fkl.', '. számú főközlekedési'), \
+            ('. számú fkl. út', '. számú főközlekedési út'), \
+            ('. Sz. főút', '. számú főközlekedési út'), \
+            ('. számú főút', '. számú főközlekedési út'), \
+            ('. főút', '. számú főközlekedési út'), \
+            ('. sz út', '. számú főközlekedési út'), \
+            (' sz. főút', '. számú főközlekedési út'), \
+            ('-es fő út', '. számú főközlekedési út'), \
+            ('-es főút', '. számú főközlekedési út'), \
+            (' - es út', '. számú főközlekedési út'), \
+            ('-es út', '. számú főközlekedési út'), \
+            ('-as fő út', '. számú főközlekedési út'), \
+            ('-as főút', '. számú főközlekedési út'), \
+            (' - as út', '. számú főközlekedési út'), \
+            ('-as út', '. számú főközlekedési út'), \
+            ('-ös fő út', '. számú főközlekedési út'), \
+            ('-ös főút', '. számú főközlekedési út'), \
+            (' - ös út', '. számú főközlekedési út'), \
+            ('-ös út', '. számú főközlekedési út'), \
+            ('Omsz park', 'Omszk park'), \
+            ('01.máj.', 'Május 1.'), \
+            ('15.márc.', 'Március 15.'), \
+            ('Ady E.', 'Ady Endre'), \
+            ('Áchim A.', 'Áchim András'), \
+            ('Bajcsy-Zs. E.', 'Bajcsy-Zsilinszky Endre'), \
+            ('Bajcsy-Zs. E. u.', 'Bajcsy-Zsilinszky Endre utca'), \
+            ('Bajcsy-Zs. u.', 'Bajcsy-Zsilinszky utca'), \
+            ('Bajcsy Zs.u.', 'Bajcsy-Zsilinszky utca'), \
+            ('Bajcsy-Zs. u.', 'Bajcsy-Zsilinszky utca'), \
+            ('Bajcsy Zs. u.', 'Bajcsy-Zsilinszky utca'), \
+            ('Bajcsy-Zs.', 'Bajcsy-Zsilinszky'), \
+            ('Bajcsy Zs.', 'Bajcsy-Zsilinszky'), \
+            ('Bartók B.', 'Bartók Béla'), \
+            ('Baross G.', 'Baross Gábor'), \
+            ('BERCSÉNYI U.', 'Bercsényi Miklós utca'), \
+            ('Berzsenyi D.', 'Berzsenyi Dániel'), \
+            ('Borics P.', 'Borics Pál'), \
+            ('Corvin J.', 'Corvin'), \
+            ('Dózsa Gy.u.', 'Dózsa György utca'), \
+            ('Dózsa Gy.', 'Dózsa György'), \
+            ('dr. Géfin Lajos', 'Dr. Géfin Lajos'), \
+            ('Erkel F.', 'Erkel Ferenc'), \
+            ('Hegedű/(Király)', 'Hegedű'), \
+            ('Hevesi S.', 'Hevesi Sándor'), \
+            ('Hunyadi J.', 'Hunyadi János'), \
+            ('Ii. Rákóczi Ferenc', 'II. Rákóczi Ferenc'), \
+            ('Innovációs kp. Fő út', 'Fő út'), \
+            ('Ix. körzet', 'IX. körzet'), \
+            ('Kölcsey F.', 'Kölcsey Ferenc'), \
+            ('Kiss J.', 'Kiss József'), \
+            ('Nagy L. király', 'Nagy Lajos király'), \
+            ('Kaszás u. 2.-Dózsa György út', 'Dózsa György út'), \
+            ('Váci út 117-119. „A” épület', 'Váci út'), \
+            ('56-Osok tere', 'Ötvenhatosok tere'), \
+            ('11-es út', '11. számú főközlekedési út'), \
+            ('11-es Huszár út', 'Huszár út'), \
+            ('Kölcsey-Pozsonyi út sarok', 'Kölcsey Ferenc utca '), \
+            ('Március 15-e', 'Március 15.'), \
+            ('Tiszavasvári út - Alkotás u sarok', 'Tiszavasvári út'), \
+            ('Tiszavasvári út- Alkotás út sarok', 'Tiszavasvári út'), \
+            ('Hőforrás-Rákóczi utca', 'Rákóczi utca'), \
+            ('Kiss Tábornok - Kandó Kálmán utca sarok', 'Kiss Tábornok utca'), \
+            ('Soroksári út - Határ út sarok', 'Soroksári út'), \
+            ('Szentendrei- Czetz János utca sarok', 'Szentendrei út'), \
+            ('Külső - Kádártai utca', 'Külső-Kádártai utca'), \
+            ('Károlyi út - Ságvári út', 'Károlyi Mihály utca'), \
+            ('Szlovák út - Csömöri út sarok', 'Szlovák út'), \
+            ('Maglódi út - Jászberényi út sarok', 'Maglódi út'), \
+            ('Dobogókői út- Kesztölci út sarok', 'Dobogókői út'), \
+            ('DR. KOCH L. UTCA', 'Dr. Koch László utca'), \
+            ('DR KOCH L.', 'Dr. Koch László'), \
+            ('Koch L.u.', 'Dr. Koch László utca'), \
+            ('Kiss J. ', 'Kiss József'), \
+            ('Kossuth L.u.', 'Kossuth Lajos utca '), \
+            ('Kossuth L.', 'Kossuth Lajos'), \
+            ('Kossuth F. u', 'Kossuth Ferenc utca'), \
+            ('Kossuth F.', 'Kossuth Ferenc'), \
+            ('Korányi F.', 'Korányi Frigyes'), \
+            ('Kőrösi Csoma S.', 'Kőrösi Csoma Sándor'), \
+            ('Páter K.', 'Páter Károly'), \
+            ('Petőfi S.', 'Petőfi Sándor'), \
+            ('Somogyi B.', 'Somogyi Béla'), \
+            ('Szondy', 'Szondi'), \
+            ('Szt.István', 'Szent István'), \
+            ('szt.istván', 'Szent István'), \
+            ('Táncsics M.', 'Táncsics Mihály'), \
+            ('Vass J.', 'Vass János'), \
+            ('Vámház.', 'Vámház'), \
+            ('Várkörút .', 'Várkörút'), \
+            ('Vásárhelyi P.', 'Vásárhelyi Pál'), \
+            ('Vi. utca', 'VI. utca'), \
+            ('XXI. II. Rákóczi Ferenc', 'II. Rákóczi Ferenc'), \
+            ('Zsolnay V.', 'Zsolnay Vilmos'), \
+            ('Radnóti M.', 'Radnóti Miklós'), \
+            ('Fehérvári út (Andor u. 1.)', 'Fehérvári'), \
+            ('Szent István kir.', 'Szent István király'), \
+            ('Dr Batthyány S. László', 'Dr. Batthyány-Strattmann László'), \
+            ('Bacsinszky A.', 'Bacsinszky András'), \
+            ('Fáy A.', 'Fáy András'), \
+            ('József a.', 'József Attila'), \
+            ('Juhász Gy. ', 'Juhász Gyula'), \
+            ('Hock j.', 'Hock János'), \
+            ('Vak B.', 'Vak Bottyán'), \
+            ('Arany J.', 'Arany János'), \
+            ('Könyves K.', 'Könyves Kálmán'), \
+            ('Szilágyi E.', 'Szilágyi Erzsébet'), \
+            ('Liszt F.', 'Liszt Ferenc'), \
+            ('Bethlen G.', 'Bethlen Gábor'), \
+            ('Gazdag E.', 'Gazdag Erzsi'), \
+            ('Hátsókapu.', 'Hátsókapu'), \
+            ('Herman O.', 'Herman Ottó'), \
+            ('József A.', 'József Attila'), \
+            ('Kazinczy F.', 'Kazinczy Ferenc'), \
+            ('Király J.', 'Király Jenő'), \
+            ('Királyhidai utca', 'Királyhidai út'), \
+            ('Lackner K.', 'Lackner Kristóf'), \
+            ('Mécs L.', 'Mécs László'), \
+            ('Nagyváthy J.', 'Nagyváthy János'), \
+            ('Szent I. kir.', 'Szent István király'), \
+            ('Szigethy A. u.', 'Szigethy Attila út'), \
+            ('Rákóczi F.', 'Rákóczi Ferenc'), \
+            ('Jókai M.', 'Jókai Mór'), \
+            ('Szabó D.', 'Szabó Dezső'), \
+            ('Kossuth F.', 'Kossuth F.'), \
+            ('Móricz Zs.', 'Móricz Zsigmond'), \
+            ('Hunyadi J ', 'Hunyadi János'), \
+            ('Szilágyi E ', 'Szilágyi Erzsébet fasor'), \
+            ('Erzsébet Királyné út', 'Erzsébet királyné útja'), \
+            ('Mammut', ''), \
+            ('Szt. ', 'Szent '), \
+            (' u.', ' utca '), \
+            (' U.', ' utca '), \
+            ('.u.', ' utca '), \
+            (' u ', ' utca '), \
+            (' krt.', ' körút'), \
+            (' Krt.', ' körút'), \
+            (' KRT.', ' körút'), \
+            (' ltp.', ' lakótelep'), \
+            (' Ltp.', ' lakótelep'), \
+            (' LTP.', ' lakótelep'), \
+            (' ltp', ' lakótelep'), \
+            (' sgt.', ' sugárút'), \
+            ('^4. sz$', '4. számú főközlekedési')
     street = reduce(lambda a, kv: a.replace(*kv), repls, street)
     return street
+
 
 def clean_street_type(clearable):
     '''
@@ -512,6 +514,7 @@ def clean_street_type(clearable):
     street = street.replace('(nincs)', '')
     street = street.replace('.', '')
     return street
+
 
 def clean_branch(clearable):
     '''

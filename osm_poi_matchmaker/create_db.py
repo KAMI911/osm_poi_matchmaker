@@ -90,9 +90,7 @@ class WorkflowManager(object):
             logging.error(e)
             logging.exception('Exception occurred')
 
-
-
-    def start_exporter(self, data: list, postfix: str = '', to_do = export_grouped_poi_data):
+    def start_exporter(self, data: list, postfix: str = '', to_do=export_grouped_poi_data):
         poi_codes = data['poi_code'].unique()
         modules = [[config.get_directory_output(), 'poi_address_{}{}'.format(postfix, c), data[data.poi_code == c],
                     'poi_address'] for c in poi_codes]
@@ -107,8 +105,6 @@ class WorkflowManager(object):
             logging.error(e)
             logging.exception('Exception occurred')
 
-
-
     def start_matcher(self, data, comm_data):
         try:
             workers = self.NUMBER_OF_PROCESSES
@@ -120,7 +116,6 @@ class WorkflowManager(object):
         except Exception as e:
             logging.error(e)
             logging.exception('Exception occurred')
-
 
     def join(self):
         self.pool.join()
@@ -157,7 +152,7 @@ def main():
         poi_addr_data['osm_live_tags'] = None
         # Export non-transformed data
         export_raw_poi_data(poi_addr_data, poi_common_data)
-        #export_raw_poi_data_xml(poi_addr_data)
+        # export_raw_poi_data_xml(poi_addr_data)
         logging.info('Saving poi_code grouped filesets...')
         # Export non-transformed filesets
         manager.start_exporter(poi_addr_data)

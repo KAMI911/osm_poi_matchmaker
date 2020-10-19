@@ -55,7 +55,7 @@ class hu_posta_json():
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
+                                    self.filetype)
         if soup is not None:
             text = json.loads(soup)
             data = POIDataset()

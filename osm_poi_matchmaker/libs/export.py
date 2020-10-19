@@ -41,7 +41,6 @@ def export_grouped_poi_data(data):
         logging.exception('Exception occurred')
 
 
-
 def export_grouped_poi_data_with_postcode_groups(data):
     try:
         # Generating CSV files group by poi_code and postcode
@@ -70,4 +69,3 @@ def export_grouped_poi_data_with_postcode_groups(data):
     except Exception as e:
         logging.error(e)
         logging.exception('Exception occurred')
-

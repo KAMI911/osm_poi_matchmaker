@@ -30,12 +30,12 @@ class hu_mol_plugee_ev(DataProvider):
     def types(self):
         self.__types = [{'poi_code': 'humolplchs', 'poi_name': 'MOL Plugee', 'poi_type': 'charging_station',
                          'poi_tags': "{'amenity': 'charging_station', 'authentication:app': 'yes', "
-                         "'authentication:none': 'yes', 'brand': 'MOL', 'operator': 'MOL Nyrt.', "
-                         "'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.', "
-                         "'fee': 'yes', 'parking:fee': 'no', 'opening_hours': '24/7', 'ref:vatin': 'HU10625790',"
-                         "'ref:vatin:hu': '10625790-4-44', 'ref:HU:company': '01-10-041683', "
-                         "'contact:email': 'info@molplugee.hu', 'contact:phone': '+36 1 998 9888', "
-                         "'contact:website': 'https://molplugee.hu/', 'motorcar': 'yes'}",
+                                     "'authentication:none': 'yes', 'brand': 'MOL', 'operator': 'MOL Nyrt.', "
+                                     "'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.', "
+                                     "'fee': 'yes', 'parking:fee': 'no', 'opening_hours': '24/7', 'ref:vatin': 'HU10625790',"
+                                     "'ref:vatin:hu': '10625790-4-44', 'ref:HU:company': '01-10-041683', "
+                                     "'contact:email': 'info@molplugee.hu', 'contact:phone': '+36 1 998 9888', "
+                                     "'contact:website': 'https://molplugee.hu/', 'motorcar': 'yes'}",
                          'poi_url_base': 'https://molplugee.hu', 'poi_search_name': '(mol plugee|plugee)',
                          'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
                          'osm_search_distance_unsafe': 10},

@@ -36,8 +36,8 @@ class hu_yves_rocher(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'huyvesrcos', 'poi_name': 'Yves Rocher', 'poi_type': 'cosmetics',
-                 'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://www.yves-rocher.hu/', 'poi_search_name': 'yves rocher',
+                         'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
+                         'poi_url_base': 'https://www.yves-rocher.hu/', 'poi_search_name': 'yves rocher',
                          'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
                          'osm_search_distance_unsafe': 15}]
         return self.__types
@@ -72,7 +72,8 @@ class hu_yves_rocher(DataProvider):
                                 self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                             if poi_data.get('mobile') is not None and poi_data.get('mobile') != '' \
                                     and self.data.phone is not None:
-                                self.data.phone = '{};{}'.format(self.data.phone, clean_phone_to_str(poi_data.get('mobile')))
+                                self.data.phone = '{};{}'.format(self.data.phone,
+                                                                 clean_phone_to_str(poi_data.get('mobile')))
                             elif poi_data.get('mobile') is not None and poi_data.get('mobile') != '' \
                                     and self.data.phone is None:
                                 self.data.phone = clean_phone_to_str(poi_data.get('mobile'))
@@ -86,4 +87,3 @@ class hu_yves_rocher(DataProvider):
         except Exception as e:
             logging.error(e)
             logging.exception('Exception occurred')
-

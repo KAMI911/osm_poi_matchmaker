@@ -31,10 +31,10 @@ class hu_tom_market(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hutommacon', 'poi_name': 'Tom Market', 'poi_type': 'shop',
-                 'poi_tags': "{" + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://tommarket.hu', 'poi_search_name': 'tom market|tommarket', \
-                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
-                ]
+                         'poi_tags': "{" + self.POI_COMMON_TAGS + "}",
+                         'poi_url_base': 'https://tommarket.hu', 'poi_search_name': 'tom market|tommarket', \
+                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
+                        ]
         return self.__types
 
     def process(self):
@@ -80,4 +80,3 @@ class hu_tom_market(DataProvider):
         except Exception as e:
             logging.error(e)
             logging.exception('Exception occurred')
-

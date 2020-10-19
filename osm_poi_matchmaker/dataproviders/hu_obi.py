@@ -6,7 +6,8 @@ try:
     import os
     import json
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, clean_email
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+        clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -20,7 +21,6 @@ except ImportError as err:
 
 class hu_obi(DataProvider):
 
-
     def constains(self):
         self.link = 'https://www.obi.hu/storeLocatorRest/v1/stores/getAllByCountry/hu/hu?fields=name,address,phone,services,hours,storeNumber,path,email'
         self.POI_COMMON_TAGS = "'shop': 'doityourself', 'brand': 'OBI', 'brand:wikidata': 'Q300518', " \
@@ -33,8 +33,10 @@ class hu_obi(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'huobidiy', 'poi_name': 'OBI', 'poi_type': 'doityourself',
-                 'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "}",
-                 'poi_url_base': 'https://www.obi.hu', 'poi_search_name': 'obi', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15}]
+                         'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "}",
+                         'poi_url_base': 'https://www.obi.hu', 'poi_search_name': 'obi',
+                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
+                         'osm_search_distance_unsafe': 15}]
         return self.__types
 
     def process(self):
@@ -49,8 +51,10 @@ class hu_obi(DataProvider):
                     self.data.postcode = poi_data['address']['zip'].strip()
                     self.data.city = clean_city(poi_data['address']['city'])
                     self.data.original = poi_data['address']['street']
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['address']['lat'], poi_data['address']['lon'])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data['address']['street'])
+                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['address']['lat'],
+                                                                     poi_data['address']['lon'])
+                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                        poi_data['address']['street'])
                     if 'phone' in poi_data and poi_data.get('phone') != '':
                         self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                     if 'storeNumber' in poi_data and poi_data.get('storeNumber') != '':

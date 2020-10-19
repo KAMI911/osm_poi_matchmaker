@@ -20,7 +20,6 @@ except ImportError as err:
 
 class hu_foxpost(DataProvider):
 
-
     def constains(self):
         self.link = 'https://cdn.foxpost.hu/foxpost_terminals_extended_v3.json'
         self.POI_COMMON_TAGS = "'brand': 'Foxpost', 'operator': 'FoxPost Zrt.', " \
@@ -42,7 +41,6 @@ class hu_foxpost(DataProvider):
              'poi_url_base': 'https://www.foxpost.hu', 'poi_search_name': 'foxpost',
              'osm_search_distance_perfect': 1000, 'osm_search_distance_safe': 400, 'osm_search_distance_unsafe': 20}]
         return self.__types
-
 
     def process(self):
         try:

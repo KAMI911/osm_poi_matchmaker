@@ -19,7 +19,7 @@ POI_COLS = poi_array_structure.POI_COLS
 def get_or_create(session, model, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()
     if instance:
-        logging.debug('Already added: %s' ,instance)
+        logging.debug('Already added: %s', instance)
         return instance
     else:
         try:
@@ -29,8 +29,7 @@ def get_or_create(session, model, **kwargs):
         except Exception as e:
             logging.error('Cannot add to the database. (%s)', e)
             logging.exception('Exception occurred')
-
-            raise (e)
+            raise e
 
 
 def get_or_create_poi(session, model, **kwargs):
@@ -41,13 +40,13 @@ def get_or_create_poi(session, model, **kwargs):
             logging.debug('Fully filled basic data record')
         else:
             logging.warning('Missing record data: %s', kwargs)
-    instance = session.query(model)\
-        .filter_by(poi_common_id=kwargs['poi_common_id'])\
-        .filter_by(poi_addr_city=kwargs['poi_addr_city'])\
-        .filter_by(poi_addr_street=kwargs['poi_addr_street'])\
-        .filter_by(poi_addr_housenumber=kwargs['poi_addr_housenumber'])\
-        .filter_by(poi_conscriptionnumber=kwargs['poi_conscriptionnumber'])\
-        .filter_by(poi_branch=kwargs['poi_branch'])\
+    instance = session.query(model) \
+        .filter_by(poi_common_id=kwargs['poi_common_id']) \
+        .filter_by(poi_addr_city=kwargs['poi_addr_city']) \
+        .filter_by(poi_addr_street=kwargs['poi_addr_street']) \
+        .filter_by(poi_addr_housenumber=kwargs['poi_addr_housenumber']) \
+        .filter_by(poi_conscriptionnumber=kwargs['poi_conscriptionnumber']) \
+        .filter_by(poi_branch=kwargs['poi_branch']) \
         .first()
     if instance:
         logging.debug('Already added: %s', instance)
@@ -60,8 +59,7 @@ def get_or_create_poi(session, model, **kwargs):
         except Exception as e:
             logging.error('Cannot add to the database. (%s)', e)
             logging.exception('Exception occurred')
-
-            raise (e)
+            raise e
 
 
 def insert_city_dataframe(session, city_df):
@@ -144,7 +142,7 @@ def insert_poi_dataframe(session, poi_df):
         logging.exception('Exception occurred')
 
         session.rollback()
-        raise (e)
+        raise e
     else:
         try:
             session.commit()
@@ -152,7 +150,6 @@ def insert_poi_dataframe(session, poi_df):
         except Exception as e:
             logging.error('Unsuccessfull commit: %s.', e)
             logging.exception('Exception occurred')
-
 
 
 def insert_type(session, type_data):

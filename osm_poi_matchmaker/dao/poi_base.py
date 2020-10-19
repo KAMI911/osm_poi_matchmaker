@@ -25,7 +25,7 @@ class POIBase:
     """
 
     def __init__(self, db_connection, retry_counter=100, retry_sleep=30):
-        reco = 0 # Actual retry counter
+        reco = 0  # Actual retry counter
         self.db_retry_counter = retry_counter
         self.db_retry_sleep = retry_sleep
         self.db_connection = db_connection
@@ -41,7 +41,8 @@ class POIBase:
             if self.retry_counter >= reco:
                 logging.error('Cannot connect to database with %s connection string', self.db_connection)
             else:
-                logging.error('Cannot connect to the database. It will retry within %s seconds. [%s/%s]', self.db_retry_sleep, reco, self.db_retry_counter)
+                logging.error('Cannot connect to the database. It will retry within %s seconds. [%s/%s]',
+                              self.db_retry_sleep, reco, self.db_retry_counter)
                 time.sleep(self.db_retry_sleep)
                 self.engine = sqlalchemy.create_engine(self.db_connection, echo=False)
                 self.db_retry_counter += 1
@@ -105,10 +106,10 @@ class POIBase:
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='poi_geom')
         return data
 
-
     def query_from_cache(self, node_id, object_type):
         if node_id > 0:
-            query = sqlalchemy.text('select * from poi_osm_cache where osm_id = :node_id and osm_object_type = :object_type limit 1')
+            query = sqlalchemy.text(
+                'select * from poi_osm_cache where osm_id = :node_id and osm_object_type = :object_type limit 1')
             data = pd.read_sql(query, self.engine, params={'node_id': int(node_id), 'object_type': object_type.name})
             if not data.values.tolist():
                 return None
@@ -186,7 +187,7 @@ class POIBase:
         else:
             city_query = ''
         logging.debug('%s %s: %s, %s, %s %s %s (%s) [%s, %s, %s]', lon, lat, ptype, name, city,
-            street_name, housenumber, conscriptionnumber, distance_perfect, distance_safe, distance_unsafe)
+                      street_name, housenumber, conscriptionnumber, distance_perfect, distance_safe, distance_unsafe)
         # Looking for way (building)
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
                 conscriptionnumber_query is not None and conscriptionnumber_query != '':
@@ -230,7 +231,7 @@ class POIBase:
                 logging.debug(data.to_string())
                 return data.iloc[[0]]
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
-            street_query is not None and street_query != '' and housenumber_query is not None and housenumber_query != '':
+                street_query is not None and street_query != '' and housenumber_query is not None and housenumber_query != '':
             query_text = '''
             --- WITH NAME, WITH CITY, WITH STREETNAME, WITH HOUSENUMBER
             --- The way selector with city, street name and housenumber
@@ -267,9 +268,9 @@ class POIBase:
                                                       housenumber_query=housenumber_query))
             # logging.debug(query)
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way',
-                params={'name': '.*{}.*'.format(name), 'street_name': street_name,
-                        'city': city, 'housenumber': housenumber}
-                )
+                                                 params={'name': '.*{}.*'.format(name), 'street_name': street_name,
+                                                         'city': city, 'housenumber': housenumber}
+                                                 )
             if not data.empty:
                 logging.debug(data.to_string())
                 return data.iloc[[0]]
@@ -457,30 +458,31 @@ class POIBase:
             WHERE ({query_type}) AND osm_id < 0
                 AND ST_DistanceSphere(way, point.geom) < :distance_unsafe
         ''')
-        query_text='UNION ALL'.join(query_arr) + 'ORDER BY priority ASC, distance ASC;'
+        query_text = 'UNION ALL'.join(query_arr) + 'ORDER BY priority ASC, distance ASC;'
         query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
-                                              metadata_fields=metadata_fields,
-                                              street_query=street_query,
-                                              city_query=city_query,
-                                              housenumber_query=housenumber_query))
+                                                  metadata_fields=metadata_fields,
+                                                  street_query=street_query,
+                                                  city_query=city_query,
+                                                  housenumber_query=housenumber_query))
         # logging.debug(query)
-        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way',params={'lon': lon, 'lat': lat,
-                                                                                          'distance_unsafe': distance_unsafe,
-                                                                                          'distance_safe': distance_safe,
-                                                                                          'distance_perfect': distance_perfect,
-                                                                                          'name': '.*{}.*'.format(name),
-                                                                                          'buffer': buffer,
-                                                                                          'street_name': street_name,
-                                                                                          'conscriptionnaumber': conscriptionnumber,
-                                                                                          'city': city,
-                                                                                          'housenumber': housenumber})
+        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
+                                                                                         'distance_unsafe': distance_unsafe,
+                                                                                         'distance_safe': distance_safe,
+                                                                                         'distance_perfect': distance_perfect,
+                                                                                         'name': '.*{}.*'.format(name),
+                                                                                         'buffer': buffer,
+                                                                                         'street_name': street_name,
+                                                                                         'conscriptionnaumber': conscriptionnumber,
+                                                                                         'city': city,
+                                                                                         'housenumber': housenumber})
         if not data.empty:
             logging.debug(data.to_string())
             return data.iloc[[0]]
         else:
             return None
 
-    def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='', in_building_percentage=0.50, distance=60):
+    def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='',
+                                   in_building_percentage=0.50, distance=60):
         '''
         Looking for a building (actually a way) around the POI node with same address with within a preconfigured distance.
         Actually this method helps to find a building for a single node.
@@ -533,7 +535,6 @@ class POIBase:
         else:
             return data
 
-
     def query_poi_in_water(self, lon, lat):
         distance = 1
         try:
@@ -551,7 +552,6 @@ class POIBase:
         except Exception as err:
             logging.error(err)
             logging.exception('Exception occurred')
-
 
     def query_name_road_around(self, lon, lat, name='', with_metadata=True, mode='both'):
         '''
@@ -597,4 +597,3 @@ class POIBase:
         except Exception as err:
             logging.error(err)
             logging.exception('Exception occurred')
-

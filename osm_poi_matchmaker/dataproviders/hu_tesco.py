@@ -124,4 +124,3 @@ class hu_tesco(DataProvider):
         except Exception as e:
             logging.error(e)
             logging.exception('Exception occurred')
-

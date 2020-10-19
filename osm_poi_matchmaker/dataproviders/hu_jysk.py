@@ -22,22 +22,22 @@ except ImportError as err:
 
 class hu_jysk(DataProvider):
 
-
     def constains(self):
         self.link = 'https://jysk.hu/aruhazak'
         self.POI_COMMON_TAGS = "'brand:wikidata': 'Q138913', 'brand:wikipedia': 'hu:JYSK', " \
-            "'contact:facebook': 'https://www.facebook.com/JYSK.Magyarorszag/', " \
-            "'operator:addr': '1103 Budapest, Sibrik Miklós út 30.', 'operator': 'JYSK Kft.', " \
-            "'ref:vatin': 'HU13353298', 'ref:vatin:hu': '13353298-2-44', 'ref:HU:company': '01 09 730940', " \
-            + POS_HU_GEN + PAY_CASH
+                               "'contact:facebook': 'https://www.facebook.com/JYSK.Magyarorszag/', " \
+                               "'operator:addr': '1103 Budapest, Sibrik Miklós út 30.', 'operator': 'JYSK Kft.', " \
+                               "'ref:vatin': 'HU13353298', 'ref:vatin:hu': '13353298-2-44', 'ref:HU:company': '01 09 730940', " \
+                               + POS_HU_GEN + PAY_CASH
         self.filetype = FileType.html
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__type = [{'poi_code': 'hujyskfur', 'poi_name': 'Jysk', 'poi_type': 'furniture',
-                 'poi_tags': "{'shop': 'furniture', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://jysk.hu', 'poi_search_name': 'jysk', 'osm_search_distance_perfect': 800,
-                 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 80}]
+                        'poi_tags': "{'shop': 'furniture', " + self.POI_COMMON_TAGS + "}",
+                        'poi_url_base': 'https://jysk.hu', 'poi_search_name': 'jysk',
+                        'osm_search_distance_perfect': 800,
+                        'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 80}]
         return self.__type
 
     def process(self):
@@ -54,7 +54,8 @@ class hu_jysk(DataProvider):
                     self.data.branch = shop.get('name')
                     internal_id = shop.get('id')
                     shop_soup = save_downloaded_soup('{}?storeId={}'.format(self.link, internal_id),
-                        os.path.join(self.download_cache, '{}.{}.html'.format(self.filename, internal_id)))
+                                                     os.path.join(self.download_cache,
+                                                                  '{}.{}.html'.format(self.filename, internal_id)))
                     self.data.phone = '+36 1 700 8400'
                     self.data.add()
         except Exception as e:

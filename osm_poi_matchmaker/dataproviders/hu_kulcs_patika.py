@@ -25,15 +25,15 @@ class hu_kulcs_patika(DataProvider):
         self.headers = {'Referer': 'https://kulcspatikak.hu/patikakereso',
                         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0',
                         'Accept': 'application/json, text/javascript, */*; q=0.01'}
-        self.post = {'megyeid':-1, 'quality_check': 0, 'animal_check': 0, 'nonstop_check': 0, 'hetvege_check': 0}
+        self.post = {'megyeid': -1, 'quality_check': 0, 'animal_check': 0, 'nonstop_check': 0, 'hetvege_check': 0}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__types = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
-                 'poi_tags': "{'amenity': 'pharmacy', 'brand': 'Kulcs Patika', 'dispensing': 'yes', "
-                             + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://www.kulcspatika.hu/', 'poi_search_name': '(kulcs patika|kulcs)',
+                         'poi_tags': "{'amenity': 'pharmacy', 'brand': 'Kulcs Patika', 'dispensing': 'yes', "
+                                     + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
+                         'poi_url_base': 'https://www.kulcspatika.hu/', 'poi_search_name': '(kulcs patika|kulcs)',
                          'preserve_original_name': True}]
         return self.__types
 
@@ -56,8 +56,8 @@ class hu_kulcs_patika(DataProvider):
                                     self.data.branch = poi_data.get('nev').strip()
                                 self.data.code = 'hukulcspha'
                                 if poi_data.get('link') is not None and poi_data.get('link') != '':
-                                    self.data.website = poi_data.get('link').strip() if poi_data.get('link')\
-                                        is not None else None
+                                    self.data.website = poi_data.get('link').strip() if poi_data.get('link') \
+                                                                                        is not None else None
                                 if poi_data.get('helyseg') is not None and poi_data.get('helyseg') != '':
                                     self.data.city = clean_city(poi_data.get('helyseg'))
                                 self.data.lat, self.data.lon = \
@@ -65,7 +65,7 @@ class hu_kulcs_patika(DataProvider):
                                                       poi_data.get('marker_position')['longitude'])
                                 if poi_data.get('cim') is not None and poi_data.get('cim') != '':
                                     self.data.original = poi_data.get('cim')
-                                    self.data.street, self.data.housenumber, self.data.conscriptionnumber =\
+                                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                                         extract_street_housenumber_better_2(poi_data.get('cim'))
                                 if poi_data.get('irsz') is not None and poi_data.get('irsz') != '':
                                     self.data.postcode = poi_data.get('irsz').strip()
@@ -79,4 +79,3 @@ class hu_kulcs_patika(DataProvider):
         except Exception as e:
             logging.error(e)
             logging.exception('Exception occurred')
-

@@ -14,7 +14,7 @@ except ImportError as err:
 
 class OSMGeneral(object):
 
-    def __init__(self, id = -1, version = 9999, user = 'kami911', uid = '8635934', timestamp = timestamp_now(), tags = {}):
+    def __init__(self, id=-1, version=9999, user='kami911', uid='8635934', timestamp=timestamp_now(), tags={}):
         self.id = id
         self.version = version
         self.user = user
@@ -26,7 +26,8 @@ class OSMGeneral(object):
 
 class OSMNode(OSMGeneral):
 
-    def __init__(self, id = -1, version = 9999, user = 'kami911', uid = '8635934', timestamp = timestamp_now(), tags = {}, lat = None, lon = None):
+    def __init__(self, id=-1, version=9999, user='kami911', uid='8635934', timestamp=timestamp_now(), tags={}, lat=None,
+                 lon=None):
         self.id = id
         self.version = version
         self.user = user
@@ -40,7 +41,8 @@ class OSMNode(OSMGeneral):
 
 class OSMWay(OSMGeneral):
 
-    def __init__(self, id = -1, version = 9999, user = 'kami911', uid = '8635934', timestamp = timestamp_now(), tags = {}, nodes = []):
+    def __init__(self, id=-1, version=9999, user='kami911', uid='8635934', timestamp=timestamp_now(), tags={},
+                 nodes=[]):
         self.id = id
         self.version = version
         self.user = user
@@ -53,7 +55,7 @@ class OSMWay(OSMGeneral):
 
 class OSMList(object):
 
-    def __init__(self, nodes = {}, ways = {}):
+    def __init__(self, nodes={}, ways={}):
         self.nodes = nodes
         self.ways = ways
 
@@ -67,6 +69,6 @@ class OSMList(object):
         print(self.nodes)
         print(self.ways)
         for key, value in self.nodes.items():
-            print (key)
+            print(key)
         for key, value in self.ways.items():
-            print (key)
+            print(key)

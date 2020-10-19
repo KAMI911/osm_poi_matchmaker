@@ -16,6 +16,7 @@ except ImportError as err:
 
     sys.exit(128)
 
+
 def import_poi_data_module(module):
     try:
         db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
@@ -40,12 +41,12 @@ def import_poi_data_module(module):
             work.process()
         elif module == 'hu_cib_bank':
             from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
-            work = hu_cib_bank(session,  config.get_directory_cache_url(), True,
-                              os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.json'), 'CIB Bank')
+            work = hu_cib_bank(session, config.get_directory_cache_url(), True,
+                               os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.json'), 'CIB Bank')
             insert_type(session, work.types())
             work.process()
             work = hu_cib_bank(session, config.get_directory_cache_url(), True,
-                              os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.json'), 'CIB Bank ATM')
+                               os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.json'), 'CIB Bank ATM')
             work.process()
         elif module == 'hu_posta_json':
             # Old code that uses JSON files
@@ -64,4 +65,3 @@ def import_poi_data_module(module):
     except Exception as err:
         logging.error(err)
         logging.exception('Exception occurred')
-

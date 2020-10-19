@@ -34,8 +34,8 @@ class hu_dm(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hudmche', 'poi_name': 'dm', 'poi_type': 'chemist',
-                 'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
-                 'poi_url_base': 'https://www.dm.hu', 'poi_search_name': 'dm',
+                         'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
+                         'poi_url_base': 'https://www.dm.hu', 'poi_search_name': 'dm',
                          'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
                          'osm_search_distance_unsafe': 15}]
         return self.__types
@@ -69,8 +69,8 @@ class hu_dm(DataProvider):
                                 for i, d in enumerate(opening):
                                     if d.get('weekDay') is not None and 1 <= d.get('weekDay') <= 7:
                                         day = d.get('weekDay')
-                                        self.data.day_open(day-1, d.get('timeSlices')[0].get('opening'))
-                                        self.data.day_close(day-1, d.get('timeSlices')[0].get('closing'))
+                                        self.data.day_open(day - 1, d.get('timeSlices')[0].get('opening'))
+                                        self.data.day_close(day - 1, d.get('timeSlices')[0].get('closing'))
                             except (IndexError, KeyError):
                                 logging.warning('Exception occurred during opening hours processing')
                             self.data.public_holiday_open = False
@@ -83,4 +83,3 @@ class hu_dm(DataProvider):
         except Exception as e:
             logging.error(e)
             logging.exception('Exception occurred')
-

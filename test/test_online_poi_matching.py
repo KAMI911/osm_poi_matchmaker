@@ -33,19 +33,19 @@ class TestSmartOnlinePOIMatching(unittest.TestCase):
         ]
         self.osm_addresses = pd.DataFrame(
             [
-            ['9737', 'Bük', 'Petőfi utca', '63', None],
-            ['9737', 'Bük', 'Petőfi utca', '63', None],
-            ['9737', 'Bük', 'Kossuth utca', '63', None],
-            ['9737', 'Bük', 'Petőfi utca', '11', None],
-            ['9738', 'Bük', 'Petőfi utca', '63', None],
-            ['9738', 'Bük', 'Kossuth utca', '63', None],
-            ['9738', 'Bük', 'Petőfi utca', '11', None],
-            ['1028', 'Budapest', 'Hidegkúti út', '1', None],
-            ['1028', 'Budapest', 'Hidegkúti tér', '1', None],
-            ['1029', 'Budapest', 'Hidegkúti út', '1', None],
-            ['1028', 'Budapest', 'Hidegkúti út', '1', None],
-            ['5662', 'Csanádapáca', None, None, None],
-            ['1032', 'Budapest', 'Bécsi út', '136', None],
+                ['9737', 'Bük', 'Petőfi utca', '63', None],
+                ['9737', 'Bük', 'Petőfi utca', '63', None],
+                ['9737', 'Bük', 'Kossuth utca', '63', None],
+                ['9737', 'Bük', 'Petőfi utca', '11', None],
+                ['9738', 'Bük', 'Petőfi utca', '63', None],
+                ['9738', 'Bük', 'Kossuth utca', '63', None],
+                ['9738', 'Bük', 'Petőfi utca', '11', None],
+                ['1028', 'Budapest', 'Hidegkúti út', '1', None],
+                ['1028', 'Budapest', 'Hidegkúti tér', '1', None],
+                ['1029', 'Budapest', 'Hidegkúti út', '1', None],
+                ['1028', 'Budapest', 'Hidegkúti út', '1', None],
+                ['5662', 'Csanádapáca', None, None, None],
+                ['1032', 'Budapest', 'Bécsi út', '136', None],
             ])
         '''
         ['5662', 'Csanádapáca', None, None, None],
@@ -53,12 +53,13 @@ class TestSmartOnlinePOIMatching(unittest.TestCase):
         ['2000', 'Szentendre', 'Vasvári Pál utca', None, '2794/16'],
         '''
         self.osm_addresses.columns = OSM_ADDR_COLS
-        self.postcodes = ['9737', '9739', '9740', '9741', '9737', '9742', '9750', '1029', '1040', 1030, 1029, '5555', '1037']
-        self.good_codes = ['9737', '9737', '9740', '9741', '9738', '9742', '9750', '1028', '1040', '1029', '1028', '5662', '1032']
+        self.postcodes = ['9737', '9739', '9740', '9741', '9737', '9742', '9750', '1029', '1040', 1030, 1029, '5555',
+                          '1037']
+        self.good_codes = ['9737', '9737', '9740', '9741', '9738', '9742', '9750', '1028', '1040', '1029', '1028',
+                           '5662', '1032']
 
     def test_smart_online_poi_matching(self):
         for i in range(0, len(self.addresses)):
             postcode = smart_postcode_check(self.addresses[i], self.osm_addresses.iloc[[i]], self.postcodes[i])
             with self.subTest():
                 self.assertEqual(postcode, self.good_codes[i])
-

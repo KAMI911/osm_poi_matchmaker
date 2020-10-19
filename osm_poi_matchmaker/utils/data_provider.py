@@ -17,10 +17,9 @@ except ImportError as err:
 POI_DATA = ''
 
 
-class DataProvider():
+class DataProvider:
 
-
-    def __init__(self, session, download_cache, filetype=FileType.json, verify_link = True):
+    def __init__(self, session, download_cache, filetype=FileType.json, verify_link=True):
         self.session = session
         self.download_cache = download_cache
         self.filename = '{}.{}'.format(self.__class__.__name__, filetype)

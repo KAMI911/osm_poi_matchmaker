@@ -8,8 +8,8 @@ POS_OTP = " 'payment:contactless': 'yes', 'payment:mastercard': 'yes'," \
           " 'payment:american_express': 'yes', 'payment:jcb': 'yes', 'payment:v_pay': 'yes', " \
           " 'payment:unionpay': 'yes', "
 
-POS_HU_GEN  = " 'payment:contactless': 'yes', 'payment:mastercard': 'yes'," \
-              " 'payment:visa': 'yes', 'payment:mastercard_electronic': 'yes', 'payment:maestro': 'yes', " \
-              " 'payment:visa_electron': 'yes', 'payment:mastercard_contactless': 'yes', "
+POS_HU_GEN = " 'payment:contactless': 'yes', 'payment:mastercard': 'yes'," \
+             " 'payment:visa': 'yes', 'payment:mastercard_electronic': 'yes', 'payment:maestro': 'yes', " \
+             " 'payment:visa_electron': 'yes', 'payment:mastercard_contactless': 'yes', "
 
 PAY_CASH = " 'payment:cash': 'yes', "

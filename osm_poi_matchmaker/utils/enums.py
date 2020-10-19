@@ -62,6 +62,7 @@ class WeekDaysLongHUUnAccented(enum.Enum):
     Szombat = 5
     Vasarnap = 6
 
+
 class FileType(enum.Enum):
     html = 0
     json = 1

@@ -21,7 +21,7 @@ except ImportError as err:
 
 POI_COMMON_TAGS = "'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', " \
                   "'operator:addr': '1138 Budapest, Dunavirág utca 2-6.', 'ref:vatin:hu': '10901232-2-44', " \
-                  "'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614', "\
+                  "'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614', " \
                   "'contact:email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200', " \
                   "'contact:facebook': 'https://www.facebook.com/MagyarPosta', " \
                   "'contact:youtube': 'https://www.youtube.com/user/magyarpostaofficial', " \
@@ -42,7 +42,8 @@ class hu_posta(DataProvider):
                  'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
                  'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 350,
                  'osm_search_distance_unsafe': 220, 'preserve_original_post_code': True},
-                {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkbefizető automata', 'poi_type': 'vending_machine_cheques',
+                {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkbefizető automata',
+                 'poi_type': 'vending_machine_cheques',
                  'poi_tags': "{'amenity': 'vending_machine', 'vending': 'cheques', " + POI_COMMON_TAGS + "}",
                  'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
                  'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
@@ -74,7 +75,7 @@ class hu_posta(DataProvider):
                     #    continue
                     #  The 'kirendeltség' post offices are not available to end users, so we remove them
                     if 'okmányiroda' in e.find('name').get_text().lower() or \
-                        'mol kirendeltség' in e.find('name').get_text().lower():
+                            'mol kirendeltség' in e.find('name').get_text().lower():
                         logging.debug('Skipping non public post office.')
                         continue
                     else:
@@ -128,7 +129,7 @@ class hu_posta(DataProvider):
                                     # Avoid duplicated values of opening and close
                                     if from1 != from2 and to1 != to2:
                                         logging.debug('Opening hours in post office: %s: %s-%s; %s-%s.',
-                                            self.data.branch, from1, to1, from2, to2)
+                                                      self.data.branch, from1, to1, from2, to2)
                                         self.data.day_open(day_key, from1)
                                         if from2 is None or to2 is None:
                                             self.data.day_close(day_key, from1)
@@ -148,8 +149,8 @@ class hu_posta(DataProvider):
                                     else:
                                         # It seems there are duplications in Posta data source
                                         # Remove duplicates
-                                        logging.warning('Dulicated opening hours in post office: %s: %s-%s; %s-%s.', 
-                                            self.data.branch, from1, to1, from2, to2)
+                                        logging.warning('Dulicated opening hours in post office: %s: %s-%s; %s-%s.',
+                                                        self.data.branch, from1, to1, from2, to2)
                                         from2, to2 = None, None
                         # All times are open so it is non stop
                         if nonstop_num >= 7:
@@ -177,7 +178,7 @@ class hu_posta(DataProvider):
                             # Since there is no original address format we create one
                             if self.data.housenumber is not None:
                                 self.data.original = '{} {} {}'.format(street_tmp_1, street_tmp_2,
-                                    self.data.housenumber)
+                                                                       self.data.housenumber)
                             else:
                                 self.data.original = '{} {}'.format(street_tmp_1, street_tmp_2)
                         else:

@@ -16,8 +16,8 @@ except ImportError as err:
 
     sys.exit(128)
 
-class hu_mol(DataProvider):
 
+class hu_mol(DataProvider):
 
     def constains(self):
         self.link = 'hhttp://trafikok.nemzetidohany.hu/mind.jsonp'
@@ -27,14 +27,15 @@ class hu_mol(DataProvider):
 
     def types(self):
         self.__types = [{'poi_code': 'hunemdoto', 'poi_name': 'Nemzeti dohánybolt', 'poi_type': 'tobacco',
-                 'poi_tags': "{'shop': 'tobacco'}",
-                 'poi_url_base': 'https://www.nemzetidohany.hu/', 'poi_search_name': '(nemzeti dohánybolt|dohánybolt)', 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 0}]
+                         'poi_tags': "{'shop': 'tobacco'}",
+                         'poi_url_base': 'https://www.nemzetidohany.hu/',
+                         'poi_search_name': '(nemzeti dohánybolt|dohánybolt)', 'osm_search_distance_safe': 200,
+                         'osm_search_distance_unsafe': 0}]
         return self.__types
-
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype, POST_DATA)
+                                    self.filetype, POST_DATA)
         if soup is not None:
             text = json.loads(soup)
             for poi_data in text:

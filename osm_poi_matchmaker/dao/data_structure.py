@@ -93,7 +93,7 @@ class POI_address(Base):
     poi_socket_type2_combo = Column(Integer)
     poi_socket_type2_combo_output = Column(Unicode(16))
     poi_socket_type2_cable = Column(Integer)
-    poi_socket_type2_cable_output= Column(Unicode(16))
+    poi_socket_type2_cable_output = Column(Unicode(16))
     poi_socket_type2 = Column(Integer)
     poi_socket_type2_output = Column(Unicode(16))
     poi_manufacturer = Column(Unicode(32))
@@ -157,12 +157,11 @@ class POI_common(Base):
     poi_url_base = Column(Unicode(32))
     poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
     poi_search_name = Column(Unicode(64))
-    preserve_original_name = Column(Boolean,  nullable=False, default=False)
-    preserve_original_post_code = Column(Boolean,  nullable=False, default=False)
+    preserve_original_name = Column(Boolean, nullable=False, default=False)
+    preserve_original_post_code = Column(Boolean, nullable=False, default=False)
     osm_search_distance_perfect = Column(Integer, nullable=True, index=False)
     osm_search_distance_safe = Column(Integer, nullable=True, index=False)
     osm_search_distance_unsafe = Column(Integer, nullable=True, index=False)
-
 
     def __repr__(self):
         return '<POI common {}: {}>'.format(self.pc_id, self.poi_name)
@@ -173,7 +172,7 @@ class POI_OSM_cache(Base):
     _plural_name_ = 'poi_osm_cache'
     poc_id = Column(Integer, primary_key=True, index=True)
     id = synonym('poc_id')
-    #poi_type = Column(Enum(POI_type))
+    # poi_type = Column(Enum(POI_type))
     osm_id = Column(BigInteger, nullable=False, index=True)
     osm_object_type = Column(Enum(OSM_object_type))
     osm_version = Column(Integer, nullable=False, index=True)
@@ -184,7 +183,7 @@ class POI_OSM_cache(Base):
     osm_lat = Column(Float, nullable=True, index=True)
     osm_lon = Column(Float, nullable=True, index=True)
     osm_nodes = Column(Unicode(1024), nullable=True, index=False)
-    #osm_distance = Column(Integer, nullable=True, index=False)
+    # osm_distance = Column(Integer, nullable=True, index=False)
     osm_live_tags = Column(Unicode(2048), nullable=True, index=True)
 
 

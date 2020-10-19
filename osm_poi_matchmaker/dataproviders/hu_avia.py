@@ -22,21 +22,21 @@ except ImportError as err:
 
 class hu_avia(DataProvider):
 
-
     def constains(self):
         self.link = 'https://www.avia.hu/kapcsolat/toltoallomasok'
-        self.POI_COMMON_TAGS = ""
+        self.POI_COMMON_TAGS = "'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', 'fuel:diesel': 'yes', " \
+                               "'fuel:octane_95': 'yes', 'contact:email': 'avia@avia.hu', " \
+                               "'contact:facebook': 'https://www.facebook.com/AVIAHungary', " \
+                               "'contact:youtube': 'https://www.youtube.com/channel/UCjvjkjf2RgmKBuTnKSXk-Rg', "
         self.filetype = FileType.html
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__type = [{'poi_code': 'huaviafu', 'poi_name': 'Avia', 'poi_type': 'fuel',
-                 'poi_tags': "{'amenity': 'fuel', 'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', " \
-                 + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', " \
-                 "'contact:email': 'avia@avia.hu', 'contact:facebook': 'https://www.facebook.com/AVIAHungary', " \
-                 "'contact:youtube': 'https://www.youtube.com/channel/UCjvjkjf2RgmKBuTnKSXk-Rg', }",
-                 'poi_url_base': 'https://www.avia.hu', 'poi_search_name': 'avia', 'osm_search_distance_perfect':30000,\
-                 'osm_search_distance_safe': 800, 'osm_search_distance_unsafe': 110}]
+                        'poi_tags': "{'amenity': 'fuel'" + self.POI_COMMON_TAGS + "}",
+                        'poi_url_base': 'https://www.avia.hu', 'poi_search_name': 'avia',
+                        'osm_search_distance_perfect': 30000,
+                        'osm_search_distance_safe': 800, 'osm_search_distance_unsafe': 110}]
         return self.__type
 
     def process(self):
@@ -57,7 +57,7 @@ class hu_avia(DataProvider):
                     if poi_data['cim'] is not None and poi_data['cim'] != '':
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
                         self.data.conscriptionnumber = extract_all_address(poi_data['cim'])
-                    self.data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid']))\
+                    self.data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid'])) \
                         if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
                     self.data.original = poi_data['cim']
                     if 'tel' in poi_data and poi_data['tel'] != '':

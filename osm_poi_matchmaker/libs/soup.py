@@ -15,7 +15,8 @@ except ImportError as err:
     sys.exit(128)
 
 
-def download_content(link, verify_link=config.get_download_verify_link(), post_parm=None, headers=None, encoding='utf-8'):
+def download_content(link, verify_link=config.get_download_verify_link(), post_parm=None, headers=None,
+                     encoding='utf-8'):
     try:
         if post_parm is None:
             logging.debug('Downloading without post parameters.')
@@ -60,10 +61,13 @@ def save_downloaded_soup(link, file, filetype, post_data=None, verify=config.get
                         logging.error('Unexpected type to write: %s', filetype)
             else:
                 if os.path.exists(file):
-                    logging.info('The %s link returned error code other than 200 but there is an already downloaded file. Try to open it.', link)
+                    logging.info(
+                        'The %s link returned error code other than 200 but there is an already downloaded file. Try to open it.',
+                        link)
                     soup = readfile(file, filetype)
                 else:
-                    logging.warning('Skipping dataset: %s. There is not downloadable URL, nor already downbloaded file.', link)
+                    logging.warning(
+                        'Skipping dataset: %s. There is not downloadable URL, nor already downbloaded file.', link)
         else:
             if os.path.exists(file):
                 soup = readfile(file, filetype)
@@ -71,9 +75,13 @@ def save_downloaded_soup(link, file, filetype, post_data=None, verify=config.get
                     soup = BeautifulSoup(soup, 'html.parser')
                 elif filetype == FileType.xml:
                     soup = BeautifulSoup(soup, 'lxml')
-                logging.info('Using file only: %s. There is not downloadable URL only just the file. Do not forget to update file manually!', file)
+                logging.info(
+                    'Using file only: %s. There is not downloadable URL only just the file. Do not forget to update file manually!',
+                    file)
             else:
-                logging.warning('Cannot use download and file: %s. There is not downloadable URL, nor already downbloaded file.', file)
+                logging.warning(
+                    'Cannot use download and file: %s. There is not downloadable URL, nor already downbloaded file.',
+                    file)
     return soup
 
 
@@ -93,4 +101,3 @@ def readfile(r_filename, r_filetype):
     except Exception as e:
         logging.error(e)
         logging.exception('Exception occurred')
-
