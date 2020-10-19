@@ -33,12 +33,14 @@ POI_YESNO_TAGS = {'poi_fuel_adblue': 'fuel:adblue', 'poi_fuel_octane_100': 'fuel
                   'poi_compressed_air': 'compressed_air', 'poi_restaurant': 'restaurant', 'poi_food': 'food',
                   'poi_truck': 'truck', 'poi_authentication_app': 'authentication:app',
                   'poi_authentication_membership_card': 'authentication:membership_card', 'poi_fee': 'fee',
-                  'poi_parking_fee': 'parking_fee', 'poi_motorcar': 'motorcar' }
+                  'poi_parking_fee': 'parking_fee', 'poi_motorcar': 'motorcar'}
 
 POI_EV_TAGS = {'poi_capacity': 'capacity',
                'poi_socket_chademo': 'socket:chademo', 'poi_socket_chademo_output': 'socket:chademo:output',
-               'poi_socket_type2_combo': 'socket:type2_combo', 'poi_socket_type2_combo_output': 'socket:type2_combo:output',
-               'poi_socket_type2_cable': 'socket:type2_cable', 'poi_socket_type2_cable_output': 'socket:type2_cable:output',
+               'poi_socket_type2_combo': 'socket:type2_combo',
+               'poi_socket_type2_combo_output': 'socket:type2_combo:output',
+               'poi_socket_type2_cable': 'socket:type2_cable',
+               'poi_socket_type2_cable_output': 'socket:type2_cable:output',
                'poi_socket_type2': 'socket:type2', 'poi_socket_type2_output': 'socket:type2:output',
                'poi_manufacturer': 'manufacturer', 'poi_model': 'model'}
 
@@ -59,17 +61,18 @@ def save_csv_file(path, file, data, message):
         logging.info('Saving {%s to file: %s', message, file)
         res = data.to_csv(os.path.join(path, file))
         logging.info('The %s was sucessfully saved', file)
-    except Exception as err:
-        logging.error(err)
+    except Exception as e:
+        logging.error(e)
         logging.exception('Exception occurred')
 
 
-def add_osm_node(osm_id: int, node_data, prefix = 'poi') -> str:
+def add_osm_node(osm_id: int, node_data, prefix='poi') -> dict:
     """Generate OpenStreetMap node header information as string
 
     Args:
-        osm_id (int): [description]
+        osm_id (int): OpenStreetMap ID
         node_data ([type]): [description]
+        prefix (str): Prefix for field names in database
 
     Returns:
         str: [description]
@@ -78,15 +81,15 @@ def add_osm_node(osm_id: int, node_data, prefix = 'poi') -> str:
     osm_user_id = '8635934' if node_data.get('osm_user_id') is None else node_data.get('osm_user_id')
     osm_timestamp = timestamp_now() if node_data.get('osm_timestamp') is None else node_data.get('osm_timestamp')
     osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
-    osm_data = { 'action': 'modify', 'id': str(osm_id), \
-        'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))), \
-        'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))), \
-        'user': '{}'.format(osm_user), 'timestamp': '{}'.format(osm_timestamp), \
-        'uid': '{}'.format(osm_user_id), 'version': '{}'.format(osm_version) }
+    osm_data = {'action': 'modify', 'id': str(osm_id),
+                'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
+                'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
+                'user': '{}'.format(osm_user), 'timestamp': '{}'.format(osm_timestamp),
+                'uid': '{}'.format(osm_user_id), 'version': '{}'.format(osm_version)}
     return osm_data
 
 
-def add_osm_way(osm_id: int, node_data) -> str:
+def add_osm_way(osm_id: int, node_data) -> dict:
     """Generate OpenStreetMap way header information as string
 
     Args:
@@ -98,9 +101,9 @@ def add_osm_way(osm_id: int, node_data) -> str:
     """    
     osm_timestamp = timestamp_now() if node_data.get('osm_timestamp') is None else node_data.get('osm_timestamp')
     osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
-    osm_data = { 'action': 'modify', 'id': str(osm_id), 
-        'user': '{}'.format('osm_poi_matchmaker'), 'timestamp': '{}'.format(osm_timestamp),
-        'uid': '{}'.format('8635934'), 'version': '{}'.format(osm_version) }
+    osm_data = {'action': 'modify', 'id': str(osm_id),
+                'user': '{}'.format('osm_poi_matchmaker'), 'timestamp': '{}'.format(osm_timestamp),
+                'uid': '{}'.format('8635934'), 'version': '{}'.format(osm_version)}
     return osm_data
 
 
@@ -114,7 +117,7 @@ def add_osm_link_comment(osm_id: int, osm_type) -> str:
     Returns:
         str: [description]
     """    
-    osm_comment = ' OSM link: https://osm.org/{}/{} '.format(osm_type.name ,str(osm_id))
+    osm_comment = ' OSM link: https://osm.org/{}/{} '.format(osm_type.name, str(osm_id))
     return osm_comment
 
 
@@ -145,6 +148,7 @@ def generate_osm_xml(df, session=None):
                 josm_object = 'w{}'.format(current_osm_id)
                 # Add way nodes without any modification)
                 try:
+                    node_data = []
                     for n in row.get('osm_nodes'):
                         data = etree.SubElement(main_data, 'nd', ref=str(n))
                     if session is not None:
@@ -157,7 +161,7 @@ def generate_osm_xml(df, session=None):
                                 if way_node is not None:
                                     node_data = etree.SubElement(osm_xml_data, 'node', add_osm_node(n, way_node, 'osm'))
                             osm_xml_data.append(node_data)
-                except TypeError as err:
+                except TypeError as e:
                     logging.warning('Missing nodes on this way: %s.', row.get('osm_id'))
                     logging.exception('Exception occurred')
             elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.relation:
@@ -166,9 +170,9 @@ def generate_osm_xml(df, session=None):
                 relations = relationer(row.get('osm_nodes'))
                 try:
                     for i in relations:
-                        data = etree.SubElement(main_data, 'member',
-                            type=i.get('type'), ref=i.get('ref'), role=i.get('role'))
-                except TypeError as err:
+                        data = etree.SubElement(main_data, 'member', type=i.get('type'), ref=i.get('ref'),
+                                                role=i.get('role'))
+                except TypeError as e:
                     logging.warning('Missing nodes on this relation: %s.', row['osm_id'])
             # Add already existing node, way, relation OpenStreetMap reference as comment
             if current_osm_id > 0:
@@ -246,7 +250,7 @@ def generate_osm_xml(df, session=None):
             if 'preserved_name' in locals():
                 tags['name'] = preserved_name
             # Rewrite old contact tags to contact:* tag form
-            tags_rewrite = [ 'website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax']
+            tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax']
             for tr in tags_rewrite:
                 if tr in tags:
                     # Never overwrite already existing contact:* tags
