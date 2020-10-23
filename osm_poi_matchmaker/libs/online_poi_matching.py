@@ -7,6 +7,7 @@ try:
     import sys
     import pandas as pd
     import datetime
+    import json
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osmapi import OsmApi
     from osm_poi_matchmaker.dao.poi_base import POIBase
@@ -163,7 +164,7 @@ def online_poi_matching(args):
                                     else:
                                         logging.warning('Download of external data has failed.')
                                 else:
-                                    data.at[i, 'osm_live_tags'] = eval(cached_way.get('osm_live_tags'))
+                                    data.at[i, 'osm_live_tags'] = json.loads(cached_way.get('osm_live_tags'))
                                     break
                             session.commit()
                         # Download OSM POI node live tags
@@ -191,7 +192,7 @@ def online_poi_matching(args):
                                     else:
                                         logging.warning('Download of external data has failed.')
                                 else:
-                                    data.at[i, 'osm_live_tags'] = eval(cached_node['osm_live_tags'])
+                                    data.at[i, 'osm_live_tags'] = json.loads(cached_node['osm_live_tags'])
                                     break
                             session.commit()
                         elif osm_node == OSM_object_type.relation:
