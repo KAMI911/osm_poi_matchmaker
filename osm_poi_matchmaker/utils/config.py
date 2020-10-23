@@ -50,6 +50,7 @@ KEY_DATABASE_WRITE_PASSWORD = 'db.write.password'
 KEY_DATABASE_POI_DATABASE = 'db.poi.database'
 KEY_GEO_DEFAULT_PROJECTION = 'geo.default.projection'
 KEY_GEO_DEFAULT_POI_DISTANCE = 'geo.default.poi.distance'
+KEY_GEO_DEFAULT_POI_UNSAFE_DISTANCE = 'geo.default.poi.unsafe.distance'
 KEY_GEO_DEFAULT_POI_PERFECT_DISTANCE = 'geo.default.poi.perfect.distance'
 KEY_GEO_DEFAULT_POI_ROAD_DISTANCE = 'geo.default.poi.road.distance'
 KEY_GEO_AMENITY_ATM_POI_DISTANCE = 'geo.amenity.atm.poi.distance'
@@ -203,12 +204,20 @@ def get_geo_default_poi_distance():
         return 70
 
 
+def get_geo_default_poi_unsafe_distance():
+    setting = get_config_int(KEY_GEO_DEFAULT_POI_UNSAFE_DISTANCE)
+    if setting is not None:
+        return setting
+    else:
+        return 5
+
+
 def get_geo_default_poi_perfect_distance():
     setting = get_config_int(KEY_GEO_DEFAULT_POI_PERFECT_DISTANCE)
     if setting is not None:
         return setting
     else:
-        return 2000
+        return 300
 
 
 def get_geo_default_poi_road_distance():

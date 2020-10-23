@@ -6,6 +6,7 @@ try:
     import pandas as pd
     import sqlalchemy
     import time
+    import math
     from math import isnan
     from osm_poi_matchmaker.utils import config, poitypes
     from osm_poi_matchmaker.dao.data_structure import Base
@@ -62,6 +63,7 @@ class POIBase:
         self.engine.dispose()
 
     def query_all_pd(self, table):
+
         '''
         Load all POI data from SQL
         :param table: Name of table where POI data is stored
@@ -131,10 +133,10 @@ class POIBase:
         data = pd.read_sql(query, self.engine, params={'relation_id': int(abs(relation_id))})
         return data.values.tolist()[0][0]
 
-    def query_osm_shop_poi_gpd(self, lon, lat, ptype='shop', name='', street_name='', housenumber='',
-                               conscriptionnumber='', city='',
-                               distance_perfect=None, distance_safe=None, distance_unsafe=None,
-                               with_metadata=True):
+    def query_osm_shop_poi_gpd(self, lon: float, lat: float, ptype: str = 'shop', name: str = '', street_name: str = '',
+                               housenumber: str = '', conscriptionnumber: str = '', city: str = '',
+                               distance_perfect: int = None, distance_safe: int = None, distance_unsafe: int = None,
+                               with_metadata: bool = True):
         '''
         Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
         :param lon:
@@ -155,17 +157,23 @@ class POIBase:
         query_arr = []
         query_type, distance = poitypes.getPOITypes(ptype)
         # If we have PO common defined unsafe search radius distance, then use it (or use defaults specified above)
+        if distance_unsafe is not None and distance_unsafe != '':
+            distance_unsafe = distance_unsafe
+        else:
+            distance_unsafe = config.get_geo_default_poi_unsafe_distance()
+        if distance_safe is not None and distance_safe != '':
+            distance_safe = distance_safe
+        else:
+            distance_safe = config.get_geo_default_poi_distance()
         if name is not None and name != '':
             query_name = ' AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)))'
             # If we have PO common defined safe search radius distance, then use it (or use defaults specified above)
-            distance_unsafe = 5 if isnan(distance_unsafe) else distance_unsafe
-            distance_safe = config.get_geo_default_poi_distance() if isnan(distance_safe) else distance_safe
-            distance_perfect = config.get_geo_default_poi_perfect_distance() \
-                if isnan(distance_perfect) else distance_perfect
+            if distance_perfect is not None and distance_safe != '':
+                distance_perfect = distance_perfect
+            else:
+                distance_perfect = config.get_geo_default_poi_perfect_distance()
         else:
             query_name = ''
-            distance_unsafe = 5 if isnan(distance_unsafe) else distance_unsafe
-            distance_safe = config.get_geo_default_poi_distance() if isnan(distance_safe) else distance_safe
         if with_metadata is True:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
         else:
@@ -231,7 +239,8 @@ class POIBase:
                 logging.debug(data.to_string())
                 return data.iloc[[0]]
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
-                street_query is not None and street_query != '' and housenumber_query is not None and housenumber_query != '':
+                street_query is not None and street_query != '' and \
+                housenumber_query is not None and housenumber_query != '':
             query_text = '''
             --- WITH NAME, WITH CITY, WITH STREETNAME, WITH HOUSENUMBER
             --- The way selector with city, street name and housenumber
@@ -465,16 +474,12 @@ class POIBase:
                                                   city_query=city_query,
                                                   housenumber_query=housenumber_query))
         # logging.debug(query)
-        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={'lon': lon, 'lat': lat,
-                                                                                         'distance_unsafe': distance_unsafe,
-                                                                                         'distance_safe': distance_safe,
-                                                                                         'distance_perfect': distance_perfect,
-                                                                                         'name': '.*{}.*'.format(name),
-                                                                                         'buffer': buffer,
-                                                                                         'street_name': street_name,
-                                                                                         'conscriptionnaumber': conscriptionnumber,
-                                                                                         'city': city,
-                                                                                         'housenumber': housenumber})
+        query_params = {'lon': lon, 'lat': lat, 'distance_unsafe': distance_unsafe,
+                        'distance_safe': distance_safe, 'distance_perfect': distance_perfect,
+                        'name': '.*{}.*'.format(name), 'buffer': buffer, 'street_name': street_name,
+                        'conscriptionnaumber': conscriptionnumber, 'city': city, 'housenumber': housenumber}
+
+        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
         if not data.empty:
             logging.debug(data.to_string())
             return data.iloc[[0]]
