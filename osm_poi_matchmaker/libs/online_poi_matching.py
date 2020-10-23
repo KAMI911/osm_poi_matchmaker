@@ -6,7 +6,6 @@ try:
     import logging
     import sys
     import pandas as pd
-    import datetime
     import json
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osmapi import OsmApi
@@ -100,11 +99,6 @@ def online_poi_matching(args):
                             data.at[i, 'osm_timestamp'] = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
                     else:
                         osm_query['osm_timestamp'] = None
-                    """
-                    '{:{dfmt}T{tfmt}Z}'.format(pd.to_datetime(str((osm_query['osm_timestamp'].values[0]))),
-                                               dfmt='%Y-%m-%d', tfmt='%H:%M:%S') if osm_query[
-                                               'osm_timestamp'] is not None else None
-                    """
                     data.at[i, 'poi_distance'] = osm_query.get('distance').values[0] \
                         if osm_query.get('distance') is not None else None
                     # For OSM way also query node points
