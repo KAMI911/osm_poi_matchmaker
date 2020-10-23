@@ -197,6 +197,11 @@ def generate_osm_xml(df, session=None):
                                 if way_node is not None:
                                     node_data = etree.SubElement(osm_xml_data, 'node',
                                                                  list_osm_node(n, way_node, 'osm'))
+                                    if node_data.get('osm_live_tags') is not None and \
+                                       node_data.get('osm_live_tags') != '':
+                                        node_osm_live_tags = eval(node_data.get('osm_live_tags'))
+                                        for k, v in sorted(node_osm_live_tags).items():
+                                            node_data = etree.SubElement(node_data, 'tag', k=k, v='{}'.format(v))
                             osm_xml_data.append(node_data)
                 except TypeError as e:
                     logging.warning('Missing nodes on this way: %s.', row.get('osm_id'))
