@@ -70,8 +70,8 @@ class hu_mobiliti_ev(DataProvider):
                     self.data.socket_type2_combo_output = poi_data.get('Teljesítmény (CCS)')
                     self.data.socket_type2_cable = poi_data.get('Darab (Type 2)')
                     self.data.socket_type2_cable_output = poi_data.get('Teljesítmény (Type 2)')
-                    self.data.manufacturer = poi_data.get('Töltő típusa')
-                    self.data.model = None
+                    self.data.manufacturer = poi_data.get('Gyártó')
+                    self.data.model = poi_data.get('Típus')
                     self.data.capacity = poi_data.get('Kapacitás')
                     self.data.add()
         except Exception as e:
