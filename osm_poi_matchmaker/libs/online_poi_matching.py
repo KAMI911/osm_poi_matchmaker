@@ -6,6 +6,7 @@ try:
     import logging
     import sys
     import pandas as pd
+    import datetime
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osmapi import OsmApi
     from osm_poi_matchmaker.dao.poi_base import POIBase
@@ -41,9 +42,8 @@ def online_poi_matching(args):
                 # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
                 osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
                                                       comm_data.loc[comm_data['pc_id'] == row.get('poi_common_id')][
-                                                          'poi_type'].values[0],
-                                                      row.get('poi_search_name'), row.get('poi_addr_street'),
-                                                      row.get('poi_addr_housenumber'),
+                                                          'poi_type'].values[0], row.get('poi_search_name'),
+                                                      row.get('poi_addr_street'), row.get('poi_addr_housenumber'),
                                                       row.get('poi_conscriptionnumber'), row.get('poi_city'),
                                                       row.get('osm_search_distance_perfect'),
                                                       row.get('osm_search_distance_safe'),
@@ -94,10 +94,16 @@ def online_poi_matching(args):
                         if osm_query['osm_version'] is not None else None
                     data.at[i, 'osm_changeset'] = osm_query['osm_changeset'].values[0] \
                         if osm_query['osm_changeset'] is not None else None
-                    data.at[i, 'osm_timestamp'] = \
-                        '{:{dfmt}T{tfmt}Z}'.format(pd.to_datetime(str((osm_query['osm_timestamp'].values[0]))),
-                                                   dfmt='%Y-%m-%d', tfmt='%H:%M:%S') if osm_query[
-                                                   'osm_timestamp'] is not None else None
+                    if osm_query['osm_timestamp'] is not None:
+                        osm_query['osm_timestamp'] = \
+                            data.at[i, 'osm_timestamp'] = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
+                    else:
+                        osm_query['osm_timestamp'] = None
+                    """
+                    '{:{dfmt}T{tfmt}Z}'.format(pd.to_datetime(str((osm_query['osm_timestamp'].values[0]))),
+                                               dfmt='%Y-%m-%d', tfmt='%H:%M:%S') if osm_query[
+                                               'osm_timestamp'] is not None else None
+                    """
                     data.at[i, 'poi_distance'] = osm_query.get('distance').values[0] \
                         if osm_query.get('distance') is not None else None
                     # For OSM way also query node points
@@ -131,7 +137,7 @@ def online_poi_matching(args):
                                                      'osm_user': live_tags_container.get('user'),
                                                      'osm_user_id': live_tags_container.get('uid'),
                                                      'osm_changeset': live_tags_container.get('changeset'),
-                                                     'osm_timestamp': str(live_tags_container.get('timestamp')),
+                                                     'osm_timestamp': live_tags_container.get('timestamp'),
                                                      'osm_object_type': osm_node,
                                                      'osm_lat': None,
                                                      'osm_lon': None,
@@ -147,7 +153,7 @@ def online_poi_matching(args):
                                                          'osm_user': live_tags_node.get('user'),
                                                          'osm_user_id': live_tags_node.get('uid'),
                                                          'osm_changeset': live_tags_node.get('changeset'),
-                                                         'osm_timestamp': str(live_tags_node.get('timestamp')),
+                                                         'osm_timestamp': live_tags_node.get('timestamp'),
                                                          'osm_object_type': OSM_object_type.node,
                                                          'osm_lat': live_tags_node.get('lat'),
                                                          'osm_lon': live_tags_node.get('lon'),
@@ -175,7 +181,7 @@ def online_poi_matching(args):
                                                      'osm_user': live_tags_container.get('user'),
                                                      'osm_user_id': live_tags_container.get('uid'),
                                                      'osm_changeset': live_tags_container.get('changeset'),
-                                                     'osm_timestamp': str(live_tags_container.get('timestamp')),
+                                                     'osm_timestamp': live_tags_container.get('timestamp'),
                                                      'osm_object_type': osm_node,
                                                      'osm_lat': live_tags_container.get('lat'),
                                                      'osm_lon': live_tags_container.get('lon'),
@@ -201,8 +207,8 @@ def online_poi_matching(args):
                         else:
                             logging.warning('Invalid state for live tags.')
 
-                    except Exception as err:
-                        logging.warning('There was an error during OSM request: %s.', err)
+                    except Exception as e:
+                        logging.warning('There was an error during OSM request: %s.', e)
                         logging.exception('Exception occurred')
                 # This is a new POI
                 else:
@@ -230,7 +236,8 @@ def online_poi_matching(args):
                         row['poi_lat'], row['poi_lon'] = osm_bulding_q.get('lat')[0], osm_bulding_q.get('lon')[0]
                     else:
                         logging.info(
-                            'The POI is already in its building or there is no building match. Keeping POI coordinates as is as.')
+                            'The POI is already in its building or there is no building match. \
+                            Keeping POI coordinates as is as.')
                     if row['preserve_original_post_code'] is not True:
                         postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
                                                                data.at[i, 'poi_lon'], data.at[i, 'poi_lat'],
@@ -257,12 +264,12 @@ def online_poi_matching(args):
 
 
 def smart_postcode_check(curr_data, osm_data, pc):
-    '''
+    """
     Enhancement for the former problem: addr:postcode was changed without
     changing any other parts of address. Issue #78
 
     When address or conscription number change or postcode is empty.
-    '''
+    """
     # Change postcode when there is no postcode in OSM or the address was changed
     if pc is not None and pc != '' and osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] != pc and \
             (osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] is None or

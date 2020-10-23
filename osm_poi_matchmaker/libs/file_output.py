@@ -77,15 +77,48 @@ def add_osm_node(osm_id: int, node_data, prefix='poi') -> dict:
     Returns:
         str: [description]
     """
+    logging.info(node_data.to_string())
     osm_user = 'osm_poi_matchmaker' if node_data.get('osm_user') is None else node_data.get('osm_user')
     osm_user_id = '8635934' if node_data.get('osm_user_id') is None else node_data.get('osm_user_id')
-    osm_timestamp = timestamp_now() if node_data.get('osm_timestamp') is None else node_data.get('osm_timestamp')
+    if node_data.get('osm_timestamp') is None:
+        osm_timestamp = datetime.datetime.now()
+    else:
+        osm_timestamp = node_data.get('osm_timestamp')
     osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
     osm_data = {'action': 'modify', 'id': str(osm_id),
                 'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
                 'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
-                'user': '{}'.format(osm_user), 'timestamp': '{}'.format(osm_timestamp),
-                'uid': '{}'.format(osm_user_id), 'version': '{}'.format(osm_version)}
+                'user': '{}'.format(osm_user), 'uid': '{}'.format(osm_user_id), 'version': '{}'.format(osm_version),
+                'timestamp': '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M:%S')}
+    logging.info(osm_data)
+    return osm_data
+
+
+def list_osm_node(osm_id: int, node_data, prefix='poi') -> dict:
+    """Generate OpenStreetMap node header information as string
+
+    Args:
+        osm_id (int): OpenStreetMap ID
+        node_data ([type]): [description]
+        prefix (str): Prefix for field names in database
+
+    Returns:
+        str: [description]
+    """
+    logging.debug(node_data)
+    osm_user = 'osm_poi_matchmaker' if node_data.get('osm_user') is None else node_data.get('osm_user')
+    osm_user_id = '8635934' if node_data.get('osm_user_id') is None else node_data.get('osm_user_id')
+    if node_data.get('osm_timestamp') is None:
+        osm_timestamp = datetime.datetime.now()
+    else:
+        osm_timestamp = node_data.get('osm_timestamp')
+    osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
+    osm_data = {'id': str(osm_id),
+                'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
+                'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
+                'user': '{}'.format(osm_user), 'uid': '{}'.format(osm_user_id), 'version': '{}'.format(osm_version),
+                'timestamp': '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M:%S')}
+    logging.debug(osm_data)
     return osm_data
 
 
@@ -99,11 +132,15 @@ def add_osm_way(osm_id: int, node_data) -> dict:
     Returns:
         str: [description]
     """
-    osm_timestamp = timestamp_now() if node_data.get('osm_timestamp') is None else node_data.get('osm_timestamp')
+    if node_data.get('osm_timestamp') is None:
+        osm_timestamp = datetime.datetime.now()
+    else:
+        osm_timestamp = node_data.get('osm_timestamp')
     osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
     osm_data = {'action': 'modify', 'id': str(osm_id),
-                'user': '{}'.format('osm_poi_matchmaker'), 'timestamp': '{}'.format(osm_timestamp),
-                'uid': '{}'.format('8635934'), 'version': '{}'.format(osm_version)}
+                'user': '{}'.format('osm_poi_matchmaker'), 'uid': '{}'.format('8635934'),
+                'version': '{}'.format(osm_version),
+                'timestamp': '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M:%S')}
     return osm_data
 
 
@@ -138,7 +175,6 @@ def generate_osm_xml(df, session=None):
     try:
         for index, row in df.iterrows():
             current_osm_id = default_osm_id if row.get('osm_id') is None else row.get('osm_id')
-            osm_timestamp = timestamp_now() if row.get('osm_timestamp') is None else row.get('osm_timestamp')
             osm_version = '99999' if row.get('osm_version') is None else row.get('osm_version')
             if row.get('osm_node') is None or row.get('osm_node') == OSM_object_type.node:
                 josm_object = 'n{}'.format(current_osm_id)
@@ -159,7 +195,8 @@ def generate_osm_xml(df, session=None):
                                 added_nodes.append(n)
                                 way_node = db.query_from_cache(n, OSM_object_type.node)
                                 if way_node is not None:
-                                    node_data = etree.SubElement(osm_xml_data, 'node', add_osm_node(n, way_node, 'osm'))
+                                    node_data = etree.SubElement(osm_xml_data, 'node',
+                                                                 list_osm_node(n, way_node, 'osm'))
                             osm_xml_data.append(node_data)
                 except TypeError as e:
                     logging.warning('Missing nodes on this way: %s.', row.get('osm_id'))
@@ -203,7 +240,7 @@ def generate_osm_xml(df, session=None):
             try:
                 if row.get('preserve_original_name') is True:
                     preserved_name = tags.get('name')
-            except KeyError as err:
+            except KeyError as e:
                 logging.debug('No name tag is specified to save in original OpenStreetMap data.')
             # Overwriting with data from data providers
             for k, v in POI_TAGS.items():
@@ -264,7 +301,8 @@ def generate_osm_xml(df, session=None):
                 tags['description'] = row.get('poi_description')
             # Write tags with yes/no value
             for k, v in POI_YESNO_TAGS.items():
-                tags[v] = 'yes' if row.get(k) is True else 'no'
+                if row.get(k) is not None and row.get(k) != '':
+                    tags[v] = 'yes' if row.get(k) is True else 'no'
             for k, v in POI_EV_TAGS.items():
                 if row.get(k) is not None and row.get(k) != '':
                     if isinstance(row.get(k), float):
@@ -280,7 +318,7 @@ def generate_osm_xml(df, session=None):
             # tags['import'] = 'osm_poi_matchmaker'
             # Rendering tags to the XML file and JOSM magic link
             josm_link = ''
-            comment = ('\nKey\t\t\t\tStatus\t\tNew value\t\tOSM value\n')
+            comment = '\nKey\t\t\t\tStatus\t\tNew value\t\tOSM value\n'
             for k, v in sorted(tags.items()):
                 xml_tags = etree.SubElement(main_data, 'tag', k=k, v='{}'.format(v))
                 josm_link = '{}|{}={}'.format(josm_link, k, v)
@@ -308,7 +346,6 @@ def generate_osm_xml(df, session=None):
             default_osm_id -= 1
     except ValueError as e:
         logging.error(e)
-        logging.error(comment)
         logging.exception('Exception occurred')
 
     except Exception as e:

@@ -71,6 +71,10 @@ def relationer(relation_text):
 
 
 def timestamp_now():
+    return datetime.datetime.now()
+
+
+def osm_timestamp_now():
     return '{:{dfmt}T{tfmt}Z}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d', tfmt='%H:%M:%S')
 
 

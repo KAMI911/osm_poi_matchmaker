@@ -3,6 +3,7 @@
 try:
     import logging
     import sys
+    import datetime
     from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
 except ImportError as err:
@@ -14,7 +15,7 @@ except ImportError as err:
 
 class OSMGeneral(object):
 
-    def __init__(self, id=-1, version=9999, user='kami911', uid='8635934', timestamp=timestamp_now(), tags={}):
+    def __init__(self, id=-1, version=9999, user='kami911', uid='8635934', timestamp=datetime.datetime.now(), tags={}):
         self.id = id
         self.version = version
         self.user = user
@@ -26,8 +27,8 @@ class OSMGeneral(object):
 
 class OSMNode(OSMGeneral):
 
-    def __init__(self, id=-1, version=9999, user='kami911', uid='8635934', timestamp=timestamp_now(), tags={}, lat=None,
-                 lon=None):
+    def __init__(self, id=-1, version=9999, user='kami911', uid='8635934', timestamp=datetime.datetime.now(), tags={},
+                 lat=None, lon=None):
         self.id = id
         self.version = version
         self.user = user
@@ -41,7 +42,7 @@ class OSMNode(OSMGeneral):
 
 class OSMWay(OSMGeneral):
 
-    def __init__(self, id=-1, version=9999, user='kami911', uid='8635934', timestamp=timestamp_now(), tags={},
+    def __init__(self, id=-1, version=9999, user='kami911', uid='8635934', timestamp=datetime.datetime.now(), tags={},
                  nodes=[]):
         self.id = id
         self.version = version

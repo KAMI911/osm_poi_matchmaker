@@ -13,6 +13,7 @@ try:
     import numpy as np
     import pandas as pd
     import multiprocessing
+    import datetime
     from osm_poi_matchmaker.utils import config, timing
     from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
@@ -148,7 +149,7 @@ def main():
         poi_addr_data['osm_node'] = None
         poi_addr_data['osm_version'] = None
         poi_addr_data['osm_changeset'] = None
-        poi_addr_data['osm_timestamp'] = timestamp_now()
+        poi_addr_data['osm_timestamp'] = datetime.datetime.now()
         poi_addr_data['osm_live_tags'] = None
         # Export non-transformed data
         export_raw_poi_data(poi_addr_data, poi_common_data)
