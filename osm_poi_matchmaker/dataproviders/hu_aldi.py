@@ -32,7 +32,8 @@ class hu_aldi(DataProvider):
         self.tags.update(POS_HU_GEN)
         self.tags.update(PAY_CASH)
         self.filetype = FileType.html
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hualdisup = {'shop': 'supermarket'}
@@ -49,7 +50,8 @@ class hu_aldi(DataProvider):
         poi_dataset = []
         if soup is not None:
             # parse the html using beautiful soap and store in variable `soup`
-            table = soup.find('table', attrs={'class': 'contenttable is-header-top'})
+            table = soup.find(
+                'table', attrs={'class': 'contenttable is-header-top'})
             table_body = table.find('tbody')
             rows = table_body.find_all('tr')
             for row in rows:

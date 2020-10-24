@@ -29,7 +29,8 @@ class hu_obi(DataProvider):
                      'ref:vatin:hu': '13136062-2-44', 'ref:vatin': 'HU13136062',
                      'wheelchair': 'yes', 'air_conditioning': 'yes', }
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         huobidiy = self.tags
@@ -59,7 +60,8 @@ class hu_obi(DataProvider):
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         poi_data['address']['street'])
                     if 'phone' in poi_data and poi_data.get('phone') != '':
-                        self.data.phone = clean_phone_to_str(poi_data.get('phone'))
+                        self.data.phone = clean_phone_to_str(
+                            poi_data.get('phone'))
                     if 'storeNumber' in poi_data and poi_data.get('storeNumber') != '':
                         self.data.ref = poi_data.get('storeNumber').strip()
                     if 'email' in poi_data and poi_data.get('email') != '':

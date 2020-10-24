@@ -29,7 +29,8 @@ class hu_takko(DataProvider):
                      'brand': 'Takko', 'contact:website': 'https://www.takko.com/hu-hu/', 'loyalty_card': 'yes',
                      'air_conditioning': 'yes'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hutakkocl = self.tags

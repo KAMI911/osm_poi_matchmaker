@@ -34,7 +34,8 @@ class hu_rossmann(DataProvider):
                      'contact:youtube': 'https://www.youtube.com/channel/UCmUCPmvMLL3IaXRBtx7-J7Q',
                      'contact:instagram': 'https://www.instagram.com/rossmann_hu', 'air_conditioning': 'yes'}
         self.filetype = FileType.html
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hurossmche = self.tags
@@ -68,7 +69,8 @@ class hu_rossmann(DataProvider):
                             self.data.day_open_close(i, opening, closing)
                         else:
                             self.data.day_open_close(i, None, None)
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['position'][0], poi_data['position'][1])
+                    self.data.lat, self.data.lon = check_hu_boundary(
+                        poi_data['position'][0], poi_data['position'][1])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         poi_data['address'])
                     self.data.original = poi_data['address']

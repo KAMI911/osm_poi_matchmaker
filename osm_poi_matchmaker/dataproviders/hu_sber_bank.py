@@ -27,10 +27,12 @@ class hu_sber_bank(DataProvider):
                      'name:ru': 'Сбербанк', 'ref:vatin': 'HU10776999', 'ref:vatin:hu': '10776999-2-44',
                      'ref:HU:company': '01 10 041720'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        husberbank = {'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes'}
+        husberbank = {'amenity': 'bank',
+                      'atm': 'yes', 'air_conditioning': 'yes'}
         husberbank.update(self.tags)
         husberatm = {'amenity': 'atm'}
         husberatm.update(self.tags)
@@ -53,10 +55,12 @@ class hu_sber_bank(DataProvider):
                 for poi_data in text['atmList']:
                     self.data.name = 'Sberbank ATM'
                     self.data.code = 'husberatm'
-                    self.data.public_holiday_open = True if poi_data.get('atmNonstop') is True else False
+                    self.data.public_holiday_open = True if poi_data.get(
+                        'atmNonstop') is True else False
                     self.data.postcode = poi_data.get('address')['zipCode']
                     ctmp = poi_data.get('address')['city']
-                    self.data.city = ctmp if 'kerület' not in ctmp else poi_data.get('address')['county']
+                    self.data.city = ctmp if 'kerület' not in ctmp else poi_data.get('address')[
+                        'county']
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('address')['coordinateX'],
                                                                      poi_data.get('address')['coordinateY'])
                     street_tmp = '{} {}'.format(poi_data.get('address')['street'],
@@ -71,7 +75,8 @@ class hu_sber_bank(DataProvider):
                     self.data.public_holiday_open = False
                     self.data.postcode = poi_data.get('address')['zipCode']
                     ctmp = poi_data.get('address')['city']
-                    self.data.city = ctmp if 'kerület' not in ctmp else poi_data.get('address')['county']
+                    self.data.city = ctmp if 'kerület' not in ctmp else poi_data.get('address')[
+                        'county']
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('address')['coordinateX'],
                                                                      poi_data.get('address')['coordinateY'])
                     street_tmp = '{} {}'.format(poi_data.get('address')['street'],
@@ -84,9 +89,11 @@ class hu_sber_bank(DataProvider):
                     for i, opening in enumerate(poi_data.get('openTime')):
                         if opening is not None and opening != '':
                             try:
-                                oh = opening.get('from') if opening.get('from') != '' else None
+                                oh = opening.get('from') if opening.get(
+                                    'from') != '' else None
                                 self.data.day_open(i, oh)
-                                ch = opening.get('to') if opening.get('to') != '' else None
+                                ch = opening.get('to') if opening.get(
+                                    'to') != '' else None
                                 self.data.day_close(i, ch)
                             except Exception as e:
                                 logging.info(opening)
@@ -95,7 +102,8 @@ class hu_sber_bank(DataProvider):
                                 logging.error(e)
                                 continue
                         else:
-                            logging.debug('There is no opening hours on day: {}.'.format(i))
+                            logging.debug(
+                                'There is no opening hours on day: {}.'.format(i))
                     self.data.add()
         except Exception as e:
             logging.exception('Exception occurred')

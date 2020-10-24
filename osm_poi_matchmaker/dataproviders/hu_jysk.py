@@ -29,7 +29,8 @@ class hu_jysk(DataProvider):
                      'operator:addr': '1103 Budapest, Sibrik Miklós út 30.', 'operator': 'JYSK Kft.',
                      'ref:vatin': 'HU13353298', 'ref:vatin:hu': '13353298-2-44', 'ref:HU:company': '01 09 730940', }
         self.filetype = FileType.html
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hujyskfur = self.tags
@@ -48,12 +49,14 @@ class hu_jysk(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
             if soup is not None:
-                soup_data = soup.find('script', {'data-drupal-selector': 'drupal-settings-json'})
+                soup_data = soup.find(
+                    'script', {'data-drupal-selector': 'drupal-settings-json'})
                 json_data = json.loads(soup_data.text)
                 for shop in json_data['storesLocator']['BuildCoordinates']:
                     self.data.name = 'Jysk'
                     self.data.code = 'hujyskfur'
-                    self.data.lat, self.data.lon = check_hu_boundary(shop.get('lat'), shop.get('lon'))
+                    self.data.lat, self.data.lon = check_hu_boundary(
+                        shop.get('lat'), shop.get('lon'))
                     self.data.branch = shop.get('name')
                     internal_id = shop.get('id')
                     shop_soup = save_downloaded_soup('{}?storeId={}'.format(self.link, internal_id),

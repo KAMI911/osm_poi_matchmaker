@@ -54,7 +54,8 @@ class hu_city_postcode_from_xml():
         self.filename = filename
 
     def process(self):
-        xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+        xml = save_downloaded_xml('{}'.format(self.link), os.path.join(
+            self.download_cache, self.filename))
         insert_data = []
         root = etree.fromstring(xml)
         for e in root.findall('zipCode'):
@@ -76,7 +77,8 @@ class hu_street_types_from_xml():
         self.filename = filename
 
     def process(self):
-        xml = save_downloaded_xml('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+        xml = save_downloaded_xml('{}'.format(self.link), os.path.join(
+            self.download_cache, self.filename))
         insert_data = []
         root = etree.fromstring(xml)
         for e in root.findall('streetType'):

@@ -30,7 +30,8 @@ class hu_mobil_petrol(DataProvider):
                      'operator:addr': '1095 Budapest, Ipar utca 2.', 'operator': 'MPH Power Zrt.', 'fuel:diesel': 'yes',
                      'fuel:octane_95': 'yes'}
         self.filetype = FileType.html
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         humobpefu = self.tags
@@ -49,7 +50,8 @@ class hu_mobil_petrol(DataProvider):
                                         self.filetype)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
-                text = json.loads(extract_javascript_variable(soup, 'totem_stations'))
+                text = json.loads(
+                    extract_javascript_variable(soup, 'totem_stations'))
                 for poi_data in text.values():
                     self.data.name = 'Mobil Petrol'
                     self.data.code = 'humobpefu'

@@ -31,10 +31,12 @@ class hu_foxpost(DataProvider):
                      'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes',
                      'payment:cash': 'no', }
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hufoxpocso = {'amenity': 'vending_machine', 'vending': 'parcel_pickup;parcel_mail_in'}
+        hufoxpocso = {'amenity': 'vending_machine',
+                      'vending': 'parcel_pickup;parcel_mail_in'}
         hufoxpocso.update(self.tags)
         self.__types = [
             {'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_type': 'vending_machine_parcel_pickup_and_mail_in',
@@ -64,7 +66,8 @@ class hu_foxpost(DataProvider):
                         else:
                             self.data.day_open_close(i, None, None)
                     self.data.original = poi_data['address']
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['geolat'], poi_data['geolng'])
+                    self.data.lat, self.data.lon = check_hu_boundary(
+                        poi_data['geolat'], poi_data['geolng'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         poi_data['street'])
                     self.data.public_holiday_open = False

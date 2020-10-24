@@ -19,8 +19,6 @@ except ImportError as err:
     sys.exit(128)
 
 
-
-
 class hu_posta(DataProvider):
 
     def constains(self):
@@ -34,7 +32,8 @@ class hu_posta(DataProvider):
                      'contact:instagram': 'https://www.instagram.com/magyar_posta_zrt', 'payment:cash': 'yes',
                      'payment:debit_cards': 'yes'}
         self.filetype = FileType.xml
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hupostapo = {'amenity': 'post_office'}
@@ -65,7 +64,7 @@ class hu_posta(DataProvider):
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
              'osm_search_distance_unsafe': 220, 'preserve_original_post_code': True},
             {'poi_code': 'hupostamp', 'poi_name': 'Mobilposta', 'poi_type': 'post_office',
-             'poi_tags': hupostamp,'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
+             'poi_tags': hupostamp, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300}]
         return self.__types
 
@@ -103,10 +102,13 @@ class hu_posta(DataProvider):
                             if e.street.housenumber is not None else None
                         self.data.conscriptionnumber = None
                         self.data.city = clean_city(e.city.get_text())
-                        self.data.branch = e.find('name').get_text() if e.find('name') is not None else None
+                        self.data.branch = e.find('name').get_text(
+                        ) if e.find('name') is not None else None
                         if self.data.code == 'hupostapo':
-                            self.data.branch = re.sub(r"(\d{1,3})", r"\1. számú", self.data.branch)
-                        days = e.findAll('days') if e.findAll('days') is not None else None
+                            self.data.branch = re.sub(
+                                r"(\d{1,3})", r"\1. számú", self.data.branch)
+                        days = e.findAll('days') if e.findAll(
+                            'days') is not None else None
                         nonstop_num = 0
                         for d in days:
                             if len(d) != 0:
@@ -174,20 +176,24 @@ class hu_posta(DataProvider):
                             self.data.street = street_tmp_1
                             # Since there is no original address format we create one
                             if self.data.housenumber is not None:
-                                self.data.original = '{} {}'.format(street_tmp_1, self.data.housenumber)
+                                self.data.original = '{} {}'.format(
+                                    street_tmp_1, self.data.housenumber)
                             else:
                                 self.data.original = '{}'.format(street_tmp_1)
                         # Street with types
                         elif street_tmp_1 is not None and street_tmp_2 is not None:
-                            self.data.street = '{} {}'.format(street_tmp_1, street_tmp_2)
+                            self.data.street = '{} {}'.format(
+                                street_tmp_1, street_tmp_2)
                             # Since there is no original address format we create one
                             if self.data.housenumber is not None:
                                 self.data.original = '{} {} {}'.format(street_tmp_1, street_tmp_2,
                                                                        self.data.housenumber)
                             else:
-                                self.data.original = '{} {}'.format(street_tmp_1, street_tmp_2)
+                                self.data.original = '{} {}'.format(
+                                    street_tmp_1, street_tmp_2)
                         else:
-                            logging.error('Non handled state in street data processing!')
+                            logging.error(
+                                'Non handled state in street data processing!')
                         self.data.phone = clean_phone_to_str(e.phonearea.get_text()) \
                             if e.phonearea is not None else None
                         self.data.email = e.email.get_text().strip() if e.email is not None else None

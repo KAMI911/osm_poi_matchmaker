@@ -29,10 +29,12 @@ class hu_kh_bank(DataProvider):
         self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hukhbank = {'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes', }
+        hukhbank = {'amenity': 'bank', 'atm': 'yes',
+                    'air_conditioning': 'yes', }
         hukhbank.update(self.tags)
         hukhatm = {'amenity': 'atm'}
         hukhatm.update(self.tags)
@@ -74,10 +76,13 @@ class hu_kh_bank(DataProvider):
                         if poi_data.get(first_element)['address'] is not None and \
                                 poi_data.get(first_element)['address'] != '':
                             data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = \
-                                extract_all_address(poi_data.get(first_element)['address'])
-                            data.original = poi_data.get(first_element)['address']
+                                extract_all_address(
+                                    poi_data.get(first_element)['address'])
+                            data.original = poi_data.get(
+                                first_element)['address']
                         if poi_data.get('phoneNumber') is not None and poi_data.get('phoneNumber') != '':
-                            data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
+                            data.phone = clean_phone_to_str(
+                                poi_data.get('phoneNumber'))
                         else:
                             data.phone = None
                         data.add()

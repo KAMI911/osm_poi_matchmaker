@@ -31,7 +31,8 @@ class hu_avia(DataProvider):
         self.tags.update(POS_HU_GEN)
         self.tags.update(PAY_CASH)
         self.filetype = FileType.html
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         huaviafu = {'amenity': 'fuel'}
@@ -50,7 +51,8 @@ class hu_avia(DataProvider):
                                         self.filetype)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
-                text = json.loads(extract_javascript_variable(soup, 'markers', True), strict=False)
+                text = json.loads(extract_javascript_variable(
+                    soup, 'markers', True), strict=False)
                 for poi_data in text:
                     self.data.name = 'Avia'
                     self.data.code = 'huaviafu'
@@ -58,10 +60,12 @@ class hu_avia(DataProvider):
                         self.data.city = poi_data['title']
                     self.data.ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' \
                         else None
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
+                    self.data.lat, self.data.lon = check_hu_boundary(
+                        poi_data['lat'], poi_data['lng'])
                     if poi_data['cim'] is not None and poi_data['cim'] != '':
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
-                        self.data.conscriptionnumber = extract_all_address(poi_data['cim'])
+                            self.data.conscriptionnumber = extract_all_address(
+                                poi_data['cim'])
                     self.data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid'])) \
                         if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
                     self.data.original = poi_data['cim']
@@ -78,14 +82,22 @@ class hu_avia(DataProvider):
                         else False
                     self.data.fuel_diesel = True if poi_data.get('dies') == '1' or poi_data.get('gdies') == '1' \
                         else False
-                    self.data.fuel_octane_98 = True if poi_data.get('b98') == '1' else False
-                    self.data.fuel_lpg = True if poi_data.get('lpg') == '1' else False
-                    self.data.fuel_e85 = True if poi_data.get('e85') == '1' else False
-                    self.data.rent_lpg_bottles = True if poi_data.get('pgaz') == '1' else False
-                    self.data.compressed_air = True if poi_data.get('komp') == '1' else False
-                    self.data.restaurant = True if poi_data.get('etterem') == '1' else False
-                    self.data.food = True if poi_data.get('bufe') == '1' else False
-                    self.data.truck = True if poi_data.get('kpark') == '1' else False
+                    self.data.fuel_octane_98 = True if poi_data.get(
+                        'b98') == '1' else False
+                    self.data.fuel_lpg = True if poi_data.get(
+                        'lpg') == '1' else False
+                    self.data.fuel_e85 = True if poi_data.get(
+                        'e85') == '1' else False
+                    self.data.rent_lpg_bottles = True if poi_data.get(
+                        'pgaz') == '1' else False
+                    self.data.compressed_air = True if poi_data.get(
+                        'komp') == '1' else False
+                    self.data.restaurant = True if poi_data.get(
+                        'etterem') == '1' else False
+                    self.data.food = True if poi_data.get(
+                        'bufe') == '1' else False
+                    self.data.truck = True if poi_data.get(
+                        'kpark') == '1' else False
                     self.data.add()
         except Exception as e:
             logging.exception('Exception occurred')

@@ -23,7 +23,8 @@ class hu_mol(DataProvider):
         self.link = 'hhttp://trafikok.nemzetidohany.hu/mind.jsonp'
         self.tags = {'shop': 'tobacco'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hunemdoto = self.tags
@@ -46,7 +47,8 @@ class hu_mol(DataProvider):
                 self.data.postcode = poi_data.get('postcode').strip()
                 self.data.city = clean_city(poi_data['city'])
                 self.data.original = poi_data['address']
-                self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
+                self.data.lat, self.data.lon = check_hu_boundary(
+                    poi_data['lat'], poi_data['lng'])
                 self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                     poi_data['address'])
                 self.data.public_holiday_open = False

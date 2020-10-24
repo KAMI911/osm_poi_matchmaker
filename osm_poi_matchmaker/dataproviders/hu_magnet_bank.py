@@ -22,17 +22,20 @@ class hu_magnet_bank(DataProvider):
 
     def constains(self):
         # self.link = 'https://www.magnetbank.hu/kapcsolat/fiokkereso'
-        self.link = os.path.join(config.get_directory_cache_url(), 'hu_magnet_bank.json')
+        self.link = os.path.join(
+            config.get_directory_cache_url(), 'hu_magnet_bank.json')
         self.tags = {'brand': 'MagNet Bank', 'brand:wikidata': 'Q17379757', 'bic': 'HBWEHUHB',
                      'brand:wikipedia': 'hu:MagNet Bank', 'operator': 'MagNet Magyar Közösségi Bank Zrt.',
                      'operator:addr': '1062 Budapest, Andrássy út 98.', 'contact:fax': '+36 1 428 8889',
                      'ref:HU:company': '01 10 046111', 'ref:vatin': 'HU14413591',
                      'ref:vatin:hu': '14413591-4-44', }
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        humagnbank = {'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes', }
+        humagnbank = {'amenity': 'bank',
+                      'atm': 'yes', 'air_conditioning': 'yes', }
         humagnbank.update(self.tags)
         humagnatm = {'amenity': 'atm'}
         humagnatm.update(self.tags)
@@ -66,10 +69,13 @@ class hu_magnet_bank(DataProvider):
                                 self.data.email = poi_data.get('email')
                                 self.data.phone = '+36 1 428 8888'
                             else:
-                                logging.info('Unknow type! ({})'.format(poi_data.get('type')))
+                                logging.info('Unknow type! ({})'.format(
+                                    poi_data.get('type')))
                             self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
-                            self.data.conscriptionnumber = extract_all_address(poi_data.get('address'))
-                            self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lon'))
+                                self.data.conscriptionnumber = extract_all_address(
+                                    poi_data.get('address'))
+                            self.data.lat, self.data.lon = check_hu_boundary(
+                                poi_data.get('lat'), poi_data.get('lon'))
                             self.data.original = poi_data.get('address')
                         self.data.add()
         except Exception as e:

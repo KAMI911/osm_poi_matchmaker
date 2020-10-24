@@ -30,7 +30,8 @@ class hu_dm(DataProvider):
                      'ref:vatin': 'HU11181530', 'ref:vatin:hu': '11181530-2-44', 'ref:HU:company': '13 09 078006',
                      'air_conditioning': 'yes'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hudmche = self.tags
@@ -55,28 +56,40 @@ class hu_dm(DataProvider):
                         if poi_data.get('localeCountry').strip().upper() == 'HU':
                             self.data.name = 'dm'
                             self.data.code = 'hudmche'
-                            self.data.postcode = poi_data.get('address')['zip'].strip()
-                            street_tmp = poi_data.get('address')['street'].split(',')[0]
-                            self.data.city = clean_city(poi_data.get('address')['city'])
-                            self.data.website = 'https://www.dm.hu{}'.format(poi_data.get('storeUrlPath'))
-                            self.data.original = poi_data.get('address')['street']
+                            self.data.postcode = poi_data.get('address')[
+                                'zip'].strip()
+                            street_tmp = poi_data.get(
+                                'address')['street'].split(',')[0]
+                            self.data.city = clean_city(
+                                poi_data.get('address')['city'])
+                            self.data.website = 'https://www.dm.hu{}'.format(
+                                poi_data.get('storeUrlPath'))
+                            self.data.original = poi_data.get('address')[
+                                'street']
                             self.data.lat, self.data.lon = \
-                                check_hu_boundary(poi_data.get('location')['lat'], poi_data.get('location')['lon'])
+                                check_hu_boundary(poi_data.get('location')[
+                                                  'lat'], poi_data.get('location')['lon'])
                             self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                                extract_street_housenumber_better_2(street_tmp.title())
+                                extract_street_housenumber_better_2(
+                                    street_tmp.title())
                             if poi_data.get('phone') is not None and poi_data.get('phone') != '':
-                                self.data.phone = clean_phone_to_str(poi_data.get('phone'))
+                                self.data.phone = clean_phone_to_str(
+                                    poi_data.get('phone'))
                             if poi_data.get('storeNumber') is not None and poi_data.get('storeNumber') != '':
-                                self.data.ref = poi_data.get('storeNumber').strip()
+                                self.data.ref = poi_data.get(
+                                    'storeNumber').strip()
                             opening = poi_data.get('openingDays')
                             try:
                                 for i, d in enumerate(opening):
                                     if d.get('weekDay') is not None and 1 <= d.get('weekDay') <= 7:
                                         day = d.get('weekDay')
-                                        self.data.day_open(day - 1, d.get('timeSlices')[0].get('opening'))
-                                        self.data.day_close(day - 1, d.get('timeSlices')[0].get('closing'))
+                                        self.data.day_open(
+                                            day - 1, d.get('timeSlices')[0].get('opening'))
+                                        self.data.day_close(
+                                            day - 1, d.get('timeSlices')[0].get('closing'))
                             except (IndexError, KeyError):
-                                logging.warning('Exception occurred during opening hours processing')
+                                logging.warning(
+                                    'Exception occurred during opening hours processing')
                             self.data.public_holiday_open = False
                             self.data.add()
                     except Exception as e:

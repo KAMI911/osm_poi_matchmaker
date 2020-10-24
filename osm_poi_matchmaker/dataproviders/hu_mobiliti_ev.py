@@ -22,7 +22,8 @@ except ImportError as err:
 class hu_mobiliti_ev(DataProvider):
 
     def constains(self):
-        self.link = os.path.join(config.get_directory_cache_url(), 'hu_mobiliti_ev.csv')
+        self.link = os.path.join(
+            config.get_directory_cache_url(), 'hu_mobiliti_ev.csv')
         self.tags = {'amenity': 'charging_station', 'authentication:app': 'yes', 'authentication:none': 'yes',
                      'authentication:membership_card': 'yes', 'operator': 'NKM Mobilitás Kft.',
                      'operator:addr': '1081 Budapest, II. János Pál pápa tér 20.', 'fee': 'yes', 'parking:fee': 'no',
@@ -30,7 +31,8 @@ class hu_mobiliti_ev(DataProvider):
                      'ref:HU:company': '01-09-965868', 'contact:website': 'https://www.mobiliti.hu/emobilitas',
                      'contact:email': 'help@mobiliti.hu', 'contact:phone': '+36 62 565 758', }
         self.filetype = FileType.csv
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         self.__types = [
@@ -54,20 +56,26 @@ class hu_mobiliti_ev(DataProvider):
                     self.data.postcode = poi_data.get('Irányító szám')
                     self.data.city = clean_city(poi_data.get('Település'))
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                        extract_street_housenumber_better_2(poi_data.get('Cím'))
+                        extract_street_housenumber_better_2(
+                            poi_data.get('Cím'))
                     self.data.original = poi_data.get('Cím')
                     temp = poi_data.get('GPS koordináták')
                     if temp is None:
                         continue
                     else:
                         self.data.lat, self.data.lon = temp.split(',')
-                    self.data.lat, self.data.lon = check_hu_boundary(self.data.lat, self.data.lon)
+                    self.data.lat, self.data.lon = check_hu_boundary(
+                        self.data.lat, self.data.lon)
                     self.data.socket_chademo = poi_data.get('Darab (CHAdeMO)')
-                    self.data.socket_chademo_output = poi_data.get('Teljesítmény (CHAdeMO)')
+                    self.data.socket_chademo_output = poi_data.get(
+                        'Teljesítmény (CHAdeMO)')
                     self.data.socket_type2_combo = poi_data.get('Darab (CCS)')
-                    self.data.socket_type2_combo_output = poi_data.get('Teljesítmény (CCS)')
-                    self.data.socket_type2_cable = poi_data.get('Darab (Type 2)')
-                    self.data.socket_type2_cable_output = poi_data.get('Teljesítmény (Type 2)')
+                    self.data.socket_type2_combo_output = poi_data.get(
+                        'Teljesítmény (CCS)')
+                    self.data.socket_type2_cable = poi_data.get(
+                        'Darab (Type 2)')
+                    self.data.socket_type2_cable_output = poi_data.get(
+                        'Teljesítmény (Type 2)')
                     self.data.manufacturer = poi_data.get('Gyártó')
                     self.data.model = poi_data.get('Típus')
                     self.data.capacity = poi_data.get('Kapacitás')

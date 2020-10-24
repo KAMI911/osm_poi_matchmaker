@@ -37,7 +37,8 @@ class hu_omv(DataProvider):
         self.post = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'ANZ': '5',
                      'HASH': '23126a64295e2cf2a5e41f33fd4b0c416e09b0b8', 'TS': '1583951283'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         huomvfu = self.tags
@@ -62,11 +63,13 @@ class hu_omv(DataProvider):
                         self.data.name = 'OMV'
                         self.data.code = 'huomvfu'
                         if poi_data.get('postcode') is not None and poi_data.get('postcode') != '':
-                            self.data.postcode = poi_data.get('postcode').strip()
+                            self.data.postcode = poi_data.get(
+                                'postcode').strip()
                         if poi_data.get('town_l') is not None and poi_data.get('town_l') != '':
                             self.data.city = clean_city(poi_data.get('town_l'))
                         if poi_data.get('open_hours') is not None:
-                            oho, ohc = clean_opening_hours(poi_data.get('open_hours'))
+                            oho, ohc = clean_opening_hours(
+                                poi_data.get('open_hours'))
                             if oho == '00:00' and ohc == '24:00':
                                 self.data.nonstop = True
                                 self.data.public_holiday_open = True
@@ -79,13 +82,16 @@ class hu_omv(DataProvider):
                         for i in range(0, 7):
                             self.data.day_open(i, oho)
                             self.data.day_close(i, ohc)
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('y'), poi_data.get('x'))
+                        self.data.lat, self.data.lon = check_hu_boundary(
+                            poi_data.get('y'), poi_data.get('x'))
                         if poi_data.get('address_l') is not None and poi_data.get('address_l') != '':
                             self.data.original = poi_data.get('address_l')
                             self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                                extract_street_housenumber_better_2(poi_data.get('address_l'))
+                                extract_street_housenumber_better_2(
+                                    poi_data.get('address_l'))
                         if poi_data.get('telnr') is not None and poi_data.get('telnr') != '':
-                            self.data.phone = clean_phone_to_str(poi_data.get('telnr'))
+                            self.data.phone = clean_phone_to_str(
+                                poi_data.get('telnr'))
                         self.data.fuel_octane_95 = True
                         self.data.fuel_diesel = True
                         self.data.fuel_octane_100 = True

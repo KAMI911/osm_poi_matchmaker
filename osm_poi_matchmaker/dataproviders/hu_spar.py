@@ -34,7 +34,8 @@ class hu_spar(DataProvider):
         self.tags.update(POS_OTP)
         self.tags.update(PAY_CASH)
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         husparecon = {'shop': 'convenience'}
@@ -85,15 +86,18 @@ class hu_spar(DataProvider):
                     else:
                         self.data.name = 'Spar'
                         self.data.code = 'husparsup'
-                    poi_data['name'] = poi_data['name'].replace('INTERSPAR', 'Interspar')
+                    poi_data['name'] = poi_data['name'].replace(
+                        'INTERSPAR', 'Interspar')
                     poi_data['name'] = poi_data['name'].replace('SPAR', 'Spar')
                     ref_match = PATTERN_SPAR_REF.search(poi_data['name'])
-                    self.data.ref = ref_match.group(1).strip() if ref_match is not None else None
+                    self.data.ref = ref_match.group(
+                        1).strip() if ref_match is not None else None
                     self.data.city = clean_city(poi_data['city'])
                     self.data.postcode = poi_data.get('zipCode').strip()
                     self.data.branch = poi_data['name'].split('(')[0].strip()
                     self.data.website = poi_data['pageUrl'].strip()
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['latitude'], poi_data['longitude'])
+                    self.data.lat, self.data.lon = check_hu_boundary(
+                        poi_data['latitude'], poi_data['longitude'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         poi_data['address'])
                     self.data.original = poi_data['address']

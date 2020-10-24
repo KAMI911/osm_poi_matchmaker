@@ -26,10 +26,12 @@ class hu_budapest_bank(DataProvider):
                      'operator:addr': '1138 Budapest, Váci út 193.', 'ref:vatin': 'HU10196445',
                      'ref:vatin:hu': '10196445-4-44', 'ref:HU:company': '01 10 041037', 'air_conditioning': 'yes'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hubpbank = {'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes', }
+        hubpbank = {'amenity': 'bank', 'atm': 'yes',
+                    'air_conditioning': 'yes', }
         hubpbank.update(self.tags)
         hubpatm = {'amenity': 'atm'}
         hubpatm.update(self.tags)
@@ -68,7 +70,8 @@ class hu_budapest_bank(DataProvider):
                         self.data.nonstop = True
                     else:
                         self.data.nonstop = False
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['latitude'], poi_data['longitude'])
+                    self.data.lat, self.data.lon = check_hu_boundary(
+                        poi_data['latitude'], poi_data['longitude'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                         extract_street_housenumber_better_2(poi_data['addr'])
                     self.data.original = poi_data['address']
@@ -81,56 +84,66 @@ class hu_budapest_bank(DataProvider):
                         for i in opening:
                             if 'H:' in i:
                                 try:
-                                    op = i.replace('H:', '').split('-')[0].strip()
+                                    op = i.replace('H:', '').split(
+                                        '-')[0].strip()
                                 except IndexError as e:
                                     op = None
                                 self.data.mo_o = op if open is not None and op != '' else None
                                 try:
-                                    cl = i.replace('H:', '').split('-')[1].strip()
+                                    cl = i.replace('H:', '').split(
+                                        '-')[1].strip()
                                 except IndexError as e:
                                     cl = None
                                 self.data.mo_c = cl if open is not None and cl != '' else None
                             elif 'K:' in i:
                                 try:
-                                    op = i.replace('K:', '').split('-')[0].strip()
+                                    op = i.replace('K:', '').split(
+                                        '-')[0].strip()
                                 except IndexError as e:
                                     op = None
                                 self.data.tu_o = op if open is not None and op != '' else None
                                 try:
-                                    cl = i.replace('K:', '').split('-')[1].strip()
+                                    cl = i.replace('K:', '').split(
+                                        '-')[1].strip()
                                 except IndexError as e:
                                     cl = None
                                 self.data.tu_c = cl if open is not None and cl != '' else None
                             elif 'Sz:' in i:
                                 try:
-                                    op = i.replace('Sz:', '').split('-')[0].strip()
+                                    op = i.replace('Sz:', '').split(
+                                        '-')[0].strip()
                                 except IndexError as e:
                                     op = None
                                 self.data.we_o = op if open is not None and op != '' else None
                                 try:
-                                    cl = i.replace('Sz:', '').split('-')[1].strip()
+                                    cl = i.replace('Sz:', '').split(
+                                        '-')[1].strip()
                                 except IndexError as e:
                                     cl = None
                                 self.data.we_c = cl if open is not None and cl != '' else None
                             elif 'Cs:' in i:
                                 try:
-                                    op = i.replace('Cs:', '').split('-')[0].strip()
+                                    op = i.replace('Cs:', '').split(
+                                        '-')[0].strip()
                                 except IndexError as e:
                                     op = None
                                 self.data.th_o = op if open is not None and op != '' else None
                                 try:
-                                    cl = i.replace('Cs:', '').split('-')[1].strip()
+                                    cl = i.replace('Cs:', '').split(
+                                        '-')[1].strip()
                                 except IndexError as e:
                                     cl = None
                                 self.data.th_c = cl if open is not None and cl != '' else None
                             elif 'P:' in i:
                                 try:
-                                    op = i.replace('P:', '').split('-')[0].strip()
+                                    op = i.replace('P:', '').split(
+                                        '-')[0].strip()
                                 except IndexError as e:
                                     op = None
                                 self.data.fr_o = op if open is not None and op != '' else None
                                 try:
-                                    cl = i.replace('P:', '').split('-')[1].strip()
+                                    cl = i.replace('P:', '').split(
+                                        '-')[1].strip()
                                 except IndexError as e:
                                     cl = None
                                 self.data.fr_c = cl if open is not None and cl != '' else None

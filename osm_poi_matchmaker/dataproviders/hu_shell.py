@@ -21,11 +21,13 @@ class hu_shell(DataProvider):
 
     def constains(self):
         self.link = 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL'
-        self.tags = {'amenity': 'fuel', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}
+        self.tags = {'amenity': 'fuel',
+                     'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}
         self.tags.update(POS_HU_GEN)
         self.tags.update(PAY_CASH)
         self.filetype = FileType.csv
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hushellfu = self.tags
@@ -50,7 +52,8 @@ class hu_shell(DataProvider):
 
     def process(self):
         try:
-            csv = save_downloaded_pd('{}'.format(self.link), os.path.join(self.download_cache, self.filename))
+            csv = save_downloaded_pd('{}'.format(self.link), os.path.join(
+                self.download_cache, self.filename))
             if csv is not None:
                 csv[['Post code']] = csv[['Post code']].fillna('0000')
                 csv[['Post code']] = csv[['Post code']].astype(int)
@@ -72,7 +75,8 @@ class hu_shell(DataProvider):
                         self.data.code = 'humobpefu'
                         self.data.website = 'http://mpetrol.hu/'
                         """
-                    self.data.postcode = poi_data.get('Post code') if poi_data.get('Post code') != '' else None
+                    self.data.postcode = poi_data.get(
+                        'Post code') if poi_data.get('Post code') != '' else None
                     street_tmp = poi_data['Address'].lower().split()
                     for i in range(0, len(street_tmp) - 2):
                         street_tmp[i] = street_tmp[i].capitalize()
@@ -81,7 +85,8 @@ class hu_shell(DataProvider):
                         self.data.city = clean_city(poi_data['City'].title())
                     else:
                         if poi_data['Name'] != '':
-                            self.data.city = clean_city(poi_data['Name'].title())
+                            self.data.city = clean_city(
+                                poi_data['Name'].title())
                         else:
                             self.data.city = None
                     self.data.branch = poi_data['Name'].strip()
@@ -111,7 +116,8 @@ class hu_shell(DataProvider):
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         street_tmp)
                     if 'Telephone' in poi_data and poi_data['Telephone'] != '':
-                        self.data.phone = clean_phone_to_str(str(poi_data['Telephone']))
+                        self.data.phone = clean_phone_to_str(
+                            str(poi_data['Telephone']))
                     else:
                         self.data.phone = None
                     self.data.email = None

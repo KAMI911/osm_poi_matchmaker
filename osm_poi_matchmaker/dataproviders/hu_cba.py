@@ -28,7 +28,8 @@ class hu_cba(DataProvider):
         self.tags.update(POS_HU_GEN)
         self.tags.update(PAY_CASH)
         self.filetype = FileType.html
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hucbacon = {'shop': 'convenience', 'brand': 'CBA', }
@@ -65,7 +66,8 @@ class hu_cba(DataProvider):
                                         self.filetype)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
-                text = json.loads(extract_javascript_variable(soup, 'boltok_nyers'))
+                text = json.loads(
+                    extract_javascript_variable(soup, 'boltok_nyers'))
                 for poi_data in text:
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                     self.data.city = clean_city(poi_data.get('A_VAROS'))
@@ -88,7 +90,8 @@ class hu_cba(DataProvider):
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         poi_data.get('A_CIM'))
                     if 'PS_PUBLIC_TEL' in poi_data and poi_data.get('PS_PUBLIC_TEL') != '':
-                        self.data.phone = clean_phone_to_str(poi_data.get('PS_PUBLIC_TEL'))
+                        self.data.phone = clean_phone_to_str(
+                            poi_data.get('PS_PUBLIC_TEL'))
                     else:
                         self.data.phone = None
                     if 'PS_PUBLIC_EMAIL' in poi_data and poi_data.get('PS_PUBLIC_EMAIL') != '':

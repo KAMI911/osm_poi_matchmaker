@@ -31,7 +31,8 @@ class hu_yves_rocher(DataProvider):
                      'operator:addr': '1132 Budapest, Váci út 20-26.', 'ref:vatin': 'HU10618646',
                      'ref:vatin:hu': '10618646-2-41', 'ref:HU:company': '01-09-079930', 'air_conditioning': 'yes'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         huyvesrcos = self.tags
@@ -60,27 +61,34 @@ class hu_yves_rocher(DataProvider):
                             self.data.name = 'Yves Rocher'
                             self.data.code = 'huyvesrcos'
                             self.data.lat, self.data.lon = \
-                                check_hu_boundary(poi_data.get('latitude'), poi_data.get('longitude'))
-                            self.data.website = 'https://www.yves-rocher.hu{}/'.format(poi_data.get('request_path'))
+                                check_hu_boundary(poi_data.get(
+                                    'latitude'), poi_data.get('longitude'))
+                            self.data.website = 'https://www.yves-rocher.hu{}/'.format(
+                                poi_data.get('request_path'))
                             opening = poi_data.get('hours')
                             for i in range(0, 7):
                                 if i in opening:
-                                    self.data.day_open(i, opening[i]['hour_from'])
-                                    self.data.day_close(i, opening[i]['hour_to'])
+                                    self.data.day_open(
+                                        i, opening[i]['hour_from'])
+                                    self.data.day_close(
+                                        i, opening[i]['hour_to'])
                             self.data.postcode = poi_data.get('zip')
                             self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                                extract_street_housenumber_better_2(poi_data.get('address'))
+                                extract_street_housenumber_better_2(
+                                    poi_data.get('address'))
                             self.data.city = clean_city(poi_data.get('city'))
                             self.data.original = poi_data.get('address')
                             if poi_data.get('phone') is not None and poi_data.get('phone') != '':
-                                self.data.phone = clean_phone_to_str(poi_data.get('phone'))
+                                self.data.phone = clean_phone_to_str(
+                                    poi_data.get('phone'))
                             if poi_data.get('mobile') is not None and poi_data.get('mobile') != '' \
                                     and self.data.phone is not None:
                                 self.data.phone = '{};{}'.format(self.data.phone,
                                                                  clean_phone_to_str(poi_data.get('mobile')))
                             elif poi_data.get('mobile') is not None and poi_data.get('mobile') != '' \
                                     and self.data.phone is None:
-                                self.data.phone = clean_phone_to_str(poi_data.get('mobile'))
+                                self.data.phone = clean_phone_to_str(
+                                    poi_data.get('mobile'))
                             self.data.public_holiday_open = False
                             self.data.add()
                     except Exception as e:

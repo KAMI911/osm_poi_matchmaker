@@ -38,18 +38,22 @@ class hu_tesco(DataProvider):
         self.tags.update(POS_OTP)
         self.tags.update(PAY_CASH)
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hutescoexp = {'shop': 'convenience'}
         hutescoexp.update(self.tags)
-        hutescoext = {'shop': 'supermarket', 'wheelchair': 'yes', 'source:wheelchair': 'website'}
+        hutescoext = {'shop': 'supermarket',
+                      'wheelchair': 'yes', 'source:wheelchair': 'website'}
         hutescoext.update(self.tags)
-        hutescosup = {'shop': 'supermarket', 'wheelchair': 'yes', 'source:wheelchair': 'website'}
+        hutescosup = {'shop': 'supermarket',
+                      'wheelchair': 'yes', 'source:wheelchair': 'website'}
         hutescosup.update(self.tags)
         husmrktexp = {'shop': 'convenience', 'alt_name': 'Tesco Expressz'}
         husmrktexp.update(self.tags)
-        husmrktsup = {'shop': 'supermarket', 'wheelchair': 'yes', 'source:wheelchair': 'website', 'alt_name': 'Tesco'}
+        husmrktsup = {'shop': 'supermarket', 'wheelchair': 'yes',
+                      'source:wheelchair': 'website', 'alt_name': 'Tesco'}
         husmrktsup.update(self.tags)
         self.__types = [
             {'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_type': 'shop',
@@ -86,18 +90,22 @@ class hu_tesco(DataProvider):
                         # conscriptionnumber, ref, geom
                         self.data.branch = poi_data.get('store_name')
                         self.data.ref = poi_data.get('goldid')
-                        self.data.website = 'https://tesco.hu/aruhazak/aruhaz/{}/'.format(poi_data.get('urlname'))
+                        self.data.website = 'https://tesco.hu/aruhazak/aruhaz/{}/'.format(
+                            poi_data.get('urlname'))
                         opening = json.loads(poi_data.get('opening'))
                         for i in range(0, 7):
                             ind = str(i + 1) if i != 6 else '0'
                             if ind in opening:
                                 self.data.day_open(i, opening[ind][0])
                                 self.data.day_close(i, opening[ind][1])
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('gpslat'), poi_data.get('gpslng'))
+                        self.data.lat, self.data.lon = check_hu_boundary(
+                            poi_data.get('gpslat'), poi_data.get('gpslng'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                            extract_street_housenumber_better_2(poi_data.get('address'))
+                            extract_street_housenumber_better_2(
+                                poi_data.get('address'))
                         self.data.postcode = poi_data.get('zipcode').strip()
-                        self.data.city = clean_city(query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon))
+                        self.data.city = clean_city(query_osm_city_name_gpd(
+                            self.session, self.data.lat, self.data.lon))
                         if 'xpres' in poi_data.get('name'):
                             if self.data.city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:
                                 self.data.name = 'Tesco Expressz'
@@ -117,7 +125,8 @@ class hu_tesco(DataProvider):
                                 self.data.code = 'husmrktsup'
                         self.data.original = poi_data.get('address')
                         if poi_data.get('phone') is not None and poi_data.get('phone') != '':
-                            self.data.phone = clean_phone_to_str(poi_data.get('phone'))
+                            self.data.phone = clean_phone_to_str(
+                                poi_data.get('phone'))
                         if poi_data.get('goldid') is not None and poi_data.get('goldid') != '':
                             self.data.ref = poi_data.get('goldid').strip()
                         self.data.public_holiday_open = False

@@ -30,10 +30,12 @@ class hu_cib_bank(DataProvider):
         self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hucibbank = {'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes', }
+        hucibbank = {'amenity': 'bank', 'atm': 'yes',
+                     'air_conditioning': 'yes', }
         hucibbank.update(self.tags)
         hucibatm = {'amenity': 'atm'}
         hucibatm.update(self.tags)
@@ -73,7 +75,8 @@ class hu_cib_bank(DataProvider):
                             data.street = poi_data['streetName'].strip()
                             data.branch = poi_data['name']
                             if 'phone' in poi_data and poi_data['phone'] != '':
-                                data.phone = clean_phone_to_str(poi_data['phone'])
+                                data.phone = clean_phone_to_str(
+                                    poi_data['phone'])
                             if 'email' in poi_data and poi_data['email'] != '':
                                 data.email = poi_data['email'].strip()
                             data.original = poi_data['fullAddress']

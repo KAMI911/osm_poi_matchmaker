@@ -36,7 +36,8 @@ class hu_posta_json(DataProvider):
                      'contact:instagram': 'https://www.instagram.com/magyar_posta_zrt/',
                      'payment:cash': 'yes', 'payment:debit_cards': 'yes'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
         self.download_cache = download_cache
         self.filename = filename
 

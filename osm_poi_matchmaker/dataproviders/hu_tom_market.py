@@ -26,7 +26,8 @@ class hu_tom_market(DataProvider):
         self.tags = {'shop': 'convenience', 'name': 'Tom Market',
                      'contact:facebook': 'https://www.facebook.com/TOM.Market.Magyarorszag'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hutommacon = self.tags
@@ -58,18 +59,23 @@ class hu_tom_market(DataProvider):
                             self.data.website = poi_data.get('website')
                         else:
                             self.data.website = 'https://tommarket.hu'
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('long'))
+                        self.data.lat, self.data.lon = check_hu_boundary(
+                            poi_data.get('lat'), poi_data.get('long'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                            extract_street_housenumber_better_2(poi_data.get('address'))
+                            extract_street_housenumber_better_2(
+                                poi_data.get('address'))
                         if poi_data.get('zip') is not None and poi_data.get('zip') != '':
                             self.data.postcode = poi_data.get('zip')
                         self.data.original = poi_data.get('address')
                         if poi_data.get('settlement') is not None and poi_data.get('settlement') != '':
-                            self.data.city = clean_city(poi_data.get('settlement'))
+                            self.data.city = clean_city(
+                                poi_data.get('settlement'))
                         else:
-                            self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
+                            self.data.city = query_osm_city_name_gpd(
+                                self.session, self.data.lat, self.data.lon)
                         if poi_data.get('phone') is not None and poi_data.get('phone') != '':
-                            self.data.phone = clean_phone_to_str(poi_data.get('phone'))
+                            self.data.phone = clean_phone_to_str(
+                                poi_data.get('phone'))
                         if poi_data.get('email') is not None and poi_data.get('email') != '':
                             self.data.phone = poi_data.get('email').strip()
                         self.data.public_holiday_open = False

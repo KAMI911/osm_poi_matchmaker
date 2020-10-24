@@ -30,7 +30,8 @@ class hu_pepco(DataProvider):
                      'contact:phone': '+36 1 701 0424', 'contact:email': 'ugyfelszolgalat@pepco.eu',
                      'operator': 'Pepkor Hungary Kft.', 'operator:addr': '1138 Budapest, Váci út 187.'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hupepcoclo = self.tags
@@ -57,7 +58,7 @@ class hu_pepco(DataProvider):
                     In fact this depends on OSM extract but currently we use only Hungarian OSM extract
                     Select only Hungarian POIs
                     '''
-                    if 'city' in poi_data and (poi_data['city'] == '' or \
+                    if 'city' in poi_data and (poi_data['city'] == '' or
                                                query_osm_city_name(self.session, poi_data['city']) is None):
                         continue
                     elif 'city' in poi_data:
@@ -68,9 +69,11 @@ class hu_pepco(DataProvider):
                     self.data.code = 'hupepcoclo'
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                     self.data.lat, self.data.lon = \
-                        check_hu_boundary(poi_data['coordinates']['lat'], poi_data['coordinates']['lng'])
+                        check_hu_boundary(
+                            poi_data['coordinates']['lat'], poi_data['coordinates']['lng'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                        extract_street_housenumber_better_2(poi_data.get('streetAddress'))
+                        extract_street_housenumber_better_2(
+                            poi_data.get('streetAddress'))
                     self.data.original = poi_data.get('streetAddress')
                     self.data.postcode = poi_data.get('postalCode')
                     # self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
@@ -81,7 +84,8 @@ class hu_pepco(DataProvider):
                             self.data.day_open(i, opening[i]['from'])
                             self.data.day_close(i, opening[i]['to'])
                     # Assign additional informations
-                    self.data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
+                    self.data.phone = clean_phone_to_str(
+                        poi_data.get('phoneNumber'))
                     self.data.public_holiday_open = False
                     self.data.add()
         except Exception as e:

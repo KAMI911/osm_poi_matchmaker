@@ -17,7 +17,8 @@ except ImportError as err:
 
     sys.exit(128)
 
-POST_DATA = {'country': 'Magyarország', 'lat': '47.162494', 'lng': '19.503304100000037', 'radius': 20}
+POST_DATA = {'country': 'Magyarország', 'lat': '47.162494',
+             'lng': '19.503304100000037', 'radius': 20}
 
 
 class hu_mol(DataProvider):
@@ -34,7 +35,8 @@ class hu_mol(DataProvider):
                      'ref:HU:company': '01-10-041683', 'fuel:diesel': 'yes',
                      'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         humolfu = self.tags
@@ -59,15 +61,21 @@ class hu_mol(DataProvider):
                     self.data.postcode = poi_data.get('postcode').strip()
                     self.data.city = clean_city(poi_data['city'])
                     self.data.original = poi_data['address']
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['lat'], poi_data['lng'])
+                    self.data.lat, self.data.lon = check_hu_boundary(
+                        poi_data['lat'], poi_data['lng'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                         poi_data['address'])
                     self.data.public_holiday_open = True
-                    self.data.truck = True if 'kamion_parkolo' in poi_data.get('servicesin') else False
-                    self.data.food = True if 'fresh_corner' in poi_data.get('servicesin') else False
-                    self.data.rent_lpg_bottles = True if 'pb' in poi_data.get('servicesin') else False
-                    self.data.fuel_adblue = True if 'adblue' in poi_data.get('servicesin') else False
-                    self.data.fuel_lpg = True if 'lpg' in poi_data.get('servicesin') else False
+                    self.data.truck = True if 'kamion_parkolo' in poi_data.get(
+                        'servicesin') else False
+                    self.data.food = True if 'fresh_corner' in poi_data.get(
+                        'servicesin') else False
+                    self.data.rent_lpg_bottles = True if 'pb' in poi_data.get(
+                        'servicesin') else False
+                    self.data.fuel_adblue = True if 'adblue' in poi_data.get(
+                        'servicesin') else False
+                    self.data.fuel_lpg = True if 'lpg' in poi_data.get(
+                        'servicesin') else False
                     self.data.fuel_octane_95 = True
                     self.data.fuel_diesel = True
                     self.data.fuel_octane_100 = True

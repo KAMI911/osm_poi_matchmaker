@@ -22,7 +22,8 @@ except ImportError as err:
 class hu_mol_plugee_ev(DataProvider):
 
     def constains(self):
-        self.link = os.path.join(config.get_directory_cache_url(), 'hu_mol_plugee_ev.csv')
+        self.link = os.path.join(
+            config.get_directory_cache_url(), 'hu_mol_plugee_ev.csv')
         self.tags = {'amenity': 'charging_station', 'authentication:app': 'yes', 'authentication:none': 'yes',
                      'brand': 'MOL', 'operator': 'MOL Nyrt.',
                      'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.', 'fee': 'yes',
@@ -31,7 +32,8 @@ class hu_mol_plugee_ev(DataProvider):
                      'contact:email': 'info@molplugee.hu', 'contact:phone': '+36 1 998 9888',
                      'contact:website': 'https://molplugee.hu/', 'motorcar': 'yes'}
         self.filetype = FileType.csv
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         humolplchs = self.tags
@@ -55,17 +57,25 @@ class hu_mol_plugee_ev(DataProvider):
                     self.data.postcode = poi_data.get('Irányító szám')
                     self.data.city = clean_city(poi_data.get('Település'))
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                        extract_street_housenumber_better_2(poi_data.get('Cím'))
+                        extract_street_housenumber_better_2(
+                            poi_data.get('Cím'))
                     self.data.original = poi_data.get('Cím')
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('X'), poi_data.get('Y'))
+                    self.data.lat, self.data.lon = check_hu_boundary(
+                        poi_data.get('X'), poi_data.get('Y'))
                     self.data.socket_chademo = poi_data.get('Darab (CHAdeMO)')
-                    self.data.socket_chademo_output = poi_data.get('Teljesítmény (CHAdeMO)')
+                    self.data.socket_chademo_output = poi_data.get(
+                        'Teljesítmény (CHAdeMO)')
                     self.data.socket_type2_combo = poi_data.get('Darab (CCS)')
-                    self.data.socket_type2_combo_output = poi_data.get('Teljesítmény (CCS)')
-                    self.data.socket_type2_cable = poi_data.get('Darab (Type 2)')
-                    self.data.socket_type2_cable_output = poi_data.get('Teljesítmény (Type 2)')
-                    self.data.socket_type2 = poi_data.get('Darab (Type 2 – kábel nélkül)')
-                    self.data.socket_type2_output = poi_data.get('Teljesítmény (Type 2 – kábel nélkül)')
+                    self.data.socket_type2_combo_output = poi_data.get(
+                        'Teljesítmény (CCS)')
+                    self.data.socket_type2_cable = poi_data.get(
+                        'Darab (Type 2)')
+                    self.data.socket_type2_cable_output = poi_data.get(
+                        'Teljesítmény (Type 2)')
+                    self.data.socket_type2 = poi_data.get(
+                        'Darab (Type 2 – kábel nélkül)')
+                    self.data.socket_type2_output = poi_data.get(
+                        'Teljesítmény (Type 2 – kábel nélkül)')
                     self.data.manufacturer = poi_data.get('Gyártó')
                     self.data.model = poi_data.get('Típus')
                     self.data.capacity = poi_data.get('Kapacitás')

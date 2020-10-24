@@ -26,7 +26,8 @@ class hu_mol_bubi(DataProvider):
                      'contact:facebook': 'https://www.facebook.com/molbubi',
                      'contact:youtube': 'https://www.youtube.com/user/bkkweb', 'twitter': 'molbubi'}
         self.filetype = FileType.xml
-        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(
+            self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hububibir = self.tags
