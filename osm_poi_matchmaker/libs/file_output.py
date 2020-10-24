@@ -55,7 +55,15 @@ def ascii_numcoder(text):
     return output
 
 
-def save_csv_file(path, file, data, message):
+def save_csv_file(path: str, file: str, data: pd.DataFrame , message: str):
+    """Save Pandas dataframe to a CSV file
+
+    Args:
+        path (str): Path of newly created CVS file
+        file (str): Filename of newly created CVS file
+        data (pd.DataFrame): Pandas dataframe to write
+        message (str): Addtion information to display
+    """        
     try:
         # Save file to CSV file
         logging.info('Saving {%s to file: %s', message, file)
@@ -66,12 +74,12 @@ def save_csv_file(path, file, data, message):
         logging.exception('Exception occurred')
 
 
-def add_osm_node(osm_id: int, node_data, prefix='poi') -> dict:
+def add_osm_node(osm_id: int, node_data: dict, prefix: str='poi') -> dict:
     """Generate OpenStreetMap node header information as string
 
     Args:
         osm_id (int): OpenStreetMap ID
-        node_data ([type]): [description]
+        node_data (dict): [description]
         prefix (str): Prefix for field names in database
 
     Returns:
@@ -94,12 +102,12 @@ def add_osm_node(osm_id: int, node_data, prefix='poi') -> dict:
     return osm_data
 
 
-def list_osm_node(osm_id: int, node_data, prefix='poi') -> dict:
+def list_osm_node(osm_id: int, node_data: dict, prefix='poi') -> dict:
     """Generate OpenStreetMap node header information as string
 
     Args:
         osm_id (int): OpenStreetMap ID
-        node_data ([type]): [description]
+        node_data (dict): [description]
         prefix (str): Prefix for field names in database
 
     Returns:
@@ -122,12 +130,12 @@ def list_osm_node(osm_id: int, node_data, prefix='poi') -> dict:
     return osm_data
 
 
-def add_osm_way(osm_id: int, node_data) -> dict:
-    """Generate OpenStreetMap way header information as string
+def add_osm_way(osm_id: int, node_data: dict) -> dict:
+    """Generate OpenStreetMap way header information as dictionary
 
     Args:
         osm_id (int): [description]
-        node_data ([type]): [description]
+        node_data (dict): [description]
 
     Returns:
         str: [description]

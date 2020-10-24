@@ -17,7 +17,12 @@ except ImportError as err:
     sys.exit(128)
 
 
-def import_poi_data_module(module):
+def import_poi_data_module(module: str):
+    """Process all data provider modules enabled in app.conf and write to the database
+
+    Args:
+        module (str): Name of module to run
+    """    
     try:
         db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                                   config.get_database_writer_password(),
