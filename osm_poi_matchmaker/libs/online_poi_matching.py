@@ -157,7 +157,7 @@ def online_poi_matching(args):
                                     else:
                                         logging.warning('Download of external data has failed.')
                                 else:
-                                    data.at[i, 'osm_live_tags'] = json.loads(cached_way.get('osm_live_tags'))
+                                    data.at[i, 'osm_live_tags'] = cached_way.get('osm_live_tags')
                                     break
                             session.commit()
                         # Download OSM POI node live tags
@@ -185,7 +185,7 @@ def online_poi_matching(args):
                                     else:
                                         logging.warning('Download of external data has failed.')
                                 else:
-                                    data.at[i, 'osm_live_tags'] = json.loads(cached_node['osm_live_tags'])
+                                    data.at[i, 'osm_live_tags'] = cached_node.get('osm_live_tags')
                                     break
                             session.commit()
                         elif osm_node == OSM_object_type.relation:
@@ -204,6 +204,7 @@ def online_poi_matching(args):
                     except Exception as e:
                         logging.warning('There was an error during OSM request: %s.', e)
                         logging.exception('Exception occurred')
+                        logging.warning('Live tag is: {}'.format(cached_node.get('osm_live_tags')))
                 # This is a new POI
                 else:
                     # This is a new POI - will add fix me tag to the new items.
