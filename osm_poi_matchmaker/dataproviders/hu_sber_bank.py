@@ -37,10 +37,10 @@ class hu_sber_bank(DataProvider):
         self.__types = [
             {'poi_code': 'husberbank', 'poi_name': 'Sberbank', 'poi_type': 'bank',
              'poi_tags': husberbank, 'poi_url_base': 'https://www.sberbank.hu', 'poi_search_name': '(sber|sberbank)',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 10},
+             'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 100, 'osm_search_distance_unsafe': 40},
             {'poi_code': 'husberatm', 'poi_name': 'Sberbank ATM', 'poi_type': 'atm',
              'poi_tags': husberatm, 'poi_url_base': 'https://www.sberbank.hu', 'poi_search_name': '(sber|sberbank)',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 10},
+             'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30, 'osm_search_distance_unsafe': 10},
         ]
         return self.__types
 

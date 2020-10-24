@@ -39,9 +39,13 @@ class hu_cib_bank(DataProvider):
         hucibatm.update(self.tags)
         data = [
             {'poi_code': 'hucibbank', 'poi_name': 'CIB Bank', 'poi_type': 'bank', 'poi_tags': hucibbank,
-             'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank|cib)'},
+             'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank|cib)',
+             'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 100,
+             'osm_search_distance_unsafe': 40},
             {'poi_code': 'hucibatm', 'poi_name': 'CIB Bank ATM', 'poi_type': 'atm', 'poi_tags': hucibatm,
-             'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank atm|cib atm)'},
+             'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank atm|cib atm)',
+             'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
+             'osm_search_distance_unsafe': 10}
         ]
         return data
 

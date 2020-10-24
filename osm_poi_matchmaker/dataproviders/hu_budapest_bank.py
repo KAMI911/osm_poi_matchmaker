@@ -37,12 +37,12 @@ class hu_budapest_bank(DataProvider):
             {'poi_code': 'hubpbank', 'poi_name': 'Budapest Bank', 'poi_type': 'bank',
              'poi_tags': hubpbank, 'poi_url_base': 'https://www.budapestbank.hu',
              'poi_search_name': '(budapest bank|bp bank)',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-             'osm_search_distance_unsafe': 10},
+             'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 100,
+             'osm_search_distance_unsafe': 40},
             {'poi_code': 'hubpatm', 'poi_name': 'Budapest Bank ATM', 'poi_type': 'atm',
              'poi_tags': hubpatm,
              'poi_url_base': 'https://www.budapestbank.hu', 'poi_search_name': '(budapest bank|bp bank)',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80,
+             'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10},
         ]
         return self.__types
