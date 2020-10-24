@@ -55,7 +55,7 @@ def ascii_numcoder(text):
     return output
 
 
-def save_csv_file(path: str, file: str, data: pd.DataFrame , message: str):
+def save_csv_file(path: str, file: str, data, message: str):
     """Save Pandas dataframe to a CSV file
 
     Args:
@@ -63,7 +63,7 @@ def save_csv_file(path: str, file: str, data: pd.DataFrame , message: str):
         file (str): Filename of newly created CVS file
         data (pd.DataFrame): Pandas dataframe to write
         message (str): Addtion information to display
-    """        
+    """
     try:
         # Save file to CSV file
         logging.info('Saving {%s to file: %s', message, file)
@@ -74,7 +74,7 @@ def save_csv_file(path: str, file: str, data: pd.DataFrame , message: str):
         logging.exception('Exception occurred')
 
 
-def add_osm_node(osm_id: int, node_data: dict, prefix: str='poi') -> dict:
+def add_osm_node(osm_id: int, node_data: dict, prefix: str = 'poi') -> dict:
     """Generate OpenStreetMap node header information as string
 
     Args:
@@ -153,7 +153,7 @@ def add_osm_way(osm_id: int, node_data: dict) -> dict:
 
 
 def add_osm_link_comment(osm_id: int, osm_type) -> str:
-    """[summary]
+    """Create OpenStreetMap osm.org link from OSM object
 
     Args:
         osm_id (int): [description]
@@ -167,6 +167,15 @@ def add_osm_link_comment(osm_id: int, osm_type) -> str:
 
 
 def generate_osm_xml(df, session=None):
+    """Crete OpenStreetMap (OSM XML) file from passed Panda Dataframe
+
+    Args:
+        df ([type]): [description]
+        session ([type], optional): [description]. Defaults to None.
+
+    Returns:
+        [type]: [description]
+    """
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                               config.get_database_writer_password(),
                                               config.get_database_writer_host(),
