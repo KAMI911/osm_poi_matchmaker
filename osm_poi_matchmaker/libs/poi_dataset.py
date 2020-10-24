@@ -26,8 +26,11 @@ POI_COLS = poi_array_structure.POI_COLS
 
 
 class POIDataset:
-
+    """Contains all handled OSM tags
+    """    
     def __init__(self):
+        """
+        """        
         self.insert_data = []
         self.__db = POIBase(
             '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
@@ -145,195 +148,195 @@ class POIDataset:
         self.__bad = []
 
     @property
-    def code(self):
+    def code(self) -> str:
         return self.__code
 
     @code.setter
-    def code(self, data):
+    def code(self, data: str):
         self.__code = data
 
     @property
-    def postcode(self):
+    def postcode(self) -> int:
         return self.__postcode
 
     @postcode.setter
-    def postcode(self, data):
+    def postcode(self, data: int):
         self.__postcode = data
 
     @property
-    def city(self):
+    def city(self) -> str:
         return self.__city
 
     @city.setter
-    def city(self, data):
+    def city(self, data: str):
         self.__city = data
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.__name
 
     @name.setter
-    def name(self, data):
+    def name(self, data: str):
         self.__name = data
 
     @property
-    def branch(self):
+    def branch(self) -> str:
         return self.__branch
 
     @branch.setter
-    def branch(self, data):
+    def branch(self, data: str):
         self.__branch = clean_branch(data)
 
     @property
-    def website(self):
+    def website(self) -> str:
         return self.__website
 
     @website.setter
-    def website(self, data):
+    def website(self, data: str):
         self.__website = clean_url(data)
 
     @property
-    def description(self):
+    def description(self) -> str:
         return self.__description
 
     @description.setter
-    def description(self, data):
+    def description(self, data: str):
         self.__description = data
 
     @property
-    def fuel_adblue(self):
+    def fuel_adblue(self) -> bool:
         return self.__fuel_adblue
 
     @fuel_adblue.setter
-    def fuel_adblue(self, data):
+    def fuel_adblue(self, data: bool):
         self.__fuel_adblue = data
 
     @property
-    def fuel_octane_100(self):
+    def fuel_octane_100(self) -> bool:
         return self.__fuel_octane_100
 
     @fuel_octane_100.setter
-    def fuel_octane_100(self, data):
+    def fuel_octane_100(self, data: bool):
         self.__fuel_octane_100 = data
 
     @property
-    def fuel_octane_98(self):
+    def fuel_octane_98(self) -> bool:
         return self.__fuel_octane_98
 
     @fuel_octane_98.setter
-    def fuel_octane_98(self, data):
+    def fuel_octane_98(self, data: bool):
         self.__fuel_octane_98 = data
 
     @property
-    def fuel_octane_95(self):
+    def fuel_octane_95(self) -> bool:
         return self.__fuel_octane_95
 
     @fuel_octane_95.setter
-    def fuel_octane_95(self, data):
+    def fuel_octane_95(self, data: bool):
         self.__fuel_octane_95 = data
 
     @property
-    def fuel_diesel_gtl(self):
+    def fuel_diesel_gtl(self) -> bool:
         return self.__fuel_diesel_gtl
 
     @fuel_diesel_gtl.setter
-    def fuel_diesel_gtl(self, data):
+    def fuel_diesel_gtl(self, data: bool):
         self.__fuel_diesel_gtl = data
 
     @property
-    def fuel_diesel(self):
+    def fuel_diesel(self) -> bool:
         return self.__fuel_diesel
 
     @fuel_diesel.setter
-    def fuel_diesel(self, data):
+    def fuel_diesel(self, data: bool):
         self.__fuel_diesel = data
 
     @property
-    def fuel_lpg(self):
+    def fuel_lpg(self) -> bool:
         return self.__fuel_lpg
 
     @fuel_lpg.setter
-    def fuel_lpg(self, data):
+    def fuel_lpg(self, data: bool):
         self.__fuel_lpg = data
 
     @property
-    def fuel_e85(self):
+    def fuel_e85(self) -> bool:
         return self.__fuel_e85
 
     @fuel_e85.setter
-    def fuel_e85(self, data):
+    def fuel_e85(self, data: bool):
         self.__fuel_e85 = data
 
     @property
-    def rent_lpg_bottles(self):
+    def rent_lpg_bottles(self) -> bool:
         return self.__rent_lpg_bottles
 
     @rent_lpg_bottles.setter
-    def rent_lpg_bottles(self, data):
+    def rent_lpg_bottles(self, data: bool):
         self.__rent_lpg_bottles = data
 
     @property
-    def compressed_air(self):
+    def compressed_air(self) -> bool:
         return self.__compressed_air
 
     @compressed_air.setter
-    def compressed_air(self, data):
+    def compressed_air(self, data: bool):
         self.__compressed_air = data
 
     @property
-    def restaurant(self):
+    def restaurant(self) -> bool:
         return self.__restaurant
 
     @restaurant.setter
-    def restaurant(self, data):
+    def restaurant(self, data: bool):
         self.__restaurant = data
 
     @property
-    def food(self):
+    def food(self) -> bool:
         return self.__food
 
     @food.setter
-    def food(self, data):
+    def food(self, data: bool):
         self.__food = data
 
     @property
-    def truck(self):
+    def truck(self) -> bool:
         return self.__truck
 
     @truck.setter
-    def truck(self, data):
+    def truck(self, data: bool):
         self.__truck = data
 
     @property
-    def authentication_app(self):
+    def authentication_app(self) -> bool:
         return self.__authentication_app
 
     @authentication_app.setter
-    def authentication_app(self, data):
+    def authentication_app(self, data: bool):
         self.__authentication_app = data
 
     @property
-    def authentication_membership_card(self):
+    def authentication_membership_card(self) -> bool:
         return self.__authentication_membership_card
 
     @authentication_membership_card.setter
-    def authentication_membership_card(self, data):
+    def authentication_membership_card(self, data: bool):
         self.__authentication_membership_card = data
 
     @property
-    def capacity(self):
+    def capacity(self) -> int:
         return self.__capacity
 
     @capacity.setter
-    def capacity(self, data):
+    def capacity(self, data: int):
         self.__capacity = data
 
     @property
-    def fee(self):
+    def fee(self) -> bool:
         return self.__fee
 
     @fee.setter
-    def fee(self, data):
+    def fee(self, data: bool):
         self.__fee = data
 
     @property
@@ -341,111 +344,111 @@ class POIDataset:
         return self.__parking_fee
 
     @parking_fee.setter
-    def parking_fee(self, data):
+    def parking_fee(self, data: bool):
         self.__parking_fee = data
 
     @property
-    def motorcar(self):
+    def motorcar(self) -> bool:
         return self.__motorcar
 
     @motorcar.setter
-    def motorcar(self, data):
+    def motorcar(self, data: bool):
         self.__motorcar = data
 
     @property
-    def socket_chademo(self):
+    def socket_chademo(self) -> int:
         return self.__socket_chademo
 
     @socket_chademo.setter
-    def socket_chademo(self, data):
+    def socket_chademo(self, data: int):
         self.__socket_chademo = data
 
     @property
-    def socket_chademo_output(self):
+    def socket_chademo_output(self) -> str:
         return self.__socket_chademo_output
 
     @socket_chademo_output.setter
-    def socket_chademo_output(self, data):
+    def socket_chademo_output(self, data: str):
         self.__socket_chademo_output = data
 
     @property
-    def socket_type2_combo(self):
+    def socket_type2_combo(self) -> int:
         return self.__socket_type2_combo
 
     @socket_type2_combo.setter
-    def socket_type2_combo(self, data):
+    def socket_type2_combo(self, data: int):
         self.__socket_type2_combo = data
 
     @property
-    def socket_type2_combo_output(self):
+    def socket_type2_combo_output(self) -> str:
         return self.__socket_type2_combo_output
 
     @socket_type2_combo_output.setter
-    def socket_type2_combo_output(self, data):
+    def socket_type2_combo_output(self, data: str):
         self.__socket_type2_combo_output = data
 
     @property
-    def socket_type2_cable(self):
+    def socket_type2_cable(self) -> int:
         return self.__socket_type2_cable
 
     @socket_type2_cable.setter
-    def socket_type2_cable(self, data):
+    def socket_type2_cable(self, data: int):
         self.__socket_type2_cable = data
 
     @property
-    def socket_type2_cable_output(self):
+    def socket_type2_cable_output(self) -> str:
         return self.__socket_type2_cable_output
 
     @socket_type2_cable_output.setter
-    def socket_type2_cable_output(self, data):
+    def socket_type2_cable_output(self, data: str):
         self.__socket_type2_cable_output = data
 
     @property
-    def socket_type2(self):
+    def socket_type2(self) -> int:
         return self.__socket_type2
 
     @socket_type2.setter
-    def socket_type2(self, data):
+    def socket_type2(self, data: int):
         self.__socket_type2 = data
 
     @property
-    def socket_type2_output(self):
+    def socket_type2_output(self) -> str:
         return self.__socket_type2_output
 
     @socket_type2_output.setter
-    def socket_type2_output(self, data):
+    def socket_type2_output(self, data: str):
         self.__socket_type2_output = data
 
     @property
-    def manufacturer(self):
+    def manufacturer(self) -> str:
         return self.__manufacturer
 
     @manufacturer.setter
-    def manufacturer(self, data):
+    def manufacturer(self, data: str):
         self.__manufacturer = data
 
     @property
-    def model(self):
+    def model(self) -> str:
         return self.__model
 
     @model.setter
-    def model(self, data):
+    def model(self, data: str):
         self.__model = data
 
     @property
-    def original(self):
+    def original(self) -> str:
         return self.__original
 
     @original.setter
-    def original(self, data):
+    def original(self, data: str):
         self.__original = data
 
     @property
-    def street(self):
+    def street(self) -> str:
         return self.__street
 
     @street.setter
-    def street(self, data):
+    def street(self, data: str):
         # Try to find street name around
         try:
             if self.lat is not None and self.lon is not None:
@@ -469,73 +472,73 @@ class POIDataset:
             logging.exception('Exception occurred')
 
     @property
-    def housenumber(self):
+    def housenumber(self) -> str:
         return self.__housenumber
 
     @housenumber.setter
-    def housenumber(self, data):
+    def housenumber(self, data: str):
         self.__housenumber = data
 
     @property
-    def conscriptionnumber(self):
+    def conscriptionnumber(self) -> str:
         return self.__conscriptionnumber
 
     @conscriptionnumber.setter
-    def conscriptionnumber(self, data):
+    def conscriptionnumber(self, data: str):
         self.__conscriptionnumber = data
 
     @property
-    def ref(self):
+    def ref(self) -> str:
         return self.__ref
 
     @ref.setter
-    def ref(self, data):
+    def ref(self, data: str):
         self.__ref = data
 
     @property
-    def phone(self):
+    def phone(self) -> str:
         return self.__phone
 
     @phone.setter
-    def phone(self, data):
+    def phone(self, data: str):
         if data == 'NULL':
             self.__phone = None
         else:
             self.__phone = data
 
     @property
-    def email(self):
+    def email(self) -> str:
         return self.__email
 
     @email.setter
-    def email(self, data):
+    def email(self, data: str):
         if data == 'NULL':
             self.__email = None
         else:
             self.__email = data
 
     @property
-    def geom(self):
+    def geom(self) -> str:
         return self.__geom
 
     @geom.setter
-    def geom(self, data):
+    def geom(self, data: str):
         self.__geom = data
 
     @property
-    def lat(self):
+    def lat(self) -> float:
         return self.__lat
 
     @lat.setter
-    def lat(self, lat):
+    def lat(self, lat: float):
         self.__lat = lat
 
     @property
-    def lon(self):
+    def lon(self) -> float:
         return self.__lon
 
     @lon.setter
-    def lon(self, lon):
+    def lon(self, lon: float):
         self.__lon = lon
 
     def process_geom(self):
@@ -550,259 +553,259 @@ class POIDataset:
         self.__oh = pd.DataFrame(data, index=WeekDaysShort, columns=OpenClose)
 
     @property
-    def nonstop(self):
+    def nonstop(self) -> bool:
         return self.__nonstop
 
     @nonstop.setter
-    def nonstop(self, data):
+    def nonstop(self, data: bool):
         self.__nonstop = data
 
     @property
-    def mo_o(self):
+    def mo_o(self) -> str:
         return self.__oh.at[WeekDaysShort.mo, OpenClose.open]
 
     @mo_o.setter
-    def mo_o(self, data):
+    def mo_o(self, data: str):
         self.__oh.at[WeekDaysShort.mo, OpenClose.open] = data
 
     @property
-    def tu_o(self):
+    def tu_o(self) -> str:
         return self.__oh.at[WeekDaysShort.tu, OpenClose.open]
 
     @tu_o.setter
-    def tu_o(self, data):
+    def tu_o(self, data: str):
         self.__oh.at[WeekDaysShort.tu, OpenClose.open] = data
 
     @property
-    def we_o(self):
+    def we_o(self) -> str:
         return self.__oh.at[WeekDaysShort.we, OpenClose.open]
 
     @we_o.setter
-    def we_o(self, data):
+    def we_o(self, data: str):
         self.__oh.at[WeekDaysShort.we, OpenClose.open] = data
 
     @property
-    def th_o(self):
+    def th_o(self) -> str:
         return self.__oh.at[WeekDaysShort.th, OpenClose.open]
 
     @th_o.setter
-    def th_o(self, data):
+    def th_o(self, data: str):
         self.__oh.at[WeekDaysShort.th, OpenClose.open] = data
 
     @property
-    def fr_o(self):
+    def fr_o(self) -> str:
         return self.__oh.at[WeekDaysShort.fr, OpenClose.open]
 
     @fr_o.setter
-    def fr_o(self, data):
+    def fr_o(self, data: str):
         self.__oh.at[WeekDaysShort.fr, OpenClose.open] = data
 
     @property
-    def sa_o(self):
+    def sa_o(self) -> str:
         return self.__oh.at[WeekDaysShort.sa, OpenClose.open]
 
     @sa_o.setter
-    def sa_o(self, data):
+    def sa_o(self, data: str):
         self.__oh.at[WeekDaysShort.sa, OpenClose.open] = data
 
     @property
-    def su_o(self):
+    def su_o(self) -> str:
         return self.__oh.at[WeekDaysShort.su, OpenClose.open]
 
     @su_o.setter
-    def su_o(self, data):
+    def su_o(self, data: str):
         self.__oh.at[WeekDaysShort.su, OpenClose.open] = data
 
     @property
-    def mo_c(self):
+    def mo_c(self) -> str:
         return self.__oh.at[WeekDaysShort.mo, OpenClose.close]
 
     @mo_c.setter
-    def mo_c(self, data):
+    def mo_c(self, data: str):
         self.__oh.at[WeekDaysShort.mo, OpenClose.close] = data
 
     @property
-    def tu_c(self):
+    def tu_c(self) -> str:
         return self.__oh.at[WeekDaysShort.tu, OpenClose.close]
 
     @tu_c.setter
-    def tu_c(self, data):
+    def tu_c(self, data: str):
         self.__oh.at[WeekDaysShort.tu, OpenClose.close] = data
 
     @property
-    def we_c(self):
+    def we_c(self) -> str:
         return self.__oh.at[WeekDaysShort.we, OpenClose.close]
 
     @we_c.setter
-    def we_c(self, data):
+    def we_c(self, data: str):
         self.__oh.at[WeekDaysShort.we, OpenClose.close] = data
 
     @property
-    def th_c(self):
+    def th_c(self) -> str:
         return self.__oh.at[WeekDaysShort.th, OpenClose.close]
 
     @th_c.setter
-    def th_c(self, data):
+    def th_c(self, data: str):
         self.__oh.at[WeekDaysShort.th, OpenClose.close] = data
 
     @property
-    def fr_c(self):
+    def fr_c(self) -> str:
         return self.__oh.at[WeekDaysShort.fr, OpenClose.close]
 
     @fr_c.setter
-    def fr_c(self, data):
+    def fr_c(self, data: str):
         self.__oh.at[WeekDaysShort.fr, OpenClose.close] = data
 
     @property
-    def sa_c(self):
+    def sa_c(self) -> str:
         return self.__oh.at[WeekDaysShort.sa, OpenClose.close]
 
     @sa_c.setter
-    def sa_c(self, data):
+    def sa_c(self, data: str):
         self.__oh.at[WeekDaysShort.sa, OpenClose.close] = data
 
     @property
-    def su_c(self):
+    def su_c(self) -> str:
         return self.__oh.at[WeekDaysShort.su, OpenClose.close]
 
     @su_c.setter
-    def su_c(self, data):
+    def su_c(self, data: str):
         self.__oh.at[WeekDaysShort.su, OpenClose.close] = data
 
     @property
-    def summer_mo_o(self):
+    def summer_mo_o(self) -> str:
         return self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open]
 
     @summer_mo_o.setter
-    def summer_mo_o(self, data):
+    def summer_mo_o(self, data: str):
         self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open] = data
 
     @property
-    def summer_tu_o(self):
+    def summer_tu_o(self) -> str:
         return self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open]
 
     @summer_tu_o.setter
-    def summer_tu_o(self, data):
+    def summer_tu_o(self, data: str):
         self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open] = data
 
     @property
-    def summer_we_o(self):
+    def summer_we_o(self) -> str:
         return self.__oh.at[WeekDaysShort.we, OpenClose.summer_open]
 
     @summer_we_o.setter
-    def summer_we_o(self, data):
+    def summer_we_o(self, data: str):
         self.__oh.at[WeekDaysShort.we, OpenClose.summer_open] = data
 
     @property
-    def summer_th_o(self):
+    def summer_th_o(self) -> str:
         return self.__oh.at[WeekDaysShort.th, OpenClose.summer_open]
 
     @summer_th_o.setter
-    def summer_th_o(self, data):
+    def summer_th_o(self, data: str):
         self.__oh.at[WeekDaysShort.th, OpenClose.summer_open] = data
 
     @property
-    def summer_fr_o(self):
+    def summer_fr_o(self) -> str:
         return self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open]
 
     @summer_fr_o.setter
-    def summer_fr_o(self, data):
+    def summer_fr_o(self, data: str):
         self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open] = data
 
     @property
-    def summer_sa_o(self):
+    def summer_sa_o(self) -> str:
         return self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open]
 
     @summer_sa_o.setter
-    def summer_sa_o(self, data):
+    def summer_sa_o(self, data: str):
         self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open] = data
 
     @property
-    def summer_su_o(self):
+    def summer_su_o(self) -> str:
         return self.__oh.at[WeekDaysShort.su, OpenClose.summer_open]
 
     @summer_su_o.setter
-    def summer_su_o(self, data):
+    def summer_su_o(self, data: str):
         self.__oh.at[WeekDaysShort.su, OpenClose.summer_open] = data
 
     @property
-    def summer_mo_c(self):
+    def summer_mo_c(self) -> str:
         return self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close]
 
     @summer_mo_c.setter
-    def summer_mo_c(self, data):
+    def summer_mo_c(self, data: str):
         self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close] = data
 
     @property
-    def summer_tu_c(self):
+    def summer_tu_c(self) -> str:
         return self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close]
 
     @summer_tu_c.setter
-    def summer_tu_c(self, data):
+    def summer_tu_c(self, data: str):
         self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close] = data
 
     @property
-    def summer_we_c(self):
+    def summer_we_c(self) -> str:
         return self.__oh.at[WeekDaysShort.we, OpenClose.summer_close]
 
     @summer_we_c.setter
-    def summer_we_c(self, data):
+    def summer_we_c(self, data: str):
         self.__oh.at[WeekDaysShort.we, OpenClose.summer_close] = data
 
     @property
-    def summer_th_c(self):
+    def summer_th_c(self) -> str:
         return self.__oh.at[WeekDaysShort.th, OpenClose.summer_close]
 
     @summer_th_c.setter
-    def summer_th_c(self, data):
+    def summer_th_c(self, data: str):
         self.__oh.at[WeekDaysShort.th, OpenClose.summer_close] = data
 
     @property
-    def summer_fr_c(self):
+    def summer_fr_c(self) -> str:
         return self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close]
 
     @summer_fr_c.setter
-    def summer_fr_c(self, data):
+    def summer_fr_c(self, data: str):
         self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close] = data
 
     @property
-    def summer_sa_c(self):
+    def summer_sa_c(self) -> str:
         return self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close]
 
     @summer_sa_c.setter
-    def summer_sa_c(self, data):
+    def summer_sa_c(self, data: str):
         self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close] = data
 
     @property
-    def summer_su_c(self):
+    def summer_su_c(self) -> str:
         return self.__oh.at[WeekDaysShort.su, OpenClose.summer_close]
 
     @summer_su_c.setter
-    def summer_su_c(self, data):
+    def summer_su_c(self, data: str):
         self.__oh.at[WeekDaysShort.su, OpenClose.summer_close] = data
 
     @property
-    def lunch_break(self):
+    def lunch_break(self) -> str, str:
         return self.__lunch_break['start'], self.__lunch_break['stop']
 
     @lunch_break.setter
-    def lunch_break(self, lunch_break_start, lunch_break_stop):
+    def lunch_break(self, lunch_break_start: str, lunch_break_stop: str):
         self.__lunch_break = {'start': lunch_break_start, 'stop': lunch_break_stop}
 
     @property
-    def lunch_break_start(self):
+    def lunch_break_start(self) -> str:
         return self.__lunch_break['start']
 
     @lunch_break_start.setter
-    def lunch_break_start(self, data):
+    def lunch_break_start(self, data: str):
         self.__lunch_break['start'] = data
 
     @property
-    def lunch_break_stop(self):
+    def lunch_break_stop(self) -> str:
         return self.__lunch_break['stop']
 
     @lunch_break_stop.setter
-    def lunch_break_stop(self, data):
+    def lunch_break_stop(self, data: str):
         self.__lunch_break['stop'] = data
 
     def day_open(self, day, data):
@@ -826,19 +829,19 @@ class POIDataset:
         self.__oh.at[WeekDaysShort(day), OpenClose.summer_close] = closing
 
     @property
-    def opening_hours(self):
+    def opening_hours(self) -> str:
         return self.__opening_hours
 
     @opening_hours.setter
-    def opening_hours(self, data):
+    def opening_hours(self, data: str):
         self.__opening_hours = data
 
     @property
-    def public_holiday_open(self):
+    def public_holiday_open(self) -> bool:
         return self.__public_holiday_open
 
     @public_holiday_open.setter
-    def public_holiday_open(self, data):
+    def public_holiday_open(self, data: bool):
         self.__public_holiday_open = data
 
     def process_opening_hours(self):
