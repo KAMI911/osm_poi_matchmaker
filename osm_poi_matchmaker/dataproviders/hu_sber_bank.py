@@ -21,26 +21,27 @@ class hu_sber_bank(DataProvider):
 
     def constains(self):
         self.link = 'https://www.sberbank.hu/servlet/maplocatorServlet'
-        self.POI_COMMON_TAGS = "'brand': 'Sberbank', 'brand:wikidata': 'Q17379757', " \
-                               "'brand:wikipedia': 'en:Sberbank of Russia', 'operator': 'Sberbank Magyarország Zrt.', " \
-                               "'operator:addr': '1088 Budapest, Rákóczi út 1-3.', 'brand:ru': 'Сбербанк', " \
-                               "'name:ru': 'Сбербанк', 'ref:vatin': 'HU10776999', 'ref:vatin:hu': '10776999-2-44', " \
-                               "'ref:HU:company': '01 10 041720', "
+        self.tags = {'brand': 'Sberbank', 'brand:wikidata': 'Q17379757', 'bic': 'MAVOHUHB',
+                     'brand:wikipedia': 'en:Sberbank of Russia', 'operator': 'Sberbank Magyarország Zrt.',
+                     'operator:addr': '1088 Budapest, Rákóczi út 1-3.', 'brand:ru': 'Сбербанк',
+                     'name:ru': 'Сбербанк', 'ref:vatin': 'HU10776999', 'ref:vatin:hu': '10776999-2-44',
+                     'ref:HU:company': '01 10 041720'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'husberbank', 'poi_name': 'Sberbank', 'poi_type': 'bank',
-                         'poi_tags': "{'amenity': 'bank', 'bic': 'MAVOHUHB', 'atm': 'yes', " + self.POI_COMMON_TAGS +
-                                     " 'air_conditioning': 'yes'}",
-                         'poi_url_base': 'https://www.sberbank.hu', 'poi_search_name': '(sber|sberbank)',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-                         'osm_search_distance_unsafe': 10},
-                        {'poi_code': 'husberatm', 'poi_name': 'Sberbank ATM', 'poi_type': 'atm',
-                         'poi_tags': "{'amenity': 'atm', " + self.POI_COMMON_TAGS + " }",
-                         'poi_url_base': 'https://www.sberbank.hu', 'poi_search_name': '(sber|sberbank)',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80,
-                         'osm_search_distance_unsafe': 10}]
+        husberbank = {'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes'}
+        husberbank.update(self.tags)
+        husberatm = {'amenity': 'atm'}
+        husberatm.update(self.tags)
+        self.__types = [
+            {'poi_code': 'husberbank', 'poi_name': 'Sberbank', 'poi_type': 'bank',
+             'poi_tags': husberbank, 'poi_url_base': 'https://www.sberbank.hu', 'poi_search_name': '(sber|sberbank)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 10},
+            {'poi_code': 'husberatm', 'poi_name': 'Sberbank ATM', 'poi_type': 'atm',
+             'poi_tags': husberatm, 'poi_url_base': 'https://www.sberbank.hu', 'poi_search_name': '(sber|sberbank)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 10},
+        ]
         return self.__types
 
     def process(self):

@@ -21,25 +21,30 @@ class hu_budapest_bank(DataProvider):
 
     def constains(self):
         self.link = 'https://www.budapestbank.hu/info/fiokkereso/process/get_data.php?action=get_data_json'
-        self.POI_COMMON_TAGS = "'brand': 'Budapest Bank', 'brand:wikidata': 'Q27493463', " \
-                               "'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.', " \
-                               "'operator:addr': '1138 Budapest, Váci út 193.', 'ref:vatin': 'HU10196445', " \
-                               "'ref:vatin:hu': '10196445-4-44', 'ref:HU:company': '01 10 041037', "
+        self.tags = {'brand': 'Budapest Bank', 'brand:wikidata': 'Q27493463', 'bic': 'BUDAHUHB',
+                     'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.',
+                     'operator:addr': '1138 Budapest, Váci út 193.', 'ref:vatin': 'HU10196445',
+                     'ref:vatin:hu': '10196445-4-44', 'ref:HU:company': '01 10 041037', 'air_conditioning': 'yes'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'hubpbank', 'poi_name': 'Budapest Bank', 'poi_type': 'bank',
-                         'poi_tags': "{'amenity': 'bank', 'bic': 'BUDAHUHB', 'atm': 'yes', " + self.POI_COMMON_TAGS +
-                                     " 'air_conditioning': 'yes'}",
-                         'poi_url_base': 'https://www.budapestbank.hu', 'poi_search_name': '(budapest bank|bp bank)',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-                         'osm_search_distance_unsafe': 10},
-                        {'poi_code': 'hubpatm', 'poi_name': 'Budapest Bank ATM', 'poi_type': 'atm',
-                         'poi_tags': "{'amenity': 'atm', " + self.POI_COMMON_TAGS + " }",
-                         'poi_url_base': 'https://www.budapestbank.hu', 'poi_search_name': '(budapest bank|bp bank)',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80,
-                         'osm_search_distance_unsafe': 10}]
+        hubpbank = {'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes', }
+        hubpbank.update(self.tags)
+        hubpatm = {'amenity': 'atm'}
+        hubpatm.update(self.tags)
+        self.__types = [
+            {'poi_code': 'hubpbank', 'poi_name': 'Budapest Bank', 'poi_type': 'bank',
+             'poi_tags': hubpbank, 'poi_url_base': 'https://www.budapestbank.hu',
+             'poi_search_name': '(budapest bank|bp bank)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
+             'osm_search_distance_unsafe': 10},
+            {'poi_code': 'hubpatm', 'poi_name': 'Budapest Bank ATM', 'poi_type': 'atm',
+             'poi_tags': hubpatm,
+             'poi_url_base': 'https://www.budapestbank.hu', 'poi_search_name': '(budapest bank|bp bank)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80,
+             'osm_search_distance_unsafe': 10},
+        ]
         return self.__types
 
     def process(self):
@@ -132,5 +137,4 @@ class hu_budapest_bank(DataProvider):
                     self.data.add()
         except Exception as e:
             logging.exception('Exception occurred')
-
             logging.error(e)

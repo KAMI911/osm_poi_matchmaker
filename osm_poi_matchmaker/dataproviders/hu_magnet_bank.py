@@ -23,27 +23,28 @@ class hu_magnet_bank(DataProvider):
     def constains(self):
         # self.link = 'https://www.magnetbank.hu/kapcsolat/fiokkereso'
         self.link = os.path.join(config.get_directory_cache_url(), 'hu_magnet_bank.json')
-        self.POI_COMMON_TAGS = "'brand': 'MagNet Bank', 'brand:wikidata': 'Q17379757', " \
-                               "'brand:wikipedia': 'hu:MagNet Bank', 'operator': 'MagNet Magyar Közösségi Bank Zrt.', " \
-                               "'operator:addr': '1062 Budapest, Andrássy út 98.', 'contact:fax': '+36 1 428 8889', " \
-                               "'ref:HU:company': '01 10 046111', 'ref:vatin': 'HU14413591' ," \
-                               "'ref:vatin:hu': '14413591-4-44', "
+        self.tags = {'brand': 'MagNet Bank', 'brand:wikidata': 'Q17379757', 'bic': 'HBWEHUHB',
+                     'brand:wikipedia': 'hu:MagNet Bank', 'operator': 'MagNet Magyar Közösségi Bank Zrt.',
+                     'operator:addr': '1062 Budapest, Andrássy út 98.', 'contact:fax': '+36 1 428 8889',
+                     'ref:HU:company': '01 10 046111', 'ref:vatin': 'HU14413591',
+                     'ref:vatin:hu': '14413591-4-44', }
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
+        humagnbank = {'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes', }
+        humagnbank.update(self.tags)
+        humagnatm = {'amenity': 'atm'}
+        humagnatm.update(self.tags)
         self.__types = [
             {'poi_code': 'humagnbank', 'poi_name': 'MagNet Bank', 'poi_type': 'bank',
-             'poi_tags': "{'amenity': 'bank', 'bic': 'HBWEHUHB', 'atm': 'yes', " + self.POI_COMMON_TAGS +
-                         " 'air_conditioning': 'yes'}",
-             'poi_url_base': 'https://www.magnetbank.hu', 'poi_search_name': '(magnet bank|magnetbank)',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-             'osm_search_distance_unsafe': 10},
+             'poi_tags': humagnbank, 'poi_url_base': 'https://www.magnetbank.hu',
+             'poi_search_name': '(magnet bank|magnetbank)', 'osm_search_distance_perfect': 2000,
+             'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 10},
             {'poi_code': 'humagnatm', 'poi_name': 'MagNet Bank ATM', 'poi_type': 'atm',
-             'poi_tags': "{'amenity': 'atm', " + self.POI_COMMON_TAGS + " }",
-             'poi_url_base': 'https://www.magnetbank.hu',
+             'poi_tags': humagnatm, 'poi_url_base': 'https://www.magnetbank.hu',
              'poi_search_name': '(magnet bank|magnetbank|magnet bank atm|magnet atm)',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 10}
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 10},
         ]
         return self.__types
 

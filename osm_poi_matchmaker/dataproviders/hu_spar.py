@@ -25,34 +25,41 @@ class hu_spar(DataProvider):
 
     def constains(self):
         self.link = 'https://www.spar.hu/uzletek/_jcr_content.stores.v2'
-        self.POI_COMMON_TAGS = "'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'," \
-                               "'brand:wikipedia': 'hu:Spar', 'brand:wikidata': 'Q610492',  'contact:email': 'vevoszolgalat@spar.hu', " \
-                               "'phone': '+36208237727', 'contact:facebook': 'https://www.facebook.com/sparmagyarorszag', " \
-                               "'contact:youtube': 'https://www.youtube.com/channel/UC9tu8COHiy4WkeTIN1k_Y8A', " \
-                               "'contact:instagram': 'https://www.instagram.com/sparmagyarorszag', " + POS_OTP + PAY_CASH
+        self.tags = {'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar',
+                     'brand:wikipedia': 'hu:Spar', 'brand:wikidata': 'Q610492',
+                     'contact:email': 'vevoszolgalat@spar.hu',
+                     'phone': '+36208237727', 'contact:facebook': 'https://www.facebook.com/sparmagyarorszag',
+                     'contact:youtube': 'https://www.youtube.com/channel/UC9tu8COHiy4WkeTIN1k_Y8A',
+                     'contact:instagram': 'https://www.instagram.com/sparmagyarorszag'}
+        self.tags.update(POS_OTP)
+        self.tags.update(PAY_CASH)
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = \
-            [{'poi_code': 'husparecon', 'poi_name': 'Spar Expressz', 'poi_type': 'shop',
-              'poi_tags': "{'shop': 'convenience', " + self.POI_COMMON_TAGS + "}",
-              'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|spar express|spar expressz)',
-              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
-             {'poi_code': 'husparisup', 'poi_name': 'Interspar', 'poi_type': 'shop',
-              'poi_tags': "{'shop': 'supermarket', " + self.POI_COMMON_TAGS + "}",
-              'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|interspar)',
-              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
-             {'poi_code': 'husparsup', 'poi_name': 'Spar', 'poi_type': 'shop',
-              'poi_tags': "{'shop': 'supermarket', " + self.POI_COMMON_TAGS + "}",
-              'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|spar supermarket)',
-              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
-             {'poi_code': 'huspardcon', 'poi_name': 'DeSpar', 'poi_type': 'shop',
-              'poi_tags': "{'shop': 'convenience', " + self.POI_COMMON_TAGS + "}",
-              'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|despar)',
-              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-              'osm_search_distance_unsafe': 15},
-             ]
+        husparecon = {'shop': 'convenience'}
+        husparecon.update(self.tags)
+        husparisup = {'shop': 'supermarket'}
+        husparisup.update(self.tags)
+        husparsup = {'shop': 'supermarket'}
+        husparsup.update(self.tags)
+        huspardcon = {'shop': 'convenience'}
+        huspardcon.update(self.tags)
+        self.__types = [
+            {'poi_code': 'husparecon', 'poi_name': 'Spar Expressz', 'poi_type': 'shop',
+             'poi_tags': husparecon, 'poi_url_base': 'https://www.spar.hu',
+             'poi_search_name': '(spar|spar express|spar expressz)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
+            {'poi_code': 'husparisup', 'poi_name': 'Interspar', 'poi_type': 'shop',
+             'poi_tags': husparisup, 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|interspar)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
+            {'poi_code': 'husparsup', 'poi_name': 'Spar', 'poi_type': 'shop',
+             'poi_tags': husparsup, 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|spar supermarket)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
+            {'poi_code': 'huspardcon', 'poi_name': 'DeSpar', 'poi_type': 'shop',
+             'poi_tags': huspardcon, 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|despar)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
+        ]
         return self.__types
 
     def process(self):

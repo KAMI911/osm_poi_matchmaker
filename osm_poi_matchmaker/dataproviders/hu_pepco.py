@@ -23,15 +23,25 @@ class hu_pepco(DataProvider):
 
     def constains(self):
         self.link = 'https://pepco.hu/uzleteink/uzletkereso/?type=1002&tx_pepco_mapplugin[action]=view&tx_pepco_mapplugin[controller]=Map&tx_pepco_mapplugin[loadall]=true'
+        self.tags = {'shop': 'clothes', 'brand': 'Pepco', 'brand:wikidata': 'Q11815580',
+                     'brand:wikipedia': 'pl:Pepco', 'contact:facebook': 'https://www.facebook.com/pepcohu/',
+                     'contact:website': 'https://pepco.hu/',
+                     'contact:linkedin': 'https://www.linkedin.com/company/pepco-poland',
+                     'contact:phone': '+36 1 701 0424', 'contact:email': 'ugyfelszolgalat@pepco.eu',
+                     'operator': 'Pepkor Hungary Kft.', 'operator:addr': '1138 Budapest, Váci út 187.'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'hupepcoclo', 'poi_name': 'Pepco', 'poi_type': 'clothes',
-                         'poi_tags': "{'shop': 'clothes', 'brand': 'Pepco', 'brand:wikidata': 'Q11815580', 'brand:wikipedia': 'pl:Pepco', 'contact:facebook': 'https://www.facebook.com/pepcohu/', 'contact:website':'https://pepco.hu/', 'contact:linkedin': 'https://www.linkedin.com/company/pepco-poland', 'contact:phone': '+36 1 701 0424', 'contact:email': 'ugyfelszolgalat@pepco.eu', 'operator': 'Pepkor Hungary Kft.', 'operator:addr': '1138 Budapest, Váci út 187.', " + POS_HU_GEN + PAY_CASH + " }",
-                         'poi_url_base': 'https://pepco.hu', 'poi_search_name': 'pepco',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-                         'osm_search_distance_unsafe': 5}]
+        hupepcoclo = self.tags
+        hupepcoclo.update(POS_HU_GEN)
+        hupepcoclo.update(PAY_CASH)
+        self.__types = [
+            {'poi_code': 'hupepcoclo', 'poi_name': 'Pepco', 'poi_type': 'clothes',
+             'poi_tags': hupepcoclo, 'poi_url_base': 'https://pepco.hu', 'poi_search_name': 'pepco',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
+             'osm_search_distance_unsafe': 5},
+        ]
         return self.__types
 
     def process(self):

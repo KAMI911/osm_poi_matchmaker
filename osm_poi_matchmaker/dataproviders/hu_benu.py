@@ -24,19 +24,24 @@ class hu_benu(DataProvider):
 
     def constains(self):
         self.link = 'https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1'
-        self.POI_COMMON_TAGS = ""
+        self.tags = {'brand': 'Benu gyógyszertár', 'dispensing': 'yes',
+                     'contact:facebook': 'https://www.facebook.com/BENUgyogyszertar',
+                     'contact:youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg',
+                     'air_conditioning': 'yes', }
+        self.tags.update(POS_HU_GEN)
+        self.tags.update(PAY_CASH)
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
-                         'poi_tags': "{'amenity': 'pharmacy', 'brand': 'Benu gyógyszertár', 'dispensing': 'yes', "
-                                     + POS_HU_GEN + PAY_CASH + " 'contact:facebook':'https://www.facebook.com/BENUgyogyszertar', "
-                                                               "'contact:youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg', "
-                                                               "'air_conditioning': 'yes'}",
-                         'poi_url_base': 'https://benu.hu', 'poi_search_name': '(benu gyogyszertár|benu)',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-                         'osm_search_distance_unsafe': 20, 'preserve_original_name': True}]
+        hubenupha = {'amenity': 'pharmacy'}
+        self.__types = [
+            {'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
+             'poi_tags': hubenupha, 'poi_url_base': 'https://benu.hu',
+             'poi_search_name': '(benu gyogyszertár|benu)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
+             'osm_search_distance_unsafe': 20, 'preserve_original_name': True},
+        ]
         return self.__types
 
     def process(self):

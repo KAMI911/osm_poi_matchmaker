@@ -23,20 +23,23 @@ class hu_obi(DataProvider):
 
     def constains(self):
         self.link = 'https://www.obi.hu/storeLocatorRest/v1/stores/getAllByCountry/hu/hu?fields=name,address,phone,services,hours,storeNumber,path,email'
-        self.POI_COMMON_TAGS = "'shop': 'doityourself', 'brand': 'OBI', 'brand:wikidata': 'Q300518', " \
-                               "'brand:wikipedia': 'en:Obi (store)', 'operator': 'OBI Hungary Retail Kft.', " \
-                               "'operator:addr': '1097 Budapest, Könyves Kálmán körút 12-14', " \
-                               "'ref:vatin:hu': '13136062-2-44', 'ref:vatin': 'HU13136062', " \
-                               " 'wheelchair': 'yes', 'air_conditioning': 'yes', "
+        self.tags = {'shop': 'doityourself', 'brand': 'OBI', 'brand:wikidata': 'Q300518',
+                     'brand:wikipedia': 'en:Obi (store)', 'operator': 'OBI Hungary Retail Kft.',
+                     'operator:addr': '1097 Budapest, Könyves Kálmán körút 12-14',
+                     'ref:vatin:hu': '13136062-2-44', 'ref:vatin': 'HU13136062',
+                     'wheelchair': 'yes', 'air_conditioning': 'yes', }
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'huobidiy', 'poi_name': 'OBI', 'poi_type': 'doityourself',
-                         'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "}",
-                         'poi_url_base': 'https://www.obi.hu', 'poi_search_name': 'obi',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-                         'osm_search_distance_unsafe': 15}]
+        huobidiy = self.tags
+        huobidiy.update(POS_HU_GEN)
+        huobidiy.update(PAY_CASH)
+        self.__types = [
+            {'poi_code': 'huobidiy', 'poi_name': 'OBI', 'poi_type': 'doityourself',
+             'poi_tags': huobidiy, 'poi_url_base': 'https://www.obi.hu', 'poi_search_name': 'obi',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
+        ]
         return self.__types
 
     def process(self):

@@ -21,20 +21,31 @@ class hu_shell(DataProvider):
 
     def constains(self):
         self.link = 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL'
-        self.POI_COMMON_TAGS = ""
+        self.tags = {'amenity': 'fuel', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}
+        self.tags.update(POS_HU_GEN)
+        self.tags.update(PAY_CASH)
         self.filetype = FileType.csv
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel',
-                         'poi_tags': "{'amenity': 'fuel', 'brand': 'Shell', 'contact:phone': '+36 1 480 1114', 'contact:fax': '+36 1 999 8673', 'contact:website': 'https://shell.hu/', 'contact:facebook': 'https://www.facebook.com/ShellMagyarorszag/', 'contact:twitter': 'shell', " + POS_HU_GEN + PAY_CASH + " 'brand:wikidata': 'Q154950', 'brand:wikipedia': 'hu:Royal Dutch Shell', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}",
-                         'poi_url_base': 'https://shell.hu', 'poi_search_name': 'shell',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
-                         'osm_search_distance_unsafe': 60},
-                        # {'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel',
-                        #  'poi_tags': "{'amenity': 'fuel', 'brand': 'Mobil Petrol', 'contact:email': 'info@mpetrol.hu', 'contact:facebook': 'https://www.facebook.com/mpetrolofficial/', 'name': 'Mobil Petrol', 'operator:addr': '1095 Budapest, Ipar utca 2.', 'operator': 'MPH Power Zrt.', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
-                        #  'poi_url_base': 'http://mpetrol.hu/', 'poi_search_name': '(m petrol|m. petrol|mobil metrol|shell)', 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60}
-                        ]
+        hushellfu = self.tags
+        hushellfu.update({'brand': 'Shell', 'contact:phone': '+36 1 480 1114',
+                          'contact:fax': '+36 1 999 8673', 'contact:website': 'https://shell.hu/',
+                          'contact:facebook': 'https://www.facebook.com/ShellMagyarorszag/', 'contact:twitter': 'shell',
+                          'brand:wikidata': 'Q154950', 'brand:wikipedia': 'hu:Royal Dutch Shell',
+                          'air_conditioning': 'yes'})
+        humobpefu = self.tags
+        humobpefu.update({'brand': 'Mobil Petrol', 'contact:email': 'info@mpetrol.hu',
+                          'contact:facebook': 'https://www.facebook.com/mpetrolofficial/', 'name': 'Mobil Petrol',
+                          'operator:addr': '1095 Budapest, Ipar utca 2.', 'operator': 'MPH Power Zrt.'})
+        self.__types = [
+            {'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel', 'poi_tags': hushellfu,
+             'poi_url_base': 'https://shell.hu', 'poi_search_name': 'shell',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
+            # {'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel', 'poi_tags': humobpefu,
+            #  'poi_url_base': 'http://mpetrol.hu/', 'poi_search_name': '(m petrol|m. petrol|mobil metrol|shell)',
+            #  'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
+        ]
         return self.__types
 
     def process(self):
@@ -56,11 +67,11 @@ class hu_shell(DataProvider):
                     elif poi_data['Brand'] == 'Mobilpetrol':
                         # It seems Mobil Petrol data is outdated so do not process here
                         continue
-                        '''
+                        """
                         self.data.name = 'M. Petrol'
                         self.data.code = 'humobpefu'
                         self.data.website = 'http://mpetrol.hu/'
-                        '''
+                        """
                     self.data.postcode = poi_data.get('Post code') if poi_data.get('Post code') != '' else None
                     street_tmp = poi_data['Address'].lower().split()
                     for i in range(0, len(street_tmp) - 2):

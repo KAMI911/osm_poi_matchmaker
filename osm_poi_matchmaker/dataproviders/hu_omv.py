@@ -23,28 +23,32 @@ class hu_omv(DataProvider):
 
     def constains(self):
         self.link = 'https://app.wigeogis.com/kunden/omvpetrom/data/getresults.php'
-        self.POI_COMMON_TAGS = "'amenity': 'fuel', 'name': 'OMV', 'brand': 'OMV', 'fuel:diesel': 'yes', " \
-                               "'fuel:octane_95': 'yes', 'air_conditioning': 'yes', 'brand:wikidata': 'Q168238', " \
-                               "'brand:wikipedia': 'en:OMV', 'operator': 'OMV Hungária Kft.', " \
-                               "'operator:addr': '1117 Budapest, Október huszonharmadika utca 6-10 5. emelet 5/A.', " \
-                               "'ref:vatin:hu': '10542925-2-44', 'ref:vatin': 'HU10542925', " \
-                               "'ref:HU:company': '01-09-071584', 'contact:email': 'info.hungary@omv.com', " \
-                               "'contact:facebook': 'https://www.facebook.com/omvmagyarorszag', " \
-                               "'contact:fax': '+36 1 381 9899', 'contact:twitter': 'omv', " \
-                               "'contact:linkedin': 'https://www.linkedin.com/company/omv', " \
-                               "'contact:instagram': 'https://www.instagram.com/omv/', " \
-                               "'contact:youtube': 'https://www.youtube.com/user/omvofficial', "
+        self.tags = {'amenity': 'fuel', 'name': 'OMV', 'brand': 'OMV', 'fuel:diesel': 'yes',
+                     'fuel:octane_95': 'yes', 'air_conditioning': 'yes', 'brand:wikidata': 'Q168238',
+                     'brand:wikipedia': 'en:OMV', 'operator': 'OMV Hungária Kft.',
+                     'operator:addr': '1117 Budapest, Október huszonharmadika utca 6-10 5. emelet 5/A.',
+                     'ref:vatin:hu': '10542925-2-44', 'ref:vatin': 'HU10542925',
+                     'ref:HU:company': '01-09-071584', 'contact:email': 'info.hungary@omv.com',
+                     'contact:facebook': 'https://www.facebook.com/omvmagyarorszag',
+                     'contact:fax': '+36 1 381 9899', 'contact:twitter': 'omv',
+                     'contact:linkedin': 'https://www.linkedin.com/company/omv',
+                     'contact:instagram': 'https://www.instagram.com/omv/',
+                     'contact:youtube': 'https://www.youtube.com/user/omvofficial'}
         self.post = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'ANZ': '5',
                      'HASH': '23126a64295e2cf2a5e41f33fd4b0c416e09b0b8', 'TS': '1583951283'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
-                         'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "}",
-                         'poi_url_base': 'https://www.omv.hu', 'poi_search_name': '(omv|omw|ömv|ömw|ovm|owm)',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 450,
-                         'osm_search_distance_unsafe': 60}]
+        huomvfu = self.tags
+        huomvfu.update(POS_HU_GEN)
+        huomvfu.update(PAY_CASH)
+        self.__types = [
+            {'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
+             'poi_tags': huomvfu, 'poi_url_base': 'https://www.omv.hu', 'poi_search_name': '(omv|omw|ömv|ömw|ovm|owm)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 450,
+             'osm_search_distance_unsafe': 60},
+        ]
         return self.__types
 
     def process(self):

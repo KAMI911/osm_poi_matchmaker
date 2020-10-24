@@ -23,18 +23,20 @@ class hu_tom_market(DataProvider):
 
     def constains(self):
         self.link = 'https://tommarket.hu/boltkereso/get_stores/46?county=&settlement='
-        self.POI_COMMON_TAGS = "'shop': 'convenience', 'name': 'Tom Market', " + \
-                               "'contact:facebook': 'https://www.facebook.com/TOM.Market.Magyarorszag', " + \
-                               POS_OTP + PAY_CASH
+        self.tags = {'shop': 'convenience', 'name': 'Tom Market',
+                     'contact:facebook': 'https://www.facebook.com/TOM.Market.Magyarorszag'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'hutommacon', 'poi_name': 'Tom Market', 'poi_type': 'shop',
-                         'poi_tags': "{" + self.POI_COMMON_TAGS + "}",
-                         'poi_url_base': 'https://tommarket.hu', 'poi_search_name': 'tom market|tommarket', \
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
-                        ]
+        hutommacon = self.tags
+        hutommacon.update(POS_OTP)
+        hutommacon.update(PAY_CASH)
+        self.__types = [
+            {'poi_code': 'hutommacon', 'poi_name': 'Tom Market', 'poi_type': 'shop',
+             'poi_tags': hutommacon, 'poi_url_base': 'https://tommarket.hu', 'poi_search_name': 'tom market|tommarket',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
+        ]
         return self.__types
 
     def process(self):

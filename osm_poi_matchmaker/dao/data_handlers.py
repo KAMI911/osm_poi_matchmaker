@@ -62,6 +62,39 @@ def get_or_create_poi(session, model, **kwargs):
             raise e
 
 
+def get_or_create_cache(session, model, **kwargs):
+    if kwargs.get('osm_id') is not None and kwargs.get('osm_object_type'):
+        instance = session.query(model) \
+            .filter_by(osm_id=kwargs.get('osm_id')).filter_by(osm_object_type=kwargs.get('poi_addr_city')).first()
+    if instance:
+        logging.debug('Already added: %s', instance)
+        return instance
+    else:
+        try:
+            instance = model(**kwargs)
+            session.add(instance)
+            return instance
+        except Exception as e:
+            logging.error('Cannot add to the database. (%s)', e)
+            logging.exception('Exception occurred')
+            raise e
+
+def get_or_create_common(session, model, **kwargs):
+    if kwargs['poi_code'] is not None and kwargs['poi_code'] != '':
+        instance = session.query(model).filter_by(poi_code=kwargs['poi_code']).first()
+    if instance:
+        logging.debug('Already added: %s', instance)
+        return instance
+    else:
+        try:
+            instance = model(**kwargs)
+            session.add(instance)
+            return instance
+        except Exception as e:
+            logging.error('Cannot add to the database. (%s)', e)
+            logging.exception('Exception occurred')
+            raise e
+
 def insert_city_dataframe(session, city_df):
     city_df.columns = ['city_post_code', 'city_name']
     try:
@@ -100,7 +133,7 @@ def insert_common_dataframe(session, common_df):
     common_df.columns = ['poi_name', 'poi_tags', 'poi_url_base', 'poi_code']
     try:
         for index, poi_common_data in common_df.iterrows():
-            get_or_create(session, POI_common, **poi_common_data)
+            get_or_create_common(session, POI_common, **poi_common_data)
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(poi_common_data)
@@ -155,7 +188,7 @@ def insert_poi_dataframe(session, poi_df):
 def insert_type(session, type_data):
     try:
         for i in type_data:
-            get_or_create(session, POI_common, **i)
+            get_or_create_common(session, POI_common, **i)
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(i)
@@ -181,7 +214,7 @@ def insert(session, **kwargs):
                 'utf-8')).hexdigest()
         if 'poi_name' in kwargs: del kwargs['poi_name']
         if 'poi_code' in kwargs: del kwargs['poi_code']
-        get_or_create(session, POI_address, **kwargs)
+        get_or_create_poi(session, POI_address, **kwargs)
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(kwargs)

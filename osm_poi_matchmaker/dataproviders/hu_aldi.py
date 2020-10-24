@@ -20,23 +20,27 @@ class hu_aldi(DataProvider):
 
     def constains(self):
         self.link = 'https://www.aldi.hu/uzletek/'
-        self.POI_COMMON_TAGS = "'operator': 'ALDI Magyarország Élelmiszer Bt.', " \
-                               "'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi'," \
-                               "'ref:vatin:hu':'22234663-2-44', 'ref:vatin':'HU22234663', " \
-                               "'ref:HU:company':'13 06 058506', 'brand:wikipedia':'hu:Aldi', " \
-                               "'brand:wikidata':'Q125054', " \
-                               "'contact:facebook': 'https://www.facebook.com/ALDI.Magyarorszag', " \
-                               "'contact:youtube':'https://www.youtube.com/user/ALDIMagyarorszag', " \
-                               "'contact:instagram':'https://www.instagram.com/aldi.magyarorszag', " \
-                               + POS_HU_GEN + PAY_CASH + \
-                               "'air_conditioning': 'yes', "
+        self.tags = {'operator': 'ALDI Magyarország Élelmiszer Bt.',
+                     'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi',
+                     'ref:vatin:hu': '22234663-2-44', 'ref:vatin': 'HU22234663',
+                     'ref:HU:company': '13 06 058506', 'brand:wikipedia': 'hu:Aldi',
+                     'brand:wikidata': 'Q125054',
+                     'contact:facebook': 'https://www.facebook.com/ALDI.Magyarorszag',
+                     'contact:youtube': 'https://www.youtube.com/user/ALDIMagyarorszag',
+                     'contact:instagram': 'https://www.instagram.com/aldi.magyarorszag',
+                     'air_conditioning': 'yes', }
+        self.tags.update(POS_HU_GEN)
+        self.tags.update(PAY_CASH)
         self.filetype = FileType.html
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'hualdisup', 'poi_name': 'Aldi', 'poi_type': 'shop',
-                         'poi_tags': "{'shop': 'supermarket', " + self.POI_COMMON_TAGS + "}",
-                         'poi_url_base': 'https://www.aldi.hu', 'poi_search_name': 'aldi'}]
+        hualdisup = {'shop': 'supermarket'}
+        hualdisup.update(self.tags)
+        self.__types = [
+            {'poi_code': 'hualdisup', 'poi_name': 'Aldi', 'poi_type': 'shop', 'poi_tags': hualdisup,
+             'poi_url_base': 'https://www.aldi.hu', 'poi_search_name': 'aldi'},
+        ]
         return self.__types
 
     def process(self):

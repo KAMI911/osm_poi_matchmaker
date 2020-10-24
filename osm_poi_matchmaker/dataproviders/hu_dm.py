@@ -22,22 +22,26 @@ class hu_dm(DataProvider):
 
     def constains(self):
         self.link = 'https://services.dm.de/storedata/stores/bbox/49%2C16%2C45%2C23'
-        self.POI_COMMON_TAGS = "'shop': 'chemist', 'operator': 'dm Kft.', 'brand': 'dm',  " \
-                               "'brand:wikidata': 'Q266572', 'brand:wikipedia': 'en:Dm-drogerie markt', " \
-                               "'contact:facebook':'https://www.facebook.com/dm.Magyarorszag', " \
-                               "'contact:youtube': 'https://www.youtube.com/user/dmMagyarorszag', " \
-                               "'contact:instagram':'https://www.instagram.com/dm_magyarorszag', " \
-                               "'ref:vatin': 'HU11181530', 'ref:vatin:hu': '11181530-2-44', " \
-                               "'ref:HU:company': '13 09 078006', "
+        self.tags = {'shop': 'chemist', 'operator': 'dm Kft.', 'brand': 'dm',
+                     'brand:wikidata': 'Q266572', 'brand:wikipedia': 'en:Dm-drogerie markt',
+                     'contact:facebook': 'https://www.facebook.com/dm.Magyarorszag',
+                     'contact:youtube': 'https://www.youtube.com/user/dmMagyarorszag',
+                     'contact:instagram': 'https://www.instagram.com/dm_magyarorszag',
+                     'ref:vatin': 'HU11181530', 'ref:vatin:hu': '11181530-2-44', 'ref:HU:company': '13 09 078006',
+                     'air_conditioning': 'yes'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'hudmche', 'poi_name': 'dm', 'poi_type': 'chemist',
-                         'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
-                         'poi_url_base': 'https://www.dm.hu', 'poi_search_name': 'dm',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-                         'osm_search_distance_unsafe': 15}]
+        hudmche = self.tags
+        hudmche.update(POS_HU_GEN)
+        hudmche.update(PAY_CASH)
+        self.__types = [
+            {'poi_code': 'hudmche', 'poi_name': 'dm', 'poi_type': 'chemist',
+             'poi_tags': hudmche, 'poi_url_base': 'https://www.dm.hu', 'poi_search_name': 'dm',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
+             'osm_search_distance_unsafe': 15},
+        ]
         return self.__types
 
     def process(self):

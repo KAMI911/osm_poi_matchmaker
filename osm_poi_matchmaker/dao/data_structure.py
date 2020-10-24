@@ -4,7 +4,7 @@ try:
     import logging
     import sys
     from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, UniqueConstraint
-    from sqlalchemy import Boolean, Integer, BigInteger, Unicode, DateTime, Time, Enum, Float, func
+    from sqlalchemy import Boolean, Integer, BigInteger, Unicode, DateTime, Time, Enum, Float, JSON, func
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import synonym, relationship
     from geoalchemy2 import Geometry
@@ -153,7 +153,7 @@ class POI_common(Base):
     id = synonym('pc_id')
     poi_name = Column(Unicode(64), unique=False, nullable=False, index=True)
     poi_type = Column(Enum(POI_type))
-    poi_tags = Column(Unicode(2048), nullable=False, index=True)
+    poi_tags = Column(JSON, nullable=False, index=False)
     poi_url_base = Column(Unicode(32))
     poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
     poi_search_name = Column(Unicode(64))
@@ -184,7 +184,7 @@ class POI_OSM_cache(Base):
     osm_lon = Column(Float, nullable=True, index=True)
     osm_nodes = Column(Unicode(1024), nullable=True, index=False)
     # osm_distance = Column(Integer, nullable=True, index=False)
-    osm_live_tags = Column(Unicode(2048), nullable=True, index=True)
+    osm_live_tags = Column(JSON, nullable=True, index=False)
 
 
 class City(Base):

@@ -22,25 +22,31 @@ class hu_kh_bank():
         self.session = session
         self.download_cache = download_cache
         self.link = link
-        self.POI_COMMON_TAGS = "'brand': 'K&H', 'operator': 'K&H Bank Zrt.', " \
-                               "'operator:addr': '1095 Budapest, Lechner Ödön fasor 9.', 'bic': 'OKHBHUHB', 'ref:vatin': 'HU10195664', " \
-                               "'ref:vatin:hu': '10195664-4-44', 'ref:HU:company': '01 10 041043',"
+        self.tags = {'brand': 'K&H', 'operator': 'K&H Bank Zrt.',
+                     'operator:addr': '1095 Budapest, Lechner Ödön fasor 9.', 'bic': 'OKHBHUHB',
+                     'ref:vatin': 'HU10195664', 'ref:vatin:hu': '10195664-4-44', 'ref:HU:company': '01 10 041043', }
         self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        data = [{'poi_code': 'hukhbank', 'poi_name': 'K&H Bank', 'poi_type': 'bank',
-                 'poi_tags': "{'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes', " + \
-                             self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.kh.hu', 'poi_search_name': '(kh bank|k&h bank|k&h|kh)',
-                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 4},
-                {'poi_code': 'hukhatm', 'poi_name': 'K&H Bank ATM', 'poi_type': 'atm',
-                 'poi_tags': "{'amenity': 'atm', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.kh.hu', 'poi_search_name': '(kh bank atm|k&h bank atm|k&h atm|kh atm)',
-                 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 3}]
-        return data
+        hukhbank = {'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes', }
+        hukhbank.update(self.tags)
+        hukhatm = {'amenity': 'atm'}
+        hukhatm.update(self.tags)
+        self.__types = [
+            {'poi_code': 'hukhbank', 'poi_name': 'K&H Bank', 'poi_type': 'bank',
+             'poi_tags': hukhbank, 'poi_url_base': 'https://www.kh.hu',
+             'poi_search_name': '(kh bank|k&h bank|k&h|kh)', 'osm_search_distance_perfect': 2000,
+             'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 4},
+            {'poi_code': 'hukhatm', 'poi_name': 'K&H Bank ATM', 'poi_type': 'atm',
+             'poi_tags': hukhatm, 'poi_url_base': 'https://www.kh.hu',
+             'poi_search_name': '(kh bank atm|k&h bank atm|k&h atm|kh atm)',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80,
+             'osm_search_distance_unsafe': 3},
+        ]
+        return self.__types
 
     def process(self):
         try:

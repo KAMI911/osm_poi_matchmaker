@@ -13,7 +13,7 @@ try:
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type, POI_OSM_cache
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
-    from osm_poi_matchmaker.dao.data_handlers import get_or_create
+    from osm_poi_matchmaker.dao.data_handlers import get_or_create, get_or_create_cache
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -75,8 +75,7 @@ def online_poi_matching(args):
                     # Refine postcode
                     if row['preserve_original_post_code'] is not True:
                         # Current OSM postcode based on lat,long query.
-                        postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session,
-                                                               lon, lat, row.get('poi_postcode'))
+                        postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session, lon, lat, row.get('poi_postcode'))
                         force_postcode_change = False  # TODO: Has to be a setting in app.conf
                         if force_postcode_change is True:
                             # Force to use datasource postcode
@@ -137,7 +136,7 @@ def online_poi_matching(args):
                                                      'osm_lat': None,
                                                      'osm_lon': None,
                                                      'osm_nodes': str(live_tags_container.get('nd'))}
-                                        get_or_create(session, POI_OSM_cache, **cache_row)
+                                        get_or_create_cache(session, POI_OSM_cache, **cache_row)
                                         # Downloading referenced nodes of the way
                                         for way_nodes in live_tags_container['nd']:
                                             logging.debug('Getting node %s belongs to way %s', way_nodes, osm_id)
@@ -153,7 +152,7 @@ def online_poi_matching(args):
                                                          'osm_lat': live_tags_node.get('lat'),
                                                          'osm_lon': live_tags_node.get('lon'),
                                                          'osm_nodes': None}
-                                            get_or_create(session, POI_OSM_cache, **cache_row)
+                                            get_or_create_cache(session, POI_OSM_cache, **cache_row)
                                         break
                                     else:
                                         logging.warning('Download of external data has failed.')
@@ -181,7 +180,7 @@ def online_poi_matching(args):
                                                      'osm_lat': live_tags_container.get('lat'),
                                                      'osm_lon': live_tags_container.get('lon'),
                                                      'osm_nodes': None}
-                                        get_or_create(session, POI_OSM_cache, **cache_row)
+                                        get_or_create_cache(session, POI_OSM_cache, **cache_row)
                                         break
                                     else:
                                         logging.warning('Download of external data has failed.')

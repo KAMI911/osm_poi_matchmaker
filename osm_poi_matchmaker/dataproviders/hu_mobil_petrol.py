@@ -25,14 +25,22 @@ class hu_mobil_petrol(DataProvider):
 
     def constains(self):
         self.link = 'http://www.mpetrol.hu/'
-        self.POI_COMMON_TAGS = ""
+        self.tags = {'amenity': 'fuel', 'brand': 'Mobil Petrol', 'contact:email': 'info@mpetrol.hu',
+                     'contact:facebook': 'https://www.facebook.com/mpetrolofficial/', 'name': 'Mobil Petrol',
+                     'operator:addr': '1095 Budapest, Ipar utca 2.', 'operator': 'MPH Power Zrt.', 'fuel:diesel': 'yes',
+                     'fuel:octane_95': 'yes'}
         self.filetype = FileType.html
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel',
-                         'poi_tags': "{'amenity': 'fuel', 'brand': 'Mobil Petrol', 'contact:email': 'info@mpetrol.hu', 'contact:facebook': 'https://www.facebook.com/mpetrolofficial/', 'name': 'Mobil Petrol', 'operator:addr': '1095 Budapest, Ipar utca 2.', 'operator': 'MPH Power Zrt.', " + POS_HU_GEN + PAY_CASH + "'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}",
-                         'poi_url_base': 'http://mpetrol.hu/', 'poi_search_name': '(mobil metrol|shell)'}]
+        humobpefu = self.tags
+        humobpefu.update(POS_HU_GEN)
+        humobpefu.update(PAY_CASH)
+        self.__types = [
+            {'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel',
+             'poi_tags': humobpefu, 'poi_url_base': 'http://mpetrol.hu/',
+             'poi_search_name': '(mobil metrol|shell)'},
+        ]
         return self.__types
 
     def process(self):

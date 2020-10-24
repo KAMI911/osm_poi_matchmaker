@@ -22,16 +22,26 @@ class hu_penny_market(DataProvider):
 
     def constains(self):
         self.link = 'https://www.penny.hu/stores-map-data'
-        self.POI_COMMON_TAGS = ""
+        self.tags = {'shop': 'supermarket', 'operator': 'Penny Market Kft.', 'brand': 'Penny Market',
+                     'brand:wikidata': 'Q284688', 'brand:wikipedia': 'en:Penny (supermarket)',
+                     'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'PENNY FREE WLAN',
+                     'contact:email': 'ugyfelszolgalat@penny.hu',
+                     'contact:facebook': 'https://www.facebook.com/PennyMarketMagyarorszag',
+                     'contact:instagram': 'https://www.instagram.com/pennymarkethu',
+                     'contact:youtube': 'https://www.youtube.com/channel/UCSy0KKUrDxVWkx8qicky_pQ',
+                     'ref:vatin:hu': '10969629-2-44', 'ref:vatin': 'HU10969629'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'hupennysup', 'poi_name': 'Penny Market', 'poi_type': 'shop',
-                         'poi_tags': "{'shop': 'supermarket', 'operator': 'Penny Market Kft.', 'brand': 'Penny Market', 'brand:wikidata': 'Q284688', 'brand:wikipedia': 'en:Penny (supermarket)', 'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'PENNY FREE WLAN', 'contact:email': 'ugyfelszolgalat@penny.hu', 'contact:facebook': 'https://www.facebook.com/PennyMarketMagyarorszag', 'contact:instagram': 'https://www.instagram.com/pennymarkethu', 'contact:youtube': 'https://www.youtube.com/channel/UCSy0KKUrDxVWkx8qicky_pQ', " + POS_HU_GEN + PAY_CASH + "'ref:vatin:hu': '10969629-2-44', 'ref:vatin': 'HU10969629'}",
-                         'poi_url_base': 'https://www.penny.hu', 'poi_search_name': 'penny',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-                         'osm_search_distance_unsafe': 15}]
+        hupennysup = self.tags
+        hupennysup.update(POS_HU_GEN)
+        hupennysup.update(PAY_CASH)
+        self.__types = [
+            {'poi_code': 'hupennysup', 'poi_name': 'Penny Market', 'poi_type': 'shop',
+             'poi_tags': hupennysup, 'poi_url_base': 'https://www.penny.hu', 'poi_search_name': 'penny',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
+        ]
         return self.__types
 
     def process(self):

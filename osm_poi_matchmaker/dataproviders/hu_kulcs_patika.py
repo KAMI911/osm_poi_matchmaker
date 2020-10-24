@@ -21,7 +21,7 @@ class hu_kulcs_patika(DataProvider):
 
     def constains(self):
         self.link = 'https://kulcspatikak.hu/gykeress_feed.php'
-        self.POI_COMMON_TAGS = ""
+        self.tags = {'amenity': 'pharmacy', 'brand': 'Kulcs Patika', 'dispensing': 'yes', 'air_conditioning': 'yes'}
         self.headers = {'Referer': 'https://kulcspatikak.hu/patikakereso',
                         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0',
                         'Accept': 'application/json, text/javascript, */*; q=0.01'}
@@ -30,11 +30,15 @@ class hu_kulcs_patika(DataProvider):
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
-                         'poi_tags': "{'amenity': 'pharmacy', 'brand': 'Kulcs Patika', 'dispensing': 'yes', "
-                                     + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
-                         'poi_url_base': 'https://www.kulcspatika.hu/', 'poi_search_name': '(kulcs patika|kulcs)',
-                         'preserve_original_name': True}]
+        hukulcspha = self.tags
+        hukulcspha.update(POS_HU_GEN)
+        hukulcspha.update(PAY_CASH)
+        self.__types = [
+            {'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
+             'poi_tags': hukulcspha,
+             'poi_url_base': 'https://www.kulcspatika.hu/', 'poi_search_name': '(kulcs patika|kulcs)',
+             'preserve_original_name': True},
+        ]
         return self.__types
 
     def process(self):

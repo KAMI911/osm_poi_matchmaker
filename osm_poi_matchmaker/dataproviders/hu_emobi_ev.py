@@ -23,25 +23,24 @@ class hu_emobi_ev(DataProvider):
 
     def constains(self):
         self.link = os.path.join(config.get_directory_cache_url(), 'hu_emobi_ev.csv')
-        self.POI_COMMON_TAGS = ""
+        self.tags = {'amenity': 'charging_station', 'authentication:app': 'yes', 'authentication:none': 'yes',
+                     'authentication:membership_card': 'yes', 'operator': 'e-Mobi Elektromobilitás Nonprofit Kft.',
+                     'operator:addr': '1037 Budapest, Montevideo utca 2/C', 'fee': 'yes', 'parking:fee': 'no',
+                     'opening_hours': '24/7', 'ref:vatin': 'HU25539431', 'ref:vatin:hu': '25539431-2-41',
+                     'ref:HU:company': '01 09 281052', 'alt_name': 'e-mobi', 'contact:website': 'https://e-mobi.hu/hu',
+                     'contact:email': 'kapcsolat@e-mobi.hu', 'contact:phone': '+36 80 210 012',
+                     'contact:facebook': 'https://www.facebook.com/elektromobilitas', }
         self.filetype = FileType.csv
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'huemobichs', 'poi_name': 'e-töltőpont', 'poi_type': 'charging_station',
-                         'poi_tags': "{'amenity': 'charging_station', 'authentication:app': 'yes',"
-                                     "'authentication:none': 'yes', 'authentication:membership_card': 'yes', "
-                                     "'operator': 'e-Mobi Elektromobilitás Nonprofit Kft.', "
-                                     "'operator:addr': '1037 Budapest, Montevideo utca 2/C', 'fee': 'yes',"
-                                     "'parking:fee': 'no', 'opening_hours': '24/7', 'ref:vatin': 'HU25539431', "
-                                     "'ref:vatin:hu': '25539431-2-41', 'ref:HU:company': '01 09 281052', "
-                                     "'alt_name': 'e-mobi', 'contact:website': 'https://e-mobi.hu/hu',"
-                                     "'contact:email': 'kapcsolat@e-mobi.hu', 'contact:phone': '+36 80 210 012', "
-                                     "'contact:facebook': 'https://www.facebook.com/elektromobilitas' }",
-                         'poi_url_base': 'https://e-mobi.hu/', 'poi_search_name': '(e-mobi|emobi|e-töltőpont)',
-                         'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
-                         'osm_search_distance_unsafe': 10},
-                        ]
+        self.__types = [
+            {'poi_code': 'huemobichs', 'poi_name': 'e-töltőpont', 'poi_type': 'charging_station',
+             'poi_tags': self.tags,
+             'poi_url_base': 'https://e-mobi.hu/', 'poi_search_name': '(e-mobi|emobi|e-töltőpont)',
+             'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
+             'osm_search_distance_unsafe': 10},
+        ]
         return self.__types
 
     def process(self):

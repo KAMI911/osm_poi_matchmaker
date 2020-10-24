@@ -21,16 +21,18 @@ class hu_mol(DataProvider):
 
     def constains(self):
         self.link = 'hhttp://trafikok.nemzetidohany.hu/mind.jsonp'
-        self.POI_COMMON_TAGS = ""
+        self.tags = {'shop': 'tobacco'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'hunemdoto', 'poi_name': 'Nemzeti dohánybolt', 'poi_type': 'tobacco',
-                         'poi_tags': "{'shop': 'tobacco'}",
-                         'poi_url_base': 'https://www.nemzetidohany.hu/',
-                         'poi_search_name': '(nemzeti dohánybolt|dohánybolt)', 'osm_search_distance_safe': 200,
-                         'osm_search_distance_unsafe': 0}]
+        hunemdoto = self.tags
+        self.__types = [
+            {'poi_code': 'hunemdoto', 'poi_name': 'Nemzeti dohánybolt', 'poi_type': 'tobacco',
+             'poi_tags': hunemdoto, 'poi_url_base': 'https://www.nemzetidohany.hu/',
+             'poi_search_name': '(nemzeti dohánybolt|dohánybolt)', 'osm_search_distance_safe': 200,
+             'osm_search_distance_unsafe': 0},
+        ]
         return self.__types
 
     def process(self):

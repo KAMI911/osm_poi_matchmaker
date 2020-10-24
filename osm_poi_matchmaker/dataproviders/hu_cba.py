@@ -24,32 +24,39 @@ class hu_cba(DataProvider):
 
     def constains(self):
         self.link = 'http://www.cba.hu/uzletlista'
-        self.POI_COMMON_TAGS = ""
+        self.tags = {}
+        self.tags.update(POS_HU_GEN)
+        self.tags.update(PAY_CASH)
         self.filetype = FileType.html
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
+        hucbacon = {'shop': 'convenience', 'brand': 'CBA', }
+        hucbasup = {'shop': 'supermarket', 'brand': 'CBA', }
+        huprimacon = {'shop': 'convenience', 'brand': 'Príma', }
+        huprimasup = {'shop': 'supermarket', 'brand': 'Príma', }
+        for i in [hucbacon, hucbasup, huprimacon, huprimasup]:
+            i.update(self.tags)
         self.__types = [
             {'poi_code': 'hucbacon', 'poi_name': 'CBA', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'convenience', 'brand': 'CBA', " + POS_HU_GEN + PAY_CASH + "}",
-             'poi_url_base': 'https://www.cba.hu', 'poi_search_name': '(cba abc|cba)',
+             'poi_tags': hucbacon, 'poi_url_base': 'https://www.cba.hu', 'poi_search_name': '(cba abc|cba)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 5,
              'preserve_original_name': True},
             {'poi_code': 'hucbasup', 'poi_name': 'CBA', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'supermarket', 'brand': 'CBA',  'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
-             'poi_url_base': 'https://www.cba.hu', 'poi_search_name': '(cba abc|cba)',
+             'poi_tags': hucbasup, 'poi_url_base': 'https://www.cba.hu', 'poi_search_name': '(cba abc|cba)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 5,
              'preserve_original_name': True},
             {'poi_code': 'huprimacon', 'poi_name': 'Príma', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'convenience', 'brand': 'Príma',  'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
-             'poi_url_base': 'https://www.prima.hu', 'poi_search_name': '(príma abc|prima abc|príma|prima)',
+             'poi_tags': huprimacon, 'poi_url_base': 'https://www.prima.hu',
+             'poi_search_name': '(príma abc|prima abc|príma|prima)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 23,
              'preserve_original_name': True},
             {'poi_code': 'huprimasup', 'poi_name': 'Príma', 'poi_type': 'shop',
-             'poi_tags': "{'shop': 'supermarket', 'brand': 'Príma',  'payment:cash': 'yes', 'payment:debit_cards': 'yes'}",
-             'poi_url_base': 'https://www.prima.hu', 'poi_search_name': '(príma abc|prima abc|príma|prima)',
+             'poi_tags': huprimasup, 'poi_url_base': 'https://www.prima.hu',
+             'poi_search_name': '(príma abc|prima abc|príma|prima)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 23,
-             'preserve_original_name': True}]
+             'preserve_original_name': True},
+        ]
         return self.__types
 
     def process(self):

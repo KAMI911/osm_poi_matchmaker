@@ -23,24 +23,22 @@ class hu_mobiliti_ev(DataProvider):
 
     def constains(self):
         self.link = os.path.join(config.get_directory_cache_url(), 'hu_mobiliti_ev.csv')
-        self.POI_COMMON_TAGS = ""
+        self.tags = {'amenity': 'charging_station', 'authentication:app': 'yes', 'authentication:none': 'yes',
+                     'authentication:membership_card': 'yes', 'operator': 'NKM Mobilitás Kft.',
+                     'operator:addr': '1081 Budapest, II. János Pál pápa tér 20.', 'fee': 'yes', 'parking:fee': 'no',
+                     'opening_hours': '24/7', 'ref:vatin': 'HU23443486', 'ref:vatin:hu': '23443486-2-42',
+                     'ref:HU:company': '01-09-965868', 'contact:website': 'https://www.mobiliti.hu/emobilitas',
+                     'contact:email': 'help@mobiliti.hu', 'contact:phone': '+36 62 565 758', }
         self.filetype = FileType.csv
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'humobilchs', 'poi_name': 'Mobiliti', 'poi_type': 'charging_station',
-                         'poi_tags': "{'amenity': 'charging_station', 'authentication:app': 'yes',"
-                                     "'authentication:none': 'yes', 'authentication:membership_card': 'yes', "
-                                     "'operator': 'NKM Mobilitás Kft.', "
-                                     "'operator:addr': '1081 Budapest, II. János Pál pápa tér 20.', 'fee': 'yes',"
-                                     "'parking:fee': 'no', 'opening_hours': '24/7', 'ref:vatin': 'HU23443486', "
-                                     "'ref:vatin:hu': '23443486-2-42', 'ref:HU:company': '01-09-965868', "
-                                     "'contact:website': 'https://www.mobiliti.hu/emobilitas',"
-                                     "'contact:email': 'help@mobiliti.hu', 'contact:phone': '+36 62 565 758'}",
-                         'poi_url_base': 'https://www.mobiliti.hu', 'poi_search_name': '(mobility)',
-                         'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
-                         'osm_search_distance_unsafe': 10},
-                        ]
+        self.__types = [
+            {'poi_code': 'humobilchs', 'poi_name': 'Mobiliti', 'poi_type': 'charging_station',
+             'poi_tags': self.tags, 'poi_url_base': 'https://www.mobiliti.hu',
+             'poi_search_name': '(mobility)', 'osm_search_distance_perfect': 50,
+             'osm_search_distance_safe': 30, 'osm_search_distance_unsafe': 10},
+        ]
         return self.__types
 
     def process(self):

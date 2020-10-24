@@ -240,8 +240,8 @@ def generate_osm_xml(df, session=None):
                 tags = {}
                 osm_live_tags = {}
             # Adding POI common tags
-            if row['poi_tags'] is not None:
-                tags.update(json.loads(row.get('poi_tags')))
+            if row.get('poi_tags') is not None:
+                tags.update(row.get('poi_tags'))
             # Save live name tags if preserve name is enabled
             try:
                 if row.get('preserve_original_name') is True:

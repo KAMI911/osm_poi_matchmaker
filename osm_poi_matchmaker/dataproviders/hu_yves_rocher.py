@@ -22,24 +22,28 @@ class hu_yves_rocher(DataProvider):
 
     def constains(self):
         self.link = 'https://storelocator.yves-rocher.eu/api/v1/map/stores'
-        self.POI_COMMON_TAGS = "'shop': 'cosmetics', 'operator': 'Yves Rocher Hungary Kft. '," \
-                               "'brand': 'Yves Rocher', 'brand:wikidata': 'Q28496595', " \
-                               "'brand:wikipedia': 'en:Yves Rocher (company)', " \
-                               "'contact:email': 'vevoszolgalat@yrnet.com', " \
-                               "'contact:facebook': 'https://www.facebook.com/YvesRocherHungary/', " \
-                               "'contact:youtube': 'https://www.youtube.com/channel/UC6GA7lucPWgbNlC_MoomB9g', " \
-                               "'contact:instagram': 'https://www.instagram.com/yves_rocher_magyarorszag/', " \
-                               "'operator:addr': '1132 Budapest, Váci út 20-26.', 'ref:vatin': 'HU10618646', " \
-                               "'ref:vatin:hu': '10618646-2-41', 'ref:HU:company': '01-09-079930', "
+        self.tags = {'shop': 'cosmetics', 'operator': 'Yves Rocher Hungary Kft. ',
+                     'brand': 'Yves Rocher', 'brand:wikidata': 'Q28496595',
+                     'brand:wikipedia': 'en:Yves Rocher (company)', 'contact:email': 'vevoszolgalat@yrnet.com',
+                     'contact:facebook': 'https://www.facebook.com/YvesRocherHungary/',
+                     'contact:youtube': 'https://www.youtube.com/channel/UC6GA7lucPWgbNlC_MoomB9g',
+                     'contact:instagram': 'https://www.instagram.com/yves_rocher_magyarorszag/',
+                     'operator:addr': '1132 Budapest, Váci út 20-26.', 'ref:vatin': 'HU10618646',
+                     'ref:vatin:hu': '10618646-2-41', 'ref:HU:company': '01-09-079930', 'air_conditioning': 'yes'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'huyvesrcos', 'poi_name': 'Yves Rocher', 'poi_type': 'cosmetics',
-                         'poi_tags': "{" + self.POI_COMMON_TAGS + POS_HU_GEN + PAY_CASH + "'air_conditioning': 'yes'}",
-                         'poi_url_base': 'https://www.yves-rocher.hu/', 'poi_search_name': 'yves rocher',
-                         'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-                         'osm_search_distance_unsafe': 15}]
+        huyvesrcos = self.tags
+        huyvesrcos.update(POS_HU_GEN)
+        huyvesrcos.update(PAY_CASH)
+        self.__types = [
+            {'poi_code': 'huyvesrcos', 'poi_name': 'Yves Rocher', 'poi_type': 'cosmetics',
+             'poi_tags': huyvesrcos, 'poi_url_base': 'https://www.yves-rocher.hu/',
+             'poi_search_name': 'yves rocher',
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
+             'osm_search_distance_unsafe': 15},
+        ]
         return self.__types
 
     def process(self):

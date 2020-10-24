@@ -22,22 +22,26 @@ class hu_cib_bank():
         self.session = session
         self.download_cache = download_cache
         self.link = link
-        self.POI_COMMON_TAGS = "'brand': 'CIB', 'operator': 'CIB Bank Zrt.', " \
-                               "'operator:addr': '1027 Budapest, Medve u 4-14.', 'bic': 'CIBHHUHB', " \
-                               "'ref:vatin': 'HU10136915', 'ref:vatin:hu': '10136915-4-44', 'ref:HU:company': '01 10 041004', " \
-                               "'brand': 'CIB Bank', 'brand:wikidata': 'Q839566', 'brand:wikipedia': 'hu:CIB Bank', "
+        self.tags = {'brand': 'CIB', 'operator': 'CIB Bank Zrt.', 'operator:addr': '1027 Budapest, Medve u 4-14.',
+                     'bic': 'CIBHHUHB', 'ref:vatin': 'HU10136915', 'ref:vatin:hu': '10136915-4-44', 'bic': 'CIBHHUHB',
+                     'ref:HU:company': '01 10 041004', 'brand': 'CIB Bank', 'brand:wikidata': 'Q839566',
+                     'brand:wikipedia': 'hu:CIB Bank', }
         self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        data = [{'poi_code': 'hucibbank', 'poi_name': 'CIB Bank', 'poi_type': 'bank',
-                 'poi_tags': "{'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes', " + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank|cib)'},
-                {'poi_code': 'hucibatm', 'poi_name': 'CIB Bank ATM', 'poi_type': 'atm',
-                 'poi_tags': "{'amenity': 'atm'," + self.POI_COMMON_TAGS + "}",
-                 'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank atm|cib atm)'}]
+        hucibbank = {'amenity': 'bank', 'atm': 'yes', 'air_conditioning': 'yes', }
+        hucibbank.update(self.tags)
+        hucibatm = {'amenity': 'atm'}
+        hucibatm.update(self.tags)
+        data = [
+            {'poi_code': 'hucibbank', 'poi_name': 'CIB Bank', 'poi_type': 'bank', 'poi_tags': hucibbank,
+             'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank|cib)'},
+            {'poi_code': 'hucibatm', 'poi_name': 'CIB Bank ATM', 'poi_type': 'atm', 'poi_tags': hucibatm,
+             'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank atm|cib atm)'},
+        ]
         return data
 
     def process(self):

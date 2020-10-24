@@ -21,14 +21,19 @@ class hu_mol_bubi(DataProvider):
 
     def constains(self):
         self.link = 'https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb'
-        self.POI_COMMON_TAGS = ""
+        self.tags = {'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'operator': 'BKK MOL Bubi', 'network': 'bubi',
+                     'contact:instagram': 'https://www.instagram.com/molbubi/',
+                     'contact:facebook': 'https://www.facebook.com/molbubi',
+                     'contact:youtube': 'https://www.youtube.com/user/bkkweb', 'twitter': 'molbubi'}
         self.filetype = FileType.xml
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        self.__types = [{'poi_code': 'hububibir', 'poi_name': 'MOL Bubi', 'poi_type': 'bicycle_rental',
-                         'poi_tags': "{'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'operator': 'BKK MOL Bubi', 'network': 'bubi',  'contact:instagram': 'https://www.instagram.com/molbubi/', 'contact:facebook': 'https://www.facebook.com/molbubi', 'contact:youtube': 'https://www.youtube.com/user/bkkweb', 'twitter': 'molbubi'}",
-                         'poi_url_base': 'https://molbubi.bkk.hu', 'poi_search_name': '(mol bubi|bubi)'}]
+        hububibir = self.tags
+        self.__types = [
+            {'poi_code': 'hububibir', 'poi_name': 'MOL Bubi', 'poi_type': 'bicycle_rental',
+             'poi_tags': hububibir, 'poi_url_base': 'https://molbubi.bkk.hu', 'poi_search_name': '(mol bubi|bubi)'},
+        ]
         return self.__types
 
     def process(self):
