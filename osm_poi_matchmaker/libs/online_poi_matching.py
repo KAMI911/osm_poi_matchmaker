@@ -6,7 +6,6 @@ try:
     import logging
     import sys
     import pandas as pd
-    import json
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osmapi import OsmApi
     from osm_poi_matchmaker.dao.poi_base import POIBase

@@ -6,7 +6,6 @@ try:
     import math
     import os
     import datetime
-    import json
     from urllib.parse import quote
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
     from osm_poi_matchmaker.utils import config
@@ -200,7 +199,7 @@ def generate_osm_xml(df, session=None):
                                                                  list_osm_node(n, way_node, 'osm'))
                                     if node_data.get('osm_live_tags') is not None and \
                                        node_data.get('osm_live_tags') != '':
-                                        node_osm_live_tags = json.loads(node_data.get('osm_live_tags'))
+                                        node_osm_live_tags = node_data.get('osm_live_tags')
                                         for k, v in sorted(node_osm_live_tags).items():
                                             node_data = etree.SubElement(node_data, 'tag', k=k, v='{}'.format(v))
                             osm_xml_data.append(node_data)
