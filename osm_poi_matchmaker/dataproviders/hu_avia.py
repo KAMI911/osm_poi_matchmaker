@@ -36,13 +36,13 @@ class hu_avia(DataProvider):
     def types(self):
         huaviafu = {'amenity': 'fuel'}
         huaviafu.update(self.tags)
-        self.__type = [
+        self.__types = [
             {'poi_code': 'huaviafu', 'poi_name': 'Avia', 'poi_type': 'fuel', 'poi_tags': huaviafu,
              'poi_url_base': 'https://www.avia.hu', 'poi_search_name': 'avia',
              'osm_search_distance_perfect': 30000,
              'osm_search_distance_safe': 800, 'osm_search_distance_unsafe': 110},
         ]
-        return self.__type
+        return self.__types
 
     def process(self):
         try:

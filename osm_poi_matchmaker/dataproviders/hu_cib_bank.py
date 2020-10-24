@@ -16,15 +16,15 @@ except ImportError as err:
     sys.exit(128)
 
 
-class hu_cib_bank():
+class hu_cib_bank(DataProvider):
 
     def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
         self.session = session
         self.download_cache = download_cache
         self.link = link
-        self.tags = {'brand': 'CIB', 'operator': 'CIB Bank Zrt.', 'operator:addr': '1027 Budapest, Medve u 4-14.',
-                     'bic': 'CIBHHUHB', 'ref:vatin': 'HU10136915', 'ref:vatin:hu': '10136915-4-44', 'bic': 'CIBHHUHB',
-                     'ref:HU:company': '01 10 041004', 'brand': 'CIB Bank', 'brand:wikidata': 'Q839566',
+        self.tags = {'brand': 'CIB Bank', 'operator': 'CIB Bank Zrt.', 'operator:addr': '1027 Budapest, Medve u 4-14.',
+                     'bic': 'CIBHHUHB', 'ref:vatin': 'HU10136915', 'ref:vatin:hu': '10136915-4-44',
+                     'ref:HU:company': '01 10 041004', 'brand:wikidata': 'Q839566',
                      'brand:wikipedia': 'hu:CIB Bank', }
         self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name

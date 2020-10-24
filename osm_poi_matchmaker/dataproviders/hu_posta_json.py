@@ -48,7 +48,7 @@ class hu_posta_json(DataProvider):
         hupostacso = {'amenity': 'vending_machine', 'vending': 'parcel_pickup'}
         hupostacso.update(self.tags)
         hupostapp = {'amenity': 'post_office'}
-        hupostapp.update(self.tag)
+        hupostapp.update(self.tags)
         hupostamp = {'amenity': 'post_office'}
         hupostamp.update(self.tags)
 

@@ -13,7 +13,7 @@ try:
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type, POI_OSM_cache
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
-    from osm_poi_matchmaker.dao.data_handlers import get_or_create, get_or_create_cache
+    from osm_poi_matchmaker.dao.data_handlers import get_or_create_cache
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')

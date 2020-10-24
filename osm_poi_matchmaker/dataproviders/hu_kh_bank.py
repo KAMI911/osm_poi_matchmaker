@@ -16,7 +16,7 @@ except ImportError as err:
     sys.exit(128)
 
 
-class hu_kh_bank():
+class hu_kh_bank(DataProvider):
 
     def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
         self.session = session
