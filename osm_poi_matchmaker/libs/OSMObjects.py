@@ -62,11 +62,11 @@ class OSMList(object):
         self.nodes = nodes
         self.ways = ways
 
-    def append_node(self, id, osm_node):
-        self.nodes[id] = osm_node
+    def append_node(self, osmid, osm_node):
+        self.nodes[osmid] = osm_node
 
-    def append_way(self, id, osm_way):
-        self.ways[id] = osm_way
+    def append_way(self, osmid, osm_way):
+        self.ways[osmid] = osm_way
 
     def print(self):
         print(self.nodes)
