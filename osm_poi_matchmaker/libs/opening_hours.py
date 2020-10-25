@@ -67,7 +67,7 @@ class OpeningHours(object):
         """
         return self.lunch_break_start
 
-    @lunchbreak_start.setter
+    @lunch_break_start.setter
     def lunch_break_start(self, data: str):
         """Set lunch break start for opening hours
 
