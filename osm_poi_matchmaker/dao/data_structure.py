@@ -182,7 +182,7 @@ class POI_OSM_cache(Base):
     osm_timestamp = Column(DateTime(True), nullable=False)
     osm_lat = Column(Float, nullable=True, index=True)
     osm_lon = Column(Float, nullable=True, index=True)
-    osm_nodes = Column(JSON), nullable=True, index=False)
+    osm_nodes = Column(JSON, nullable=True, index=False)
     # osm_distance = Column(Integer, nullable=True, index=False)
     osm_live_tags = Column(JSON, nullable=True, index=False)
 
