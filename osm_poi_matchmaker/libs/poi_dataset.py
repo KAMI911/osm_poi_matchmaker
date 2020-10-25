@@ -86,7 +86,8 @@ class POIDataset:
         self.__lon = None
         self.__nonstop = None
         self.__oh = pd.DataFrame(index=WeekDaysShort, columns=OpenClose)
-        self.__lunch_break = {'start': None, 'stop': None}
+        self.__lunch_break_start = None
+        self.__lunch_break_stop = None
         self.__opening_hours = None
         self.__public_holiday_open = None
         self.__good = []
@@ -141,7 +142,8 @@ class POIDataset:
         self.__lon = None
         self.__nonstop = None
         self.__oh = pd.DataFrame(index=WeekDaysShort, columns=OpenClose)
-        self.__lunch_break = {'start': None, 'stop': None}
+        self.__lunch_break_start = None
+        self.__lunch_break_stop = None
         self.__opening_hours = None
         self.__public_holiday_open = None
         self.__good = []
@@ -785,28 +787,20 @@ class POIDataset:
         self.__oh.at[WeekDaysShort.su, OpenClose.summer_close] = data
 
     @property
-    def lunch_break(self):
-        return self.__lunch_break['start'], self.__lunch_break['stop']
-
-    @lunch_break.setter
-    def lunch_break(self, lunch_break_start: str, lunch_break_stop: str):
-        self.__lunch_break = {'start': lunch_break_start, 'stop': lunch_break_stop}
-
-    @property
     def lunch_break_start(self) -> str:
-        return self.__lunch_break['start']
+        return self.__lunch_break_start
 
     @lunch_break_start.setter
     def lunch_break_start(self, data: str):
-        self.__lunch_break['start'] = data
+        self.__lunch_break_start = data
 
     @property
     def lunch_break_stop(self) -> str:
-        return self.__lunch_break['stop']
+        return self.__lunch_break_stop
 
     @lunch_break_stop.setter
     def lunch_break_stop(self, data: str):
-        self.__lunch_break['stop'] = data
+        self.__lunch_break_stop = data
 
     def day_open(self, day, data):
         self.__oh.at[WeekDaysShort(day), OpenClose.open] = data
@@ -874,7 +868,7 @@ class POIDataset:
                          self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
                          self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
                          self.__oh.at[WeekDaysShort.su, OpenClose.summer_close],
-                         self.__lunch_break['start'], self.__lunch_break['stop'],
+                         self.__lunch_break_start, self.__lunch_break_stop,
                          self.__public_holiday_open)
         self.__opening_hours = t.process()
 
@@ -927,8 +921,8 @@ class POIDataset:
                  self.__oh.at[WeekDaysShort.th, OpenClose.summer_close],
                  self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
                  self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
-                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break['start'],
-                 self.__lunch_break['stop'],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break_start,
+                 self.__lunch_break_stop,
                  self.__public_holiday_open, self.__opening_hours, self.__good, self.__bad])
             self.clear_all()
         except Exception as e:

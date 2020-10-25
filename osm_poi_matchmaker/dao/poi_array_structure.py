@@ -42,9 +42,8 @@ POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'p
             'poi_opening_hours_summer_fr_close',
             'poi_opening_hours_summer_sa_close',
             'poi_opening_hours_summer_su_close',
-            'poi_opening_hours_lunch_break_start',
-            'poi_opening_hours_lunch_break_stop', 'poi_public_holiday_open',
-            'poi_opening_hours', 'poi_good', 'poi_bad'
+            'poi_opening_hours_lunch_break_start', 'poi_opening_hours_lunch_break_stop', 'poi_public_holiday_open', 'poi_opening_hours',
+            'poi_good', 'poi_bad'
             ]
 
 POI_ADDR_COLS = ['poi_postcode', 'poi_city', 'poi_addr_street', 'poi_addr_housenumber',

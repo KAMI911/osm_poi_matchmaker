@@ -26,7 +26,8 @@ class OpeningHours(object):
                               'fr': [fr_o, fr_c, summer_fr_o, summer_fr_c, 4],
                               'sa': [sa_o, sa_c, summer_sa_o, summer_sa_c, 5],
                               'su': [su_o, su_c, summer_su_o, summer_su_c, 6]}
-        self.lunchbreak = {'start': lunch_break_start, 'stop': lunch_break_stop}
+        self.lunch_break_start = lunch_break_start
+        self.lunch_break_stop = lunch_break_stop
         self.week_days = {0: 'mo', 1: 'tu', 2: 'we', 3: 'th', 4: 'fr', 5: 'sa', 6: 'su'}
         self.oh_types = ('open', 'close', 'summer_open', 'summer_close', 'did')
         self.df_oh = pd.DataFrame.from_dict(self.opening_hours, orient='index', columns=self.oh_types)
@@ -58,12 +59,20 @@ class OpeningHours(object):
         self.__public_holiday_open = value
 
     @property
-    def lunch_break(self):
-        return self.lunchbreak
+    def lunch_break_start(self) -> str:
+        return self.lunch_break_start
 
-    @lunch_break.setter
-    def lunch_break(self, lunch_break_start, lunch_break_stop):
-        self.lunchbreak = {'start': lunch_break_start, 'stop': lunch_break_stop}
+    @lunchbreak_start.setter
+    def lunch_break_start(self, data: str):
+        self.lunch_break_start = data
+
+    @property
+    def lunch_break_stop(self) -> str:
+        return self.lunch_break_stop
+
+    @lunch_break_stop.setter
+    def lunch_break_stop(self, data: str):
+        self.lunch_break_stop = data
 
     def process(self):
         oh = ''
@@ -104,8 +113,8 @@ class OpeningHours(object):
                     # If open and close are equals we handles as closed
                     if self.df_dup.at[k, 'open'] != self.df_dup.at[k, 'close']:
                         oh_list.append(
-                            '{} {}-{},{}-{}'.format(days.title(), self.df_dup.at[k, 'open'], self.lunchbreak['start'],
-                                                    self.lunchbreak['stop'], self.df_dup.at[k, 'close']))
+                            '{} {}-{},{}-{}'.format(days.title(), self.df_dup.at[k, 'open'], self.lunch_break_start,
+                                                    self.lunch_break_stop, self.df_dup.at[k, 'close']))
                 oh = '; '.join(oh_list)
                 oh = oh + oh_ph
         if self.non_stop is True or 'Mo-Su 00:00-24:00' in oh:
