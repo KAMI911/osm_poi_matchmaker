@@ -785,7 +785,7 @@ class POIDataset:
         self.__oh.at[WeekDaysShort.su, OpenClose.summer_close] = data
 
     @property
-    def lunch_break(self) -> str, str:
+    def lunch_break(self):
         return self.__lunch_break['start'], self.__lunch_break['stop']
 
     @lunch_break.setter
