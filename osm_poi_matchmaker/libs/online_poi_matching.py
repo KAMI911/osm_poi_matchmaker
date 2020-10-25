@@ -125,7 +125,7 @@ def online_poi_matching(args):
                                     if live_tags_container is not None:
                                         data.at[i, 'osm_live_tags'] = live_tags_container.get('tag')
                                         cache_row = {'osm_id': int(osm_id),
-                                                     'osm_live_tags': str(live_tags_container.get('tag')),
+                                                     'osm_live_tags': live_tags_container.get('tag'),
                                                      'osm_version': live_tags_container.get('version'),
                                                      'osm_user': live_tags_container.get('user'),
                                                      'osm_user_id': live_tags_container.get('uid'),
@@ -134,14 +134,14 @@ def online_poi_matching(args):
                                                      'osm_object_type': osm_node,
                                                      'osm_lat': None,
                                                      'osm_lon': None,
-                                                     'osm_nodes': str(live_tags_container.get('nd'))}
+                                                     'osm_nodes': live_tags_container.get('nd')}
                                         get_or_create_cache(session, POI_OSM_cache, **cache_row)
                                         # Downloading referenced nodes of the way
                                         for way_nodes in live_tags_container['nd']:
                                             logging.debug('Getting node %s belongs to way %s', way_nodes, osm_id)
                                             live_tags_node = osm_live_query.NodeGet(way_nodes)
                                             cache_row = {'osm_id': int(way_nodes),
-                                                         'osm_live_tags': str(live_tags_node.get('tag')),
+                                                         'osm_live_tags': live_tags_node.get('tag'),
                                                          'osm_version': live_tags_node.get('version'),
                                                          'osm_user': live_tags_node.get('user'),
                                                          'osm_user_id': live_tags_node.get('uid'),
@@ -169,7 +169,7 @@ def online_poi_matching(args):
                                     if live_tags_container is not None:
                                         data.at[i, 'osm_live_tags'] = live_tags_container.get('tag')
                                         cache_row = {'osm_id': int(osm_id),
-                                                     'osm_live_tags': str(live_tags_container.get('tag')),
+                                                     'osm_live_tags': live_tags_container.get('tag'),
                                                      'osm_version': live_tags_container.get('version'),
                                                      'osm_user': live_tags_container.get('user'),
                                                      'osm_user_id': live_tags_container.get('uid'),

@@ -251,6 +251,7 @@ def generate_osm_xml(df, session=None):
             # Using already definied OSM tags if exists
             if row.get('osm_live_tags') is not None:
                 tags = row.get('osm_live_tags')
+                logging.critical(row.get('osm_live_tags'))
                 osm_live_tags = row.get('osm_live_tags').copy()
             else:
                 tags = {}
