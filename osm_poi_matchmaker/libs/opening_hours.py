@@ -60,18 +60,38 @@ class OpeningHours(object):
 
     @property
     def lunch_break_start(self) -> str:
+        """Get lunch break start for opening hours
+
+        Returns:
+            str: Stored value of launch break start, value like '12:00'
+        """
         return self.lunch_break_start
 
     @lunchbreak_start.setter
     def lunch_break_start(self, data: str):
+        """Set lunch break start for opening hours
+
+        Returns:
+            str: Store value of launch break start with value like '12:00'
+        """
         self.lunch_break_start = data
 
     @property
     def lunch_break_stop(self) -> str:
+        """Get lunch break stop for opening hours
+
+        Returns:
+            str: Stored value of launch break stop, value like '12:30'
+        """
         return self.lunch_break_stop
 
     @lunch_break_stop.setter
     def lunch_break_stop(self, data: str):
+        """Set lunch break stop for opening hours
+
+        Returns:
+            str: Store value of launch break stop with value like '12:30'
+        """
         self.lunch_break_stop = data
 
     def process(self):
