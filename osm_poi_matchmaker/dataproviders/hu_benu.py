@@ -36,6 +36,7 @@ class hu_benu(DataProvider):
 
     def types(self):
         hubenupha = {'amenity': 'pharmacy'}
+        hubenupha.update(self.tags)
         self.__types = [
             {'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
              'poi_tags': hubenupha, 'poi_url_base': 'https://benu.hu',
@@ -53,25 +54,25 @@ class hu_benu(DataProvider):
                 text = json.loads(str(soup))
                 for poi_data in text:
                     try:
-                        if 'BENU Gyógyszertár' not in poi_data['title']:
-                            self.data.name = poi_data['title'].strip()
+                        if 'BENU Gyógyszertár' not in poi_data.get('title'):
+                            self.data.name = poi_data.get('title').strip()
                             self.data.branch = None
                         else:
                             self.data.name = 'Benu gyógyszertár'
-                            self.data.branch = poi_data['title'].strip()
+                            self.data.branch = poi_data.get('title').strip()
                         self.data.code = 'hubenupha'
-                        if poi_data['description'] is not None:
+                        if poi_data.get('description') is not None:
                             pu_match = PATTERN_FULL_URL.match(
-                                poi_data['description'])
+                                poi_data.('description'))
                             self.data.website = pu_match.group(
                                 0).strip() if pu_match is not None else None
                         else:
                             self.data.website = None
-                        self.data.city = clean_city(poi_data['city'])
+                        self.data.city = clean_city(poi_data.get('city'))
                         self.data.postcode = poi_data.get(
                             'postal_code').strip()
                         self.data.lat, self.data.lon = check_hu_boundary(
-                            poi_data['lat'], poi_data['lng'])
+                            poi_data.get('lat'), poi_data.get('lng'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data['street'])
                         self.data.original = poi_data['street']
