@@ -5,7 +5,6 @@ try:
     import sys
     import os
     import json
-    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
         PATTERN_FULL_URL
