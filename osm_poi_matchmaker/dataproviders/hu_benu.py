@@ -62,23 +62,19 @@ class hu_benu(DataProvider):
                             self.data.branch = poi_data.get('title').strip()
                         self.data.code = 'hubenupha'
                         if poi_data.get('description') is not None:
-                            pu_match = PATTERN_FULL_URL.match(
-                                poi_data.('description'))
-                            self.data.website = pu_match.group(
-                                0).strip() if pu_match is not None else None
+                            pu_match = PATTERN_FULL_URL.match(poi_data.get('description'))
+                            self.data.website = pu_match.group(0).strip() if pu_match is not None else None
                         else:
                             self.data.website = None
                         self.data.city = clean_city(poi_data.get('city'))
-                        self.data.postcode = poi_data.get(
-                            'postal_code').strip()
-                        self.data.lat, self.data.lon = check_hu_boundary(
-                            poi_data.get('lat'), poi_data.get('lng'))
+                        self.data.postcode = poi_data.get('postal_code').strip()
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                            poi_data['street'])
-                        self.data.original = poi_data['street']
-                        if 'phone' in poi_data and poi_data['phone'] != '':
+                            poi_data.get(('street')))
+                        self.data.original = poi_data.get('street')
+                        if 'phone' in poi_data and poi_data.get('phone') != '':
                             self.data.phone = clean_phone_to_str(
-                                poi_data['phone'])
+                                poi_data.get('phone'))
                         else:
                             self.data.phone = None
                         self.data.public_holiday_open = False

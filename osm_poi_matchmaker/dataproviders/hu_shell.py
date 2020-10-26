@@ -21,8 +21,7 @@ class hu_shell(DataProvider):
 
     def constains(self):
         self.link = 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL'
-        self.tags = {'amenity': 'fuel',
-                     'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}
+        self.tags = {'amenity': 'fuel', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}
         self.tags.update(POS_HU_GEN)
         self.tags.update(PAY_CASH)
         self.filetype = FileType.csv

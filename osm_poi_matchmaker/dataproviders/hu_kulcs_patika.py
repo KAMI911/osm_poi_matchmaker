@@ -52,7 +52,7 @@ class hu_kulcs_patika(DataProvider):
                 with open(os.path.join(self.download_cache, self.filename), 'r') as f:
                     text = json.load(f)
                     if text is not None:
-                        # text = json.loads(soup)
+                        text = json.loads(text, strict=False)
                         for poi_data in text:
                             try:
                                 if 'Kulcs patika' not in poi_data.get('nev'):
