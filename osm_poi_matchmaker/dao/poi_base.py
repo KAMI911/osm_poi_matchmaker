@@ -157,20 +157,14 @@ class POIBase:
         query_arr = []
         query_type, distance = poitypes.getPOITypes(ptype)
         # If we have PO common defined unsafe search radius distance, then use it (or use defaults specified above)
-        if distance_unsafe is not None and distance_unsafe != '':
-            distance_unsafe = distance_unsafe
-        else:
+        if distance_unsafe is None or distance_unsafe == '' or math.isnan(distance_unsafe):
             distance_unsafe = config.get_geo_default_poi_unsafe_distance()
-        if distance_safe is not None and distance_safe != '':
-            distance_safe = distance_safe
-        else:
+        if distance_safe is None or distance_safe == '' or math.isnan(distance_safe):
             distance_safe = config.get_geo_default_poi_distance()
         if name is not None and name != '':
             query_name = ' AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)))'
             # If we have PO common defined safe search radius distance, then use it (or use defaults specified above)
-            if distance_perfect is not None and distance_safe != '':
-                distance_perfect = distance_perfect
-            else:
+            if distance_perfect is None or distance_perfect != '' or math.isnan(distance_perfect):
                 distance_perfect = config.get_geo_default_poi_perfect_distance()
         else:
             query_name = ''

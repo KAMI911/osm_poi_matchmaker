@@ -97,8 +97,7 @@ def online_poi_matching(args):
                             data.at[i, 'osm_timestamp'] = pd.to_datetime(str((osm_query['osm_timestamp'].values[0])))
                     else:
                         osm_query['osm_timestamp'] = None
-                    data.at[i, 'poi_distance'] = osm_query.get('distance').values[0] \
-                        if osm_query.get('distance') is not None else None
+                    data.at[i, 'poi_distance'] = osm_query.get('distance').values[0] if osm_query.get('distance') is not None else None
                     # For OSM way also query node points
                     if osm_node == OSM_object_type.way:
                         logging.info('This is an OSM way looking for id %s nodes.', osm_id)
