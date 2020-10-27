@@ -34,7 +34,7 @@ class hu_pepco(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hupepcoclo = self.tags
+        hupepcoclo = self.tags.copy()
         hupepcoclo.update(POS_HU_GEN)
         hupepcoclo.update(PAY_CASH)
         self.__types = [

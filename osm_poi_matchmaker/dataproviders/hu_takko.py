@@ -33,7 +33,7 @@ class hu_takko(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hutakkocl = self.tags
+        hutakkocl = self.tags.copy()
         hutakkocl.update(POS_HU_GEN)
         hutakkocl.update(PAY_CASH)
         self.__types = [

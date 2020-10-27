@@ -30,7 +30,7 @@ class hu_tom_market(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hutommacon = self.tags
+        hutommacon = self.tags.copy()
         hutommacon.update(POS_OTP)
         hutommacon.update(PAY_CASH)
         self.__types = [

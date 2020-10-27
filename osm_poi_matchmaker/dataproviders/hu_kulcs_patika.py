@@ -33,7 +33,7 @@ class hu_kulcs_patika(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hukulcspha = self.tags
+        hukulcspha = self.tags.copy()
         hukulcspha.update(POS_HU_GEN)
         hukulcspha.update(PAY_CASH)
         self.__types = [

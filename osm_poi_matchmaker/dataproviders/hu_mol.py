@@ -39,7 +39,7 @@ class hu_mol(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        humolfu = self.tags
+        humolfu = self.tags.copy()
         humolfu.update(POS_HU_GEN)
         humolfu.update(PAY_CASH)
         self.__types = [

@@ -33,7 +33,7 @@ class hu_jysk(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hujyskfur = self.tags
+        hujyskfur = self.tags.copy()
         hujyskfur.update(POS_HU_GEN)
         hujyskfur.update(PAY_CASH)
         self.__types = [

@@ -34,7 +34,7 @@ class hu_dm(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hudmche = self.tags
+        hudmche = self.tags.copy()
         hudmche.update(POS_HU_GEN)
         hudmche.update(PAY_CASH)
         self.__types = [

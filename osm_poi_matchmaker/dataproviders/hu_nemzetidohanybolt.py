@@ -27,7 +27,7 @@ class hu_mol(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hunemdoto = self.tags
+        hunemdoto = self.tags.copy()
         self.__types = [
             {'poi_code': 'hunemdoto', 'poi_name': 'Nemzeti dohánybolt', 'poi_type': 'tobacco',
              'poi_tags': hunemdoto, 'poi_url_base': 'https://www.nemzetidohany.hu/',

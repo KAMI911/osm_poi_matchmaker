@@ -29,13 +29,13 @@ class hu_shell(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hushellfu = self.tags
+        hushellfu = self.tags.copy()
         hushellfu.update({'brand': 'Shell', 'contact:phone': '+36 1 480 1114',
                           'contact:fax': '+36 1 999 8673', 'contact:website': 'https://shell.hu/',
                           'contact:facebook': 'https://www.facebook.com/ShellMagyarorszag/', 'contact:twitter': 'shell',
                           'brand:wikidata': 'Q154950', 'brand:wikipedia': 'hu:Royal Dutch Shell',
                           'air_conditioning': 'yes'})
-        humobpefu = self.tags
+        humobpefu = self.tags.copy()
         humobpefu.update({'brand': 'Mobil Petrol', 'contact:email': 'info@mpetrol.hu',
                           'contact:facebook': 'https://www.facebook.com/mpetrolofficial/', 'name': 'Mobil Petrol',
                           'operator:addr': '1095 Budapest, Ipar utca 2.', 'operator': 'MPH Power Zrt.'})

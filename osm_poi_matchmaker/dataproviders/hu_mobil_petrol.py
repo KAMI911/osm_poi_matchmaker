@@ -34,7 +34,7 @@ class hu_mobil_petrol(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        humobpefu = self.tags
+        humobpefu = self.tags.copy()
         humobpefu.update(POS_HU_GEN)
         humobpefu.update(PAY_CASH)
         self.__types = [

@@ -35,7 +35,7 @@ class hu_yves_rocher(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        huyvesrcos = self.tags
+        huyvesrcos = self.tags.copy()
         huyvesrcos.update(POS_HU_GEN)
         huyvesrcos.update(PAY_CASH)
         self.__types = [

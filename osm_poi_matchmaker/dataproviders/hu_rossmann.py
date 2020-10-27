@@ -38,7 +38,7 @@ class hu_rossmann(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hurossmche = self.tags
+        hurossmche = self.tags.copy()
         hurossmche.update(POS_HU_GEN)
         hurossmche.update(PAY_CASH)
         self.__types = [

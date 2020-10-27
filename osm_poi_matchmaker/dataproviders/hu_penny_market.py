@@ -35,7 +35,7 @@ class hu_penny_market(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hupennysup = self.tags
+        hupennysup = self.tags.copy()
         hupennysup.update(POS_HU_GEN)
         hupennysup.update(PAY_CASH)
         self.__types = [

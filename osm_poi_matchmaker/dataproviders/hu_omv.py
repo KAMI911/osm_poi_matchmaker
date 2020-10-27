@@ -41,7 +41,7 @@ class hu_omv(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        huomvfu = self.tags
+        huomvfu = self.tags.copy()
         huomvfu.update(POS_HU_GEN)
         huomvfu.update(PAY_CASH)
         self.__types = [

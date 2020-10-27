@@ -33,7 +33,7 @@ class hu_obi(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        huobidiy = self.tags
+        huobidiy = self.tags.copy()
         huobidiy.update(POS_HU_GEN)
         huobidiy.update(PAY_CASH)
         self.__types = [

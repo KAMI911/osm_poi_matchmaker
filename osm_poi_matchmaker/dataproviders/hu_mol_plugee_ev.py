@@ -36,7 +36,7 @@ class hu_mol_plugee_ev(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        humolplchs = self.tags
+        humolplchs = self.tags.copy()
         self.__types = [
             {'poi_code': 'humolplchs', 'poi_name': 'MOL Plugee', 'poi_type': 'charging_station',
              'poi_tags': humolplchs, 'poi_url_base': 'https://molplugee.hu', 'poi_search_name': '(mol plugee|plugee)',
