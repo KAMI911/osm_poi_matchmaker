@@ -44,6 +44,10 @@ POI_EV_TAGS = {'poi_capacity': 'capacity',
                'poi_socket_type2': 'socket:type2', 'poi_socket_type2_output': 'socket:type2:output',
                'poi_manufacturer': 'manufacturer', 'poi_model': 'model'}
 
+TIMESTAMP_FORMAT = '{:{dfmt}T{tfmt}Z}'
+DATE_FOTMAT = '%Y-%m-%d'
+TIME_FORMAT = '%H:%M:%S'
+
 
 def ascii_numcoder(text):
     output = ''
@@ -97,7 +101,7 @@ def add_osm_node(osm_id: int, node_data: dict, prefix: str = 'poi') -> dict:
                 'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
                 'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
                 'user': '{}'.format(osm_user), 'uid': '{}'.format(osm_user_id), 'version': '{}'.format(osm_version),
-                'timestamp': '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M:%S')}
+                'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FOTMAT, tfmt=TIME_FORMAT)}
     logging.info(osm_data)
     return osm_data
 
@@ -125,7 +129,7 @@ def list_osm_node(osm_id: int, node_data: dict, prefix='poi') -> dict:
                 'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
                 'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
                 'user': '{}'.format(osm_user), 'uid': '{}'.format(osm_user_id), 'version': '{}'.format(osm_version),
-                'timestamp': '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M:%S')}
+                'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FOTMAT, tfmt=TIME_FORMAT)}
     logging.debug(osm_data)
     return osm_data
 
@@ -148,7 +152,7 @@ def add_osm_way(osm_id: int, node_data: dict) -> dict:
     osm_data = {'action': 'modify', 'id': str(osm_id),
                 'user': '{}'.format('osm_poi_matchmaker'), 'uid': '{}'.format('8635934'),
                 'version': '{}'.format(osm_version),
-                'timestamp': '{:{dfmt}T{tfmt}Z}'.format(osm_timestamp, dfmt='%Y-%m-%d', tfmt='%H:%M:%S')}
+                'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FOTMAT, tfmt=TIME_FORMAT)}
     return osm_data
 
 
@@ -305,7 +309,7 @@ def generate_osm_xml(df, session=None):
                 source_url = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
             else:
                 source_url = 'source:website:date'
-            tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d')
+            tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt=DATE_FOTMAT)
             # Write back the saved name tag
             if 'preserved_name' in locals():
                 tags['name'] = preserved_name
