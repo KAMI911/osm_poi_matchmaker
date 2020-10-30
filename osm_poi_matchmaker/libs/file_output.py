@@ -90,8 +90,6 @@ def add_osm_node(osm_id: int, node_data: dict, prefix: str = 'poi') -> dict:
         str: [description]
     """
     logging.info(node_data.to_string())
-    osm_user = 'osm_poi_matchmaker' if node_data.get('osm_user') is None else node_data.get('osm_user')
-    osm_user_id = '8635934' if node_data.get('osm_user_id') is None else node_data.get('osm_user_id')
     if node_data.get('osm_timestamp') is None:
         osm_timestamp = datetime.datetime.now()
     else:
@@ -100,7 +98,7 @@ def add_osm_node(osm_id: int, node_data: dict, prefix: str = 'poi') -> dict:
     osm_data = {'action': 'modify', 'id': str(osm_id),
                 'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
                 'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
-                'user': '{}'.format(osm_user), 'uid': '{}'.format(osm_user_id), 'version': '{}'.format(osm_version),
+                'user': '{}'.format('osm_poi_matchmaker'), 'uid': '{}'.format('8635934'), 'version': '{}'.format(osm_version),
                 'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FOTMAT, tfmt=TIME_FORMAT)}
     logging.info(osm_data)
     return osm_data
@@ -198,13 +196,16 @@ def generate_osm_xml(df, session=None):
             current_osm_id = default_osm_id if row.get('osm_id') is None else row.get('osm_id')
             osm_version = '99999' if row.get('osm_version') is None else row.get('osm_version')
             if row.get('osm_node') is None or row.get('osm_node') == OSM_object_type.node:
-                josm_object = 'n{}'.format(current_osm_id)
-                main_data = etree.SubElement(osm_xml_data, 'node', add_osm_node(osm_version, row))
-            elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.way:
-                main_data = etree.SubElement(osm_xml_data, 'way', add_osm_way(osm_version, row))
-                josm_object = 'w{}'.format(current_osm_id)
-                # Add way nodes without any modification)
                 try:
+                    josm_object = 'n{}'.format(current_osm_id)
+                    main_data = etree.SubElement(osm_xml_data, 'node', add_osm_node(current_osm_id, row))
+                except Exception as e:
+                    logging.exception('Exception occurred')
+            elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.way:
+                try:
+                    main_data = etree.SubElement(osm_xml_data, 'way', add_osm_way(current_osm_id, row))
+                    josm_object = 'w{}'.format(current_osm_id)
+                # Add way nodes without any modification)
                     node_data = []
                     for n in row.get('osm_nodes'):
                         data = etree.SubElement(main_data, 'nd', ref=str(n))
@@ -222,155 +223,161 @@ def generate_osm_xml(df, session=None):
                                        node_data.get('osm_live_tags') != '':
                                         node_osm_live_tags = node_data.get('osm_live_tags')
                                         for k, v in sorted(node_osm_live_tags).items():
-                                            node_data = etree.SubElement(node_data, 'tag', k=k, v='{}'.format(v))
-                            osm_xml_data.append(node_data)
+                                            xml_node_tags = etree.SubElement(node_data, 'tag', k=k, v='{}'.format(v))
                 except TypeError as e:
                     logging.warning('Missing nodes on this way: %s.', row.get('osm_id'))
                     logging.exception('Exception occurred')
             elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.relation:
-                main_data = etree.SubElement(osm_xml_data, 'relation', add_osm_way(osm_version, row))
-                josm_object = 'r{}'.format(current_osm_id)
-                relations = relationer(row.get('osm_nodes'))
                 try:
+                    main_data = etree.SubElement(osm_xml_data, 'relation', add_osm_way(current_osm_id, row))
+                    josm_object = 'r{}'.format(current_osm_id)
+                    relations = relationer(row.get('osm_nodes'))
                     for i in relations:
                         data = etree.SubElement(main_data, 'member', type=i.get('type'), ref=i.get('ref'),
                                                 role=i.get('role'))
                 except TypeError as e:
                     logging.warning('Missing nodes on this relation: %s.', row['osm_id'])
+                    logging.exception('Exception occurred')
             # Add already existing node, way, relation OpenStreetMap reference as comment
-            if current_osm_id > 0:
-                osm_xml_data.append(etree.Comment(add_osm_link_comment(current_osm_id, row.get('osm_node'))))
-            # Add original POI coordinates as comment
-            comment = etree.Comment(' Original coordinates: {} '.format(row.get('poi_geom')))
-            osm_xml_data.append(comment)
-            if 'poi_distance' in row:
-                if row.get('poi_distance') is not None:
-                    comment = etree.Comment(' OSM <-> POI distance: {} m'.format(row.get('poi_distance')))
+            try:
+                if current_osm_id > 0:
+                    osm_xml_data.append(etree.Comment(add_osm_link_comment(current_osm_id, row.get('osm_node'))))
+                # Add original POI coordinates as comment
+                comment = etree.Comment(' Original coordinates: {} '.format(row.get('poi_geom')))
+                osm_xml_data.append(comment)
+                if 'poi_distance' in row:
+                    if row.get('poi_distance') is not None:
+                        comment = etree.Comment(' OSM <-> POI distance: {} m'.format(row.get('poi_distance')))
+                    else:
+                        comment = etree.Comment(' OSM <-> POI distance: Non exist')
+                    osm_xml_data.append(comment)
+                if 'poi_good' in row and 'poi_bad' in row:
+                    comment = etree.Comment(' Checker good: {}; bad {}'.format(row.get('poi_good'), row.get('poi_bad')))
+                    osm_xml_data.append(comment)
+                # Using already definied OSM tags if exists
+                if row.get('osm_live_tags') is not None:
+                    tags = row.get('osm_live_tags')
+                    logging.critical(row.get('osm_live_tags'))
+                    osm_live_tags = row.get('osm_live_tags').copy()
                 else:
-                    comment = etree.Comment(' OSM <-> POI distance: Non exist')
-                osm_xml_data.append(comment)
-            if 'poi_good' in row and 'poi_bad' in row:
-                comment = etree.Comment(' Checker good: {}; bad {}'.format(row.get('poi_good'), row.get('poi_bad')))
-                osm_xml_data.append(comment)
-            # Using already definied OSM tags if exists
-            if row.get('osm_live_tags') is not None:
-                tags = row.get('osm_live_tags')
-                logging.critical(row.get('osm_live_tags'))
-                osm_live_tags = row.get('osm_live_tags').copy()
-            else:
-                tags = {}
-                osm_live_tags = {}
-            # Adding POI common tags
-            if row.get('poi_tags') is not None:
-                tags.update(row.get('poi_tags'))
-            # Save live name tags if preserve name is enabled
+                    tags = {}
+                    osm_live_tags = {}
+                # Adding POI common tags
+                if row.get('poi_tags') is not None:
+                    tags.update(row.get('poi_tags'))
+                # Save live name tags if preserve name is enabled
+            except Exception as e:
+                logging.exception('Exception occurred')
             try:
                 if row.get('preserve_original_name') is True:
                     preserved_name = tags.get('name')
             except KeyError as e:
                 logging.debug('No name tag is specified to save in original OpenStreetMap data.')
             # Overwriting with data from data providers
-            for k, v in POI_TAGS.items():
-                if row.get(k) is not None:
-                    tags[v] = row.get(k)
-            if config.get_geo_alternative_opening_hours():
-                alternative_oh_tag = config.get_geo_alternative_opening_hours_tag()
-                # Alternative opening_hours handling for COVID-19 code path
-                if tags.get('opening_hours') is not None and tags.get('opening_hours') != '':
-                    if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
-                        if tags.get('opening_hours') == row.get('poi_opening_hours'):
+            try:
+                for k, v in POI_TAGS.items():
+                    if row.get(k) is not None:
+                        tags[v] = row.get(k)
+                if config.get_geo_alternative_opening_hours():
+                    alternative_oh_tag = config.get_geo_alternative_opening_hours_tag()
+                    # Alternative opening_hours handling for COVID-19 code path
+                    if tags.get('opening_hours') is not None and tags.get('opening_hours') != '':
+                        if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
+                            if tags.get('opening_hours') == row.get('poi_opening_hours'):
+                                tags[alternative_oh_tag] = 'same'
+                            else:
+                                tags[alternative_oh_tag] = row.get('poi_opening_hours')
+                    else:
+                        if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
+                            tags['opening_hours'] = row.get('poi_opening_hours')
                             tags[alternative_oh_tag] = 'same'
-                        else:
-                            tags[alternative_oh_tag] = row.get('poi_opening_hours')
                 else:
+                    # Alternative opening_hours handling for NON COVID-19 code path: just simply add opening_hours to tags
                     if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
                         tags['opening_hours'] = row.get('poi_opening_hours')
-                        tags[alternative_oh_tag] = 'same'
-            else:
-                # Alternative opening_hours handling for NON COVID-19 code path: just simply add opening_hours to tags
-                if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
-                    tags['opening_hours'] = row.get('poi_opening_hours')
-            # If we got POI phone tag use it as OSM contact:phone tag
-            if row.get('poi_phone') is not None and row.get('poi_phone') != '':
-                tags['contact:phone'] = row.get('poi_phone')
-            # If we got POI website tag use it as OSM contact:website tag
-            if row.get('poi_url_base') is not None and row.get('poi_website') is not None:
-                if row['poi_url_base'] in row.get('poi_website'):
-                    # The POI website contains the base URL use the POI website field only
-                    tags['contact:website'] = clean_url('{}'.format((row.get('poi_website'))))
-                else:
-                    # The POI website does not contain the base URL use the merged base URL and POI website field
-                    tags['contact:website'] = clean_url('{}/{}'.format(row.get('poi_url_base'), row.get('poi_website')))
-            # If only the base URL is available
-            elif row.get('poi_url_base') is not None:
-                tags['contact:website'] = row.get('poi_url_base')
-            # Short URL for source
-            if row['poi_url_base'] is not None:
-                source_url = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
-            else:
-                source_url = 'source:website:date'
-            tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt=DATE_FOTMAT)
-            # Write back the saved name tag
-            if 'preserved_name' in locals():
-                tags['name'] = preserved_name
-            # Rewrite old contact tags to contact:* tag form
-            tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax']
-            for tr in tags_rewrite:
-                if tr in tags:
-                    # Never overwrite already existing contact:* tags
-                    if 'contact:' + tr in tags:
-                        # We already have this contact:* tag so remove the simple contact tag
-                        tags.pop(tr, None)
+                # If we got POI phone tag use it as OSM contact:phone tag
+                if row.get('poi_phone') is not None and row.get('poi_phone') != '':
+                    tags['contact:phone'] = row.get('poi_phone')
+                # If we got POI website tag use it as OSM contact:website tag
+                if row.get('poi_url_base') is not None and row.get('poi_website') is not None:
+                    if row['poi_url_base'] in row.get('poi_website'):
+                        # The POI website contains the base URL use the POI website field only
+                        tags['contact:website'] = clean_url('{}'.format((row.get('poi_website'))))
                     else:
-                        # Rewrite simple contact tag to contact:* tag
-                        tags['contact:' + tr] = tags.pop(tr, None)
-            if row.get('poi_description') is not None and row.get('poi_description') != '':
-                tags['description'] = row.get('poi_description')
-            # Write tags with yes/no value
-            for k, v in POI_YESNO_TAGS.items():
-                if row.get(k) is not None and row.get(k) != '':
-                    tags[v] = 'yes' if row.get(k) is True else 'no'
-            for k, v in POI_EV_TAGS.items():
-                if row.get(k) is not None and row.get(k) != '':
-                    if isinstance(row.get(k), float):
-                        if not math.isnan(row.get(k)):
-                            tags[v] = int(row.get(k))
-                    else:
-                        tags[v] = row.get(k)
-            # This is a new POI - will add fix me tag to the new items.
-            if row.get('poi_new') is not None and row.get('poi_new') is True:
-                tags['fixme'] = 'verify import'
-            # Remove unwanted addr:country from file output as we discussed in Issue #33
-            tags.pop('addr:country', None)
-            # tags['import'] = 'osm_poi_matchmaker'
-            # Rendering tags to the XML file and JOSM magic link
-            josm_link = ''
-            comment = '\nKey\t\t\t\tStatus\t\tNew value\t\tOSM value\n'
-            for k, v in sorted(tags.items()):
-                xml_tags = etree.SubElement(main_data, 'tag', k=k, v='{}'.format(v))
-                josm_link = '{}|{}={}'.format(josm_link, k, v)
-                # Add original POI tags as comment
-                try:
-                    if isinstance(v, str):
-                        v = v.replace('-', '\-').replace('\n', '')
-                    w = osm_live_tags[k]
-                except KeyError:
-                    comment += "{:32} N\t\t'{}'\n".format(k, v)
+                        # The POI website does not contain the base URL use the merged base URL and POI website field
+                        tags['contact:website'] = clean_url('{}/{}'.format(row.get('poi_url_base'), row.get('poi_website')))
+                # If only the base URL is available
+                elif row.get('poi_url_base') is not None:
+                    tags['contact:website'] = row.get('poi_url_base')
+                # Short URL for source
+                if row['poi_url_base'] is not None:
+                    source_url = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
                 else:
-                    if isinstance(w, str):
-                        w = w.replace('-', '\-').replace('\n', '')
-                    comment += "{:32} {}\t\t'{}'\t\t\t'{}'\n".format(k, compare_strings(v, w), v, w)
-            comment = etree.Comment(comment)
-            osm_xml_data.append(comment)
-            # URL encode link and '--' in comment
-            josm_link = quote(josm_link)
-            josm_link = josm_link.replace('--', '%2D%2D')
-            comment = etree.Comment(' JOSM magic link: {}?new_layer=false&objects={}&addtags={} '.format
-                                    ('http://localhost:8111/load_object', josm_object, josm_link))
-            osm_xml_data.append(comment)
-            osm_xml_data.append(main_data)
-            # Next deafult OSM id is one more less for non existing objects
-            default_osm_id -= 1
+                    source_url = 'source:website:date'
+                tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt=DATE_FOTMAT)
+                # Write back the saved name tag
+                if 'preserved_name' in locals():
+                    tags['name'] = preserved_name
+                # Rewrite old contact tags to contact:* tag form
+                tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax']
+                for tr in tags_rewrite:
+                    if tr in tags:
+                        # Never overwrite already existing contact:* tags
+                        if 'contact:' + tr in tags:
+                            # We already have this contact:* tag so remove the simple contact tag
+                            tags.pop(tr, None)
+                        else:
+                            # Rewrite simple contact tag to contact:* tag
+                            tags['contact:' + tr] = tags.pop(tr, None)
+                if row.get('poi_description') is not None and row.get('poi_description') != '':
+                    tags['description'] = row.get('poi_description')
+                # Write tags with yes/no value
+                for k, v in POI_YESNO_TAGS.items():
+                    if row.get(k) is not None and row.get(k) != '':
+                        tags[v] = 'yes' if row.get(k) is True else 'no'
+                for k, v in POI_EV_TAGS.items():
+                    if row.get(k) is not None and row.get(k) != '':
+                        if isinstance(row.get(k), float):
+                            if not math.isnan(row.get(k)):
+                                tags[v] = int(row.get(k))
+                        else:
+                            tags[v] = row.get(k)
+                # This is a new POI - will add fix me tag to the new items.
+                if row.get('poi_new') is not None and row.get('poi_new') is True:
+                    tags['fixme'] = 'verify import'
+                # Remove unwanted addr:country from file output as we discussed in Issue #33
+                tags.pop('addr:country', None)
+                # tags['import'] = 'osm_poi_matchmaker'
+                # Rendering tags to the XML file and JOSM magic link
+                josm_link = ''
+                comment = '\nKey\t\t\t\tStatus\t\tNew value\t\tOSM value\n'
+                for k, v in sorted(tags.items()):
+                    xml_tags = etree.SubElement(main_data, 'tag', k=k, v='{}'.format(v))
+                    josm_link = '{}|{}={}'.format(josm_link, k, v)
+                    # Add original POI tags as comment
+                    try:
+                        if isinstance(v, str):
+                            v = v.replace('-', '\-').replace('\n', '')
+                        w = osm_live_tags[k]
+                    except KeyError:
+                        comment += "{:32} N\t\t'{}'\n".format(k, v)
+                    else:
+                        if isinstance(w, str):
+                            w = w.replace('-', '\-').replace('\n', '')
+                        comment += "{:32} {}\t\t'{}'\t\t\t'{}'\n".format(k, compare_strings(v, w), v, w)
+                comment = etree.Comment(comment)
+                osm_xml_data.append(comment)
+                # URL encode link and '--' in comment
+                josm_link = quote(josm_link)
+                josm_link = josm_link.replace('--', '%2D%2D')
+                comment = etree.Comment(' JOSM magic link: {}?new_layer=false&objects={}&addtags={} '.format
+                                        ('http://localhost:8111/load_object', josm_object, josm_link))
+                osm_xml_data.append(comment)
+                osm_xml_data.append(main_data)
+                # Next deafult OSM id is one more less for non existing objects
+                default_osm_id -= 1
+            except Exception as e:
+                logging.exception('Exception occurred')
     except ValueError as e:
         logging.error(e)
         logging.exception('Exception occurred')
