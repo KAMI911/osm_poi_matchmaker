@@ -44,6 +44,8 @@ POI_EV_TAGS = {'poi_capacity': 'capacity',
                'poi_socket_type2': 'socket:type2', 'poi_socket_type2_output': 'socket:type2:output',
                'poi_manufacturer': 'manufacturer', 'poi_model': 'model'}
 
+TESTCASE_GEN_KEYS = ('original', 'poi_postcode', 'poi_city', 'poi_addr_street', 'poi_addr_housenumber', 'poi_conscriptionnumber')
+
 TIMESTAMP_FORMAT = '{:{dfmt}T{tfmt}Z}'
 DATE_FOTMAT = '%Y-%m-%d'
 TIME_FORMAT = '%H:%M:%S'
@@ -193,6 +195,9 @@ def generate_osm_xml(df, session=None):
     added_nodes = []
     try:
         for index, row in df.iterrows():
+            tags = {}
+            osm_live_tags = {}
+            main_data = {}
             current_osm_id = default_osm_id if row.get('osm_id') is None else row.get('osm_id')
             osm_version = '99999' if row.get('osm_version') is None else row.get('osm_version')
             if row.get('osm_node') is None or row.get('osm_node') == OSM_object_type.node:
@@ -256,12 +261,9 @@ def generate_osm_xml(df, session=None):
                     osm_xml_data.append(comment)
                 # Using already definied OSM tags if exists
                 if row.get('osm_live_tags') is not None:
-                    tags = row.get('osm_live_tags')
+                    tags.update(row.get('osm_live_tags').copy())
                     logging.critical(row.get('osm_live_tags'))
-                    osm_live_tags = row.get('osm_live_tags').copy()
-                else:
-                    tags = {}
-                    osm_live_tags = {}
+                    osm_live_tags.update(row.get('osm_live_tags').copy())
                 # Adding POI common tags
                 if row.get('poi_tags') is not None:
                     tags.update(row.get('poi_tags'))
@@ -273,11 +275,14 @@ def generate_osm_xml(df, session=None):
                     preserved_name = tags.get('name')
             except KeyError as e:
                 logging.debug('No name tag is specified to save in original OpenStreetMap data.')
-            # Overwriting with data from data providers
             try:
+                # Overwriting with data from data providers
                 for k, v in POI_TAGS.items():
                     if row.get(k) is not None:
                         tags[v] = row.get(k)
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
                 if config.get_geo_alternative_opening_hours():
                     alternative_oh_tag = config.get_geo_alternative_opening_hours_tag()
                     # Alternative opening_hours handling for COVID-19 code path
@@ -295,9 +300,15 @@ def generate_osm_xml(df, session=None):
                     # Alternative opening_hours handling for NON COVID-19 code path: just simply add opening_hours to tags
                     if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
                         tags['opening_hours'] = row.get('poi_opening_hours')
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
                 # If we got POI phone tag use it as OSM contact:phone tag
                 if row.get('poi_phone') is not None and row.get('poi_phone') != '':
                     tags['contact:phone'] = row.get('poi_phone')
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
                 # If we got POI website tag use it as OSM contact:website tag
                 if row.get('poi_url_base') is not None and row.get('poi_website') is not None:
                     if row['poi_url_base'] in row.get('poi_website'):
@@ -309,12 +320,18 @@ def generate_osm_xml(df, session=None):
                 # If only the base URL is available
                 elif row.get('poi_url_base') is not None:
                     tags['contact:website'] = row.get('poi_url_base')
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
                 # Short URL for source
                 if row['poi_url_base'] is not None:
                     source_url = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
                 else:
                     source_url = 'source:website:date'
                 tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt=DATE_FOTMAT)
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
                 # Write back the saved name tag
                 if 'preserved_name' in locals():
                     tags['name'] = preserved_name
@@ -329,8 +346,14 @@ def generate_osm_xml(df, session=None):
                         else:
                             # Rewrite simple contact tag to contact:* tag
                             tags['contact:' + tr] = tags.pop(tr, None)
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
                 if row.get('poi_description') is not None and row.get('poi_description') != '':
                     tags['description'] = row.get('poi_description')
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
                 # Write tags with yes/no value
                 for k, v in POI_YESNO_TAGS.items():
                     if row.get(k) is not None and row.get(k) != '':
@@ -342,6 +365,9 @@ def generate_osm_xml(df, session=None):
                                 tags[v] = int(row.get(k))
                         else:
                             tags[v] = row.get(k)
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
                 # This is a new POI - will add fix me tag to the new items.
                 if row.get('poi_new') is not None and row.get('poi_new') is True:
                     tags['fixme'] = 'verify import'
@@ -349,6 +375,9 @@ def generate_osm_xml(df, session=None):
                 tags.pop('addr:country', None)
                 # tags['import'] = 'osm_poi_matchmaker'
                 # Rendering tags to the XML file and JOSM magic link
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
                 josm_link = ''
                 comment = '\nKey\t\t\t\tStatus\t\tNew value\t\tOSM value\n'
                 for k, v in sorted(tags.items()):
@@ -366,13 +395,32 @@ def generate_osm_xml(df, session=None):
                             w = w.replace('-', '\-').replace('\n', '')
                         comment += "{:32} {}\t\t'{}'\t\t\t'{}'\n".format(k, compare_strings(v, w), v, w)
                 comment = etree.Comment(comment)
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
                 osm_xml_data.append(comment)
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
                 # URL encode link and '--' in comment
                 josm_link = quote(josm_link)
                 josm_link = josm_link.replace('--', '%2D%2D')
                 comment = etree.Comment(' JOSM magic link: {}?new_layer=false&objects={}&addtags={} '.format
                                         ('http://localhost:8111/load_object', josm_object, josm_link))
                 osm_xml_data.append(comment)
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
+                test_case = {k: row.get(k, None) for k in TESTCASE_GEN_KEYS}
+                comment = etree.Comment("ˇ'original': '{t[original]}', 'postcode': '{t[poi_postcode]}', 'city': '{t[poi_city]}', 'street': '{t[poi_addr_street]}', 'housenumber': '{t[poi_addr_housenumber]}', 'conscriptionnumber': '{t[poi_conscriptionnumber]}'°".format(t=test_case))
+                osm_xml_data.append(comment)
+            except Exception as e:
+                logging.exception('Exception occurred')
+            try:
+                osm_xml_data.append(xml_node_tags)
+            except UnboundLocalError as e:
+                logging.debug('Unbound local error extra node tags')
+            try:
                 osm_xml_data.append(main_data)
                 # Next deafult OSM id is one more less for non existing objects
                 default_osm_id -= 1
