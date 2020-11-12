@@ -1,6 +1,12 @@
 # osm_poi_matchmaker - OSM POI ⌘ 🎔 MatchMaker
 
-[![Build Status](https://api.travis-ci.org/KAMI911/osm_poi_matchmaker.svg?branch=master)](https://travis-ci.org/KAMI911/osm_poi_matchmaker/)[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7fa248270de94705a4ddc956ca710ce3)](https://www.codacy.com/app/KAMI911/osm_poi_matchmaker?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KAMI911/osm_poi_matchmaker&amp;utm_campaign=Badge_Grade)[![Maintainability](https://api.codeclimate.com/v1/badges/710ad0cde398623b864b/maintainability)](https://codeclimate.com/github/KAMI911/osm_poi_matchmaker/maintainability) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/KAMI911/osm_poi_matchmaker/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/KAMI911/osm_poi_matchmaker/?branch=master) [![Build Status](https://scrutinizer-ci.com/g/KAMI911/osm_poi_matchmaker/badges/build.png?b=master)](https://scrutinizer-ci.com/g/KAMI911/osm_poi_matchmaker/build-status/master)
+[![Build Status](https://api.travis-ci.org/KAMI911/osm_poi_matchmaker.svg?branch=master)](https://travis-ci.org/KAMI911/osm_poi_matchmaker/)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7fa248270de94705a4ddc956ca710ce3)](https://www.codacy.com/app/KAMI911/osm_poi_matchmaker?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KAMI911/osm_poi_matchmaker&amp;utm_campaign=Badge_Grade)
+[![Maintainability](https://api.codeclimate.com/v1/badges/710ad0cde398623b864b/maintainability)](https://codeclimate.com/github/KAMI911/osm_poi_matchmaker/maintainability)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/KAMI911/osm_poi_matchmaker/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/KAMI911/osm_poi_matchmaker/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/KAMI911/osm_poi_matchmaker/badges/build.png?b=master)](https://scrutinizer-ci.com/g/KAMI911/osm_poi_matchmaker/build-status/master)
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/KAMI911/osm_poi_matchmaker.svg)](http://isitmaintained.com/project/KAMI911/osm_poi_matchmaker "Percentage of issues still open")
+![GitHub stars](https://img.shields.io/github/stars/KAMI911/osm_poi_matchmaker?style=social)
 
 ## Table of Contents
 
