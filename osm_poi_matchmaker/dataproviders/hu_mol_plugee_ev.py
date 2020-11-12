@@ -60,8 +60,8 @@ class hu_mol_plugee_ev(DataProvider):
                         extract_street_housenumber_better_2(
                             poi_data.get('Cím'))
                     self.data.original = poi_data.get('Cím')
-                    self.data.lat, self.data.lon = check_hu_boundary(
-                        poi_data.get('X'), poi_data.get('Y'))
+                    lat, lng = poi_data.get('X'), poi_data.get('Y')
+                    self.data.lat, self.data.lon = check_hu_boundary(lat.replace(',', '.'), lng.replace(',','.'))
                     self.data.socket_chademo = poi_data.get('Darab (CHAdeMO)')
                     self.data.socket_chademo_output = poi_data.get(
                         'Teljesítmény (CHAdeMO)')
