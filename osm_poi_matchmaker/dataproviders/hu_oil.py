@@ -31,8 +31,7 @@ class hu_oil(DataProvider):
                      'ref:HU:company': '01-09-699184',
                      'contact:facebook': 'https://www.facebook.com/OILHungary/', }
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(
-            self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         huoilfu = self.tags.copy()
@@ -76,8 +75,11 @@ class hu_oil(DataProvider):
                             self.data.ref = poi_data.get('id').strip()
                         if poi_data.get('url') is not None and poi_data.get('url') != '':
                             self.data.website = poi_data.get('url').strip()
+                        else:
+                            self.data.website = 'https://www.oil-benzinkutak.hu'
                         if poi_data.get('store') is not None and poi_data.get('store') != '':
-                            self.data.branch = poi_data.get('store').strip()
+                            tmp = poi_data.get('store').split(' ', 1)
+                            self.data.branch = tmp[1].strip().capitalize()
                         self.data.add()
                     except Exception as e:
                         logging.error(e)
