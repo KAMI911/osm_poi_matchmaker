@@ -42,6 +42,7 @@ def online_poi_matching(args):
                 osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
                                                       comm_data.loc[comm_data['pc_id'] == row.get('poi_common_id')][
                                                           'poi_type'].values[0], row.get('poi_search_name'),
+                                                      row.get('poi_search_avoid_name'),
                                                       row.get('poi_addr_street'), row.get('poi_addr_housenumber'),
                                                       row.get('poi_conscriptionnumber'), row.get('poi_city'),
                                                       row.get('osm_search_distance_perfect'),
@@ -109,8 +110,9 @@ def online_poi_matching(args):
                         # Add list of relation nodes to the dataframe
                         nodes = db.query_relation_nodes(osm_id)
                         data.at[i, 'osm_nodes'] = nodes
-                    logging.info('Old %s type: %s POI within %s m: %s %s, %s %s (%s)',
-                                 data.at[i, 'poi_search_name'], data.at[i, 'poi_type'], data.at[i, 'poi_distance'],
+                    logging.info('Old %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
+                                 data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'], 
+                                 data.at[i, 'poi_type'], data.at[i, 'poi_distance'],
                                  data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
                                  data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'])
                     try:
@@ -240,9 +242,9 @@ def online_poi_matching(args):
                             data.at[i, 'poi_postcode'] = postcode
                     else:
                         logging.info('Preserving original postcode %s', row.get('poi_postcode'))
-                    logging.info('New %s type: %s POI: %s %s, %s %s (%s)', row.get('poi_search_name'),
-                                 row.get('poi_type'), row.get('poi_postcode'), row.get('poi_city'),
-                                 row.get('poi_addr_street'),
+                    logging.info('New %s (not %s) type: %s POI: %s %s, %s %s (%s)', row.get('poi_search_name'),
+                                 row.get('poi_search_avoid_name'), row.get('poi_type'), row.get('poi_postcode'),
+                                 row.get('poi_city'), row.get('poi_addr_street'),
                                  row.get('poi_addr_housenumber'), row.get('poi_conscriptionnumber'))
             except Exception as e:
                 logging.error(e)

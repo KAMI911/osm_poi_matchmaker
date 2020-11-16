@@ -39,6 +39,9 @@ class hu_sber_bank(DataProvider):
         self.__types = [
             {'poi_code': 'husberbank', 'poi_name': 'Sberbank', 'poi_type': 'bank',
              'poi_tags': husberbank, 'poi_url_base': 'https://www.sberbank.hu', 'poi_search_name': '(sber|sberbank)',
+             # Note: Volksbank is Sberbank
+             # https://www.sberbank.at/press-releases/sberbank-completes-acquisition-volksbank-international
+             'poi_search_avoid_name': '(erste|raiffeisen)',
              'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 100, 'osm_search_distance_unsafe': 40},
             {'poi_code': 'husberatm', 'poi_name': 'Sberbank ATM', 'poi_type': 'atm',
              'poi_tags': husberatm, 'poi_url_base': 'https://www.sberbank.hu', 'poi_search_name': '(sber|sberbank)',

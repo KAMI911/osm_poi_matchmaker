@@ -133,7 +133,7 @@ class POIBase:
         data = pd.read_sql(query, self.engine, params={'relation_id': int(abs(relation_id))})
         return data.values.tolist()[0][0]
 
-    def query_osm_shop_poi_gpd(self, lon: float, lat: float, ptype: str = 'shop', name: str = '', street_name: str = '',
+    def query_osm_shop_poi_gpd(self, lon: float, lat: float, ptype: str = 'shop', name: str = '', avoid_name: str = '', street_name: str = '',
                                housenumber: str = '', conscriptionnumber: str = '', city: str = '',
                                distance_perfect: int = None, distance_safe: int = None, distance_unsafe: int = None,
                                with_metadata: bool = True):
@@ -143,6 +143,7 @@ class POIBase:
         :param lat:
         :param ptype:
         :param name:
+        :param avoid_name:
         :param street_name:
         :param housenumber:
         :param conscriptionnumber:
@@ -168,6 +169,11 @@ class POIBase:
                 distance_perfect = config.get_geo_default_poi_perfect_distance()
         else:
             query_name = ''
+        # Do not match with other specified names and brands
+        if avoid_name is not None and avoid_name != '':
+            query_avoid_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) OR LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)))'
+        else:
+            query_avoid_name = ''    
         if with_metadata is True:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
         else:
@@ -188,7 +194,7 @@ class POIBase:
             city_query = ' AND LOWER(TEXT("addr:city")) = LOWER(TEXT(:city))'
         else:
             city_query = ''
-        logging.debug('%s %s: %s, %s, %s %s %s (%s) [%s, %s, %s]', lon, lat, ptype, name, city,
+        logging.debug('%s %s: %s, %s (NOT %s), %s %s %s (%s) [%s, %s, %s]', lon, lat, ptype, name, avoid_name, city,
                       street_name, housenumber, conscriptionnumber, distance_perfect, distance_safe, distance_unsafe)
         # Looking for way (building)
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
@@ -202,7 +208,7 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
-            WHERE ({query_type}) AND osm_id > 0 {query_name} {conscriptionnumber_query} {city_query}
+            WHERE ({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} {conscriptionnumber_query} {city_query}
             UNION ALL
             --- The node selector with conscriptionnumber and city
             SELECT name, osm_id, {metadata_fields} 965 AS priority, 'node' AS node, shop, amenity, "addr:housename",
@@ -211,7 +217,7 @@ class POIBase:
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
             FROM planet_osm_point
-            WHERE ({query_type}) AND osm_id > 0 {query_name} {conscriptionnumber_query} {city_query}
+            WHERE ({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} {conscriptionnumber_query} {city_query}
             UNION ALL
             --- The relation selector with conscriptionnumber and city
             SELECT name, osm_id, {metadata_fields} 965 AS priority, 'relation' AS node, shop, amenity,
@@ -220,9 +226,10 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
-            WHERE ({query_type}) AND osm_id < 0 {query_name} {query_name} {conscriptionnumber_query} {city_query}
+            WHERE ({query_type}) AND osm_id < 0 {query_name} {query_avoid_name} {conscriptionnumber_query} {city_query}
             '''
             query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
+                                                      query_avoid_name=query_avoid_name,
                                                       metadata_fields=metadata_fields,
                                                       conscriptionnumber_query=conscriptionnumber_query,
                                                       city_query=city_query))
@@ -244,7 +251,7 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
-            WHERE ({query_type}) AND osm_id > 0 {query_name} {city_query} {street_query} {housenumber_query}
+            WHERE ({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} {city_query} {street_query} {housenumber_query}
             UNION ALL
             --- The node selector with street name and housenumber
             SELECT name, osm_id, {metadata_fields} 940 AS priority, 'node' AS node, shop, amenity, "addr:housename",
@@ -253,7 +260,7 @@ class POIBase:
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
             FROM planet_osm_point
-            WHERE ({query_type}) AND osm_id > 0 {query_name} {city_query} {street_query} {housenumber_query}
+            WHERE ({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} {city_query} {street_query} {housenumber_query}
             UNION ALL
             --- The relation selector with street name and housenumber
             SELECT name, osm_id, {metadata_fields} 940 AS priority, 'relation' AS node, shop, amenity,
@@ -262,9 +269,10 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
-            WHERE ({query_type}) AND osm_id < 0 {query_name} {city_query} {street_query} {housenumber_query}
+            WHERE ({query_type}) AND osm_id < 0 {query_name} {query_avoid_name} {city_query} {street_query} {housenumber_query}
             '''
             query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
+                                                      query_avoid_name=query_avoid_name,
                                                       metadata_fields=metadata_fields,
                                                       street_query=street_query,
                                                       city_query=city_query,
@@ -290,7 +298,7 @@ class POIBase:
                        ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                        ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query} {housenumber_query}
+                WHERE ({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} {street_query} {housenumber_query}
                     AND ST_DistanceSphere(way, point.geom) < :distance_perfect
                 UNION ALL
                 --- The node selector with street name and with housenumber
@@ -301,7 +309,7 @@ class POIBase:
                        ST_X(planet_osm_point.way) as lon,
                        ST_Y(planet_osm_point.way) as lat
                 FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query} {housenumber_query}
+                WHERE ({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} {street_query} {housenumber_query}
                     AND ST_DistanceSphere(way, point.geom) < :distance_perfect
                 UNION ALL
                 --- The relation selector with street name and with housenumber
@@ -312,7 +320,7 @@ class POIBase:
                        ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                        ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE ({query_type}) AND osm_id < 0 {query_name} {street_query} {housenumber_query}
+                WHERE ({query_type}) AND osm_id < 0 {query_name} {query_avoid_name} {street_query} {housenumber_query}
                     AND ST_DistanceSphere(way, point.geom) < :distance_perfect
                 ''')
             query_arr.append('''
@@ -325,7 +333,7 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE (({query_type}) AND osm_id > 0 {query_name} {street_query})
+            WHERE (({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} {street_query})
                 AND ST_DistanceSphere(way, point.geom) < :distance_safe
             UNION ALL
             --- The node selector with street name and without housenumber
@@ -336,7 +344,7 @@ class POIBase:
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE (({query_type}) AND osm_id > 0 {query_name} {street_query})
+            WHERE (({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} {street_query})
                 AND ST_DistanceSphere(way, point.geom) < :distance_safe
             UNION ALL
             --- The relation selector with street name and without housenumber
@@ -347,7 +355,7 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE (({query_type}) AND osm_id < 0 {query_name} {street_query})
+            WHERE (({query_type}) AND osm_id < 0 {query_name} {query_avoid_name} {street_query})
                 AND ST_DistanceSphere(way, point.geom) < :distance_safe
             ''')
         else:
@@ -362,7 +370,7 @@ class POIBase:
                        ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                        ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE (({query_type}) AND osm_id > 0 {query_name} {housenumber_query})
+                WHERE (({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} {housenumber_query})
                     AND ST_DistanceSphere(way, point.geom) < :distance_safe
                 UNION ALL
                 --- The node selector without street name and with housenumber
@@ -373,7 +381,7 @@ class POIBase:
                        ST_X(planet_osm_point.way) as lon,
                        ST_Y(planet_osm_point.way) as lat
                 FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE (({query_type}) AND osm_id > 0 {query_name} {housenumber_query})
+                WHERE (({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} {housenumber_query})
                     AND ST_DistanceSphere(way, point.geom) < :distance_safe
                 UNION ALL
                 --- The relation selector without street name and with housenumber
@@ -385,7 +393,7 @@ class POIBase:
                        ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                        ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                WHERE ({query_type}) AND osm_id < 0 {query_name} {housenumber_query}
+                WHERE ({query_type}) AND osm_id < 0 {query_name} {query_avoid_name} {housenumber_query}
                     AND ST_DistanceSphere(way, point.geom) < :distance_safe
                 ''')
         # Trying without street name and house number in case when the street name and/or the house not matching at all
@@ -399,7 +407,7 @@ class POIBase:
                ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-        WHERE (({query_type}) AND osm_id > 0 {query_name})
+        WHERE (({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} )
             AND ST_DistanceSphere(way, point.geom) < :distance_safe
         UNION ALL
         --- The node selector without street name and without housenumber
@@ -410,7 +418,7 @@ class POIBase:
                ST_X(planet_osm_point.way) as lon,
                ST_Y(planet_osm_point.way) as lat
         FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-        WHERE (({query_type}) AND osm_id > 0 {query_name})
+        WHERE (({query_type}) AND osm_id > 0 {query_name} {query_avoid_name} )
             AND ST_DistanceSphere(way, point.geom) < :distance_safe
         UNION ALL
         --- The relation selector without street name and without housenumber
@@ -422,7 +430,7 @@ class POIBase:
                ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-        WHERE (({query_type}) AND osm_id < 0 {query_name})
+        WHERE (({query_type}) AND osm_id < 0 {query_name} {query_avoid_name} )
             AND ST_DistanceSphere(way, point.geom) < :distance_safe
         ''')
         query_arr.append('''
@@ -463,6 +471,7 @@ class POIBase:
         ''')
         query_text = 'UNION ALL'.join(query_arr) + 'ORDER BY priority ASC, distance ASC;'
         query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
+                                                  query_avoid_name=query_avoid_name,
                                                   metadata_fields=metadata_fields,
                                                   street_query=street_query,
                                                   city_query=city_query,

@@ -42,6 +42,7 @@ class hu_shell(DataProvider):
         self.__types = [
             {'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel', 'poi_tags': hushellfu,
              'poi_url_base': 'https://shell.hu', 'poi_search_name': 'shell',
+             'poi_search_avoid_name': 'hunoil',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
             # {'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel', 'poi_tags': humobpefu,
             #  'poi_url_base': 'http://mpetrol.hu/', 'poi_search_name': '(m petrol|m. petrol|mobil metrol|shell)',

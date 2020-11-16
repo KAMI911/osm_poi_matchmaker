@@ -39,11 +39,14 @@ class hu_budapest_bank(DataProvider):
             {'poi_code': 'hubpbank', 'poi_name': 'Budapest Bank', 'poi_type': 'bank',
              'poi_tags': hubpbank, 'poi_url_base': 'https://www.budapestbank.hu',
              'poi_search_name': '(budapest bank|bp bank)',
+             'poi_search_avoid_name': '(otpbank|otp|otp bank)',
              'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 40},
             {'poi_code': 'hubpatm', 'poi_name': 'Budapest Bank ATM', 'poi_type': 'atm',
              'poi_tags': hubpatm,
-             'poi_url_base': 'https://www.budapestbank.hu', 'poi_search_name': '(budapest bank|bp bank)',
+             'poi_url_base': 'https://www.budapestbank.hu',
+             'poi_search_name': '(budapest bank|budapest bank atm|bp bank|bp bank atm)',
+             'poi_search_avoid_name': '(otp atm|otp)',
              'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10},
         ]
@@ -66,10 +69,6 @@ class hu_budapest_bank(DataProvider):
                         self.data.public_holiday_open = True
                     self.data.postcode = poi_data['zip']
                     self.data.city = poi_data['city_only']
-                    if self.data.code == 'hubpatm':
-                        self.data.nonstop = True
-                    else:
-                        self.data.nonstop = False
                     self.data.lat, self.data.lon = check_hu_boundary(
                         poi_data['latitude'], poi_data['longitude'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
@@ -147,6 +146,10 @@ class hu_budapest_bank(DataProvider):
                                 except IndexError as e:
                                     cl = None
                                 self.data.fr_c = cl if open is not None and cl != '' else None
+                    if self.data.code == 'hubpatm':
+                        self.data.nonstop = True
+                    else:
+                        self.data.nonstop = False
                     self.data.add()
         except Exception as e:
             logging.exception('Exception occurred')
