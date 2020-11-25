@@ -479,8 +479,9 @@ class POIBase:
         # logging.debug(query)
         query_params = {'lon': lon, 'lat': lat, 'distance_unsafe': distance_unsafe,
                         'distance_safe': distance_safe, 'distance_perfect': distance_perfect,
-                        'name': '.*{}.*'.format(name), 'buffer': buffer, 'street_name': street_name,
-                        'conscriptionnaumber': conscriptionnumber, 'city': city, 'housenumber': housenumber}
+                        'name': '.*{}.*'.format(name), 'avoid_name': '.*{}.*'.format(avoid_name),'buffer': buffer,
+                        'street_name': street_name,'conscriptionnaumber': conscriptionnumber, 'city': city,
+                        'housenumber': housenumber}
 
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
         if not data.empty:
