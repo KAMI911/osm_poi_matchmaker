@@ -165,7 +165,7 @@ class POIBase:
         if name is not None and name != '':
             # Do not match with other specified names and brands
             if avoid_name is not None and avoid_name != '':
-                query_name = ' AND ((LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name))) AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) OR LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name))))'
+                query_name = ' AND ((LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name))) AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name))))'
             else:
                 query_name = ' AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)))'
             # If we have PO common defined safe search radius distance, then use it (or use defaults specified above)
@@ -174,7 +174,7 @@ class POIBase:
         else:
             # Do not match with other specified names and brands
             if avoid_name is not None and avoid_name != '':
-                query_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) OR LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)))'
+                query_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)))'
             else:
                 query_name = ''
         if with_metadata is True:
