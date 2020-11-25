@@ -165,7 +165,7 @@ class POIBase:
         if name is not None and name != '':
             # Do not match with other specified names and brands
             if avoid_name is not None and avoid_name != '':
-                query_name = ' AND ((LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name))) AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) OR LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name))))'
+                query_name = ' AND ((LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name))) AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name))))'
             else:
                 query_name = ' AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)))'
             # If we have PO common defined safe search radius distance, then use it (or use defaults specified above)
@@ -174,7 +174,7 @@ class POIBase:
         else:
             # Do not match with other specified names and brands
             if avoid_name is not None and avoid_name != '':
-                query_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) OR LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)))'
+                query_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)))'
             else:
                 query_name = ''
         if with_metadata is True:
@@ -479,8 +479,9 @@ class POIBase:
         # logging.debug(query)
         query_params = {'lon': lon, 'lat': lat, 'distance_unsafe': distance_unsafe,
                         'distance_safe': distance_safe, 'distance_perfect': distance_perfect,
-                        'name': '.*{}.*'.format(name), 'buffer': buffer, 'street_name': street_name,
-                        'conscriptionnaumber': conscriptionnumber, 'city': city, 'housenumber': housenumber}
+                        'name': '.*{}.*'.format(name), 'avoid_name': '.*{}.*'.format(avoid_name),'buffer': buffer,
+                        'street_name': street_name,'conscriptionnaumber': conscriptionnumber, 'city': city,
+                        'housenumber': housenumber}
 
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
         if not data.empty:
