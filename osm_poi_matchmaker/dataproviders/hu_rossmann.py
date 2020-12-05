@@ -54,7 +54,7 @@ class hu_rossmann(DataProvider):
                                         self.filetype, None, self.verify_link)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
-                text = json.loads(extract_javascript_variable(soup, 'places'))
+                text = json.loads(extract_javascript_variable(soup, 'locations'))
                 for poi_data in text:
                     poi_data = poi_data['addresses'][0]
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
