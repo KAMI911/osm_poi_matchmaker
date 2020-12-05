@@ -51,7 +51,7 @@ class hu_jysk(DataProvider):
             if soup is not None:
                 soup_data = soup.find(
                     'script', {'data-drupal-selector': 'drupal-settings-json'})
-                json_data = json.loads(soup_data.text)
+                json_data = json.loads(soup_data.text, strict=False)
                 for shop in json_data['storesLocator']['BuildCoordinates']:
                     self.data.name = 'Jysk'
                     self.data.code = 'hujyskfur'
