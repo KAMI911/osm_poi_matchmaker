@@ -156,45 +156,59 @@ class POIBase:
         '''
         buffer = 10
         query_arr = []
+        query_params = {}
         query_type, distance = poitypes.getPOITypes(ptype)
         # If we have PO common defined unsafe search radius distance, then use it (or use defaults specified above)
         if distance_unsafe is None or distance_unsafe == '' or math.isnan(distance_unsafe):
             distance_unsafe = config.get_geo_default_poi_unsafe_distance()
+        query_params.update({'distance_unsafe': distance_unsafe})
         if distance_safe is None or distance_safe == '' or math.isnan(distance_safe):
             distance_safe = config.get_geo_default_poi_distance()
+        query_params.update({'distance_safe': distance_safe})
+        if lon is not None and lon != '':
+            query_params.update({'lon': lon})
+        if lat is not None and lat != '':
+            query_params.update({'lat': lat})
+        if buffer is not None and buffer != '':
+            query_params.update({'buffer': buffer})
+        # Do not match with other specified names and brands
         if name is not None and name != '':
-            # Do not match with other specified names and brands
-            if avoid_name is not None and avoid_name != '':
-                query_name = ' AND ((LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name))) AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name))))'
-            else:
-                query_name = ' AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)))'
+            query_name = ' AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)))'
+            query_params.update({'name': '.*{}.*'.format(name)})
             # If we have PO common defined safe search radius distance, then use it (or use defaults specified above)
             if distance_perfect is None or distance_perfect != '' or math.isnan(distance_perfect):
                 distance_perfect = config.get_geo_default_poi_perfect_distance()
+            query_params.update({'distance_perfect': distance_perfect})
         else:
-            # Do not match with other specified names and brands
-            if avoid_name is not None and avoid_name != '':
-                query_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)))'
-            else:
-                query_name = ''
+            query_name = '' 
+        # Do not match with other specified names and brands
+        if avoid_name is not None and avoid_name != '':
+            query_avoid_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)))'
+            query_params.update({'avoid_name': '.*{}.*'.format(avoid_name)})
+        else:
+            query_avoid_name = '' 
         if with_metadata is True:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
         else:
             metadata_fields = ''
         if street_name is not None and street_name != '':
             street_query = ' AND LOWER(TEXT("addr:street")) = LOWER(TEXT(:street_name))'
+            query_params.update({'street_name': street_name})
         else:
             street_query = ''
         if housenumber is not None and housenumber != '':
             housenumber_query = ' AND LOWER(TEXT("addr:housenumber")) = LOWER(TEXT(:housenumber))'
+            query_params.update({'housenumber': housenumber})
         else:
             housenumber_query = ''
         if conscriptionnumber is not None and conscriptionnumber != '':
             conscriptionnumber_query = ' AND LOWER(TEXT("addr:conscriptionnumber")) = LOWER(TEXT(:conscriptionnumber))'
+            query_params.update({'conscriptionnaumber': conscriptionnaumber})
         else:
             conscriptionnumber_query = ''
         if city is not None and city != '':
             city_query = ' AND LOWER(TEXT("addr:city")) = LOWER(TEXT(:city))'
+            query_params.update({'city': city})
         else:
             city_query = ''
         logging.debug('%s %s: %s, %s (NOT %s), %s %s %s (%s) [%s, %s, %s]', lon, lat, ptype, name, avoid_name, city,
@@ -235,9 +249,15 @@ class POIBase:
                                                       metadata_fields=metadata_fields,
                                                       conscriptionnumber_query=conscriptionnumber_query,
                                                       city_query=city_query))
-            # logging.debug(query)
-            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params={
-                'name': '.*{}.*'.format(name), 'conscriptionnumber': conscriptionnumber, 'city': city})
+            logging.debug(str(query))
+            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
+            '''perf_query = sqlalchemy.text('EXPLAIN ' + query_text.format(query_type=query_type, query_name=query_name,
+                                                      metadata_fields=metadata_fields,
+                                                      conscriptionnumber_query=conscriptionnumber_query,
+                                                      city_query=city_query))
+            perf = gpd.GeoDataFrame.from_postgis(perf_query, self.engine, geom_col='way', params=query_params)
+            logging.debug(perf)
+            '''
             if not data.empty:
                 logging.debug(data.to_string())
                 return data.iloc[[0]]
@@ -278,11 +298,17 @@ class POIBase:
                                                       street_query=street_query,
                                                       city_query=city_query,
                                                       housenumber_query=housenumber_query))
-            # logging.debug(query)
-            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way',
-                                                 params={'name': '.*{}.*'.format(name), 'street_name': street_name,
-                                                         'city': city, 'housenumber': housenumber}
-                                                 )
+            logging.debug(str(query))
+            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
+            '''
+            perf_query = sqlalchemy.text('EXPLAIN ' + query_text.format(query_type=query_type, query_name=query_name,
+                                                      metadata_fields=metadata_fields,
+                                                      street_query=street_query,
+                                                      city_query=city_query,
+                                                      housenumber_query=housenumber_query))
+            perf = gpd.GeoDataFrame.from_postgis(perf_query, self.engine, geom_col='way', params=query_params)
+            logging.debug(perf)
+            '''
             if not data.empty:
                 logging.debug(data.to_string())
                 return data.iloc[[0]]
@@ -444,7 +470,7 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE ({query_type}) AND osm_id > 0
+            WHERE (({query_type}) AND osm_id > 0 {query_avoid_name} )
                 AND ST_DistanceSphere(way, point.geom) < :distance_unsafe
             UNION ALL
             --- The node selector without name and street name
@@ -455,7 +481,7 @@ class POIBase:
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE ({query_type}) AND osm_id > 0
+            WHERE (({query_type}) AND osm_id > 0 {query_avoid_name} )
                 AND ST_DistanceSphere(way, point.geom) < :distance_unsafe
             UNION ALL
             --- The relation selector without name street name
@@ -467,23 +493,27 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE ({query_type}) AND osm_id < 0
+            WHERE (({query_type}) AND osm_id < 0 {query_avoid_name} )
                 AND ST_DistanceSphere(way, point.geom) < :distance_unsafe
         ''')
         query_text = 'UNION ALL'.join(query_arr) + 'ORDER BY priority ASC, distance ASC;'
         query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
+                                                  query_avoid_name=query_avoid_name,
                                                   metadata_fields=metadata_fields,
                                                   street_query=street_query,
                                                   city_query=city_query,
                                                   housenumber_query=housenumber_query))
-        # logging.debug(query)
-        query_params = {'lon': lon, 'lat': lat, 'distance_unsafe': distance_unsafe,
-                        'distance_safe': distance_safe, 'distance_perfect': distance_perfect,
-                        'name': '.*{}.*'.format(name), 'avoid_name': '.*{}.*'.format(avoid_name),'buffer': buffer,
-                        'street_name': street_name,'conscriptionnaumber': conscriptionnumber, 'city': city,
-                        'housenumber': housenumber}
-
+        logging.debug(str(query))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
+        '''
+        perf_query = sqlalchemy.text('EXPLAIN ' + query_text.format(query_type=query_type, query_name=query_name,
+                                                  metadata_fields=metadata_fields,
+                                                  street_query=street_query,
+                                                  city_query=city_query,
+                                                  housenumber_query=housenumber_query))
+        perf = gpd.GeoDataFrame.from_postgis(perf_query, self.engine, geom_col='way', params=query_params)
+        logging.debug(perf)
+        '''
         if not data.empty:
             logging.debug(data.to_string())
             return data.iloc[[0]]
