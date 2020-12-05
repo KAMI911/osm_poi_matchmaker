@@ -169,8 +169,7 @@ class POIBase:
             query_params.update({'lon': lon})
         if lat is not None and lat != '':
             query_params.update({'lat': lat})
-        if buffer is not None and buffer != '':
-            query_params.update({'buffer': buffer})
+        query_params.update({'buffer': buffer})
         # Do not match with other specified names and brands
         if name is not None and name != '':
             query_name = ' AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)))'
