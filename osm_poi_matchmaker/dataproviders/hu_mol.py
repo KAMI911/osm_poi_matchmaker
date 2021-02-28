@@ -25,28 +25,38 @@ class hu_mol(DataProvider):
 
     def constains(self):
         self.link = 'http://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json'
-        self.tags = {'amenity': 'fuel', 'brand': 'MOL', 'operator': 'MOL Nyrt.',
+        self.fuel = {'amenity': 'fuel', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}
+        self.tags = {'brand': 'MOL', 'operator': 'MOL Nyrt.',
                      'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.',
                      'ref:vatin:hu': '10625790-4-44',
                      'contact:facebook': 'https://www.facebook.com/mol.magyarorszag/',
                      'contact:youtube': 'https://www.youtube.com/user/molgrouptv',
                      'contact:instagram': 'https://www.instagram.com/mol.magyarorszag/',
                      'brand:wikipedia': 'hu:MOL Magyar Olaj- és Gázipari Nyrt.', 'brand:wikidata': 'Q549181',
-                     'ref:HU:company': '01-10-041683', 'fuel:diesel': 'yes',
-                     'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}
+                     'ref:HU:company': '01-10-041683'}
+        self.waterway_fuel = {'waterway': 'fuel'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
         humolfu = self.tags.copy()
+        humolfu.update(self.fuel)
         humolfu.update(POS_HU_GEN)
         humolfu.update(PAY_CASH)
+        humolwfu = self.tags.copy()
+        humolwfu.update(self.waterway_fuel)
+        humolwfu.update(POS_HU_GEN)
+        humolwfu.update(PAY_CASH)
         self.__types = [
             {'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
              'poi_tags': humolfu, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
              'osm_search_distance_perfect': 2000,
-             'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60}]
+             'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
+            {'poi_code': 'humolwfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
+             'poi_tags': humolwfu, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
+             'osm_search_distance_perfect': 2000,
+             'osm_search_distance_safe': 800, 'osm_search_distance_unsafe': 300}, ]
         return self.__types
 
     def process(self):
@@ -57,7 +67,10 @@ class hu_mol(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text:
                     self.data.name = 'MOL'
-                    self.data.code = 'humolfu'
+                    if " Sziget " in poi_data.get('name'):
+                        self.data.code = 'humolwfu'
+                    else:
+                        self.data.code = 'humolfu'
                     self.data.postcode = poi_data.get('postcode').strip()
                     self.data.city = clean_city(poi_data['city'])
                     self.data.original = poi_data['address']

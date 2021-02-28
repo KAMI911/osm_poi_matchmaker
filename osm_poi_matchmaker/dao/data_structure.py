@@ -46,6 +46,7 @@ class POI_type(enum.Enum):
     cosmetics = 17
     furniture = 18
     charging_station = 19
+    waterway_fuel = 20
 
 
 class POI_address(Base):
