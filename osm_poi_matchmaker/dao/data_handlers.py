@@ -4,7 +4,7 @@ try:
     import logging
     import sys
     import hashlib
-    from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, Street_type
+    from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, POI_patch, Street_type
     from osm_poi_matchmaker.libs import address
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
@@ -128,6 +128,25 @@ def insert_street_type_dataframe(session, city_df):
         logging.info('Successfully added %s street type items to the dataset.', len(city_df))
         session.commit()
 
+def insert_patch_data_dataframe(session, patch_df):
+    patch_df.columns = ['poi_code', 'orig_postcode', 'orig_city', 'orig_street', 'orig_housenumber', 'orig_conscriptionnumber', 'orig_name','new_postcode', 'new_city', 'new_street', 'new_housenumber', 'new_conscriptionnumber', 'new_name']
+    try:
+        for index, patch_data in patch_df.iterrows():
+            get_or_create(session, POI_patch, poi_code=patch_data['poi_code'], orig_postcode=patch_data['orig_postcode'], orig_city=patch_data['orig_city'],
+            orig_street=patch_data['orig_street'], orig_housenumber=patch_data['orig_housenumber'], orig_conscriptionnumber=patch_data['orig_conscriptionnumber'],
+            orig_name=patch_data['orig_name'], new_postcode=patch_data['new_postcode'], new_city=patch_data['new_city'],
+            new_street=patch_data['new_street'], new_housenumber=patch_data['new_housenumber'], new_conscriptionnumber=patch_data['new_conscriptionnumber'],
+            new_name=patch_data['new_name'])
+    except Exception as e:
+
+        logging.error('Rolled back: %s.', e)
+        logging.error(patch_data)
+        logging.exception('Exception occurred')
+
+        session.rollback()
+    else:
+        logging.info('Successfully added %s patch items to the dataset.', len(patch_df))
+        session.commit()
 
 def insert_common_dataframe(session, common_df):
     common_df.columns = ['poi_name', 'poi_tags', 'poi_url_base', 'poi_code']

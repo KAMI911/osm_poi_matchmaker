@@ -225,3 +225,25 @@ class POI_osm(Base):
     geom_hint = Column(Geometry('POINT, {}'.format(config.get_geo_default_projection())))
 
     __table_args__ = (UniqueConstraint('poi_osm_id', 'poi_osm_object_type', name='uc_poi_osm_osm_type'),)
+
+class POI_patch(Base):
+    """
+    docstring
+    """
+    __tablename__ = 'poi_patch'
+    _plural_name_ = 'poi_patch'
+    ph_id = Column(Integer, primary_key=True, index=True)
+    id = synonym('ph_id')
+    poi_code = Column(Unicode(10), unique=False, nullable=True, index=True)
+    orig_postcode = Column(Integer)
+    orig_city = Column(Unicode(64))
+    orig_street = Column(Unicode(128))
+    orig_housenumber = Column(Unicode(16))
+    orig_conscriptionnumber = Column(Unicode(16))    
+    orig_name = Column(Unicode(64), unique=False, nullable=True, index=True)
+    new_postcode = Column(Integer)
+    new_city = Column(Unicode(64))
+    new_street = Column(Unicode(128))
+    new_housenumber = Column(Unicode(16))
+    new_conscriptionnumber = Column(Unicode(16))    
+    new_name = Column(Unicode(64), unique=False, nullable=True, index=True)
