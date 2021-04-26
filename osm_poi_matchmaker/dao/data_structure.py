@@ -227,8 +227,9 @@ class POI_osm(Base):
     __table_args__ = (UniqueConstraint('poi_osm_id', 'poi_osm_object_type', name='uc_poi_osm_osm_type'),)
 
 class POI_patch(Base):
-    """
-    docstring
+    """ This is database modell for patch table
+    ph_id or id: primary key id
+    poi 
     """
     __tablename__ = 'poi_patch'
     _plural_name_ = 'poi_patch'
@@ -247,3 +248,19 @@ class POI_patch(Base):
     new_housenumber = Column(Unicode(16))
     new_conscriptionnumber = Column(Unicode(16))    
     new_name = Column(Unicode(64), unique=False, nullable=True, index=True)
+
+class Country(Base):
+    """ This is database modell for country table
+    ph_id or id: primary key id
+    poi 
+    """
+    __tablename__ = 'country'
+    _plural_name_ = 'country'
+    cy_id = Column(Integer, primary_key=True, index=True)
+    id = synonym('cy_id')
+    country_code = Column(Unicode(2), unique=True, nullable=False, index=True)
+    continent_code = Column(Unicode(2), unique=False, nullable=True, index=True)
+    country_name = Column(Unicode(64), unique=True, nullable=False, index=True)
+    country_iso3 = Column(Unicode(3), unique=True, nullable=False, index=True)
+    country_number = Column(Integer, unique=True, nullable=False, index=True)
+    country_full_name = Column(Unicode(128), unique=True, nullable=False, index=True)

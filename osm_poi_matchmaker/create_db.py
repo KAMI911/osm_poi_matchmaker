@@ -44,6 +44,11 @@ def import_basic_data(session):
     work = poi_patch_from_csv(session, 'poi_patch.csv')
     work.process()
 
+    logging.info('Importing countries ...')
+    from osm_poi_matchmaker.dataproviders.hu_generic import poi_country_from_csv
+    work = poi_country_from_csv(session, 'country.csv')
+    work.process()
+
     logging.info('Importing cities ...')
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',

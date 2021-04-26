@@ -4,7 +4,7 @@ try:
     import logging
     import sys
     import hashlib
-    from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, POI_patch, Street_type
+    from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, POI_patch, Street_type, Country
     from osm_poi_matchmaker.libs import address
     from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
@@ -138,7 +138,6 @@ def insert_patch_data_dataframe(session, patch_df):
             new_street=patch_data['new_street'], new_housenumber=patch_data['new_housenumber'], new_conscriptionnumber=patch_data['new_conscriptionnumber'],
             new_name=patch_data['new_name'])
     except Exception as e:
-
         logging.error('Rolled back: %s.', e)
         logging.error(patch_data)
         logging.exception('Exception occurred')
@@ -146,6 +145,23 @@ def insert_patch_data_dataframe(session, patch_df):
         session.rollback()
     else:
         logging.info('Successfully added %s patch items to the dataset.', len(patch_df))
+        session.commit()
+
+def insert_country_data_dataframe(session, country_df):
+    country_df.columns = ['country_code','continent_code','country_name','country_iso3','country_number','country_full_name']
+    try:
+        for index, country_data in country_df.iterrows():
+            get_or_create(session, Country, country_code=country_data['country_code'],continent_code=country_data['continent_code'],country_name=country_data['country_name'],
+            country_iso3=country_data['country_iso3'],country_number=country_data['country_number'],country_full_name=country_data['country_full_name'])
+
+    except Exception as e:
+        logging.error('Rolled back: %s.', e)
+        logging.error(country_data)
+        logging.exception('Exception occurred')
+
+        session.rollback()
+    else:
+        logging.info('Successfully added %s country items to the dataset.', len(country_df))
         session.commit()
 
 def insert_common_dataframe(session, common_df):
