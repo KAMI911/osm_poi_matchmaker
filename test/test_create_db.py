@@ -10,7 +10,7 @@ try:
         TestCityCleaner
     from test.test_online_poi_matching import TestSmartOnlinePOIMatching
     from test.test_opening_hours import TestOpeningHours
-    # from test.test_poi_dataset import TestPOIDataset
+    # from test.test_poi_dataset import TestPOIDatasetRaw
     from test.test_timing import TestTiming
     from test.test_osm import TestOSMRelationer
     from osm_poi_matchmaker.utils import config
@@ -33,7 +33,7 @@ def testing_create_db():
     url_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestURLCleaner)
     opening_hours_resolver = unittest.TestLoader().loadTestsFromTestCase(TestOpeningHours)
     smart_online_poi_matching = unittest.TestLoader().loadTestsFromTestCase(TestSmartOnlinePOIMatching)
-    # poi_dataset = unittest.TestLoader().loadTestsFromTestCase(TestPOIDataset)
+    # poi_dataset = unittest.TestLoader().loadTestsFromTestCase(TestPOIDatasetRaw)
     timing = unittest.TestLoader().loadTestsFromTestCase(TestTiming)
     osm = unittest.TestLoader().loadTestsFromTestCase(TestOSMRelationer)
     suite = unittest.TestSuite(

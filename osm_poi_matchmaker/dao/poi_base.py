@@ -179,13 +179,13 @@ class POIBase:
                 distance_perfect = config.get_geo_default_poi_perfect_distance()
             query_params.update({'distance_perfect': distance_perfect})
         else:
-            query_name = '' 
+            query_name = ''
         # Do not match with other specified names and brands
         if avoid_name is not None and avoid_name != '':
             query_avoid_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)))'
             query_params.update({'avoid_name': '.*{}.*'.format(avoid_name)})
         else:
-            query_avoid_name = '' 
+            query_avoid_name = ''
         if with_metadata is True:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
         else:

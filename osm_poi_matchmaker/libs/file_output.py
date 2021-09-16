@@ -72,7 +72,7 @@ def save_csv_file(path: str, file: str, data, message: str):
     """
     try:
         # Save file to CSV file
-        logging.info('Saving {%s to file: %s', message, file)
+        logging.info('Saving %s to file: %s', message, file)
         res = data.to_csv(os.path.join(path, file))
         logging.info('The %s was sucessfully saved', file)
     except Exception as e:

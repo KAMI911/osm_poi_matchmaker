@@ -23,14 +23,15 @@ __program__ = 'poi_dataset'
 __version__ = '0.0.5'
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
 
 
-class POIDataset:
+class POIDatasetRaw:
     """Contains all handled OSM tags
-    """    
+    """
     def __init__(self):
         """
-        """        
+        """
         self.insert_data = []
         self.__db = POIBase(
             '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
@@ -90,8 +91,6 @@ class POIDataset:
         self.__lunch_break_stop = None
         self.__opening_hours = None
         self.__public_holiday_open = None
-        self.__good = []
-        self.__bad = []
 
     def clear_all(self):
         self.__code = None
@@ -146,8 +145,6 @@ class POIDataset:
         self.__lunch_break_stop = None
         self.__opening_hours = None
         self.__public_holiday_open = None
-        self.__good = []
-        self.__bad = []
 
     @property
     def code(self) -> str:
@@ -451,27 +448,7 @@ class POIDataset:
 
     @street.setter
     def street(self, data: str):
-        # Try to find street name around
-        try:
-            if self.lat is not None and self.lon is not None:
-                query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'name')
-                if query is None or query.empty:
-                    query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'metaphone')
-                    if query is None or query.empty:
-                        logging.warning('There is no street around named or metaphone named: %s', data)
-                        self.__street = data
-                    else:
-                        new_data = query.at[0, 'name']
-                        logging.info('There is a metaphone street around named: %s, original was: %s.', new_data, data)
-                        self.__street = new_data
-                else:
-                    logging.info('There is a street around named: %s.', data)
-                    self.__street = data
-            else:
-                self.__street = data
-        except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+        self.__street = data
 
     @property
     def housenumber(self) -> str:
@@ -879,6 +856,116 @@ class POIDataset:
         try:
             self.process_opening_hours()
             self.process_geom()
+            self.insert_data.append(
+                [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website,
+                 self.__description, self.__fuel_adblue, self.__fuel_octane_100, self.__fuel_octane_98,
+                 self.__fuel_octane_95, self.__fuel_diesel_gtl, self.__fuel_diesel, self.__fuel_lpg,
+                 self.__fuel_e85, self.__rent_lpg_bottles, self.__compressed_air, self.__restaurant, self.__food,
+                 self.__truck,
+                 self.__authentication_app, self.__authentication_membership_card, self.__capacity, self.__fee,
+                 self.__parking_fee, self.__motorcar, self.__socket_chademo, self.__socket_chademo_output,
+                 self.__socket_type2_combo, self.__socket_type2_combo_output,
+                 self.__socket_type2_cable, self.__socket_type2_cable_output,
+                 self.__socket_type2, self.__socket_type2_output, self.__manufacturer, self.__model,
+                 self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
+                 self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop,
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break_start,
+                 self.__lunch_break_stop,
+                 self.__public_holiday_open, self.__opening_hours ])
+            self.clear_all()
+        except Exception as e:
+            logging.error(e)
+            logging.exception('Exception occurred')
+
+    def process(self):
+        df = pd.DataFrame(self.insert_data)
+        df.columns = POI_COLS_RAW
+        return df.where((pd.notnull(df)), None)
+
+    def lenght(self):
+        return len(self.insert_data)
+
+class POIDataset(POIDatasetRaw):
+    """Contains all handled OSM tags
+    """
+    def __init__(self):
+        """
+        """
+        POIDatasetRaw.__init__(self)
+        self.__db = POIBase(
+            '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
+                                         config.get_database_writer_password(),
+                                         config.get_database_writer_host(),
+                                         config.get_database_writer_port(),
+                                         config.get_database_poi_database()))
+        self.__good = []
+        self.__bad = []
+
+    def clear_all(self):
+        POIDatasetRaw.clear_all(self)
+        self.__good = []
+        self.__bad = []
+
+
+    @property
+    def street(self) -> str:
+        return self.__street
+
+    @street.setter
+    def street(self, data: str):
+        # Try to find street name around
+        try:
+            if self.lat is not None and self.lon is not None:
+                query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'name')
+                if query is None or query.empty:
+                    query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'metaphone')
+                    if query is None or query.empty:
+                        logging.warning('There is no street around named or metaphone named: %s', data)
+                        self.__street = data
+                    else:
+                        new_data = query.at[0, 'name']
+                        logging.info('There is a metaphone street around named: %s, original was: %s.', new_data, data)
+                        self.__street = new_data
+                else:
+                    logging.info('There is a street around named: %s.', data)
+                    self.__street = data
+            else:
+                self.__street = data
+        except Exception as e:
+            logging.error(e)
+            logging.exception('Exception occurred')
+
+    def add(self):
+        try:
+            self.process_opening_hours()
+            self.process_geom()
             pqc = POIQC(self.__db, self.__lon, self.__lat, self.__opening_hours, self.__street)
             self.__good, self.__bad = pqc.process()
             self.insert_data.append(
@@ -933,6 +1020,3 @@ class POIDataset:
         df = pd.DataFrame(self.insert_data)
         df.columns = POI_COLS
         return df.where((pd.notnull(df)), None)
-
-    def lenght(self):
-        return len(self.insert_data)

@@ -4,7 +4,7 @@ try:
     import unittest
     import logging
     import sys
-    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRaw
     from test.test_opening_hours_data import OPENING_HOURS_TEST_DATA
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -13,13 +13,13 @@ except ImportError as err:
     sys.exit(128)
 
 
-class TestPOIDataset(unittest.TestCase):
+class TestPOIDatasetRaw(unittest.TestCase):
     def setUp(self):
         self.opening_hours = OPENING_HOURS_TEST_DATA
 
     def test_poi_dataset_opening_hours(self):
         for i in self.opening_hours:
-            p = POIDataset()
+            p = POIDatasetRaw()
             p.nonstop = i['nonstop']
             p.mo_o = i['mo_o']
             p.tu_o = i['tu_o']

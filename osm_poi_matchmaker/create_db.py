@@ -16,23 +16,24 @@ try:
     import datetime
     from osm_poi_matchmaker.utils import config, timing
     from osm_poi_matchmaker.libs.osm import timestamp_now
+    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
     from osm_poi_matchmaker.libs.export import export_raw_poi_data, export_raw_poi_data_xml, export_grouped_poi_data, \
         export_grouped_poi_data_with_postcode_groups
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
+    from osm_poi_matchmaker.dao import poi_array_structure
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
 
     sys.exit(128)
 
-POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
-            'poi_addr_street',
-            'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
 RETRY = 3
 
+POI_COLS = poi_array_structure.POI_DB
+POI_COLS_RAW = poi_array_structure.POI_DB_RAW
 
 def init_log():
     logging.config.fileConfig('log.conf')
@@ -52,12 +53,18 @@ def import_basic_data(session):
     work.process()
 
 
-def load_poi_data(database):
-    logging.info('Loading POI_data from database ...')
+def load_poi_data(database, table='poi_address_raw', raw=True):
+    logging.info('Loading {} table from database ...'.format(table))
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
     # Build Dataframe from our POI database
-    addr_data = database.query_all_gpd_in_order('poi_address')
+    addr_data = database.query_all_gpd_in_order(table)
+    print(addr_data.to_string())
+    if raw is True:
+        addr_data.columns = POI_COLS_RAW
+    else:
+        addr_data.columns = POI_COLS
+    print(addr_data.to_string())
     addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
     return addr_data
 
@@ -134,12 +141,15 @@ def main():
     Session = scoped_session(session_factory)
     session = Session()
     try:
+        logging.info('Starting STAGE 1 ...')
         import_basic_data(db.session)
+        logging.info('Starting STAGE 2 ...')
         manager = WorkflowManager()
         manager.start_poi_harvest()
         manager.join()
+        logging.info('Starting STAGE 3 ...')
         # Load basic dataset from database
-        poi_addr_data = load_poi_data(db)
+        poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
         # Download and load POI dataset to database
         poi_common_data = load_common_data(db)
         logging.info('Merging dataframes ...')
@@ -153,6 +163,11 @@ def main():
         poi_addr_data['osm_live_tags'] = None
         # Export non-transformed data
         export_raw_poi_data(poi_addr_data, poi_common_data)
+        logging.info('Starting STAGE 4 ...')
+        insert_poi_dataframe(session, poi_addr_data, raw = False)
+        del poi_addr_data
+        logging.info('Starting STAGE 5 ...')
+        poi_addr_data = load_poi_data(db, 'poi_address', False)
         # export_raw_poi_data_xml(poi_addr_data)
         logging.info('Saving poi_code grouped filesets...')
         # Export non-transformed filesets
@@ -161,6 +176,7 @@ def main():
         logging.info('Merging with OSM datasets ...')
         poi_addr_data['osm_nodes'] = None
         poi_addr_data['poi_distance'] = None
+        logging.info('Starting STAGE 6 ...')
         # Enrich POI datasets from online OpenStreetMap database
         logging.info('Starting online POI matching part...')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)

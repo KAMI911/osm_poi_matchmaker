@@ -22,7 +22,7 @@ def import_poi_data_module(module: str):
 
     Args:
         module (str): Name of module to run
-    """    
+    """
     try:
         db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                                   config.get_database_writer_password(),

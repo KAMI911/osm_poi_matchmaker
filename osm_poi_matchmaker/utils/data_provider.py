@@ -6,7 +6,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.address import clean_city, \
         clean_javascript_variable, clean_opening_hours_2, clean_phone
-    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRaw
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -30,7 +30,7 @@ class DataProvider:
         self.post = None
         self.__types = None
         self.constains()
-        self.data = POIDataset()
+        self.data = POIDatasetRaw()
 
     def constains(self):
         self.POI_COMMON_TAGS = ""

@@ -8,7 +8,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
-    from osm_poi_matchmaker.libs.poi_dataset import POIDataset
+    from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRaw
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
@@ -72,7 +72,7 @@ class hu_posta_json(DataProvider):
                                     self.filetype)
         if soup is not None:
             text = json.loads(soup)
-            data = POIDataset()
+            data = POIDatasetRaw()
             for poi_data in text['items']:
                 if poi_data['type'] == 'posta':
                     if 'mobilposta' in poi_data['name']:
