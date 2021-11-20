@@ -33,6 +33,7 @@ PATTERN_STREET_RICH = re.compile(
 PATTERN_URL_SLASH = re.compile('(?<!:)(//{1,})')
 PATTERN_FULL_URL = re.compile('((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)')
 
+SZFKL = '. számú főközlekedési út'
 
 def clean_javascript_variable(clearable, removable):
     """Remove javascript variable notation from the selected JSON variable.
@@ -339,36 +340,36 @@ def clean_street(clearable):
 
     street = clearable.strip()
     repls = ('Nyúl 82. sz. főút', 'Kossuth Lajos út'), \
-            ('Nyúl  82. sz. főút', '82. számú főközlekedési út'), \
-            ('Budafoki út, 6-os sz. főút', '6. számú főközlekedési út'), \
-            ('. Sz. Főút felső', '. számú főközlekedési út'), \
-            ('. számú - Némedi út sarok', '. számú főközlekedési út'), \
-            ('076/15. hrsz 86. számú főút mellett', '86. számú főközlekedési út'), \
-            ('50.sz.út jobb oldal', '50. számú főközlekedési út'), \
-            ('. sz. fkl.út', '. számú főközlekedési út'), \
-            ('.sz. fkl. út', '. számú főközlekedési út'), \
-            ('-es sz. főút', '. számú főközlekedési út'), \
-            ('. sz. főút', '. számú főközlekedési út'), \
+            ('Nyúl  82. sz. főút', '82' + SZFKL), \
+            ('Budafoki út, 6-os sz. főút', '6' + SZFKL), \
+            ('. Sz. Főút felső', SZFKL), \
+            ('. számú - Némedi út sarok', SZFKL), \
+            ('076/15. hrsz 86. számú főút mellett', '86' + SZFKL), \
+            ('50.sz.út jobb oldal', '50' + SZFKL), \
+            ('. sz. fkl.út', SZFKL), \
+            ('.sz. fkl. út', SZFKL), \
+            ('-es sz. főút', SZFKL), \
+            ('. sz. főút', SZFKL), \
             ('.sz.fkl.', '. számú főközlekedési'), \
             ('. sz. fkl.', '. számú főközlekedési'), \
-            ('. számú fkl. út', '. számú főközlekedési út'), \
-            ('. Sz. főút', '. számú főközlekedési út'), \
-            ('. számú főút', '. számú főközlekedési út'), \
-            ('. főút', '. számú főközlekedési út'), \
-            ('. sz út', '. számú főközlekedési út'), \
-            (' sz. főút', '. számú főközlekedési út'), \
-            ('-es fő út', '. számú főközlekedési út'), \
-            ('-es főút', '. számú főközlekedési út'), \
-            (' - es út', '. számú főközlekedési út'), \
-            ('-es út', '. számú főközlekedési út'), \
-            ('-as fő út', '. számú főközlekedési út'), \
-            ('-as főút', '. számú főközlekedési út'), \
-            (' - as út', '. számú főközlekedési út'), \
-            ('-as út', '. számú főközlekedési út'), \
-            ('-ös fő út', '. számú főközlekedési út'), \
-            ('-ös főút', '. számú főközlekedési út'), \
-            (' - ös út', '. számú főközlekedési út'), \
-            ('-ös út', '. számú főközlekedési út'), \
+            ('. számú fkl. út', SZFKL), \
+            ('. Sz. főút', SZFKL), \
+            ('. számú főút', SZFKL), \
+            ('. főút', SZFKL), \
+            ('. sz út', SZFKL), \
+            (' sz. főút', SZFKL), \
+            ('-es fő út', SZFKL), \
+            ('-es főút', SZFKL), \
+            (' - es út', SZFKL), \
+            ('-es út', SZFKL), \
+            ('-as fő út', SZFKL), \
+            ('-as főút', SZFKL), \
+            (' - as út', SZFKL), \
+            ('-as út', SZFKL), \
+            ('-ös fő út', SZFKL), \
+            ('-ös főút', SZFKL), \
+            (' - ös út', SZFKL), \
+            ('-ös út', SZFKL), \
             ('Omsz park', 'Omszk park'), \
             ('01.máj.', 'Május 1.'), \
             ('15.márc.', 'Március 15.'), \

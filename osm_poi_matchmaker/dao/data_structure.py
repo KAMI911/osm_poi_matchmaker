@@ -157,7 +157,7 @@ class POI_address(Base):
     poi_addr_street = Column(Unicode(128))
     poi_addr_housenumber = Column(Unicode(16))
     poi_conscriptionnumber = Column(Unicode(16))
-    poi_geom = Column(Geometry('GEOMETRY, {}'.format(config.get_geo_default_projection())))
+    poi_geom = Column(Geometry('POINT, {}'.format(config.get_geo_default_projection())))
     original = Column(Unicode(128))
     poi_website = Column(Unicode(256))
     poi_description = Column(Unicode(1024))
@@ -335,6 +335,45 @@ class POI_osm(Base):
     poi_osm_id = Column(BigInteger, unique=True, index=True)
     poi_osm_object_type = Column(Enum(OSM_object_type))
     poi_hash = Column(Unicode(128), nullable=True, unique=False, index=True)
-    geom_hint = Column(Geometry('GEOMETRY, {}'.format(config.get_geo_default_projection())))
+    geom_hint = Column(Geometry(geometry_type='GEOMETRY', srid=config.get_geo_default_projection()))
 
     __table_args__ = (UniqueConstraint('poi_osm_id', 'poi_osm_object_type', name='uc_poi_osm_osm_type'),)
+
+class POI_patch(Base):
+    """ This is database modell for patch table
+    ph_id or id: primary key id
+    poi
+    """
+    __tablename__ = 'poi_patch'
+    _plural_name_ = 'poi_patch'
+    ph_id = Column(Integer, primary_key=True, index=True)
+    id = synonym('ph_id')
+    poi_code = Column(Unicode(10), unique=False, nullable=True, index=True)
+    orig_postcode = Column(Integer)
+    orig_city = Column(Unicode(64))
+    orig_street = Column(Unicode(128))
+    orig_housenumber = Column(Unicode(16))
+    orig_conscriptionnumber = Column(Unicode(16))
+    orig_name = Column(Unicode(64), unique=False, nullable=True, index=True)
+    new_postcode = Column(Integer)
+    new_city = Column(Unicode(64))
+    new_street = Column(Unicode(128))
+    new_housenumber = Column(Unicode(16))
+    new_conscriptionnumber = Column(Unicode(16))
+    new_name = Column(Unicode(64), unique=False, nullable=True, index=True)
+
+class Country(Base):
+    """ This is database modell for country table
+    ph_id or id: primary key id
+    poi
+    """
+    __tablename__ = 'country'
+    _plural_name_ = 'country'
+    cy_id = Column(Integer, primary_key=True, index=True)
+    id = synonym('cy_id')
+    country_code = Column(Unicode(2), unique=True, nullable=False, index=True)
+    continent_code = Column(Unicode(2), unique=False, nullable=True, index=True)
+    country_name = Column(Unicode(64), unique=True, nullable=False, index=True)
+    country_iso3 = Column(Unicode(3), unique=True, nullable=False, index=True)
+    country_number = Column(Integer, unique=True, nullable=False, index=True)
+    country_full_name = Column(Unicode(128), unique=True, nullable=False, index=True)

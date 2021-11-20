@@ -5,8 +5,10 @@ try:
     import sys
     import os
     import pandas as pd
+    import numpy as np
     from lxml import etree
-    from osm_poi_matchmaker.dao.data_handlers import insert_city_dataframe, insert_street_type_dataframe
+    from osm_poi_matchmaker.dao.data_handlers import insert_city_dataframe, insert_street_type_dataframe, insert_patch_data_dataframe, insert_country_data_dataframe
+    from osm_poi_matchmaker.libs.pandas import save_downloaded_pd
     from osm_poi_matchmaker.libs.xml import save_downloaded_xml
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -88,3 +90,39 @@ class hu_street_types_from_xml():
         df = pd.DataFrame(insert_data)
         df.columns = POI_COLS_STREET_TYPE
         insert_street_type_dataframe(self.session, df)
+
+class poi_patch_from_csv():
+    """Insert CVS patch data into database poi_patch table
+    """
+    def __init__(self, session, filename : str='poi_patch.csv'):
+        """[summary]
+
+        Args:
+            session ([type]): [description]
+            filename (str, optional): Filename of CSV file to import. Defaults to 'poi_patch.csv'.
+        """        
+        self.session = session
+        self.filename = filename
+
+    def process(self):
+        csv = save_downloaded_pd(None, os.path.join('data', self.filename), None)
+        csv = csv.replace({np.nan: None})
+        insert_patch_data_dataframe(self.session, csv)
+
+class poi_country_from_csv():
+    """Insert CVS country data into database country table
+    """
+    def __init__(self, session, filename : str='country.csv'):
+        """[summary]
+
+        Args:
+            session ([type]): [description]
+            filename (str, optional): Filename of CSV file to import. Defaults to 'country.csv'.
+        """        
+        self.session = session
+        self.filename = filename
+
+    def process(self):
+        csv = save_downloaded_pd(None, os.path.join('data', self.filename), None)
+        csv = csv.replace({np.nan: None})
+        insert_country_data_dataframe(self.session, csv)
