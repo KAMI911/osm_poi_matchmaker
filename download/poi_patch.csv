@@ -1,0 +1,7 @@
+poi_code;orig_postcode;orig_city;orig_addr_street;orig_addr_housenumber;orig_conscriptionnumber;new_postcode;new_city;new_addr_street;new_addr_housenumber;new_conscriptionnumber
+hupostapo;8242;Balatonudvari;Osváth tér;11;;8242;Balatonudvari;Levendula utca;16;
+hupostapo;3368;Boconád;Ságvári Endre utca;5;;3368;Boconád;Kossuth Lajos út;12;
+hupostapo;4176;Sáp;Derkovits Gy utca;1;;4176;Sáp;Fő utca;9;
+hupostapo;4611;Jéke;Ifjusági út;3;;4611;Jéke;Dózsa György utca;18;
+hucibatm;8600;Siófok;Szabadság tér;15;;8600;Siófok;Fő tér;3;
+huaviafu;8130;Enying;Dózsa György utca;119;;8130;Enying;Dózsa György utca;119;
