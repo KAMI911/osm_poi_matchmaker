@@ -202,7 +202,7 @@ class POIBase:
             housenumber_query = ''
         if conscriptionnumber is not None and conscriptionnumber != '':
             conscriptionnumber_query = ' AND LOWER(TEXT("addr:conscriptionnumber")) = LOWER(TEXT(:conscriptionnumber))'
-            query_params.update({'conscriptionnaumber': conscriptionnaumber})
+            query_params.update({'conscriptionnumber': conscriptionnumber})
         else:
             conscriptionnumber_query = ''
         if city is not None and city != '':
