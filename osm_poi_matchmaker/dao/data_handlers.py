@@ -163,6 +163,7 @@ def insert_poi_dataframe(session, poi_df, raw = True):
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].fillna('0000')
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].astype(int)
     poi_dict = poi_df.to_dict('records')
+    # print(poi_df.to_string())
     try:
         for poi_data in poi_dict:
             city_col = session.query(City.city_id).filter(City.city_name == poi_data['poi_city']).filter(

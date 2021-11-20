@@ -64,7 +64,6 @@ def load_poi_data(database, table='poi_address_raw', raw=True):
         addr_data.columns = POI_COLS_RAW
     else:
         addr_data.columns = POI_COLS
-    print(addr_data.to_string())
     addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
     return addr_data
 
@@ -164,10 +163,10 @@ def main():
         # Export non-transformed data
         export_raw_poi_data(poi_addr_data, poi_common_data)
         logging.info('Starting STAGE 4 ...')
-        insert_poi_dataframe(session, poi_addr_data, raw = False)
-        del poi_addr_data
-        logging.info('Starting STAGE 5 ...')
-        poi_addr_data = load_poi_data(db, 'poi_address', False)
+        #(session, poi_addr_data, raw = False)
+        #del poi_addr_data
+        #logging.info('Starting STAGE 5 ...')
+        #poi_addr_data = load_poi_data(db, 'poi_address', False)
         # export_raw_poi_data_xml(poi_addr_data)
         logging.info('Saving poi_code grouped filesets...')
         # Export non-transformed filesets
