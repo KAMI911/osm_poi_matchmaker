@@ -20,7 +20,7 @@ except ImportError as err:
 class hu_budapest_bank(DataProvider):
 
     def constains(self):
-        self.link = 'https://www.budapestbank.hu/info/fiokkereso/process/get_data.php?action=get_data_json'
+        self.link = 'https://www.budapestbank.hu/apps/backend/branch-and-atm'
         self.tags = {'brand': 'Budapest Bank', 'brand:wikidata': 'Q27493463', 'bic': 'BUDAHUHB',
                      'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.',
                      'operator:addr': '1138 Budapest, Váci út 193.', 'ref:vatin': 'HU10196445',
@@ -58,8 +58,8 @@ class hu_budapest_bank(DataProvider):
                                         self.filetype)
             if soup is not None:
                 text = json.loads(soup)
-                for poi_data in text['points']:
-                    if poi_data['fiok'] == 1:
+                for poi_data in text:
+                    if poi_data['point_category'] == 1:
                         self.data.name = 'Budapest Bank'
                         self.data.code = 'hubpbank'
                         self.data.public_holiday_open = False
@@ -67,85 +67,43 @@ class hu_budapest_bank(DataProvider):
                         self.data.name = 'Budapest Bank ATM'
                         self.data.code = 'hubpatm'
                         self.data.public_holiday_open = True
-                    self.data.postcode = poi_data['zip']
-                    self.data.city = poi_data['city_only']
+                    self.data.postcode = poi_data['point_zip']
+                    self.data.city = poi_data['point_city']
                     self.data.lat, self.data.lon = check_hu_boundary(
-                        poi_data['latitude'], poi_data['longitude'])
+                        poi_data['point_latitude'], poi_data['point_longitude'])
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                        extract_street_housenumber_better_2(poi_data['addr'])
-                    self.data.original = poi_data['address']
-                    self.data.branch = poi_data['name']
+                        extract_street_housenumber_better_2(poi_data['point_street'])
+                    self.data.original = poi_data['point_street']
+                    self.data.branch = poi_data['point_name']
                     # Processing opening hours
                     oh = []
-                    if poi_data.get('opening') is not None:
-                        opening = poi_data.get('opening').split('||')
-                        self.data.nonstop = False
-                        for i in opening:
-                            if 'H:' in i:
-                                try:
-                                    op = i.replace('H:', '').split(
-                                        '-')[0].strip()
-                                except IndexError as e:
-                                    op = None
-                                self.data.mo_o = op if open is not None and op != '' else None
-                                try:
-                                    cl = i.replace('H:', '').split(
-                                        '-')[1].strip()
-                                except IndexError as e:
-                                    cl = None
-                                self.data.mo_c = cl if open is not None and cl != '' else None
-                            elif 'K:' in i:
-                                try:
-                                    op = i.replace('K:', '').split(
-                                        '-')[0].strip()
-                                except IndexError as e:
-                                    op = None
-                                self.data.tu_o = op if open is not None and op != '' else None
-                                try:
-                                    cl = i.replace('K:', '').split(
-                                        '-')[1].strip()
-                                except IndexError as e:
-                                    cl = None
-                                self.data.tu_c = cl if open is not None and cl != '' else None
-                            elif 'Sz:' in i:
-                                try:
-                                    op = i.replace('Sz:', '').split(
-                                        '-')[0].strip()
-                                except IndexError as e:
-                                    op = None
-                                self.data.we_o = op if open is not None and op != '' else None
-                                try:
-                                    cl = i.replace('Sz:', '').split(
-                                        '-')[1].strip()
-                                except IndexError as e:
-                                    cl = None
-                                self.data.we_c = cl if open is not None and cl != '' else None
-                            elif 'Cs:' in i:
-                                try:
-                                    op = i.replace('Cs:', '').split(
-                                        '-')[0].strip()
-                                except IndexError as e:
-                                    op = None
-                                self.data.th_o = op if open is not None and op != '' else None
-                                try:
-                                    cl = i.replace('Cs:', '').split(
-                                        '-')[1].strip()
-                                except IndexError as e:
-                                    cl = None
-                                self.data.th_c = cl if open is not None and cl != '' else None
-                            elif 'P:' in i:
-                                try:
-                                    op = i.replace('P:', '').split(
-                                        '-')[0].strip()
-                                except IndexError as e:
-                                    op = None
-                                self.data.fr_o = op if open is not None and op != '' else None
-                                try:
-                                    cl = i.replace('P:', '').split(
-                                        '-')[1].strip()
-                                except IndexError as e:
-                                    cl = None
-                                self.data.fr_c = cl if open is not None and cl != '' else None
+                    if poi_data.get('point_open_mon') is not None:
+                      self.data_mo_o = poi_data.get('point_open_mon').split('-')[0] if poi_data.get('point_open_mon').split('-')[0] is not None else None
+                      self.data_mo_c = poi_data.get('point_open_mon').split('-')[1] if poi_data.get('point_open_mon').split('-')[1] is not None else None
+
+                    if poi_data.get('point_open_tue') is not None:
+                      self.data_tu_o = poi_data.get('point_open_tue').split('-')[0] if poi_data.get('point_open_tue').split('-')[0] is not None else None
+                      self.data_tu_c = poi_data.get('point_open_tue').split('-')[1] if poi_data.get('point_open_tue').split('-')[1] is not None else None
+
+                    if poi_data.get('point_open_wed') is not None:
+                      self.data_we_o = poi_data.get('point_open_wed').split('-')[0] if poi_data.get('point_open_wed').split('-')[0] is not None else None
+                      self.data_we_c = poi_data.get('point_open_wed').split('-')[1] if poi_data.get('point_open_wed').split('-')[1] is not None else None
+
+                    if poi_data.get('point_open_thu') is not None:
+                      self.data_th_o = poi_data.get('point_open_thu').split('-')[0] if poi_data.get('point_open_thu').split('-')[0] is not None else None
+                      self.data_th_c = poi_data.get('point_open_thu').split('-')[1] if poi_data.get('point_open_thu').split('-')[1] is not None else None
+
+                    if poi_data.get('point_open_fri') is not None:
+                      self.data_fr_o = poi_data.get('point_open_fri').split('-')[0] if poi_data.get('point_open_fri').split('-')[0] is not None else None
+                      self.data_fr_c = poi_data.get('point_open_fri').split('-')[1] if poi_data.get('point_open_fri').split('-')[1] is not None else None
+
+                    if poi_data.get('point_open_sat') is not None:
+                      self.data_sa_o = poi_data.get('point_open_sat').split('-')[0] if poi_data.get('point_open_sat').split('-')[0] is not None else None
+                      self.data_sa_c = poi_data.get('point_open_sat').split('-')[1] if poi_data.get('point_open_sat').split('-')[1] is not None else None
+
+                    if poi_data.get('point_open_sun') is not None:
+                      self.data_su_o = poi_data.get('point_open_sun').split('-')[0] if poi_data.get('point_open_sun').split('-')[0] is not None else None
+                      self.data_su_c = poi_data.get('point_open_sun').split('-')[1] if poi_data.get('point_open_sun').split('-')[1] is not None else None
                     if self.data.code == 'hubpatm':
                         self.data.nonstop = True
                     else:
