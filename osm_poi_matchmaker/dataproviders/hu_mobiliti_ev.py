@@ -5,6 +5,7 @@ try:
     import sys
     import os
     import pandas as pd
+    import traceback
     from osm_poi_matchmaker.libs.pandas import save_downloaded_pd
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
@@ -50,38 +51,42 @@ class hu_mobiliti_ev(DataProvider):
             if csv is not None:
                 poi_dict = csv.to_dict('records')
                 for poi_data in poi_dict:
-                    self.data.name = 'Mobiliti'
-                    self.data.code = 'humobilchs'
-                    self.data.ref = poi_data.get('Mobiliti azonosító')
-                    self.data.branch = poi_data.get('Töltőpont neve')
-                    self.data.postcode = poi_data.get('Irányító szám')
-                    self.data.city = clean_city(poi_data.get('Település'))
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                        extract_street_housenumber_better_2(
-                            poi_data.get('Cím'))
-                    self.data.original = poi_data.get('Cím')
-                    temp = poi_data.get('GPS koordináták')
-                    if temp is None:
-                        continue
-                    else:
-                        self.data.lat, self.data.lon = temp.split(',')
-                    self.data.lat, self.data.lon = check_hu_boundary(
-                        self.data.lat, self.data.lon)
-                    self.data.socket_chademo = poi_data.get('Darab (CHAdeMO)')
-                    self.data.socket_chademo_output = poi_data.get(
-                        'Teljesítmény (CHAdeMO)')
-                    self.data.socket_type2_combo = poi_data.get('Darab (CCS)')
-                    self.data.socket_type2_combo_output = poi_data.get(
-                        'Teljesítmény (CCS)')
-                    self.data.socket_type2_cable = poi_data.get(
-                        'Darab (Type 2)')
-                    self.data.socket_type2_cable_output = poi_data.get(
-                        'Teljesítmény (Type 2)')
-                    self.data.manufacturer = poi_data.get('Gyártó')
-                    self.data.model = poi_data.get('Típus')
-                    self.data.capacity = poi_data.get('Kapacitás')
-                    self.data.add()
+                    try:
+                        self.data.name = 'Mobiliti'
+                        self.data.code = 'humobilchs'
+                        self.data.ref = poi_data.get('Mobiliti azonosító')
+                        self.data.branch = poi_data.get('Töltőpont neve')
+                        self.data.postcode = poi_data.get('Irányító szám')
+                        self.data.city = clean_city(poi_data.get('Település'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_street_housenumber_better_2(
+                                poi_data.get('Cím'))
+                        self.data.original = poi_data.get('Cím')
+                        temp = poi_data.get('GPS koordináták')
+                        if temp is None:
+                            continue
+                        else:
+                            self.data.lat, self.data.lon = temp.split(',')
+                        self.data.lat, self.data.lon = check_hu_boundary(
+                            self.data.lat, self.data.lon)
+                        self.data.socket_chademo = poi_data.get('Darab (CHAdeMO)')
+                        self.data.socket_chademo_output = poi_data.get(
+                            'Teljesítmény (CHAdeMO)')
+                        self.data.socket_type2_combo = poi_data.get('Darab (CCS)')
+                        self.data.socket_type2_combo_output = poi_data.get(
+                            'Teljesítmény (CCS)')
+                        self.data.socket_type2_cable = poi_data.get(
+                            'Darab (Type 2)')
+                        self.data.socket_type2_cable_output = poi_data.get(
+                            'Teljesítmény (Type 2)')
+                        self.data.manufacturer = poi_data.get('Gyártó')
+                        self.data.model = poi_data.get('Típus')
+                        self.data.capacity = poi_data.get('Kapacitás')
+                        self.data.add()
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
         except Exception as e:
-            logging.exception('Exception occurred')
-
-            logging.error(e)
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

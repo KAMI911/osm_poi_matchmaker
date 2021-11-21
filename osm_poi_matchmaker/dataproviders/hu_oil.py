@@ -5,6 +5,7 @@ try:
     import sys
     import os
     import json
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
         clean_phone_to_str
@@ -82,10 +83,9 @@ class hu_oil(DataProvider):
                             self.data.branch = tmp[1].strip().capitalize()
                         self.data.add()
                     except Exception as e:
-                        logging.error(e)
-                        logging.error(poi_data)
-                        logging.exception('Exception occurred')
-
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
         except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

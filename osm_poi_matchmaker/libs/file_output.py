@@ -26,6 +26,9 @@ POI_TAGS = {'poi_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:p
             'poi_addr_street': 'addr:street', 'poi_addr_housenumber': 'addr:housenumber',
             'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email'}
 
+# TODO: Separete adblue_pack, adblue_car and adblue_truck tags
+# TODO: fuel:adblue=yes; fuel:adblue:canister=yes;fuel:adblue:motorcar=yes;fuel:adblue:hgv=yes
+
 POI_YESNO_TAGS = {'poi_fuel_adblue': 'fuel:adblue', 'poi_fuel_octane_100': 'fuel:octane_100',
                   'poi_fuel_octane_98': 'fuel:octane_98', 'poi_fuel_octane_95': 'fuel:octane_95',
                   'poi_fuel_diesel_gtl': 'fuel:GTL_diesel', 'poi_fuel_diesel': 'fuel:diesel',

@@ -5,6 +5,7 @@ try:
     import sys
     import os
     import json
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
@@ -52,28 +53,32 @@ class hu_foxpost(DataProvider):
             if soup is not None:
                 text = json.loads(soup)
                 for poi_data in text:
-                    self.data.name = 'Foxpost'
-                    self.data.code = 'hufoxpocso'
-                    self.data.postcode = poi_data['zip'].strip()
-                    self.data.city = clean_city(poi_data['city'])
-                    self.data.branch = poi_data['name']
-                    for i in range(0, 7):
-                        if poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()] is not None:
-                            opening, closing = clean_opening_hours(
-                                poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()])
-                            self.data.day_open(i, opening)
-                            self.data.day_close(i, closing)
-                        else:
-                            self.data.day_open_close(i, None, None)
-                    self.data.original = poi_data['address']
-                    self.data.lat, self.data.lon = check_hu_boundary(
-                        poi_data['geolat'], poi_data['geolng'])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                        poi_data['street'])
-                    self.data.public_holiday_open = False
-                    self.data.description = poi_data.get('findme')
-                    self.data.add()
+                    try:
+                        self.data.name = 'Foxpost'
+                        self.data.code = 'hufoxpocso'
+                        self.data.postcode = poi_data['zip'].strip()
+                        self.data.city = clean_city(poi_data['city'])
+                        self.data.branch = poi_data['name']
+                        for i in range(0, 7):
+                            if poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()] is not None:
+                                opening, closing = clean_opening_hours(
+                                    poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()])
+                                self.data.day_open(i, opening)
+                                self.data.day_close(i, closing)
+                            else:
+                                self.data.day_open_close(i, None, None)
+                        self.data.original = poi_data['address']
+                        self.data.lat, self.data.lon = check_hu_boundary(
+                            poi_data['geolat'], poi_data['geolng'])
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                            poi_data['street'])
+                        self.data.public_holiday_open = False
+                        self.data.description = poi_data.get('findme')
+                        self.data.add()
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
         except Exception as e:
-            logging.exception('Exception occurred')
-
-            logging.error(e)
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

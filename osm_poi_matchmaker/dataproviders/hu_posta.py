@@ -6,6 +6,7 @@ try:
     import os
     import re
     from lxml import etree
+    import traceback
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str, clean_street, clean_street_type
@@ -100,6 +101,9 @@ class hu_posta(DataProvider):
                         self.data.postcode = e.get('zipcode')
                         self.data.housenumber = e.street.housenumber.get_text().split('(', 1)[0].strip() \
                             if e.street.housenumber is not None else None
+                        if self.data.housenumber == 'belterület HRSZ 3162':
+                            self.data.housenumber = None
+                            self.data.conscriptionnumber = '3162'
                         self.data.conscriptionnumber = None
                         self.data.city = clean_city(e.city.get_text())
                         self.data.branch = e.find('name').get_text(
@@ -199,11 +203,9 @@ class hu_posta(DataProvider):
                         self.data.email = e.email.get_text().strip() if e.email is not None else None
                         self.data.add()
                 except Exception as err:
-                    logging.error(err)
-                    logging.error(e)
-                    logging.exception('Exception occurred')
-
-        except Exception as err:
-            logging.exception('Exception occurred')
-
-            logging.error(err)
+                    logging.exception('Exception occurred: {}'.format(err))
+                    logging.exception(traceback.print_exc())
+                    logging.exception(e)
+        except Exception as e:
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

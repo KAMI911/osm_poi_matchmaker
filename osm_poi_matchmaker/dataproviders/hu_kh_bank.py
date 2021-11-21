@@ -4,6 +4,7 @@ try:
     import logging
     import sys
     import json
+    import traceback
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.address import extract_all_address, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary

@@ -4,6 +4,7 @@ try:
     import logging
     import sys
     import hashlib
+    import traceback
     from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, POI_address_raw, POI_patch, Street_type, Country
     from osm_poi_matchmaker.libs import address
     from osm_poi_matchmaker.dao import poi_array_structure
@@ -196,7 +197,7 @@ def insert_poi_dataframe(session, poi_df, raw = True):
     #else:
     #    poi_df.columns = POI_COLS
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].fillna('0000')
-    poi_df[['poi_postcode']] = poi_df[['poi_postcode']].astype(int)
+    poi_df[['poi_postcode']] = poi_df[['poi_postcode']].astype('int32')
     poi_dict = poi_df.to_dict('records')
     # print(poi_df.to_string())
     try:
@@ -213,10 +214,7 @@ def insert_poi_dataframe(session, poi_df, raw = True):
             else:
                 get_or_create_poi(session, POI_address, **poi_data)
     except Exception as e:
-        logging.error('Rolled back: %s.', e)
-        logging.error(poi_data)
-        logging.exception('Exception occurred')
-
+        logging.exception('Exception occured: {} rolled back: {}'.format(e, traceback.print_exc()))
         session.rollback()
         raise e
     else:
@@ -224,8 +222,8 @@ def insert_poi_dataframe(session, poi_df, raw = True):
             session.commit()
             logging.info('Successfully added %s POI items to the dataset.', len(poi_dict))
         except Exception as e:
-            logging.error('Unsuccessfull commit: %s.', e)
-            logging.exception('Exception occurred')
+            logging.exception('Exception occured: {} unsuccessfull commit: {}'.format(e, traceback.print_exc()))
+            session.rollback()
 
 
 def insert_type(session, type_data):

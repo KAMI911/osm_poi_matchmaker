@@ -4,6 +4,7 @@ try:
     import logging
     import sys
     import json
+    import traceback
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
@@ -60,35 +61,38 @@ class hu_cib_bank(DataProvider):
                     text = json.load(f)
                     data = POIDatasetRaw()
                     for poi_data in text['availableLocations']:
-                        if 'locationStatus' in poi_data and poi_data['locationStatus'] == 'IN_SERVICE':
-                            if self.name == 'CIB Bank':
-                                data.name = 'CIB Bank'
-                                data.code = 'hucibbank'
-                                data.public_holiday_open = False
-                            else:
-                                data.name = 'CIB Bank ATM'
-                                data.code = 'hucibatm'
-                                data.public_holiday_open = True
-                            data.lat, data.lon = check_hu_boundary(poi_data['location']['lat'],
-                                                                   poi_data['location']['lon'])
-                            data.city = clean_city(poi_data['city'])
-                            data.postcode = poi_data.get('zip').strip()
-                            data.housenumber = poi_data['streetNo'].strip()
-                            data.street = poi_data['streetName'].strip()
-                            data.branch = poi_data['name']
-                            if 'phone' in poi_data and poi_data['phone'] != '':
-                                data.phone = clean_phone_to_str(
-                                    poi_data['phone'])
-                            if 'email' in poi_data and poi_data['email'] != '':
-                                data.email = poi_data['email'].strip()
-                            data.original = poi_data['fullAddress']
-                            data.add()
+                        try:
+                            if 'locationStatus' in poi_data and poi_data['locationStatus'] == 'IN_SERVICE':
+                                if self.name == 'CIB Bank':
+                                    data.name = 'CIB Bank'
+                                    data.code = 'hucibbank'
+                                    data.public_holiday_open = False
+                                else:
+                                    data.name = 'CIB Bank ATM'
+                                    data.code = 'hucibatm'
+                                    data.public_holiday_open = True
+                                data.lat, data.lon = check_hu_boundary(poi_data['location']['lat'],
+                                                                    poi_data['location']['lon'])
+                                data.city = clean_city(poi_data['city'])
+                                data.postcode = poi_data.get('zip').strip()
+                                data.housenumber = poi_data['streetNo'].strip()
+                                data.street = poi_data['streetName'].strip()
+                                data.branch = poi_data['name']
+                                if 'phone' in poi_data and poi_data['phone'] != '':
+                                    data.phone = clean_phone_to_str(
+                                        poi_data['phone'])
+                                if 'email' in poi_data and poi_data['email'] != '':
+                                    data.email = poi_data['email'].strip()
+                                data.original = poi_data['fullAddress']
+                                data.add()
+                        except Exception as e:
+                            logging.exception('Exception occurred: {}'.format(e))
+                            logging.exception(traceback.print_exc())
+                            logging.exception(poi_data)
                 if data is None or data.lenght() < 1:
                     logging.warning('Resultset is empty. Skipping ...')
                 else:
                     insert_poi_dataframe(self.session, data.process())
         except Exception as e:
-            logging.exception('Exception occurred')
-
-            logging.error(e)
-            logging.error(poi_data)
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

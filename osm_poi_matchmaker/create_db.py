@@ -74,7 +74,7 @@ def load_poi_data(database, table='poi_address_raw', raw=True):
         addr_data.columns = POI_COLS_RAW
     else:
         addr_data.columns = POI_COLS
-    addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
+    addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype('int32')
     return addr_data
 
 
@@ -104,8 +104,8 @@ class WorkflowManager(object):
             self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable())
             self.pool.close()
         except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.error(traceback.print_exc())
 
     def start_exporter(self, data: list, postfix: str = '', to_do=export_grouped_poi_data):
         poi_codes = data['poi_code'].unique()

@@ -4,6 +4,7 @@ try:
     import logging
     import sys
     import os
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
@@ -62,12 +63,9 @@ class hu_mol_bubi(DataProvider):
                     self.data.public_holiday_open = True
                     self.data.add()
                 except Exception as e:
-                    logging.error(e)
-                    logging.error(pla)
-                    logging.exception('Exception occurred')
-
+                    logging.exception('Exception occurred: {}'.format(e))
+                    logging.exception(traceback.print_exc())
+                    logging.exception(pla)
         except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
-
-            logging.error(soup)
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

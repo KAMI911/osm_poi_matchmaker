@@ -5,6 +5,7 @@ try:
     import sys
     import os
     import json
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
@@ -52,43 +53,47 @@ class hu_pepco(DataProvider):
             if soup is not None:
                 text = json.loads(soup)
                 for poi_data in text['data']:
-                    '''
-                    The Pepco dataset contains all European data. Since the program cannot handle POIs outside Hungary (so far)
-                    this will limit only for Hungarian POIs
-                    In fact this depends on OSM extract but currently we use only Hungarian OSM extract
-                    Select only Hungarian POIs
-                    '''
-                    if 'city' in poi_data and (poi_data['city'] == '' or
-                                               query_osm_city_name(self.session, poi_data['city']) is None):
-                        continue
-                    elif 'city' in poi_data:
-                        self.data.city = clean_city(poi_data['city'])
-                    else:
-                        continue
-                    self.data.name = 'Pepco'
-                    self.data.code = 'hupepcoclo'
-                    # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                    self.data.lat, self.data.lon = \
-                        check_hu_boundary(
-                            poi_data['coordinates']['lat'], poi_data['coordinates']['lng'])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                        extract_street_housenumber_better_2(
-                            poi_data.get('streetAddress'))
-                    self.data.original = poi_data.get('streetAddress')
-                    self.data.postcode = poi_data.get('postalCode')
-                    # self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
-                    # Assign opening_hours
-                    opening = poi_data['openingHours']
-                    for i in range(0, 7):
-                        if i in opening:
-                            self.data.day_open(i, opening[i]['from'])
-                            self.data.day_close(i, opening[i]['to'])
-                    # Assign additional informations
-                    self.data.phone = clean_phone_to_str(
-                        poi_data.get('phoneNumber'))
-                    self.data.public_holiday_open = False
-                    self.data.add()
+                    try:
+                        '''
+                        The Pepco dataset contains all European data. Since the program cannot handle POIs outside Hungary (so far)
+                        this will limit only for Hungarian POIs
+                        In fact this depends on OSM extract but currently we use only Hungarian OSM extract
+                        Select only Hungarian POIs
+                        '''
+                        if 'city' in poi_data and (poi_data['city'] == '' or
+                                                query_osm_city_name(self.session, poi_data['city']) is None):
+                            continue
+                        elif 'city' in poi_data:
+                            self.data.city = clean_city(poi_data['city'])
+                        else:
+                            continue
+                        self.data.name = 'Pepco'
+                        self.data.code = 'hupepcoclo'
+                        # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
+                        self.data.lat, self.data.lon = \
+                            check_hu_boundary(
+                                poi_data['coordinates']['lat'], poi_data['coordinates']['lng'])
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_street_housenumber_better_2(
+                                poi_data.get('streetAddress'))
+                        self.data.original = poi_data.get('streetAddress')
+                        self.data.postcode = poi_data.get('postalCode')
+                        # self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
+                        # Assign opening_hours
+                        opening = poi_data['openingHours']
+                        for i in range(0, 7):
+                            if i in opening:
+                                self.data.day_open(i, opening[i]['from'])
+                                self.data.day_close(i, opening[i]['to'])
+                        # Assign additional informations
+                        self.data.phone = clean_phone_to_str(
+                            poi_data.get('phoneNumber'))
+                        self.data.public_holiday_open = False
+                        self.data.add()
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
         except Exception as e:
-            logging.exception('Exception occurred')
-
-            logging.error(logging.error(e))
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

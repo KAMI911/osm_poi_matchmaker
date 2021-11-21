@@ -5,6 +5,7 @@ try:
     import sys
     import json
     import os
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
@@ -56,59 +57,68 @@ class hu_sber_bank(DataProvider):
             if soup is not None:
                 text = json.loads(soup)
                 for poi_data in text['atmList']:
-                    self.data.name = 'Sberbank ATM'
-                    self.data.code = 'husberatm'
-                    self.data.public_holiday_open = True if poi_data.get(
-                        'atmNonstop') is True else False
-                    self.data.postcode = poi_data.get('address')['zipCode']
-                    ctmp = poi_data.get('address')['city']
-                    self.data.city = ctmp if 'kerület' not in ctmp else poi_data.get('address')[
-                        'county']
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('address')['coordinateX'],
-                                                                     poi_data.get('address')['coordinateY'])
-                    street_tmp = '{} {}'.format(poi_data.get('address')['street'],
-                                                poi_data.get('address')['houseNumber'].split('.')[0])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                        extract_street_housenumber_better_2(street_tmp)
-                    self.data.original = street_tmp
-                    self.data.add()
+                    try:
+                        self.data.name = 'Sberbank ATM'
+                        self.data.code = 'husberatm'
+                        self.data.public_holiday_open = True if poi_data.get(
+                            'atmNonstop') is True else False
+                        self.data.postcode = poi_data.get('address')['zipCode']
+                        ctmp = poi_data.get('address')['city']
+                        self.data.city = ctmp if 'kerület' not in ctmp else poi_data.get('address')[
+                            'county']
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('address')['coordinateX'],
+                                                                        poi_data.get('address')['coordinateY'])
+                        street_tmp = '{} {}'.format(poi_data.get('address')['street'],
+                                                    poi_data.get('address')['houseNumber'].split('.')[0])
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_street_housenumber_better_2(street_tmp)
+                        self.data.original = street_tmp
+                        self.data.add()
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
                 for poi_data in text['branchList']:
-                    self.data.name = 'Sberbank'
-                    self.data.code = 'husberbank'
-                    self.data.public_holiday_open = False
-                    self.data.postcode = poi_data.get('address')['zipCode']
-                    ctmp = poi_data.get('address')['city']
-                    self.data.city = ctmp if 'kerület' not in ctmp else poi_data.get('address')[
-                        'county']
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('address')['coordinateX'],
-                                                                     poi_data.get('address')['coordinateY'])
-                    street_tmp = '{} {}'.format(poi_data.get('address')['street'],
-                                                poi_data.get('address')['houseNumber'].split('.')[0])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                        extract_street_housenumber_better_2(street_tmp)
-                    self.data.original = street_tmp
-                    self.data.email = poi_data.get('emailAppointment')
-                    self.data.phone = poi_data.get('phone'.split('/')[0])
-                    for i, opening in enumerate(poi_data.get('openTime')):
-                        if opening is not None and opening != '':
-                            try:
-                                oh = opening.get('from') if opening.get(
-                                    'from') != '' else None
-                                self.data.day_open(i, oh)
-                                ch = opening.get('to') if opening.get(
-                                    'to') != '' else None
-                                self.data.day_close(i, ch)
-                            except Exception as e:
-                                logging.info(opening)
-                                logging.exception('Exception occurred')
+                    try:
+                        self.data.name = 'Sberbank'
+                        self.data.code = 'husberbank'
+                        self.data.public_holiday_open = False
+                        self.data.postcode = poi_data.get('address')['zipCode']
+                        ctmp = poi_data.get('address')['city']
+                        self.data.city = ctmp if 'kerület' not in ctmp else poi_data.get('address')[
+                            'county']
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('address')['coordinateX'],
+                                                                        poi_data.get('address')['coordinateY'])
+                        street_tmp = '{} {}'.format(poi_data.get('address')['street'],
+                                                    poi_data.get('address')['houseNumber'].split('.')[0])
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_street_housenumber_better_2(street_tmp)
+                        self.data.original = street_tmp
+                        self.data.email = poi_data.get('emailAppointment')
+                        self.data.phone = poi_data.get('phone'.split('/')[0])
+                        for i, opening in enumerate(poi_data.get('openTime')):
+                            if opening is not None and opening != '':
+                                try:
+                                    oh = opening.get('from') if opening.get(
+                                        'from') != '' else None
+                                    self.data.day_open(i, oh)
+                                    ch = opening.get('to') if opening.get(
+                                        'to') != '' else None
+                                    self.data.day_close(i, ch)
+                                except Exception as e:
+                                    logging.info(opening)
+                                    logging.exception('Exception occurred')
 
-                                logging.error(e)
-                                continue
-                        else:
-                            logging.debug(
-                                'There is no opening hours on day: {}.'.format(i))
-                    self.data.add()
+                                    logging.error(e)
+                                    continue
+                            else:
+                                logging.debug(
+                                    'There is no opening hours on day: {}.'.format(i))
+                        self.data.add()
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
         except Exception as e:
-            logging.exception('Exception occurred')
-
-            logging.error(e)
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

@@ -5,6 +5,7 @@ try:
     import sys
     import os
     import json
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
         clean_email
@@ -50,29 +51,33 @@ class hu_obi(DataProvider):
             if soup is not None:
                 text = json.loads(soup)
                 for poi_data in text.get('stores'):
-                    self.data.name = 'OBI'
-                    self.data.code = 'huobidiy'
-                    self.data.postcode = poi_data['address']['zip'].strip()
-                    self.data.city = clean_city(poi_data['address']['city'])
-                    self.data.original = poi_data['address']['street']
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['address']['lat'],
-                                                                     poi_data['address']['lon'])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                        poi_data['address']['street'])
-                    if 'phone' in poi_data and poi_data.get('phone') != '':
-                        self.data.phone = clean_phone_to_str(
-                            poi_data.get('phone'))
-                    if 'storeNumber' in poi_data and poi_data.get('storeNumber') != '':
-                        self.data.ref = poi_data.get('storeNumber').strip()
-                    if 'email' in poi_data and poi_data.get('email') != '':
-                        self.data.email = clean_email(poi_data.get('email'))
-                    if 'path' in poi_data and poi_data.get('path') != '':
-                        self.data.website = poi_data.get('path')
-                    # TODO: opening hour parser for poi_data.get('hours'), format is like:
-                    #  Hétfő - Szombat: 8:00 - 20:00\nVasárnap: 08:00 - 18:00
-                    # self.data.public_holiday_open = False
-                    self.data.add()
+                    try:
+                        self.data.name = 'OBI'
+                        self.data.code = 'huobidiy'
+                        self.data.postcode = poi_data['address']['zip'].strip()
+                        self.data.city = clean_city(poi_data['address']['city'])
+                        self.data.original = poi_data['address']['street']
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data['address']['lat'],
+                                                                        poi_data['address']['lon'])
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                            poi_data['address']['street'])
+                        if 'phone' in poi_data and poi_data.get('phone') != '':
+                            self.data.phone = clean_phone_to_str(
+                                poi_data.get('phone'))
+                        if 'storeNumber' in poi_data and poi_data.get('storeNumber') != '':
+                            self.data.ref = poi_data.get('storeNumber').strip()
+                        if 'email' in poi_data and poi_data.get('email') != '':
+                            self.data.email = clean_email(poi_data.get('email'))
+                        if 'path' in poi_data and poi_data.get('path') != '':
+                            self.data.website = poi_data.get('path')
+                        # TODO: opening hour parser for poi_data.get('hours'), format is like:
+                        #  Hétfő - Szombat: 8:00 - 20:00\nVasárnap: 08:00 - 18:00
+                        # self.data.public_holiday_open = False
+                        self.data.add()
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
         except Exception as e:
-            logging.exception('Exception occurred')
-
-            logging.error(e)
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

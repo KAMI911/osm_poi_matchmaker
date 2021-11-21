@@ -5,6 +5,7 @@ try:
     import sys
     import json
     import os
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
@@ -59,6 +60,7 @@ class hu_budapest_bank(DataProvider):
             if soup is not None:
                 text = json.loads(soup)
                 for poi_data in text:
+                  try:
                     if poi_data['point_category'] == 1:
                         self.data.name = 'Budapest Bank'
                         self.data.code = 'hubpbank'
@@ -109,6 +111,10 @@ class hu_budapest_bank(DataProvider):
                     else:
                         self.data.nonstop = False
                     self.data.add()
+                  except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
         except Exception as e:
-            logging.exception('Exception occurred')
-            logging.error(e)
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

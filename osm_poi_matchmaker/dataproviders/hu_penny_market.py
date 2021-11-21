@@ -5,6 +5,7 @@ try:
     import sys
     import os
     import json
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
@@ -52,24 +53,28 @@ class hu_penny_market(DataProvider):
             if soup is not None:
                 text = json.loads(soup)
                 for poi_data in text['markets']:
-                    self.data.name = 'Penny'
-                    self.data.code = 'hupennysup'
-                    self.data.postcode = poi_data['address']['zip'].strip()
-                    street_tmp = poi_data['address']['street'].split(',')[0]
-                    self.data.city = clean_city(poi_data['address']['city'])
-                    self.data.original = poi_data['address']['street']
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['address']['latitude'],
-                                                                     poi_data['address']['longitude'])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                        street_tmp.title())
-                    if 'phone' in poi_data and poi_data['phone'] != '':
-                        self.data.phone = clean_phone_to_str(poi_data['phone'])
-                    if 'id' in poi_data and poi_data['id'] != '':
-                        self.data.ref = poi_data['id'].strip()
-                    self.data.public_holiday_open = False
-                    # TODO: Parsing opening_hours from datasource
-                    self.data.add()
+                    try:
+                        self.data.name = 'Penny'
+                        self.data.code = 'hupennysup'
+                        self.data.postcode = poi_data['address']['zip'].strip()
+                        street_tmp = poi_data['address']['street'].split(',')[0]
+                        self.data.city = clean_city(poi_data['address']['city'])
+                        self.data.original = poi_data['address']['street']
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data['address']['latitude'],
+                                                                        poi_data['address']['longitude'])
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                            street_tmp.title())
+                        if 'phone' in poi_data and poi_data['phone'] != '':
+                            self.data.phone = clean_phone_to_str(poi_data['phone'])
+                        if 'id' in poi_data and poi_data['id'] != '':
+                            self.data.ref = poi_data['id'].strip()
+                        self.data.public_holiday_open = False
+                        # TODO: Parsing opening_hours from datasource
+                        self.data.add()
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
         except Exception as e:
-            logging.exception('Exception occurred')
-
-            logging.error(e)
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

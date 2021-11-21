@@ -6,6 +6,7 @@ try:
     import os
     import re
     import json
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_all_address, clean_javascript_variable, clean_phone_to_str, \
         clean_email
@@ -46,25 +47,28 @@ class hu_jysk(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), self.filetype)
             if soup is not None:
                 soup_data = soup.find(
                     'script', {'data-drupal-selector': 'drupal-settings-json'})
                 json_data = json.loads(soup_data.text, strict=False)
                 for shop in json_data['storesLocator']['BuildCoordinates']:
-                    self.data.name = 'Jysk'
-                    self.data.code = 'hujyskfur'
-                    self.data.lat, self.data.lon = check_hu_boundary(
-                        shop.get('lat'), shop.get('lon'))
-                    self.data.branch = shop.get('name')
-                    internal_id = shop.get('id')
-                    shop_soup = save_downloaded_soup('{}?storeId={}'.format(self.link, internal_id),
-                                                     os.path.join(self.download_cache,
-                                                                  '{}.{}.html'.format(self.filename, internal_id)))
-                    self.data.phone = '+36 1 700 8400'
-                    self.data.add()
+                    try:
+                        self.data.name = 'Jysk'
+                        self.data.code = 'hujyskfur'
+                        self.data.lat, self.data.lon = check_hu_boundary(
+                            shop.get('lat'), shop.get('lon'))
+                        self.data.branch = shop.get('name')
+                        internal_id = shop.get('id')
+                        shop_soup = save_downloaded_soup('{}?storeId={}'.format(self.link, internal_id),
+                                                        os.path.join(self.download_cache,
+                                                                    '{}.{}.html'.format(self.filename, internal_id)), FileType.json)
+                        self.data.phone = '+36 1 700 8400'
+                        self.data.add()
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(shop)
         except Exception as e:
-            logging.exception('Exception occurred')
-
-            logging.error(e)
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

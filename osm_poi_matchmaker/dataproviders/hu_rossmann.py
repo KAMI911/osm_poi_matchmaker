@@ -6,6 +6,7 @@ try:
     import os
     import re
     import json
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
         extract_javascript_variable, clean_opening_hours
@@ -55,28 +56,48 @@ class hu_rossmann(DataProvider):
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 text = json.loads(extract_javascript_variable(soup, 'locations'))
-                for poi_data in text:
-                    poi_data = poi_data['addresses'][0]
-                    # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                    self.data.name = 'Rossmann'
-                    self.data.code = 'hurossmche'
-                    self.data.city = clean_city(poi_data['city'])
-                    self.data.postcode = poi_data.get('zip').strip()
-                    for i in range(0, 7):
-                        if poi_data['business_hours'][WeekDaysLong(i).name.lower()] is not None:
-                            opening, closing = clean_opening_hours(
-                                poi_data['business_hours'][WeekDaysLong(i).name.lower()])
-                            self.data.day_open_close(i, opening, closing)
-                        else:
-                            self.data.day_open_close(i, None, None)
-                    self.data.lat, self.data.lon = check_hu_boundary(
-                        poi_data['position'][0], poi_data['position'][1])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                        poi_data['address'])
-                    self.data.original = poi_data['address']
-                    self.data.public_holiday_open = False
-                    self.data.add()
+                pois = []
+                for poi_temp in text:
+                    try:
+                        poi_id = int(poi_temp.get('id'))
+                        pois.insert(poi_id, poi_temp)
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
+                text = json.loads(extract_javascript_variable(soup, 'additionals'))
+                for poi_temp in text:
+                    try:
+                        poi_id = int(poi_temp.get('id'))
+                        pois.insert(poi_id, poi_temp)
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
+                for poi_data in pois:
+                    try:
+                        # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
+                        self.data.name = 'Rossmann'
+                        self.data.code = 'hurossmche'
+                        self.data.city = clean_city(poi_data.get('city'))
+                        self.data.postcode = poi_data.get('zip').strip\
+                        if ('zip' in poi_data and poi_data.get('zip') != '') else None
+                        for i in range(0, 7):
+                            if WeekDaysLong(i).name.lower() in poi_data:
+                                opening, closing = clean_opening_hours(
+                                    poi_data[WeekDaysLong(i).name.lower()])
+                                self.data.day_open_close(i, opening, closing)
+                            else:
+                                self.data.day_open_close(i, None, None)
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data.get('street'))
+                        self.data.original = poi_data.get('street')
+                        self.data.public_holiday_open = False
+                        self.data.add()
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
         except Exception as e:
-            logging.exception('Exception occurred')
-
-            logging.error(e)
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

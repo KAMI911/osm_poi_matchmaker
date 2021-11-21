@@ -6,6 +6,7 @@ try:
     import logging
     import sys
     import os
+    import traceback
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.utils import config, dataproviders_loader
@@ -67,6 +68,6 @@ def import_poi_data_module(module: str):
             insert_type(session, work.types())
             work.process()
             work.export_list()
-    except Exception as err:
-        logging.error(err)
-        logging.exception('Exception occurred')
+    except Exception as e:
+        logging.exception('Exception occurred: {}'.format(e))
+        logging.error(traceback.print_exc())
