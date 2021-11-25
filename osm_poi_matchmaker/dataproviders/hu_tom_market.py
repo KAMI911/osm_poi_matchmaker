@@ -56,24 +56,12 @@ class hu_tom_market(DataProvider):
                         self.data.code = 'hutommacon'
                         if poi_data.get('name')[2] is not None and poi_data.get('name')[2] != '':
                             self.data.ref = poi_data.get('name')[2]
-                        if poi_data.get('website') is not None and poi_data.get('website') != '':
-                            self.data.website = poi_data.get('website')
-                        else:
-                            self.data.website = 'https://tommarket.hu'
+                        self.data.website = None
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('lat'), poi_data.get('long'))
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                            extract_street_housenumber_better_2(
-                                poi_data.get('address'))
-                        if poi_data.get('zip') is not None and poi_data.get('zip') != '':
-                            self.data.postcode = poi_data.get('zip')
+                        self.data.postcode, self.data.city, self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_all_address(poi_data.get('address'))
                         self.data.original = poi_data.get('address')
-                        if poi_data.get('settlement') is not None and poi_data.get('settlement') != '':
-                            self.data.city = clean_city(
-                                poi_data.get('settlement'))
-                        else:
-                            self.data.city = query_osm_city_name_gpd(
-                                self.session, self.data.lat, self.data.lon)
                         if poi_data.get('phone') is not None and poi_data.get('phone') != '':
                             self.data.phone = clean_phone_to_str(
                                 poi_data.get('phone'))
