@@ -64,8 +64,7 @@ class hu_yves_rocher(DataProvider):
                             self.data.lat, self.data.lon = \
                                 check_hu_boundary(poi_data.get(
                                     'latitude'), poi_data.get('longitude'))
-                            self.data.website = 'https://www.yves-rocher.hu{}/'.format(
-                                poi_data.get('request_path'))
+                            self.data.website = None
                             opening = poi_data.get('hours')
                             for i in range(0, 7):
                                 if i in opening:
