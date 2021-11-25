@@ -197,4 +197,35 @@ FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(21.623189,47.553246), 4
 WHERE (amenity='post_office') AND osm_id < 0  AND name ~* 'posta'
     AND ST_DWithin(ST_Buffer(way,10),ST_Transform(point.geom, 3857), 430)
 ORDER BY priority ASC, distance ASC;
+
+## Additional indexes
+
+```
+CREATE INDEX i_street_type ON street_type(street_type);
+CREATE INDEX i_planet_osm_point_way ON planet_osm_point(way);
+CREATE INDEX i_planet_osm_point_addr ON planet_osm_point("addr:postcode","addr:city","addr:street","addr:housenumber");
+CREATE INDEX i_planet_osm_point_addrcon ON planet_osm_point("addr:city","addr:conscriptionnumber");
+CREATE INDEX i_planet_osm_point_amenity ON planet_osm_point(amenity);
+CREATE INDEX i_planet_osm_point_shop ON planet_osm_point(shop);
+CREATE INDEX i_planet_osm_point_name ON planet_osm_point(name);
+CREATE INDEX i_planet_osm_point_brand ON planet_osm_point(brand);
+
+CREATE INDEX i_planet_osm_line_way ON planet_osm_line using gist(way);
+CREATE INDEX i_planet_osm_line_addr ON planet_osm_line("addr:postcode","addr:city","addr:street","addr:housenumber");
+CREATE INDEX i_planet_osm_line_addrcon ON planet_osm_line("addr:city","addr:conscriptionnumber");
+CREATE INDEX i_planet_osm_line_amenity ON planet_osm_line(amenity);
+CREATE INDEX i_planet_osm_line_shop ON planet_osm_line(shop);
+CREATE INDEX i_planet_osm_line_name ON planet_osm_line(name);
+CREATE INDEX i_planet_osm_line_brand ON planet_osm_line(brand);
+
+
+CREATE INDEX i_planet_osm_polygon_way ON planet_osm_polygon using gist (way);
+CREATE INDEX i_planet_osm_polygon_addr ON planet_osm_polygon("addr:postcode","addr:city","addr:street","addr:housenumber");
+CREATE INDEX i_planet_osm_polygon_addrcon ON planet_osm_polygon("addr:city","addr:conscriptionnumber");
+CREATE INDEX i_planet_osm_polygon_amenity ON planet_osm_polygon(amenity);
+CREATE INDEX i_planet_osm_polygon_shop ON planet_osm_polygon(shop);
+CREATE INDEX i_planet_osm_polygon_name ON planet_osm_polygon(name);
+CREATE INDEX i_planet_osm_polygon_brand ON planet_osm_polygon(brand);
+```
+
 ```
