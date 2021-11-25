@@ -6,6 +6,7 @@ try:
     import os
     import json
     import traceback
+    from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
         PATTERN_FULL_URL
@@ -24,6 +25,7 @@ class hu_benu(DataProvider):
 
     def constains(self):
         self.link = 'https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1'
+        self.link = os.path.join(config.get_directory_cache_url(), 'hu_benu.json')
         self.tags = {'brand': 'Benu gyógyszertár', 'dispensing': 'yes',
                      'contact:facebook': 'https://www.facebook.com/BENUgyogyszertar',
                      'contact:youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg',
@@ -48,41 +50,42 @@ class hu_benu(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
-            if soup is not None:
-                text = json.loads(str(soup))
-                for poi_data in text:
-                    try:
-                        if 'BENU Gyógyszertár' not in poi_data.get('title'):
-                            self.data.name = poi_data.get('title').strip()
-                            self.data.branch = None
-                        else:
-                            self.data.name = 'Benu gyógyszertár'
-                            self.data.branch = poi_data.get('title').strip()
-                        self.data.code = 'hubenupha'
-                        if poi_data.get('description') is not None:
-                            pu_match = PATTERN_FULL_URL.match(poi_data.get('description'))
-                            self.data.website = pu_match.group(0).strip() if pu_match is not None else None
-                        else:
-                            self.data.website = None
-                        self.data.city = clean_city(poi_data.get('city'))
-                        self.data.postcode = poi_data.get('postal_code').strip()
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                            poi_data.get(('street')))
-                        self.data.original = poi_data.get('street')
-                        if 'phone' in poi_data and poi_data.get('phone') != '':
-                            self.data.phone = clean_phone_to_str(
-                                poi_data.get('phone'))
-                        else:
-                            self.data.phone = None
-                        self.data.public_holiday_open = False
-                        self.data.add()
-                    except Exception as e:
-                        logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
-                        logging.exception(poi_data)
+            #soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+            #                            self.filetype)
+            with open(self.link, 'r') as f:
+                if f is not None:
+                    text = json.loads(str(f))
+                    for poi_data in text:
+                        try:
+                            if 'BENU Gyógyszertár' not in poi_data.get('title'):
+                                self.data.name = poi_data.get('title').strip()
+                                self.data.branch = None
+                            else:
+                                self.data.name = 'Benu gyógyszertár'
+                                self.data.branch = poi_data.get('title').strip()
+                            self.data.code = 'hubenupha'
+                            if poi_data.get('description') is not None:
+                                pu_match = PATTERN_FULL_URL.match(poi_data.get('description'))
+                                self.data.website = pu_match.group(0).strip() if pu_match is not None else None
+                            else:
+                                self.data.website = None
+                            self.data.city = clean_city(poi_data.get('city'))
+                            self.data.postcode = poi_data.get('postal_code').strip()
+                            self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
+                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                                poi_data.get(('street')))
+                            self.data.original = poi_data.get('street')
+                            if 'phone' in poi_data and poi_data.get('phone') != '':
+                                self.data.phone = clean_phone_to_str(
+                                    poi_data.get('phone'))
+                            else:
+                                self.data.phone = None
+                            self.data.public_holiday_open = False
+                            self.data.add()
+                        except Exception as e:
+                            logging.exception('Exception occurred: {}'.format(e))
+                            logging.exception(traceback.print_exc())
+                            logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
             logging.exception(traceback.print_exc())
