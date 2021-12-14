@@ -24,6 +24,7 @@ try:
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.dao import poi_array_structure
+    from osm_poi_matchmaker.libs.osm_prepare import index_osm_data
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -125,7 +126,7 @@ class WorkflowManager(object):
     def start_matcher(self, data, comm_data):
         try:
             workers = self.NUMBER_OF_PROCESSES
-            self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES)
+            self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES//2)
             self.results = self.pool.map_async(online_poi_matching,
                                                [(d, comm_data) for d in np.array_split(data, workers)])
             self.pool.close()
@@ -150,8 +151,10 @@ def main():
     Session = scoped_session(session_factory)
     session = Session()
     try:
-        logging.info('Starting STAGE 1 ...')
+        logging.info('Starting STAGE 0 ...')
         import_basic_data(db.session)
+        logging.info('Starting STAGE 1 ...')
+        index_osm_data(db.session)
         logging.info('Starting STAGE 2 ...')
         manager = WorkflowManager()
         manager.start_poi_harvest()
@@ -177,7 +180,7 @@ def main():
         #del poi_addr_data
         #logging.info('Starting STAGE 5 ...')
         #poi_addr_data = load_poi_data(db, 'poi_address', False)
-        # export_raw_poi_data_xml(poi_addr_data)
+        export_raw_poi_data_xml(poi_addr_data)
         logging.info('Saving poi_code grouped filesets...')
         # Export non-transformed filesets
         manager.start_exporter(poi_addr_data)
