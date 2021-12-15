@@ -54,6 +54,8 @@ class TestAddressResolver(unittest.TestCase):
              'conscriptionnumber': None},
             {'original': 'Alkotás u. 53.', 'street': 'Alkotás utca', 'housenumber': '53',
              'conscriptionnumber': None},
+            {'original': 'Szilas pihenő M3', 'street': 'Szilas pihenő', 'housenumber': '3',
+             'conscriptionnumber': None}, #TODO Fix this
         ]
 
     def test_extract_street_housenumber_better_2(self):
