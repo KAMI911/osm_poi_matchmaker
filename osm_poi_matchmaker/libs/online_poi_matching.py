@@ -36,7 +36,7 @@ def online_poi_matching(args):
         session = Session()
         osm_live_query = OsmApi()
         for i, row in data.iterrows():
-            # for i, row in data[data['poi_code'].str.contains('posta')].iterrows():
+        #for i, row in data[data['poi_code'].str.contains('avia')].iterrows():
             try:
                 # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
                 osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
@@ -50,6 +50,7 @@ def online_poi_matching(args):
                                                       row.get('osm_search_distance_unsafe'))
                 # Enrich our data with OSM database POI metadata
                 if osm_query is not None:
+                    changed_from_osm = False
                     row['poi_new'] = False
                     # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
                     osm_id = osm_query['osm_id'].values[0] if osm_query.get('osm_id') is not None else None
@@ -89,6 +90,28 @@ def online_poi_matching(args):
                                 data.at[i, 'poi_postcode'] = ch_posctode
                     else:
                         logging.info('Preserving original postcode %s', row.get('poi_postcode'))
+                    # Overwrite housenumber import data with OSM truth
+                    if osm_query['addr:housenumber'].values[0] is not None and \
+                       osm_query['addr:housenumber'].values[0] != '' and \
+                       osm_query['addr:housenumber'].values[0] != row.get('poi_addr_housenumber'):
+                        data.at[i, 'poi_addr_housenumber'] = osm_query['addr:housenumber'].values[0]
+                        changed_from_osm = True
+                    # Overwrite city import data with OSM truth
+                    if osm_query['addr:city'].values[0] is not None and osm_query['addr:city'].values[0] != '' and \
+                       osm_query['addr:city'].values[0] != row.get('poi_city'):
+                        data.at[i, 'poi_city'] = osm_query['addr:city'].values[0]
+                        changed_from_osm = True
+                    # Overwrite street import data with OSM truth
+                    if osm_query['addr:street'].values[0] is not None and osm_query['addr:street'].values[0] != '' and \
+                       osm_query['addr:street'].values[0] != row.get('poi_addr_street'):
+                        data.at[i, 'poi_addr_street'] = osm_query[ 'addr:street'].values[0]
+                        changed_from_osm = True
+                    # Overwrite conscription number import data with OSM truth
+                    if osm_query['addr:conscriptionnumber'].values[0] is not None and \
+                       osm_query['addr:conscriptionnumber'].values[0] != '' and \
+                       osm_query['addr:conscriptionnumber'].values[0] != row.get('poi_conscriptionnumber'):
+                        data.at[i, 'poi_conscriptionnumber'] = osm_query['addr:conscriptionnumber'].values[0]
+                        changed_from_osm = True
                     data.at[i, 'osm_version'] = osm_query['osm_version'].values[0] \
                         if osm_query['osm_version'] is not None else None
                     data.at[i, 'osm_changeset'] = osm_query['osm_changeset'].values[0] \
@@ -110,11 +133,20 @@ def online_poi_matching(args):
                         # Add list of relation nodes to the dataframe
                         nodes = db.query_relation_nodes(osm_id)
                         data.at[i, 'osm_nodes'] = nodes
-                    logging.info('Old %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
+                    if changed_from_osm == False:
+                        logging.info('Old %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
                                  data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'], 
                                  data.at[i, 'poi_type'], data.at[i, 'poi_distance'],
                                  data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
                                  data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'])
+                    else:
+                        logging.info('Old changed %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s) was: %s %s, %s %s (%s)',
+                                 data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'],
+                                 data.at[i, 'poi_type'], data.at[i, 'poi_distance'],
+                                 data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
+                                 data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'],
+                                 row.get('poi_postcode'), row.get('poi_city'), row.get('poi_addr_street'),
+                                 row.get('poi_addr_housenumber'), row.get('poi_conscriptionnumber'))
                     try:
                         # Download OSM POI way live tags
                         if osm_node == OSM_object_type.way:
