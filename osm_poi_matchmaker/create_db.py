@@ -14,6 +14,7 @@ try:
     import pandas as pd
     import multiprocessing
     import datetime
+    import traceback
     from osm_poi_matchmaker.utils import config, timing
     from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
@@ -35,6 +36,7 @@ RETRY = 3
 
 POI_COLS = poi_array_structure.POI_DB
 POI_COLS_RAW = poi_array_structure.POI_DB_RAW
+
 
 def init_log():
     logging.config.fileConfig('log.conf')
