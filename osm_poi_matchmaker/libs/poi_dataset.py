@@ -152,7 +152,7 @@ class POIDatasetRaw:
 
     @code.setter
     def code(self, data: str):
-        self.__code = data
+        self.__code = clean_string(data)
 
     @property
     def postcode(self) -> int:
@@ -168,7 +168,7 @@ class POIDatasetRaw:
 
     @city.setter
     def city(self, data: str):
-        self.__city = data
+        self.__city = clean_string(data)
 
     @property
     def name(self) -> str:
@@ -176,7 +176,7 @@ class POIDatasetRaw:
 
     @name.setter
     def name(self, data: str):
-        self.__name = data
+        self.__name = clean_string(data)
 
     @property
     def branch(self) -> str:
@@ -200,7 +200,7 @@ class POIDatasetRaw:
 
     @description.setter
     def description(self, data: str):
-        self.__description = data
+        self.__description = clean_string(data)
 
     @property
     def fuel_adblue(self) -> bool:
@@ -368,7 +368,7 @@ class POIDatasetRaw:
 
     @socket_chademo_output.setter
     def socket_chademo_output(self, data: str):
-        self.__socket_chademo_output = data
+        self.__socket_chademo_output = clean_string(data)
 
     @property
     def socket_type2_combo(self) -> int:
@@ -384,7 +384,7 @@ class POIDatasetRaw:
 
     @socket_type2_combo_output.setter
     def socket_type2_combo_output(self, data: str):
-        self.__socket_type2_combo_output = data
+        self.__socket_type2_combo_output = clean_string(data)
 
     @property
     def socket_type2_cable(self) -> int:
@@ -400,7 +400,7 @@ class POIDatasetRaw:
 
     @socket_type2_cable_output.setter
     def socket_type2_cable_output(self, data: str):
-        self.__socket_type2_cable_output = data
+        self.__socket_type2_cable_output = clean_string(data)
 
     @property
     def socket_type2(self) -> int:
@@ -416,7 +416,7 @@ class POIDatasetRaw:
 
     @socket_type2_output.setter
     def socket_type2_output(self, data: str):
-        self.__socket_type2_output = data
+        self.__socket_type2_output = clean_string(data)
 
     @property
     def manufacturer(self) -> str:
@@ -424,7 +424,7 @@ class POIDatasetRaw:
 
     @manufacturer.setter
     def manufacturer(self, data: str):
-        self.__manufacturer = data
+        self.__manufacturer = clean_string(data)
 
     @property
     def model(self) -> str:
@@ -448,7 +448,7 @@ class POIDatasetRaw:
 
     @street.setter
     def street(self, data: str):
-        self.__street = data
+        self.__street = clean_string(data)
 
     @property
     def housenumber(self) -> str:
@@ -456,7 +456,7 @@ class POIDatasetRaw:
 
     @housenumber.setter
     def housenumber(self, data: str):
-        self.__housenumber = data
+        self.__housenumber = clean_string(data)
 
     @property
     def conscriptionnumber(self) -> str:
@@ -464,7 +464,7 @@ class POIDatasetRaw:
 
     @conscriptionnumber.setter
     def conscriptionnumber(self, data: str):
-        self.__conscriptionnumber = data
+        self.__conscriptionnumber = clean_string(data)
 
     @property
     def ref(self) -> str:
@@ -472,7 +472,7 @@ class POIDatasetRaw:
 
     @ref.setter
     def ref(self, data: str):
-        self.__ref = data
+        self.__ref = clean_string(data)
 
     @property
     def phone(self) -> str:
@@ -494,7 +494,7 @@ class POIDatasetRaw:
         if data == 'NULL':
             self.__email = None
         else:
-            self.__email = data
+            self.__email = clean_string(data)
 
     @property
     def geom(self) -> str:
