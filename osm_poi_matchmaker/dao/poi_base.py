@@ -249,14 +249,14 @@ class POIBase:
                                                       conscriptionnumber_query=conscriptionnumber_query,
                                                       city_query=city_query))
             logging.debug(str(query))
-            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
-            '''perf_query = sqlalchemy.text('EXPLAIN ' + query_text.format(query_type=query_type, query_name=query_name,
+            perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type, query_name=query_name,
                                                       metadata_fields=metadata_fields,
                                                       conscriptionnumber_query=conscriptionnumber_query,
                                                       city_query=city_query))
-            perf = gpd.GeoDataFrame.from_postgis(perf_query, self.engine, geom_col='way', params=query_params)
-            logging.debug(perf)
-            '''
+            perf = self.session.execute(perf_query, query_params)
+            perf_rows = [row.values()[0] for row in perf]
+            logging.debug('\n'.join(perf_rows))
+            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
             if not data.empty:
                 logging.debug(data.to_string())
                 return data.iloc[[0]]
@@ -292,33 +292,21 @@ class POIBase:
             FROM planet_osm_polygon
             WHERE ({query_type}) AND osm_id < 0 {query_name} {city_query} {street_query} {housenumber_query}
             '''
-            '''
-            perf_query = sqlalchemy.text('EXPLAIN ' + query_text.format(query_type=query_type, query_name=query_name,
-                                                                query_avoid_name=query_avoid_name,
-                                                                metadata_fields=metadata_fields,
-                                                                street_query=street_query, city_query=city_query,
-                                                                housenumber_query=housenumber_query))
-
-            logging.debug(str(perf_query))
-            perfd = gpd.GeoDataFrame.from_postgis(perf_query, self.engine, geom_col='way', params=query_params)
-            logging.debug(perfd)
-            '''
             query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
                                                       metadata_fields=metadata_fields,
                                                       street_query=street_query,
                                                       city_query=city_query,
                                                       housenumber_query=housenumber_query))
             logging.debug(str(query))
+            perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type, query_name=query_name,
+                                                                query_avoid_name=query_avoid_name,
+                                                                metadata_fields=metadata_fields,
+                                                                street_query=street_query, city_query=city_query,
+                                                                housenumber_query=housenumber_query))
+            perf = self.session.execute(perf_query, query_params)
+            perf_rows = [row.values()[0] for row in perf]
+            logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
-            '''
-            perf_query = sqlalchemy.text('EXPLAIN ' + query_text.format(query_type=query_type, query_name=query_name,
-                                                      metadata_fields=metadata_fields,
-                                                      street_query=street_query,
-                                                      city_query=city_query,
-                                                      housenumber_query=housenumber_query))
-            perf = gpd.GeoDataFrame.from_postgis(perf_query, self.engine, geom_col='way', params=query_params)
-            logging.debug(perf)
-            '''
             if not data.empty:
                 logging.debug(data.to_string())
                 return data.iloc[[0]]
@@ -511,17 +499,14 @@ class POIBase:
                                                   query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
                                                   street_query=street_query, city_query=city_query,
                                                   housenumber_query=housenumber_query))
-        '''
-        perf_query_text = 'EXPLAIN ' + 'UNION ALL'.join(query_arr) + ' ORDER BY priority ASC, distance ASC;'
+        perf_query_text = 'EXPLAIN ANALYZE ' + 'UNION ALL'.join(query_arr) + ' ORDER BY priority ASC, distance ASC;'
         perf_query = sqlalchemy.text(perf_query_text.format(query_type=query_type, query_name=query_name,
                                                   query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
                                                   street_query=street_query, city_query=city_query,
                                                   housenumber_query=housenumber_query))
-
-        perfd = gpd.GeoDataFrame.from_postgis(perf_query, self.engine, geom_col='way', params=query_params)
-        logging.debug(str(perf_query))
-        logging.debug(perfd)
-        '''
+        perf = self.session.execute(perf_query, query_params)
+        perf_rows = [row.values()[0] for row in perf]
+        logging.debug('\n'.join(perf_rows))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
         logging.debug(str(query))
         if not data.empty:
