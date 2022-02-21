@@ -41,7 +41,7 @@ class hu_posta(DataProvider):
         hupostapo.update(self.tags)
         hupostacse = {'amenity': 'vending_machine', 'vending': 'cheques'}
         hupostacse.update(self.tags)
-        hupostacso = {'amenity': 'vending_machine', 'vending': 'parcel_pickup'}
+        hupostacso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes'}
         hupostacso.update(self.tags)
         hupostapp = {'amenity': 'post_office'}
         hupostapp.update(self.tags)
@@ -57,7 +57,7 @@ class hu_posta(DataProvider):
              'poi_tags': hupostacse, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 220},
             {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata',
-             'poi_type': 'vending_machine_parcel_pickup',
+             'poi_type': 'vending_machine_parcel_locker',
              'poi_tags': hupostacso, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(mpl|posta)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
             {'poi_code': 'hupostapp', 'poi_name': 'PostaPont', 'poi_type': 'post_office',

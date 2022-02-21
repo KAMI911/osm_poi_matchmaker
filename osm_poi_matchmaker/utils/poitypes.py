@@ -37,13 +37,23 @@ def getPOITypes(ptype):
         query_type = "amenity='bicycle_rental'"
     elif ptype == 'vending_machine_cheques':
         query_type = "amenity='vending_machine' AND vending='cheques'"
-    elif ptype == 'vending_machine_parcel_pickup':
-        query_type = "amenity='vending_machine' AND vending='parcel_pickup'"
+    elif ptype == 'vending_machine_parcel_locker':
+        # New scheme: https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dparcel_locker
+        # Old (also supported to find) scheme was: https://wiki.openstreetmap.org/wiki/Tag:vending%3Dparcel_pickup
+        query_type = "amenity='parcel_locker' OR vending='parcel_pickup'"
     elif ptype == 'vending_machine_parcel_mail_in':
-        query_type = "amenity='vending_machine' AND vending='parcel_mail_in'"
-    elif ptype == 'vending_machine_parcel_pickup_and_mail_in':
-        query_type = "amenity='vending_machine' AND" \
-                     "(vending='parcel_pickup;parcel_mail_in' OR vending='parcel_mail_in;parcel_pickup' OR " \
+        # New scheme: https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dparcel_locker
+        # New scheme: https://wiki.openstreetmap.org/wiki/Key:parcel_mail_in (yes)
+        # New scheme: https://wiki.openstreetmap.org/wiki/Key:parcel_pickup (no)
+        query_type = "(amenity='parcel_locker' AND parcel_mail_in='yes' AND parcel_pickup='no') OR " \
+                     "vending='parcel_mail_in'"
+    elif ptype == 'vending_machine_parcel_locker_and_mail_in':
+        # New scheme: https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dparcel_locker
+        # New scheme: https://wiki.openstreetmap.org/wiki/Key:parcel_mail_in (yes)
+        # New scheme: https://wiki.openstreetmap.org/wiki/Key:parcel_pickup (no)
+        query_type = "(amenity='parcel_locker' AND parcel_mail_in='yes' AND parcel_pickup='no') OR " \
+                     "(amenity='vending_machine' AND" \
+                     "(vending='parcel_pickup;parcel_mail_in' OR vending='parcel_mail_in;parcel_pickup') OR " \
                      "vending='parcel_pickup')"
     elif ptype == 'vending_machine_parking_tickets':
         query_type = "amenity='vending_machine' AND vending='parking_tickets'"

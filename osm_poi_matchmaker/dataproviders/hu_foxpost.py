@@ -36,11 +36,10 @@ class hu_foxpost(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hufoxpocso = {'amenity': 'vending_machine',
-                      'vending': 'parcel_pickup;parcel_mail_in'}
+        hufoxpocso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes'}
         hufoxpocso.update(self.tags)
         self.__types = [
-            {'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_type': 'vending_machine_parcel_pickup_and_mail_in',
+            {'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': hufoxpocso, 'poi_url_base': 'https://www.foxpost.hu', 'poi_search_name': 'foxpost',
              'osm_search_distance_perfect': 1000, 'osm_search_distance_safe': 400, 'osm_search_distance_unsafe': 20},
         ]
