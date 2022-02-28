@@ -176,6 +176,8 @@ node,way   tower:type   text         linear
 way        tracktype    text         linear
 node,way   tunnel       text         linear
 node,way   vending      text         linear
+node,way   parcel_mail_in text       linear
+node,way   parcel_pickup text        linear
 node,way   water        text         polygon
 node,way   waterway     text         polygon
 node,way   wetland      text         polygon
