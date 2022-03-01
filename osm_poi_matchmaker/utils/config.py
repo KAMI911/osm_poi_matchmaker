@@ -61,6 +61,7 @@ KEY_GEO_ALTERNATIVE_OPENING_HOURS = 'geo.alternative.opening.hours'
 KEY_GEO_ALTERNATIVE_OPENING_HOURS_TAG = 'geo.alternative.opening.hours.tag'
 KEY_DOWNLOAD_VERIFY_LINK = 'download.verify.link'
 KEY_DOWNLOAD_USE_CACHED_DATA = 'download.use.cached.data'
+USE_GENERAL_SOURCE_WEBSITE_DATE = 'use.general.source.website.date'
 KEY_DATAPROVIDERS_MODULES_AVAILABLE = 'dataproviders.modules.available'
 KEY_DATAPROVIDERS_MODULES_ENABLE = 'dataproviders.modules.enable'
 
@@ -286,6 +287,17 @@ def get_download_verify_link():
 
 def get_download_use_cached_data():
     setting = get_config_bool(KEY_DOWNLOAD_USE_CACHED_DATA)
+    if setting is not None:
+        return setting
+    else:
+        return True
+
+
+def get_use_general_source_website_date()
+    setting = get_config_bool(USE_GENERAL_SOURCE_WEBSITE_DATE)
+    env_setting = os.environ.get('USE_GENERAL_SOURCE_WEBSITE_DATE')
+    if env_setting is not None:
+        return env_setting
     if setting is not None:
         return setting
     else:

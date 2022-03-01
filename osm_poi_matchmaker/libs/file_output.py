@@ -327,7 +327,8 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred')
             try:
                 # Short URL for source
-                if row['poi_url_base'] is not None:
+                # Can disable in app.conf via use.general.source.website.date key (deafault)
+                if row['poi_url_base'] is not None and config.get_use_general_source_website_date() is False:
                     source_url = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
                 else:
                     source_url = 'source:website:date'
