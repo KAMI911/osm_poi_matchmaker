@@ -331,7 +331,11 @@ def generate_osm_xml(df, session=None):
                 if row['poi_url_base'] is not None and config.get_use_general_source_website_date() is False:
                     source_url = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
                 else:
+                    # Issue #97: Remove source:(website):date tag and add source:website:date tag
                     source_url = 'source:website:date'
+                    if row['poi_url_base'] is not None:
+                        source_url_2 = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
+                        tags.pop(source_url_2, None)
                 tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt=DATE_FOTMAT)
             except Exception as e:
                 logging.exception('Exception occurred')
