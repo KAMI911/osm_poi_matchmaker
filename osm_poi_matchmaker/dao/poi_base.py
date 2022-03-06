@@ -249,13 +249,15 @@ class POIBase:
                                                       conscriptionnumber_query=conscriptionnumber_query,
                                                       city_query=city_query))
             logging.debug(str(query))
-            perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type, query_name=query_name,
-                                                      metadata_fields=metadata_fields,
-                                                      conscriptionnumber_query=conscriptionnumber_query,
-                                                      city_query=city_query))
-            perf = self.session.execute(perf_query, query_params)
-            perf_rows = [row.values()[0] for row in perf]
-            logging.debug('\n'.join(perf_rows))
+            #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
+            if config.get_database_enable_analyze() is True:
+                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type, query_name=query_name,
+                                                          metadata_fields=metadata_fields,
+                                                          conscriptionnumber_query=conscriptionnumber_query,
+                                                          city_query=city_query))
+                perf = self.session.execute(perf_query, query_params)
+                perf_rows = [row.values()[0] for row in perf]
+                logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
             if not data.empty:
                 logging.info('Found item with simple conscription number search.')
@@ -302,14 +304,16 @@ class POIBase:
                                                       city_query=city_query,
                                                       housenumber_query=housenumber_query))
             logging.debug(str(query))
-            perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type, query_name=query_name,
-                                                                query_avoid_name=query_avoid_name,
-                                                                metadata_fields=metadata_fields,
-                                                                street_query=street_query, city_query=city_query,
-                                                                housenumber_query=housenumber_query))
-            perf = self.session.execute(perf_query, query_params)
-            perf_rows = [row.values()[0] for row in perf]
-            logging.debug('\n'.join(perf_rows))
+            #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
+            if config.get_database_enable_analyze() is True:
+                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type, query_name=query_name,
+                                                                    query_avoid_name=query_avoid_name,
+                                                                    metadata_fields=metadata_fields,
+                                                                    street_query=street_query, city_query=city_query,
+                                                                    housenumber_query=housenumber_query))
+                perf = self.session.execute(perf_query, query_params)
+                perf_rows = [row.values()[0] for row in perf]
+                logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
             if not data.empty:
                 logging.info('Found item with simple address search.')
@@ -507,14 +511,16 @@ class POIBase:
                                                   query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
                                                   street_query=street_query, city_query=city_query,
                                                   housenumber_query=housenumber_query))
-        perf_query_text = 'EXPLAIN ANALYZE ' + 'UNION ALL'.join(query_arr) + ' ORDER BY priority ASC, distance ASC;'
-        perf_query = sqlalchemy.text(perf_query_text.format(query_type=query_type, query_name=query_name,
-                                                  query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
-                                                  street_query=street_query, city_query=city_query,
-                                                  housenumber_query=housenumber_query))
-        perf = self.session.execute(perf_query, query_params)
-        perf_rows = [row.values()[0] for row in perf]
-        logging.debug('\n'.join(perf_rows))
+        #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
+        if config.get_database_enable_analyze() is True:
+            perf_query_text = 'EXPLAIN ANALYZE ' + 'UNION ALL'.join(query_arr) + ' ORDER BY priority ASC, distance ASC;'
+            perf_query = sqlalchemy.text(perf_query_text.format(query_type=query_type, query_name=query_name,
+                                                      query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
+                                                      street_query=street_query, city_query=city_query,
+                                                      housenumber_query=housenumber_query))
+            perf = self.session.execute(perf_query, query_params)
+            perf_rows = [row.values()[0] for row in perf]
+            logging.debug('\n'.join(perf_rows))
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
         logging.debug(str(query))
         if not data.empty:

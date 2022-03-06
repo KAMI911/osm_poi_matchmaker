@@ -6,6 +6,7 @@ db.write.port=5432
 db.write.username=poi
 db.write.password=poitest
 db.poi.database=poi
+db.enable.analyze=False
 
 # Directory settings
 dir.output=output
