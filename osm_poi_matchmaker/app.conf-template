@@ -27,6 +27,7 @@ download.verify.link=True
 download.use.cached.data=False
 
 use.general.source.website.date=True
+use.general.source.website.date.tag=source:date
 
 dataproviders.modules.available = hu_aldi, hu_avia, hu_benu, hu_budapest_bank, hu_cba, hu_cib_bank, hu_dm, hu_emobi_ev, hu_foxpost, hu_jysk, hu_kh_bank, hu_kulcs_patika, hu_magnet_bank, hu_mobiliti_ev, hu_mobil_petrol,hu_mol_bubi, hu_mol_plugee_ev, hu_mol, hu_oil, hu_omv, hu_penny_market, hu_pepco, hu_posta_json, hu_posta, hu_rossmann, hu_sber_bank, hu_shell, hu_spar, hu_tesco, hu_tom_market, hu_yves_rocher
 dataproviders.modules.enable = hu_posta, hu_aldi, hu_avia, hu_benu, hu_budapest_bank, hu_cba, hu_cib_bank, hu_dm, hu_emobi_ev, hu_foxpost, hu_jysk, hu_kh_bank, hu_kulcs_patika, hu_magnet_bank, hu_mobiliti_ev, hu_mobil_petrol, hu_mol_bubi, hu_mol_plugee_ev, hu_mol, hu_oil, hu_omv, hu_penny_market, hu_pepco, hu_posta_json, hu_rossmann, hu_sber_bank, hu_shell, hu_spar, hu_tesco, hu_tom_market, hu_yves_rocher

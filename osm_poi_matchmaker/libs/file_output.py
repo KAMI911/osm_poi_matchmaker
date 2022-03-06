@@ -332,7 +332,11 @@ def generate_osm_xml(df, session=None):
                     source_url = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
                 else:
                     # Issue #97: Remove source:(website):date tag and add source:website:date tag
-                    source_url = 'source:website:date'
+                    # Then make it configurable via issue #98
+                    if config.get_use_general_source_website_date_tag() is None:
+                        source_url = 'source:date'
+                    else:
+                        source_url = config.get_use_general_source_website_date_tag()
                     if row['poi_url_base'] is not None:
                         source_url_2 = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
                         tags.pop(source_url_2, None)
