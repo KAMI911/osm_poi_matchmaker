@@ -258,8 +258,12 @@ class POIBase:
             logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
             if not data.empty:
+                logging.info('Found item with simple conscription number search.')
                 logging.debug(data.to_string())
+                logging.debug('Return with simple conscription number search data: {}'.format(data.iloc[[0]]))
                 return data.iloc[[0]]
+            else:
+                logging.info('Item not found with simple search.')
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
                 street_query is not None and street_query != '' and \
                 housenumber_query is not None and housenumber_query != '':
@@ -308,8 +312,12 @@ class POIBase:
             logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
             if not data.empty:
+                logging.info('Found item with simple address search.')
                 logging.debug(data.to_string())
+                logging.debug('Return with simple address search data: {}'.format(data.iloc[[0]]))
                 return data.iloc[[0]]
+            else:
+                logging.info('Item not found with precise geometry search.')
         if street_query is not None and street_query != '':
             # Using street name for query
             if housenumber_query is not None and housenumber_query != '':
@@ -510,9 +518,12 @@ class POIBase:
         data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
         logging.debug(str(query))
         if not data.empty:
+            logging.info('Found item without precise geometry search.')
             logging.debug(data.to_string())
+            logging.debug('Return without precise geometry search data: {}'.format(data.iloc[[0]]))
             return data.iloc[[0]]
         else:
+            logging.info('Item not found at all.')
             return None
 
     def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='',
