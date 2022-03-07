@@ -63,6 +63,35 @@ def get_or_create_poi(session, model, **kwargs):
             logging.exception('Exception occurred')
             raise e
 
+def search_poi_patch(session, model, **kwargs):
+    if kwargs.get('poi_common_id') == "*":
+        kwargs['valami'] == "%"
+    if kwargs.get('poi_common_id') == "*":
+        kwargs['valami'] == "%"
+    if kwargs.get('poi_common_id') == "*":
+        kwargs['valami'] == "%"
+
+    instance = session.query(model) \
+        .filter_by(poi_common_id=kwargs['poi_common_id']) \
+        .filter_by(poi_addr_city=kwargs['poi_addr_city']) \
+        .filter_by(poi_addr_street=kwargs['poi_addr_street']) \
+        .filter_by(poi_addr_housenumber=kwargs['poi_addr_housenumber']) \
+        .filter_by(poi_conscriptionnumber=kwargs['poi_conscriptionnumber']) \
+        .filter_by(poi_branch=kwargs['poi_branch']) \
+        .first()
+    if instance:
+        logging.debug('Already added: %s', instance)
+        return instance
+    else:
+        try:
+            instance = model(**kwargs)
+            session.add(instance)
+            return instance
+        except Exception as e:
+            logging.error('Cannot add to the database. (%s)', e)
+            logging.exception('Exception occurred')
+            raise e
+
 
 def get_or_create_cache(session, model, **kwargs):
     if kwargs.get('osm_id') is not None and kwargs.get('osm_object_type'):

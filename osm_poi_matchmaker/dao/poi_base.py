@@ -325,7 +325,7 @@ class POIBase:
         if street_query is not None and street_query != '':
             # Using street name for query
             if housenumber_query is not None and housenumber_query != '':
-                query_arr.append('''
+                wnwswh = '''
                 --- WITH NAME, WITH STREETNAME, WITH HOUSENUMBER
                 --- The way selector with street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 950 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -359,8 +359,8 @@ class POIBase:
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id < 0 {query_name} {street_query} {housenumber_query}
                     AND ST_DistanceSphere(way, point.geom) < :distance_perfect
-                ''')
-            query_arr.append('''
+                '''
+            wnwsnh = '''
             --- WITH NAME, WITH STREETNAME, NO HOUSENUMBER
             --- The way selector with street name and without housenumber
             SELECT name, osm_id, {metadata_fields} 970 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -394,10 +394,10 @@ class POIBase:
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE (({query_type}) AND osm_id < 0 {query_name} {street_query})
                 AND ST_DistanceSphere(way, point.geom) < :distance_safe
-            ''')
+            '''
         else:
             if housenumber_query is not None and housenumber_query != '':
-                query_arr.append('''
+                wnnswh = '''
                 --- WITH NAME, NO STREETNAME, WITH HOUSENUMBER
                 --- The way selector without street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 970 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -432,9 +432,9 @@ class POIBase:
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id < 0 {query_name} {housenumber_query}
                     AND ST_DistanceSphere(way, point.geom) < :distance_safe
-                ''')
+                '''
         # Trying without street name and house number in case when the street name and/or the house not matching at all
-        query_arr.append('''
+        wnnsnh = '''
         --- WITH NAME, NO STREETNAME, NO HOUSENUMBER
         --- The way selector without street name and without housenumber
         SELECT name, osm_id, {metadata_fields} 980 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -469,8 +469,8 @@ class POIBase:
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
         WHERE (({query_type}) AND osm_id < 0 {query_name} )
             AND ST_DistanceSphere(way, point.geom) < :distance_safe
-        ''')
-        query_arr.append('''
+        '''
+        nnnsnh = '''
             --- NO NAME, NO STREETNAME, NO HOUSENUMBER
             --- The way selector without name and street name
             SELECT name, osm_id, {metadata_fields} 990 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -505,32 +505,45 @@ class POIBase:
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE (({query_type}) AND osm_id < 0 {query_avoid_name} )
                 AND ST_DistanceSphere(way, point.geom) < :distance_unsafe
-        ''')
-        query_text = 'UNION ALL'.join(query_arr) + ' ORDER BY priority ASC, distance ASC;'
-        query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
-                                                  query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
-                                                  street_query=street_query, city_query=city_query,
-                                                  housenumber_query=housenumber_query))
-        #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
-        if config.get_database_enable_analyze() is True:
-            perf_query_text = 'EXPLAIN ANALYZE ' + 'UNION ALL'.join(query_arr) + ' ORDER BY priority ASC, distance ASC;'
-            perf_query = sqlalchemy.text(perf_query_text.format(query_type=query_type, query_name=query_name,
-                                                      query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
-                                                      street_query=street_query, city_query=city_query,
-                                                      housenumber_query=housenumber_query))
-            perf = self.session.execute(perf_query, query_params)
-            perf_rows = [row.values()[0] for row in perf]
-            logging.debug('\n'.join(perf_rows))
-        data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
-        logging.debug(str(query))
-        if not data.empty:
-            logging.info('Found item without precise geometry search.')
-            logging.debug(data.to_string())
-            logging.debug('Return without precise geometry search data: {}'.format(data.iloc[[0]]))
-            return data.iloc[[0]]
+        '''
+        query_text = []
+        if 'wnwswh' in locals(): query_arr.append(wnwswh)
+        if 'wnwsnh' in locals(): query_arr.append(wnwsnh)
+        if 'wnnsnh' in locals(): query_arr.append(wnnsnh)
+        if 'nnnsnh' in locals(): query_arr.append(nnnsnh)
+        #  Create smaller queries Issue #100
+        if config.get_database_enable_huge_query() == True:
+            query_text = ['UNION ALL'.join(query_arr) + ' ORDER BY priority ASC, distance ASC;']
         else:
-            logging.info('Item not found at all.')
-            return None
+            query_text = [ i + ' ORDER BY priority ASC, distance ASC;' for i in query_arr]
+        stage = 0
+        for q in query_text:
+            stage += 1
+            query = sqlalchemy.text(q.format(query_type=query_type, query_name=query_name,
+                                    query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
+                                    street_query=street_query, city_query=city_query,
+                                    housenumber_query=housenumber_query))
+            #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
+            if config.get_database_enable_analyze() is True:
+                p_query = sqlalchemy.text('EXPLAIN ANALYZE ' + q.format(query_type=query_type, query_name=query_name,
+                                          query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
+                                          street_query=street_query, city_query=city_query,
+                                          housenumber_query=housenumber_query))
+                perf = self.session.execute(p_query, query_params)
+                perf_rows = [row.values()[0] for row in perf]
+                logging.debug('\n'.join(perf_rows))
+            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
+            logging.debug(str(query))
+            if not data.empty:
+                logging.info('Found item in {} stage without precise geometry search.'.format(stage))
+                logging.debug(data.to_string())
+                logging.debug('Return without precise geometry search data: {}'.format(data.iloc[[0]]))
+                return data.iloc[[0]]
+            else:
+                logging.info('Item not found in {} stage.'.format(stage))
+        logging.info('Item not found at all.')
+        return None
+
 
     def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='',
                                    in_building_percentage=0.50, distance=60):

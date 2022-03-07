@@ -49,6 +49,7 @@ KEY_DATABASE_WRITE_USERNAME = 'db.write.username'
 KEY_DATABASE_WRITE_PASSWORD = 'db.write.password'
 KEY_DATABASE_POI_DATABASE = 'db.poi.database'
 KEY_DATABASE_ENABLE_ANALYZE = 'db.enable.analyze'
+KEY_DATABASE_ENABLE_HUGE_QUERY = 'db.enable.huge_query'
 KEY_GEO_DEFAULT_PROJECTION = 'geo.default.projection'
 KEY_GEO_DEFAULT_POI_DISTANCE = 'geo.default.poi.distance'
 KEY_GEO_DEFAULT_POI_UNSAFE_DISTANCE = 'geo.default.poi.unsafe.distance'
@@ -196,6 +197,15 @@ def get_database_enable_analyze():
         return setting
     else:
         return False
+
+
+def get_database_enable_huge_query():
+    setting = get_config_bool(KEY_DATABASE_ENABLE_HUGE_QUERY)
+    if setting is not None:
+        return setting
+    else:
+        return False
+
 
 def get_geo_default_projection():
     setting = get_config_int(KEY_GEO_DEFAULT_PROJECTION)
