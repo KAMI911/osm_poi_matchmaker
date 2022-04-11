@@ -54,7 +54,7 @@ class hu_benu(DataProvider):
             #                            self.filetype)
             with open(self.link, 'r') as f:
                 if f is not None:
-                    text = json.loads(str(f))
+                    text = json.loads(str(f), strict=False)
                     for poi_data in text:
                         try:
                             if 'BENU Gyógyszertár' not in poi_data.get('title'):
