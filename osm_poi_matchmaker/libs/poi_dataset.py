@@ -192,7 +192,7 @@ class POIDatasetRaw:
 
     @website.setter
     def website(self, data: str):
-        self.__website = clean_url(data)
+        self.__website = clean_url(str(data))
 
     @property
     def description(self) -> str:
@@ -200,7 +200,7 @@ class POIDatasetRaw:
 
     @description.setter
     def description(self, data: str):
-        self.__description = clean_string(data)
+        self.__description = clean_string(str(data))
 
     @property
     def fuel_adblue(self) -> bool:
@@ -472,7 +472,7 @@ class POIDatasetRaw:
 
     @ref.setter
     def ref(self, data: str):
-        self.__ref = clean_string(data)
+        self.__ref = clean_string(str(data))
 
     @property
     def phone(self) -> str:
