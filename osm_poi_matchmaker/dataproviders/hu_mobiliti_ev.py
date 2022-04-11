@@ -39,7 +39,7 @@ class hu_mobiliti_ev(DataProvider):
         self.__types = [
             {'poi_code': 'humobilchs', 'poi_name': 'Mobiliti', 'poi_type': 'charging_station',
              'poi_tags': self.tags, 'poi_url_base': 'https://www.mobiliti.hu',
-             'poi_search_name': 'mobility', 'poi_search_avoid_name': 'tesla',
+             'poi_search_name': '(mobility|e-mobi|emobi|e-töltőpont)', 'poi_search_avoid_name': '(tesla|supercharger|plugee)',
              'osm_search_distance_perfect': 50,
              'osm_search_distance_safe': 30, 'osm_search_distance_unsafe': 10},
         ]
@@ -47,10 +47,14 @@ class hu_mobiliti_ev(DataProvider):
 
     def process(self):
         try:
-            csv = pd.read_csv(self.link, encoding='UTF-8', sep=';', skiprows=1)
-            if csv is not None:
-                poi_dict = csv.to_dict('records')
+            logging.info('Processing file: {}'.format(self.link))
+            cvs = pd.read_csv(self.link, encoding='UTF-8', sep='\t', skiprows=0)
+            logging.info(cvs)
+            if cvs is not None:
+                poi_dict = cvs.to_dict('records')
+                logging.info(poi_dict)
                 for poi_data in poi_dict:
+                    logging.info(poi_data)
                     try:
                         self.data.name = 'Mobiliti'
                         self.data.code = 'humobilchs'
@@ -69,16 +73,24 @@ class hu_mobiliti_ev(DataProvider):
                             self.data.lat, self.data.lon = temp.split(',')
                         self.data.lat, self.data.lon = check_hu_boundary(
                             self.data.lat, self.data.lon)
-                        self.data.socket_chademo = poi_data.get('Darab (CHAdeMO)')
-                        self.data.socket_chademo_output = poi_data.get(
-                            'Teljesítmény (CHAdeMO)')
-                        self.data.socket_type2_combo = poi_data.get('Darab (CCS)')
-                        self.data.socket_type2_combo_output = poi_data.get(
-                            'Teljesítmény (CCS)')
-                        self.data.socket_type2_cable = poi_data.get(
-                            'Darab (Type 2)')
-                        self.data.socket_type2_cable_output = poi_data.get(
-                            'Teljesítmény (Type 2)')
+                        if poi_data.get('Darab (CHAdeMO)') is not None and poi_data.get('Darab (CHAdeMO)') != '':
+                            self.data.socket_chademo = poi_data.get('Darab (CHAdeMO)')
+                            self.data.socket_chademo_output = '{} kW'.format(poi_data.get('Teljesítmény (CHAdeMO)'))
+                        else:
+                            self.data.socket_chademo = None
+                            self.data.socket_chademo_output = None
+                        if poi_data.get('Darab (CCS)') is not None and poi_data.get('Darab (CCS)') != '':
+                            self.data.socket_type2_combo = poi_data.get('Darab (CCS)')
+                            self.data.socket_type2_combo_output = '{} kW'.format(poi_data.get('Teljesítmény (CCS)'))
+                        else:
+                            self.data.socket_type2_combo = None
+                            self.data.socket_type2_combo_output = None
+                        if poi_data.get('Darab (Type 2)') is not None and poi_data.get('Darab (Type 2)') != '':
+                            self.data.socket_type2_cable = poi_data.get('Darab (Type 2)')
+                            self.data.socket_type2_cable_output = '{} kW'.format(poi_data.get('Teljesítmény (Type 2)'))
+                        else:
+                            self.data.socket_type2_cable = None
+                            self.data.socket_type2_cable_output = None
                         self.data.manufacturer = poi_data.get('Gyártó')
                         self.data.model = poi_data.get('Típus')
                         self.data.capacity = poi_data.get('Kapacitás')
