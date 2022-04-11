@@ -278,6 +278,8 @@ def clean_opening_hours_2(oh):
 
 
 def clean_phone(phone):
+    if phone in None:
+        return None
     # Remove all whitespaces
     original = phone
     if '(' in phone:
@@ -376,8 +378,11 @@ def clean_street(clearable):
     :param clearable:
     :return:
     '''
-
+    if clearable is None:
+        return None
     street = clean_string(clearable)
+    if street is None or street != '':
+        return None
     repls = ('Nyúl 82. sz. főút', 'Kossuth Lajos út'), \
             ('Nyúl  82. sz. főút', '82' + SZFKL), \
             ('Budafoki út, 6-os sz. főút', '6' + SZFKL), \
@@ -546,6 +551,8 @@ def clean_street_type(clearable):
     '''
 
     street = clean_string(clearable)
+    if clearable is None or clearable != '':
+        return None
     street = street.replace('fkl. út', 'főközlekedési út')
     street = street.replace('főút', 'főközlekedési út')
     street = street.replace('ltp.', ' lakótelep')
@@ -565,7 +572,7 @@ def clean_branch(clearable):
     :param clearable:
     :return:
     '''
-    if clearable is not None:
+    if clearable is not None and clearable != '':
         branch = clean_string(str(clearable))
         branch = branch.replace('sz.', 'számú')
         branch = clean_string(branch)
