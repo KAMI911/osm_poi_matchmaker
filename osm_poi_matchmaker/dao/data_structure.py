@@ -268,7 +268,7 @@ class POI_common(Base):
     poi_name = Column(Unicode(64), unique=False, nullable=False, index=True)
     poi_type = Column(Enum(POI_type))
     poi_tags = Column(JSON, nullable=False, index=False)
-    poi_url_base = Column(Unicode(32))
+    poi_url_base = Column(Unicode(128))
     poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
     poi_search_name = Column(Unicode(64))
     poi_search_avoid_name = Column(Unicode(64))
