@@ -37,9 +37,11 @@ class hu_emobi_ev(DataProvider):
 
     def types(self):
         self.__types = [
-            {'poi_code': 'huemobichs', 'poi_name': 'e-töltőpont', 'poi_type': 'charging_station',
+            {'poi_code': 'huemobichs', 'poi_name': 'Mobility', 'poi_type': 'charging_station',
              'poi_tags': self.tags,
-             'poi_url_base': 'https://e-mobi.hu/', 'poi_search_name': '(e-mobi|emobi|e-töltőpont)',
+             'poi_url_base': 'https://www.mobiliti.hu/emobilitas',
+             'poi_search_name': '(e-mobi|emobi|e-töltőpont|mobility)',
+             'poi_search_avoid_name': '(supercharger|plugee)',
              'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10},
         ]
@@ -47,9 +49,8 @@ class hu_emobi_ev(DataProvider):
 
     def process(self):
         try:
-            csv = pd.read_csv(self.link, encoding='UTF-8', sep=';', skiprows=1)
-            if csv is not None:
-                poi_dict = csv.to_dict('records')
+            poi_dict = pd.read_csv(self.link, encoding='UTF-8', sep=';', skiprows=1).to_dict()
+            if poi_dict is not None:
                 for poi_data in poi_dict:
                     try:
                         self.data.name = 'e-töltőpont'
