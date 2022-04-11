@@ -321,7 +321,7 @@ def clean_phone_to_str(phone):
 
 def clean_email(email):
     # Remove all whitespaces
-    email = remove_whitespace(email)
+    email = remove_whitespace(str(email))
     email_parts = email.split()
     if len(email_parts) == 0:
         return None
@@ -344,7 +344,7 @@ def clean_string(clearable):
     '''
     if clearable is not None:
         # Remove whitespaces
-        clearable=remove_whitespace(clearable, ' ')
+        clearable=remove_whitespace(str(clearable), ' ')
         # Make list from words and join them with one space, removing double/multiple spaces
         clearable_parts = clearable.split()
         if len(clearable_parts) == 0:
@@ -364,7 +364,7 @@ def clean_url(clearable):
     :return: Cleaned string
     '''
     if clearable is not None:
-        url_match = PATTERN_URL_SLASH.sub('/', clearable)
+        url_match = PATTERN_URL_SLASH.sub('/', str(clearable))
         return url_match.strip()
     else:
         return None
@@ -565,7 +565,10 @@ def clean_branch(clearable):
     :param clearable:
     :return:
     '''
-    branch = clean_string(clearable)
-    branch = branch.replace('sz.', 'számú')
-    branch = clean_string(branch)
-    return branch
+    if clearable is not None:
+        branch = clean_string(str(clearable))
+        branch = branch.replace('sz.', 'számú')
+        branch = clean_string(branch)
+        return branch
+    else:
+        return None
