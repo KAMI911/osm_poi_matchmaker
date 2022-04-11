@@ -165,6 +165,7 @@ def main():
         # Load basic dataset from database
         poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
         # Download and load POI dataset to database
+        logging.info('Starting STAGE 4 ...')
         poi_common_data = load_common_data(db)
         logging.info('Merging dataframes ...')
         poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
@@ -175,13 +176,13 @@ def main():
         poi_addr_data['osm_changeset'] = None
         poi_addr_data['osm_timestamp'] = datetime.datetime.now()
         poi_addr_data['osm_live_tags'] = None
+        logging.info('Starting STAGE 5 ...')
+        insert_poi_dataframe(session, poi_addr_data, True)
+        #del poi_addr_data
+        logging.info('Starting STAGE 6 ...')
+        #poi_addr_data = load_poi_data(db, 'poi_address', False)
         # Export non-transformed data
         export_raw_poi_data(poi_addr_data, poi_common_data)
-        logging.info('Starting STAGE 4 ...')
-        #(session, poi_addr_data, raw = False)
-        #del poi_addr_data
-        #logging.info('Starting STAGE 5 ...')
-        #poi_addr_data = load_poi_data(db, 'poi_address', False)
         export_raw_poi_data_xml(poi_addr_data)
         logging.info('Saving poi_code grouped filesets...')
         # Export non-transformed filesets
@@ -190,7 +191,7 @@ def main():
         logging.info('Merging with OSM datasets ...')
         poi_addr_data['osm_nodes'] = None
         poi_addr_data['poi_distance'] = None
-        logging.info('Starting STAGE 6 ...')
+        logging.info('Starting STAGE 7 ...')
         # Enrich POI datasets from online OpenStreetMap database
         logging.info('Starting online POI matching part...')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
@@ -204,8 +205,9 @@ def main():
     except (KeyboardInterrupt, SystemExit):
         logging.info('Interrupt signal received')
         sys.exit(1)
-    except Exception as err:
-        raise err
+    except Exception as e:
+        logging.exception('Exception occurred: {}'.format(e))
+        logging.exception(traceback.print_exc())
 
 
 if __name__ == '__main__':
