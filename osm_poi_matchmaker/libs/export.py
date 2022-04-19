@@ -4,6 +4,7 @@ try:
     import logging
     import sys
     import os
+    import traceback
     from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
@@ -43,10 +44,16 @@ def export_grouped_poi_data(data):
         # Generating CSV files group by poi_code
         save_csv_file(output_dir, '{}.csv'.format(filename), rows, table)
         with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
-            oxf.write(generate_osm_xml(rows))
+            try:
+                logging.info('Saving %s to file: %s.osm'.format(table, filename))
+                oxf.write(generate_osm_xml(rows))
+                logging.info('The %s.osm was sucessfully saved', filename)
+            except Exception as e:
+                logging.exception('Exception occurred during write wile: {}'.format(e))
+                logging.error(traceback.print_exc())
     except Exception as e:
-        logging.error(e)
-        logging.exception('Exception occurred')
+        logging.exception('Exception occurred during opening file: {}'.format(e))
+        logging.error(traceback.print_exc())
 
 
 def export_grouped_poi_data_with_postcode_groups(data):
