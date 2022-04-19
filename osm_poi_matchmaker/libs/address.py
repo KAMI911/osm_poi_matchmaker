@@ -329,6 +329,8 @@ def clean_phone_to_str(phone):
 def clean_email(email):
     # Remove all whitespaces
     email = remove_whitespace(str(email))
+    if email is None:
+        return None
     email_parts = email.split()
     if len(email_parts) == 0:
         return None
