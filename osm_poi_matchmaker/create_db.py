@@ -101,9 +101,10 @@ class WorkflowManager(object):
             self.queue.put(m)
         try:
             # Start multiprocessing in case multiple cores
-            logging.info('Starting processing on %s cores.', self.NUMBER_OF_PROCESSES)
+            process_count = self.NUMBER_OF_PROCESSES
+            logging.info('Starting processing on %s cores.', process_count)
             self.results = []
-            self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES)
+            self.pool = multiprocessing.Pool(processes=process_count)
             self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable())
             self.pool.close()
         except Exception as e:
@@ -116,14 +117,15 @@ class WorkflowManager(object):
                     'poi_address'] for c in poi_codes]
         try:
             # Start multiprocessing in case multiple cores
-            logging.info('Starting processing on %s cores.', self.NUMBER_OF_PROCESSES)
+            process_count = self.NUMBER_OF_PROCESSES
+            logging.info('Starting processing on %s cores.', process_count)
             self.results = []
-            self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES)
+            self.pool = multiprocessing.Pool(processes=process_count)
             self.results = self.pool.map_async(to_do, modules)
             self.pool.close()
         except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.error(traceback.print_exc())
 
     def start_matcher(self, data, comm_data):
         try:
@@ -134,8 +136,8 @@ class WorkflowManager(object):
             self.pool.close()
             return pd.concat(list(self.results.get()), sort=False)
         except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.error(traceback.print_exc())
 
     def join(self):
         self.pool.join()
@@ -197,9 +199,10 @@ def main():
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
         # Export filesets
-        export_raw_poi_data(poi_addr_data, poi_common_data, '_merge')
-        manager.start_exporter(poi_addr_data, 'merge_')
-        manager.start_exporter(poi_addr_data, 'merge_', export_grouped_poi_data_with_postcode_groups)
+        prefix = '_merge'
+        export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
+        manager.start_exporter(poi_addr_data, prefix)
+        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
         manager.join()
 
     except (KeyboardInterrupt, SystemExit):
