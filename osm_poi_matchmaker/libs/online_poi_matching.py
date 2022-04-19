@@ -51,7 +51,9 @@ def online_poi_matching(args):
                 # Enrich our data with OSM database POI metadata
                 if osm_query is not None:
                     changed_from_osm = False
+                    # This is not a new POI, already found in OSM database
                     row['poi_new'] = False
+                    data.at[i, 'poi_new'] = False
                     # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
                     osm_id = osm_query['osm_id'].values[0] if osm_query.get('osm_id') is not None else None
                     osm_node = osm_query.get('node').values[0] if osm_query.get('node') is not None else None
