@@ -88,6 +88,8 @@ class hu_mkb_bank(DataProvider):
                         if poi_data.get('Időpontfoglalás URL') is not None and poi_data.get(
                                 'Időpontfoglalás URL') != '':
                             self.data.website = poi_data.get('Időpontfoglalás URL')
+                        else:
+                            self.data.website = None
                         self.data.ref = poi_data.get('ATM / Fiók azonosítója')
                         self.data.description = poi_data.get('Megjegyzés')
                         if '<br>' in self.data.description:
