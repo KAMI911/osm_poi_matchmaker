@@ -199,7 +199,7 @@ def main():
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
         # Export filesets
-        prefix = '_merge'
+        prefix = 'merge_'
         export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
         manager.start_exporter(poi_addr_data, prefix)
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
