@@ -45,7 +45,7 @@ class hu_mkb_bank(DataProvider):
             {'poi_code': 'humkbbank', 'poi_name': 'MKB Bank', 'poi_type': 'bank',
              'poi_tags': humkbbank, 'poi_url_base': 'https://www.mkb.hu',
              'poi_search_name': '(mkb bank)',
-             'poi_search_avoid_name': '(otpbank|otp|otp bank|raiffeisenbank|raiffeisen bank|raiffeisen|budapest bank)',
+             'poi_search_avoid_name': '(otpbank|otp|otp bank|raiffeisenbank|raiffeisen bank|kh bank|k&h|raiffeisen|budapest bank|takarék bank|takarék)',
              'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 40},
             {'poi_code': 'humkbatm', 'poi_name': 'MKB Bank ATM', 'poi_type': 'atm',
