@@ -6,6 +6,7 @@ try:
     import re
     import phonenumbers
     import json
+    import traceback
     from functools import reduce
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -227,6 +228,7 @@ def extract_street_housenumber_better_2(clearable: str) -> str:
     else:
         return None, None, None
 
+
 def replace_html_newlines(clearable: str) -> str:
     repls = ('<br>', '; '), \
             ('</br>', '; '), \
@@ -240,6 +242,35 @@ def replace_html_newlines(clearable: str) -> str:
     text = reduce(lambda a, kv: a.replace(*kv), repls, text)
     text = clean_string(text)
     return text
+
+
+def extract_phone_number(data: str) -> str:
+    '''Try to extract phone number
+
+    :param a string contains not just phone number
+    return: international format phone number string
+    '''
+    try:
+        data = str(replace_html_newlines(data))
+        if data is not None:
+            fields = data.split(';')
+            for f in fields:
+                if 'Telefonszám' in f:
+                    pn = f.split(':')[1]
+                    try:
+                        if '+36' not in pn:
+                            pn = phonenumbers.parse(pn, 'HU')
+                        else:
+                            pn = phonenumbers.parse('+36 '.format(pn), 'HU')
+                    except phonenumbers.phonenumberutil.NumberParseException:
+                        logging.debug('This is string is cannot converted to phone number: %s', pn)
+                        return None
+                    return phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+
+    except Exception as e:
+        logging.exception('Extracting phone number failed: {}'.format(e))
+        logging.exception(traceback.print_exc())
+
 
 def clean_city(clearable: str) -> str:
     '''Remove additional things from cityname

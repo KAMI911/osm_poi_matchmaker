@@ -6,7 +6,7 @@ try:
     import sys
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address, \
         clean_opening_hours, clean_opening_hours_2, clean_phone, clean_phone_to_str, clean_string, clean_url, \
-        clean_city, replace_html_newlines
+        clean_city, replace_html_newlines, extract_phone_number
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -245,8 +245,26 @@ class TestReplaceHTMLNewLines(unittest.TestCase):
 
     def test_replace_html_newlines(self):
         for i in self.text:
-            original, city = i['original'], i['replaced']
+            original, description = i['original'], i['replaced']
             a = replace_html_newlines(original)
             with self.subTest():
-                self.assertEqual(city, a)
+                self.assertEqual(description, a)
 
+class TestExtractPhoneNumber(unittest.TestCase):
+    def setUp(self):
+        self.text = [
+            {'original': 'Akadálymentesen megközelíthető fiók és ATM  <br> Telefonszám:(26) 501-400 </br>',
+             'replaced': '+36 26 501 400'},
+            {'original': 'Akadálymentesen megközelíthető fiók és ATM<br />A fiókban a Prémium szolgáltatás elérhető.  <br> Telefonszám:(22) 515-260 </br>',
+             'replaced': '+36 22 515 260'},
+            {
+                'original': 'Pláza, földszint, Búza tér felőli bejárat<br />Akadálymentesen megközelíthető fiók és ATM  <br> Telefonszám:(46) 504-540 </br>',
+                'replaced': '+36 46 504 540'},
+        ]
+
+    def test_extract_phone_number(self):
+        for i in self.text:
+            original, phone_number = i['original'], i['replaced']
+            a = extract_phone_number(original)
+            with self.subTest():
+                self.assertEqual(phone_number, a)

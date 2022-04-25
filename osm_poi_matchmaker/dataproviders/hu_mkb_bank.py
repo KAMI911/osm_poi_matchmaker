@@ -9,7 +9,8 @@ try:
     import numpy as np
     import pandas as pd
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_email, replace_html_newlines
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_email, replace_html_newlines,\
+        extract_phone_number
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -93,6 +94,9 @@ class hu_mkb_bank(DataProvider):
                         self.data.ref = poi_data.get('ATM / Fiók azonosítója')
                         self.data.description = poi_data.get('Megjegyzés')
                         self.data.description = replace_html_newlines(self.data.description)
+                        if 'Akadálymentesen' in self.data.description:
+                            logging.debug('TODO: Implement wheelchair field')
+                        self.data.phone = extract_phone_number(self.data.description)
                         if self.data.code == 'humkbatm':
                             self.data.nonstop = True
                         else:
