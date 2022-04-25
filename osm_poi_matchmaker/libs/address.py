@@ -227,6 +227,19 @@ def extract_street_housenumber_better_2(clearable: str) -> str:
     else:
         return None, None, None
 
+def replace_html_newlines(clearable: str) -> str:
+    repls = ('<br>', '; '), \
+            ('</br>', '; '), \
+            ('< br />', '; '), \
+            ('<br />', '; '), \
+            (' ;', ';')
+    clearable = str(clearable)
+    text = clean_string(clearable)
+    if clearable is None:
+        return None
+    text = reduce(lambda a, kv: a.replace(*kv), repls, text)
+    text = clean_string(text)
+    return text
 
 def clean_city(clearable: str) -> str:
     '''Remove additional things from cityname

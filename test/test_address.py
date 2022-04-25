@@ -6,7 +6,7 @@ try:
     import sys
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address, \
         clean_opening_hours, clean_opening_hours_2, clean_phone, clean_phone_to_str, clean_string, clean_url, \
-        clean_city
+        clean_city, replace_html_newlines
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -233,3 +233,20 @@ class TestCityCleaner(unittest.TestCase):
             a = clean_city(original)
             with self.subTest():
                 self.assertEqual(city, a)
+
+class TestReplaceHTMLNewLines(unittest.TestCase):
+    def setUp(self):
+        self.text = [
+            {'original': 'Akadálymentesen megközelíthető fiók és ATM  <br> Telefonszám:(26) 501-400 </br>',
+             'replaced': 'Akadálymentesen megközelíthető fiók és ATM; Telefonszám:(26) 501-400;'},
+            {'original': 'Akadálymentesen megközelíthető fiók és ATM<br />A fiókban a Prémium szolgáltatás elérhető.  <br> Telefonszám:(22) 515-260 </br>',
+             'replaced': 'Akadálymentesen megközelíthető fiók és ATM; A fiókban a Prémium szolgáltatás elérhető.; Telefonszám:(22) 515-260;'},
+        ]
+
+    def test_replace_html_newlines(self):
+        for i in self.text:
+            original, city = i['original'], i['replaced']
+            a = replace_html_newlines(original)
+            with self.subTest():
+                self.assertEqual(city, a)
+
