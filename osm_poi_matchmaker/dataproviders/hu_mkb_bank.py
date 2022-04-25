@@ -9,7 +9,7 @@ try:
     import numpy as np
     import pandas as pd
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_email
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_email, replace_html_newlines
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -92,10 +92,7 @@ class hu_mkb_bank(DataProvider):
                             self.data.website = None
                         self.data.ref = poi_data.get('ATM / Fiók azonosítója')
                         self.data.description = poi_data.get('Megjegyzés')
-                        if '<br>' in self.data.description:
-                            self.data.description = self.data.description.replace('<br>', '; ')
-                            self.data.description = self.data.description.replace('</br>', '; ')
-                            self.data.description = self.data.description.replace('<br />', '; ')
+                        self.data.description = replace_html_newlines(self.data.description)
                         if self.data.code == 'humkbatm':
                             self.data.nonstop = True
                         else:
