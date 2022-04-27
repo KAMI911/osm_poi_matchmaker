@@ -10,6 +10,7 @@ try:
         TestCityCleaner, TestReplaceHTMLNewLines, TestExtractPhoneNumber
     from test.test_online_poi_matching import TestSmartOnlinePOIMatching
     from test.test_opening_hours import TestOpeningHours
+    from test.test_file_output_helper import TestURLTagGenerator
     # from test.test_poi_dataset import TestPOIDatasetRaw
     from test.test_timing import TestTiming
     from test.test_osm import TestOSMRelationer
@@ -36,12 +37,13 @@ def testing_create_db():
     opening_hours_resolver = unittest.TestLoader().loadTestsFromTestCase(TestOpeningHours)
     smart_online_poi_matching = unittest.TestLoader().loadTestsFromTestCase(TestSmartOnlinePOIMatching)
     # poi_dataset = unittest.TestLoader().loadTestsFromTestCase(TestPOIDatasetRaw)
+    url_tag_generator = unittest.TestLoader().loadTestsFromTestCase(TestURLTagGenerator)
     timing = unittest.TestLoader().loadTestsFromTestCase(TestTiming)
     osm = unittest.TestLoader().loadTestsFromTestCase(TestOSMRelationer)
     suite = unittest.TestSuite(
         [address_resolver, address_full_resolver, opening_hours_cleaner, opening_hours_cleaner2, city_cleaner,
          replace_html_newlines, extract_phone_number, phone_cleaner, phone_cleaner_to_str, string_cleaner, url_cleaner, opening_hours_resolver,
-         smart_online_poi_matching, timing, osm])
+         smart_online_poi_matching, url_tag_generator, timing, osm])
     return unittest.TextTestRunner(verbosity=2).run(suite)
 
 

@@ -11,6 +11,7 @@ try:
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import clean_url
+    from osm_poi_matchmaker.libs.file_output_helper import url_tag_generator
     from osm_poi_matchmaker.libs.osm import relationer, timestamp_now
     from osm_poi_matchmaker.libs.compare_strings import compare_strings
     from sqlalchemy.orm import scoped_session, sessionmaker
@@ -347,16 +348,7 @@ def generate_osm_xml(df, session=None):
             try:
                 # If we got POI website tag use it as OSM contact:website tag
                 logging.debug('Add contact:website tag with website URL.')
-                if row.get('poi_url_base') is not None and row.get('poi_website') is not None:
-                    if row['poi_url_base'] in row.get('poi_website'):
-                        # The POI website contains the base URL use the POI website field only
-                        tags['contact:website'] = clean_url('{}'.format((row.get('poi_website'))))
-                    else:
-                        # The POI website does not contain the base URL use the merged base URL and POI website field
-                        tags['contact:website'] = clean_url('{}/{}'.format(row.get('poi_url_base'), row.get('poi_website')))
-                # If only the base URL is available
-                elif row.get('poi_url_base') is not None:
-                    tags['contact:website'] = row.get('poi_url_base')
+                tags['contact:website'] = url_tag_generator(row.get('poi_url_base'), row.get('poi_website'))
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.error(traceback.print_exc())
