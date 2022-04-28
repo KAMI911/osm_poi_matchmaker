@@ -87,8 +87,8 @@ class hu_mkb_bank(DataProvider):
                         self.data.original = poi_data.get('Cím')
                         self.data.email = clean_email(poi_data.get('E-mail cím'))
                         if poi_data.get('Időpontfoglalás URL') is not None and poi_data.get(
-                                'Időpontfoglalás URL') != '':
-                            self.data.website = poi_data.get('Időpontfoglalás URL')
+                                'Időpontfoglalás URL') != '' and isinstance(str, poi_data.get('Időpontfoglalás URL')):
+                            self.data.website = str(poi_data.get('Időpontfoglalás URL'))
                         else:
                             self.data.website = None
                         self.data.ref = poi_data.get('ATM / Fiók azonosítója')

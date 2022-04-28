@@ -192,7 +192,7 @@ class POIDatasetRaw:
 
     @website.setter
     def website(self, data: str):
-        self.__website = clean_url(str(data))
+        self.__website = clean_url(str(data).lower())
 
     @property
     def description(self) -> str:
@@ -494,7 +494,7 @@ class POIDatasetRaw:
         if data == 'NULL':
             self.__email = None
         else:
-            self.__email = clean_string(data)
+            self.__email = clean_string(str(data).lower())
 
     @property
     def geom(self) -> str:

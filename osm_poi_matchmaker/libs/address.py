@@ -375,7 +375,7 @@ def clean_email(email):
     email = remove_whitespace(str(email))
     if email is None:
         return None
-    email_parts = email.split()
+    email_parts = email.lower().split()
     if len(email_parts) == 0:
         return None
     email = ';'.join(email_parts)
@@ -418,7 +418,7 @@ def clean_url(clearable):
     '''
     if clearable is not None:
         url_match = PATTERN_URL_SLASH.sub('/', str(clearable))
-        return url_match.strip()
+        return url_match.lower().strip()
     else:
         return None
 
