@@ -302,7 +302,7 @@ def generate_osm_xml(df, session=None):
             try:
                 # Save live name tags if preserve name is enabled
                 logging.debug('Preserve item name tag.')
-                if row.get('preserve_original_name') is True:
+                if row.get('preserve_original_name') is True and tags.get('name') is not None:
                     preserved_name = tags.get('name')
             except KeyError as e:
                 logging.debug('No name tag is specified to save in original OpenStreetMap data.')
