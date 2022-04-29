@@ -389,6 +389,10 @@ def generate_osm_xml(df, session=None):
                         else:
                             # Rewrite simple contact tag to contact:* tag
                             tags['contact:' + tr] = tags.pop(tr, None)
+                        # rewrite email and website as small caps
+                        if tr in ['email', 'website' ]:
+                            if isinstance(str, tags.get('contact:' + tr)) and tags.get('contact:' + tr) is not None:
+                                tags['contact:' + tr] = str(tags.get('contact:' + tr)).lower()
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.error(traceback.print_exc())
