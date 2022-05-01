@@ -391,7 +391,7 @@ def generate_osm_xml(df, session=None):
                             tags['contact:' + tr] = tags.pop(tr, None)
                         # rewrite email and website as small caps
                         if tr in ['email', 'website' ]:
-                            if isinstance(str, tags.get('contact:' + tr)) is True and isinstance(str, tags.get('contact:' + tr)) is True:
+                            if isinstance(tags.get('contact:' + tr), str) is True and isinstance(tags.get('contact:' + tr), str) is True:
                                 tags['contact:' + tr] = str(tags.get('contact:' + tr)).lower()
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
