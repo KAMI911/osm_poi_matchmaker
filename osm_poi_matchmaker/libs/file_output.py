@@ -501,7 +501,7 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.error(traceback.print_exc())
             # Not use preserved name for next item
-            if preserved_name in locals():
+            if 'preserved_name' in locals():
                 del preserved_name
             logging.info('Finished processing: {}. item'.format(index+1))
         logging.info('What is happening here')
