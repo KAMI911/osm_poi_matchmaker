@@ -6,6 +6,7 @@ try:
     import sys
     import os
     import pandas as pd
+    import math
     import traceback
     from osm_poi_matchmaker.libs.pandas import save_downloaded_pd
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
@@ -75,23 +76,23 @@ class hu_mobiliti_ev(DataProvider):
                         self.data.lat, self.data.lon = check_hu_boundary(
                             self.data.lat, self.data.lon)
                         if poi_data.get('Darab (CHAdeMO)') is not None and poi_data.get('Darab (CHAdeMO)') != '' and \
-                                np.isnan(poi_data.get('Teljesítmény (CHAdeMO)')):
+                                not math.isnan(poi_data.get('Teljesítmény (CHAdeMO)')):
                             self.data.socket_chademo = poi_data.get('Darab (CHAdeMO)')
-                            self.data.socket_chademo_output = '{0:d} kW'.format(poi_data.get('Teljesítmény (CHAdeMO)'))
+                            self.data.socket_chademo_output = '{0:d} kW'.format(int(poi_data.get('Teljesítmény (CHAdeMO)')))
                         else:
                             self.data.socket_chademo = None
                             self.data.socket_chademo_output = None
                         if poi_data.get('Darab (CCS)') is not None and poi_data.get('Darab (CCS)') != '' and \
-                                np.isnan(poi_data.get('Teljesítmény (CCS)')):
+                                not math.isnan(poi_data.get('Teljesítmény (CCS)')):
                             self.data.socket_type2_combo = poi_data.get('Darab (CCS)')
-                            self.data.socket_type2_combo_output = '{0:d} kW'.format(poi_data.get('Teljesítmény (CCS)'))
+                            self.data.socket_type2_combo_output = '{0:d} kW'.format(int(poi_data.get('Teljesítmény (CCS)')))
                         else:
                             self.data.socket_type2_combo = None
                             self.data.socket_type2_combo_output = None
                         if poi_data.get('Darab (Type 2)') is not None and poi_data.get('Darab (Type 2)') != '' and \
-                                np.isnan(poi_data.get('Teljesítmény (Type 2)')):
+                                not math.isnan(poi_data.get('Teljesítmény (Type 2)')):
                             self.data.socket_type2_cable = poi_data.get('Darab (Type 2)')
-                            self.data.socket_type2_cable_output = '{0:d} kW'.format(poi_data.get('Teljesítmény (Type 2)'))
+                            self.data.socket_type2_cable_output = '{0:d} kW'.format(int(poi_data.get('Teljesítmény (Type 2)')))
                         else:
                             self.data.socket_type2_cable = None
                             self.data.socket_type2_cable_output = None

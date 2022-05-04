@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import math
 
 try:
     import logging
@@ -85,9 +86,12 @@ class hu_mkb_bank(DataProvider):
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(poi_data['Cím'])
                         self.data.original = poi_data.get('Cím')
-                        self.data.email = clean_email(poi_data.get('E-mail cím'))
+                        if not math.nan(clean_email(poi_data.get('E-mail cím'))) and \
+                            clean_email(poi_data.get('E-mail cím')) is not None and \
+                            isinstance(poi_data.get('Időpontfoglalás URL'), str):
+                                self.data.email = clean_email(poi_data.get('E-mail cím'))
                         if poi_data.get('Időpontfoglalás URL') is not None and poi_data.get(
-                                'Időpontfoglalás URL') != '' and isinstance(str, poi_data.get('Időpontfoglalás URL')):
+                                'Időpontfoglalás URL') != '' and isinstance(poi_data.get('Időpontfoglalás URL'), str):
                             self.data.website = str(poi_data.get('Időpontfoglalás URL'))
                         else:
                             self.data.website = None
