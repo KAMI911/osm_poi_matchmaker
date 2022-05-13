@@ -9,7 +9,7 @@ try:
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_all_address, clean_javascript_variable, clean_phone_to_str, \
-        clean_email
+        clean_email, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -59,7 +59,7 @@ class hu_jysk(DataProvider):
                         self.data.lat, self.data.lon = check_hu_boundary(
                             shop.get('lat'), shop.get('lon'))
                         self.data.branch = shop.get('name')
-                        internal_id = shop.get('id')
+                        internal_id = clean_string(shop.get('id'))
                         shop_soup = save_downloaded_soup('{}?storeId={}'.format(self.link, internal_id),
                                                         os.path.join(self.download_cache,
                                                                     '{}.{}.html'.format(self.filename, internal_id)), FileType.json)

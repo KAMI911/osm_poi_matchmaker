@@ -9,7 +9,7 @@ try:
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
-        extract_javascript_variable, clean_opening_hours
+        extract_javascript_variable, clean_opening_hours, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.enums import WeekDaysLong
@@ -59,29 +59,29 @@ class hu_rossmann(DataProvider):
                 pois = []
                 for poi_temp in text:
                     try:
-                        poi_id = int(poi_temp.get('id'))
+                        poi_id = int(clean_string(poi_temp.get('id')))
                         pois.insert(poi_id, poi_temp)
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
                         logging.exception(traceback.print_exc())
-                        logging.exception(poi_data)
+                        logging.exception(poi_temp)
                 text = json.loads(extract_javascript_variable(soup, 'additionals'))
                 for poi_temp in text:
                     try:
-                        poi_id = int(poi_temp.get('id'))
+                        poi_id = int(clean_string(poi_temp.get('id')))
                         pois.insert(poi_id, poi_temp)
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
                         logging.exception(traceback.print_exc())
-                        logging.exception(poi_data)
+                        logging.exception(poi_temp)
                 for poi_data in pois:
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                         self.data.name = 'Rossmann'
                         self.data.code = 'hurossmche'
                         self.data.city = clean_city(poi_data.get('city'))
-                        self.data.postcode = poi_data.get('zip').strip\
-                        if ('zip' in poi_data and poi_data.get('zip') != '') else None
+                        self.data.postcode = clean_string(poi_data.get('zip')) \
+                            if ('zip' in poi_data and poi_data.get('zip') != '') else None
                         for i in range(0, 7):
                             if WeekDaysLong(i).name.lower() in poi_data:
                                 opening, closing = clean_opening_hours(
@@ -91,7 +91,7 @@ class hu_rossmann(DataProvider):
                                 self.data.day_open_close(i, None, None)
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data.get('street'))
-                        self.data.original = poi_data.get('street')
+                        self.data.original = clean_string(poi_data.get('street'))
                         self.data.public_holiday_open = False
                         self.data.add()
                     except Exception as e:

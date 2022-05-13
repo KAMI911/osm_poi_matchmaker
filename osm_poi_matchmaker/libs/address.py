@@ -7,6 +7,7 @@ try:
     import phonenumbers
     import json
     import traceback
+    import math
     from functools import reduce
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -278,22 +279,22 @@ def clean_city(clearable: str) -> str:
     :param clearable: Not clear cityname
     :return: Clear cityname
     '''
-    clearable = str(clearable)
-    if clearable is not None:
-        city = clean_string(clearable)
-        city = re.sub(PATTERN_CITY, '', city)
-        repls = ('Mikolc', 'Miskolc'), ('Iinárcs', 'Inárcs')
-        city = reduce(lambda a, kv: a.replace(*kv), repls, city)
-        city = city.split('-')[0]
-        city = city.split(',')[0]
-        city = city.split('/')[0]
-        city = city.split('/')[0]
-        city = city.split('(')[0]
-        city = city.split(' ')[0]
-        city = clean_string(city)
-        return city.title()
-    else:
+    clearable = clean_string(clearable)
+    if clearable is None:
         return None
+
+    city = clean_string(clearable)
+    city = re.sub(PATTERN_CITY, '', city)
+    repls = ('Mikolc', 'Miskolc'), ('Iinárcs', 'Inárcs')
+    city = reduce(lambda a, kv: a.replace(*kv), repls, city)
+    city = city.split('-')[0]
+    city = city.split(',')[0]
+    city = city.split('/')[0]
+    city = city.split('/')[0]
+    city = city.split('(')[0]
+    city = city.split(' ')[0]
+    city = clean_string(city)
+    return city.title()
 
 
 def clean_opening_hours(oh_from_to):
@@ -353,14 +354,18 @@ def clean_phone(phone):
 
 
 def clean_phone_to_json(phone):
-    cleaned = clean_phone(phone)
-    if cleaned is not None:
-        return json.dumps(cleaned)
+    phone = clean_string(phone)
+    if phone is None:
+        return None
+    phone = clean_phone(phone)
+    if phone is not None:
+        return json.dumps(phone)
     else:
         return None
 
 
 def clean_phone_to_str(phone):
+    phone = clean_string(phone)
     if phone is None:
         return None
     cleaned = clean_phone(phone)
@@ -371,8 +376,7 @@ def clean_phone_to_str(phone):
 
 
 def clean_email(email):
-    # Remove all whitespaces
-    email = remove_whitespace(str(email))
+    email = clean_string(email)
     if email is None:
         return None
     email_parts = email.lower().split()
@@ -395,19 +399,25 @@ def clean_string(clearable):
     :return: Cleaned string
     Returns None if the string is empty or cotanins only whitespace characters
     '''
-    if clearable is not None:
-        # Remove whitespaces
-        clearable=remove_whitespace(str(clearable), ' ')
-        # Make list from words and join them with one space, removing double/multiple spaces
-        clearable_parts = clearable.split()
-        if len(clearable_parts) == 0:
-            return None
-        clearable = ' '.join(clearable_parts)
-        clearable = clearable.strip()
-        if clearable is not None and clearable != '' and clearable != ' ':
-            return clearable
-        else:
-            return None
+    if clearable is None:
+        return None
+    if not isinstance(clearable, str):
+        logging.info('Non string input as email (%s) trying to convert to string...'.format(clearable))
+        clearable = str(clearable)
+    # Remove all whitespaces
+    clearable = remove_whitespace(clearable, ' ')
+    if clearable == '' or 'None' in clearable or 'NULL' in clearable:
+        return None
+    # Make list from words and join them with one space, removing double/multiple spaces
+    clearable_parts = clearable.split()
+    if len(clearable_parts) == 0:
+        return None
+    clearable = ' '.join(clearable_parts)
+    clearable = clearable.strip()
+    if clearable is not None and clearable != '' and clearable != ' ':
+        return clearable
+    else:
+        return None
 
 
 def clean_url(clearable):
@@ -416,11 +426,11 @@ def clean_url(clearable):
     :param clearable: String that has to clean
     :return: Cleaned string
     '''
-    if clearable is not None:
-        url_match = PATTERN_URL_SLASH.sub('/', str(clearable))
-        return url_match.lower().strip()
-    else:
+    clearable = clean_string(clearable)
+    if clearable is None:
         return None
+    url_match = PATTERN_URL_SLASH.sub('/', str(clearable))
+    return url_match.lower().strip()
 
 
 def clean_street(clearable):

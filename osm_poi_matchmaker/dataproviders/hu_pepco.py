@@ -7,7 +7,8 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+        clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_osm_city_name
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
@@ -76,8 +77,8 @@ class hu_pepco(DataProvider):
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(
                                 poi_data.get('streetAddress'))
-                        self.data.original = poi_data.get('streetAddress')
-                        self.data.postcode = poi_data.get('postalCode')
+                        self.data.original = clean_string(poi_data.get('streetAddress'))
+                        self.data.postcode = clean_string(poi_data.get('postalCode'))
                         # self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
                         # Assign opening_hours
                         opening = poi_data['openingHours']
@@ -86,8 +87,7 @@ class hu_pepco(DataProvider):
                                 self.data.day_open(i, opening[i]['from'])
                                 self.data.day_close(i, opening[i]['to'])
                         # Assign additional informations
-                        self.data.phone = clean_phone_to_str(
-                            poi_data.get('phoneNumber'))
+                        self.data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
                         self.data.public_holiday_open = False
                         self.data.add()
                     except Exception as e:

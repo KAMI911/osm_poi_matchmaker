@@ -189,6 +189,15 @@ class TestStringCleaner(unittest.TestCase):
     def setUp(self):
         self.phones = [
             {'original': '  ablak  zsiráf   ', 'converted': 'ablak zsiráf'},
+            {'original': None, 'converted': None},
+            {'original': '    ', 'converted': None},
+            {'original': 'None', 'converted': None},
+            {'original': '   None   ', 'converted': None},
+            {'original': ' NULL', 'converted': None},
+            {'original': ' NULLNone', 'converted': None},
+            {'original': ' \n\nNULLNone', 'converted': None},
+            {'original': '\n', 'converted': None},
+            {'original': '\t', 'converted': None},
         ]
 
     def test_clean_string(self):

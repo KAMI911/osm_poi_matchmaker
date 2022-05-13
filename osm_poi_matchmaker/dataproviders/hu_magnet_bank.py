@@ -7,7 +7,7 @@ try:
     import os
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address
+    from osm_poi_matchmaker.libs.address import extract_all_address, clean_string, clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -68,7 +68,7 @@ class hu_magnet_bank(DataProvider):
                                     self.data.name = 'MagNet Bank'
                                     self.data.code = 'humagnbank'
                                     self.data.public_holiday_open = False
-                                    self.data.email = poi_data.get('email')
+                                    self.data.email = clean_email(poi_data.get('email'))
                                     self.data.phone = '+36 1 428 8888'
                                 else:
                                     logging.info('Unknow type! ({})'.format(
@@ -78,7 +78,7 @@ class hu_magnet_bank(DataProvider):
                                         poi_data.get('address'))
                                 self.data.lat, self.data.lon = check_hu_boundary(
                                     poi_data.get('lat'), poi_data.get('lon'))
-                                self.data.original = poi_data.get('address')
+                                self.data.original = clean_string(poi_data.get('address'))
                             self.data.add()
                         except Exception as e:
                             logging.exception('Exception occurred: {}'.format(e))

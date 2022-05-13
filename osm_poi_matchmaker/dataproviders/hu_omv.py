@@ -8,7 +8,7 @@ try:
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
-        clean_phone_to_str
+        clean_phone_to_str, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -63,11 +63,8 @@ class hu_omv(DataProvider):
                     try:
                         self.data.name = 'OMV'
                         self.data.code = 'huomvfu'
-                        if poi_data.get('postcode') is not None and poi_data.get('postcode') != '':
-                            self.data.postcode = poi_data.get(
-                                'postcode').strip()
-                        if poi_data.get('town_l') is not None and poi_data.get('town_l') != '':
-                            self.data.city = clean_city(poi_data.get('town_l'))
+                        self.data.postcode = clean_string(poi_data.get('postcode'))
+                        self.data.city = clean_city(poi_data.get('town_l'))
                         if poi_data.get('open_hours') is not None:
                             oho, ohc = clean_opening_hours(
                                 poi_data.get('open_hours'))
@@ -85,14 +82,10 @@ class hu_omv(DataProvider):
                             self.data.day_close(i, ohc)
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('y'), poi_data.get('x'))
-                        if poi_data.get('address_l') is not None and poi_data.get('address_l') != '':
-                            self.data.original = poi_data.get('address_l')
-                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                                extract_street_housenumber_better_2(
-                                    poi_data.get('address_l'))
-                        if poi_data.get('telnr') is not None and poi_data.get('telnr') != '':
-                            self.data.phone = clean_phone_to_str(
-                                poi_data.get('telnr'))
+                        self.data.original = clean_string(poi_data.get('address_l'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                                extract_street_housenumber_better_2(poi_data.get('address_l'))
+                        self.data.phone = clean_phone_to_str(poi_data.get('telnr'))
                         self.data.fuel_octane_95 = True
                         self.data.fuel_diesel = True
                         self.data.fuel_octane_100 = True

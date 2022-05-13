@@ -7,7 +7,8 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+        clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -57,28 +58,22 @@ class hu_dm(DataProvider):
                         if poi_data.get('localeCountry').strip().upper() == 'HU':
                             self.data.name = 'dm'
                             self.data.code = 'hudmche'
-                            self.data.postcode = poi_data.get('address')[
-                                'zip'].strip()
+                            self.data.postcode = clean_string(poi_data.get('address')['zip'])
                             street_tmp = poi_data.get(
                                 'address')['street'].split(',')[0]
                             self.data.city = clean_city(
                                 poi_data.get('address')['city'])
                             self.data.website = 'https://www.dm.hu{}'.format(
-                                poi_data.get('storeUrlPath'))
-                            self.data.original = poi_data.get('address')[
-                                'street']
+                                clean_string(poi_data.get('storeUrlPath')))
+                            self.data.original = clean_string(poi_data.get('address')['street'])
                             self.data.lat, self.data.lon = \
                                 check_hu_boundary(poi_data.get('location')[
                                                   'lat'], poi_data.get('location')['lon'])
                             self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                                 extract_street_housenumber_better_2(
                                     street_tmp.title())
-                            if poi_data.get('phone') is not None and poi_data.get('phone') != '':
-                                self.data.phone = clean_phone_to_str(
-                                    poi_data.get('phone'))
-                            if poi_data.get('storeNumber') is not None and poi_data.get('storeNumber') != '':
-                                self.data.ref = poi_data.get(
-                                    'storeNumber').strip()
+                            self.data.phone = clean_phone_to_str(poi_data.get('phone'))
+                            self.data.ref = clean_string(poi_data.get('storeNumber').strip())
                             opening = poi_data.get('openingDays')
                             try:
                                 for i, d in enumerate(opening):

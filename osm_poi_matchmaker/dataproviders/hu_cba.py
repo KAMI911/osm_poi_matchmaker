@@ -9,7 +9,7 @@ try:
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
-        extract_javascript_variable, clean_opening_hours_2, clean_phone_to_str
+        extract_javascript_variable, clean_opening_hours_2, clean_phone_to_str, clean_string, clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -73,8 +73,8 @@ class hu_cba(DataProvider):
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                         self.data.city = clean_city(poi_data.get('A_VAROS'))
-                        self.data.postcode = poi_data.get('A_IRSZ').strip()
-                        self.data.branch = poi_data.get('P_NAME').strip()
+                        self.data.postcode = clean_string(poi_data.get('A_IRSZ'))
+                        self.data.branch = clean_string(poi_data.get('P_NAME'))
                         self.data.name = 'Príma' if 'Príma' in self.data.branch else 'CBA'
                         self.data.code = 'huprimacon' if 'Príma' in self.data.branch else 'hucbacon'
                         for i in range(0, 7):
@@ -91,15 +91,8 @@ class hu_cba(DataProvider):
                                                                         poi_data.get('PS_GPS_COORDS_LNG'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data.get('A_CIM'))
-                        if 'PS_PUBLIC_TEL' in poi_data and poi_data.get('PS_PUBLIC_TEL') != '':
-                            self.data.phone = clean_phone_to_str(
-                                poi_data.get('PS_PUBLIC_TEL'))
-                        else:
-                            self.data.phone = None
-                        if 'PS_PUBLIC_EMAIL' in poi_data and poi_data.get('PS_PUBLIC_EMAIL') != '':
-                            self.data.email = poi_data.get('PS_PUBLIC_EMAIL')
-                        else:
-                            self.data.email = None
+                        self.data.phone = clean_phone_to_str(poi_data.get('PS_PUBLIC_TEL'))
+                        self.data.email = clean_email(poi_data.get('PS_PUBLIC_EMAIL'))
                         self.data.public_holiday_open = False
                         self.data.add()
                     except Exception as e:

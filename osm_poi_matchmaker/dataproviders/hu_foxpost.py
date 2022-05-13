@@ -7,7 +7,8 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
+        clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHUUnAccented
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -55,7 +56,7 @@ class hu_foxpost(DataProvider):
                     try:
                         self.data.name = 'Foxpost'
                         self.data.code = 'hufoxpocso'
-                        self.data.postcode = poi_data['zip'].strip()
+                        self.data.postcode = clean_string(poi_data.get('zip'))
                         self.data.city = clean_city(poi_data['city'])
                         self.data.branch = poi_data['name']
                         for i in range(0, 7):
@@ -72,7 +73,7 @@ class hu_foxpost(DataProvider):
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data['street'])
                         self.data.public_holiday_open = False
-                        self.data.description = poi_data.get('findme')
+                        self.data.description = clean_string(poi_data.get('findme'))
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))

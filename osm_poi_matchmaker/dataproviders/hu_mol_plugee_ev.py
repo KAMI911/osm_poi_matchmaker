@@ -7,7 +7,8 @@ try:
     import traceback
     import pandas as pd
     from osm_poi_matchmaker.libs.pandas import save_downloaded_pd
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+        clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
@@ -55,13 +56,13 @@ class hu_mol_plugee_ev(DataProvider):
                     try:
                         self.data.name = 'MOL Plugee'
                         self.data.code = 'humolplchs'
-                        self.data.ref = poi_data.get('Azonosító')
-                        self.data.postcode = poi_data.get('Irányító szám')
+                        self.data.ref = clean_string(poi_data.get('Azonosító'))
+                        self.data.postcode = clean_string(poi_data.get('Irányító szám'))
                         self.data.city = clean_city(poi_data.get('Település'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(
                                 poi_data.get('Cím'))
-                        self.data.original = poi_data.get('Cím')
+                        self.data.original = clean_string(poi_data.get('Cím'))
                         lat, lng = poi_data.get('X'), poi_data.get('Y')
                         if isinstance(lat, float) is False and isinstance(lng, float) is False:
                             self.data.lat, self.data.lon = check_hu_boundary(lat.replace(',', '.'), lng.replace(',','.'))

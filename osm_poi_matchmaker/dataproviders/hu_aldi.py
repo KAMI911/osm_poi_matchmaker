@@ -5,7 +5,7 @@ try:
     import sys
     import os
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_string
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
@@ -65,8 +65,8 @@ class hu_aldi(DataProvider):
                     poi_data[2])
                 self.data.name = 'Aldi'
                 self.data.code = 'hualdisup'
-                self.data.postcode = poi_data[0].strip()
-                self.data.city = clean_city(poi_data[1])
-                self.data.original = poi_data[2]
+                self.data.postcode = poi_data[0]
+                self.data.city = poi_data[1]
+                self.data.original = clean_string(poi_data[2])
                 self.data.public_holiday_open = False
                 self.data.add()

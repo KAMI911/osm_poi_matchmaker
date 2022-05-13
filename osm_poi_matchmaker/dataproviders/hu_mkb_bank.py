@@ -11,7 +11,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_email, replace_html_newlines,\
-        extract_phone_number
+        extract_phone_number, clean_url, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -85,18 +85,11 @@ class hu_mkb_bank(DataProvider):
                             poi_data.get('Földrajzi hosszúság').replace(',','.'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(poi_data['Cím'])
-                        self.data.original = poi_data.get('Cím')
-                        if not math.nan(clean_email(poi_data.get('E-mail cím'))) and \
-                            clean_email(poi_data.get('E-mail cím')) is not None and \
-                            isinstance(poi_data.get('Időpontfoglalás URL'), str):
-                                self.data.email = clean_email(poi_data.get('E-mail cím'))
-                        if poi_data.get('Időpontfoglalás URL') is not None and poi_data.get(
-                                'Időpontfoglalás URL') != '' and isinstance(poi_data.get('Időpontfoglalás URL'), str):
-                            self.data.website = str(poi_data.get('Időpontfoglalás URL'))
-                        else:
-                            self.data.website = None
-                        self.data.ref = poi_data.get('ATM / Fiók azonosítója')
-                        self.data.description = poi_data.get('Megjegyzés')
+                        self.data.original = clean_string(poi_data.get('Cím'))
+                        self.data.email = clean_email(poi_data.get('E-mail cím'))
+                        self.data.website = clean_url(poi_data.get('Időpontfoglalás URL'))
+                        self.data.ref = clean_string(poi_data.get('ATM / Fiók azonosítója'))
+                        self.data.description = clean_string(poi_data.get('Megjegyzés'))
                         self.data.description = replace_html_newlines(self.data.description)
                         if 'Akadálymentesen' in self.data.description:
                             logging.debug('TODO: Implement wheelchair field')

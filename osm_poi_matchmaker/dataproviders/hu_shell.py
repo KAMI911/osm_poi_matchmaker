@@ -7,7 +7,8 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+        clean_string, clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -62,13 +63,13 @@ class hu_shell(DataProvider):
                             continue
                         self.data.name = 'Shell'
                         self.data.code = 'hushellfu'
-                        self.data.website = poi_data.get('website_url') if ('website_url' in poi_data and poi_data.get('website_url') != '') else 'https://shell.hu/'
-                        self.data.postcode = poi_data.get('postcode') if ('postcode' in poi_data and poi_data.get('postcode') != '') else None
+                        self.data.website = clean_url(poi_data.get('website_url')) if ('website_url' in poi_data and poi_data.get('website_url') != '') else 'https://shell.hu/'
+                        self.data.postcode = clean_string(poi_data.get('postcode')) if ('postcode' in poi_data and poi_data.get('postcode') != '') else None
                         street_tmp = poi_data.get('address').lower().split()
                         for i in range(0, len(street_tmp) - 2):
                             street_tmp[i] = street_tmp[i].capitalize()
                         street_tmp = ' '.join(street_tmp)
-                        if 'city' in poi_data and poi_data['city'] != '':
+                        if 'city' in poi_data and poi_data.get('city') != '':
                             self.data.city = clean_city(poi_data.get('city').title())
                         else:
                             if 'name' in poi_data and poi_data.get('name') != '':

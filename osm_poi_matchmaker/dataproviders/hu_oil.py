@@ -8,7 +8,7 @@ try:
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
-        clean_phone_to_str
+        clean_phone_to_str, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -56,31 +56,23 @@ class hu_oil(DataProvider):
                     try:
                         self.data.name = 'OIL!'
                         self.data.code = 'huoilfu'
-                        if poi_data.get('zip') is not None and poi_data.get('zip') != '':
-                            self.data.postcode = poi_data.get('zip').strip()
-                        if poi_data.get('city') is not None and poi_data.get('city') != '':
-                            self.data.city = clean_city(poi_data.get('city'))
-                        self.data.lat, self.data.lon = check_hu_boundary(
-                            poi_data.get('lat'), poi_data.get('lng'))
-                        if poi_data.get('address') is not None and poi_data.get('address') != '':
-                            self.data.original = poi_data.get('address')
-                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                        self.data.postcode = clean_string(poi_data.get('zip'))
+                        self.data.city = clean_city(poi_data.get('city'))
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
+                        self.data.original = clean_string(poi_data.get('address'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                                 extract_street_housenumber_better_2(
                                     poi_data.get('address'))
-                        if poi_data.get('phone') is not None and poi_data.get('phone') != '':
-                            self.data.phone = clean_phone_to_str(
-                                poi_data.get('phone'))
+                        self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                         self.data.fuel_octane_95 = True
                         self.data.fuel_diesel = True
-                        if poi_data.get('id') is not None and poi_data.get('id') != '':
-                            self.data.ref = poi_data.get('id').strip()
+                        self.data.ref = clean_string(poi_data.get('id').strip())
                         if poi_data.get('url') is not None and poi_data.get('url') != '':
                             self.data.website = poi_data.get('url').strip()
                         else:
                             self.data.website = 'https://www.oil-benzinkutak.hu'
-                        if poi_data.get('store') is not None and poi_data.get('store') != '':
-                            tmp = poi_data.get('store').split(' ', 1)
-                            self.data.branch = tmp[1].strip().capitalize()
+                        tmp = clean_string(poi_data.get('store').split(' ', 1))
+                        self.data.branch = tmp[1].strip().capitalize()
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))

@@ -9,7 +9,8 @@ try:
     import traceback
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str, clean_street, clean_street_type
+    from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str, clean_street, clean_street_type, \
+        clean_string, clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHU
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -98,7 +99,7 @@ class hu_posta(DataProvider):
                             self.data.public_holiday_open = False
                         else:
                             logging.error('Non existing Posta type.')
-                        self.data.postcode = e.get('zipcode')
+                        self.data.postcode = clean_string(e.get('zipcode'))
                         self.data.housenumber = e.street.housenumber.get_text().split('(', 1)[0].strip() \
                             if e.street.housenumber is not None else None
                         if self.data.housenumber == 'belterület HRSZ 3162':
@@ -106,7 +107,7 @@ class hu_posta(DataProvider):
                             self.data.conscriptionnumber = '3162'
                         self.data.conscriptionnumber = None
                         self.data.city = clean_city(e.city.get_text())
-                        self.data.branch = e.find('name').get_text(
+                        self.data.branch = clean_string(e.find('name').get_text()
                         ) if e.find('name') is not None else None
                         if self.data.code == 'hupostapo':
                             self.data.branch = re.sub(
@@ -200,7 +201,7 @@ class hu_posta(DataProvider):
                                 'Non handled state in street data processing!')
                         self.data.phone = clean_phone_to_str(e.phonearea.get_text()) \
                             if e.phonearea is not None else None
-                        self.data.email = e.email.get_text().strip() if e.email is not None else None
+                        self.data.email = clean_email(e.email.get_text()) if e.email is not None else None
                         self.data.add()
                 except Exception as err:
                     logging.exception('Exception occurred: {}'.format(err))

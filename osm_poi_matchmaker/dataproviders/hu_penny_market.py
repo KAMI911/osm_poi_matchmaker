@@ -7,7 +7,8 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+        clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -56,18 +57,16 @@ class hu_penny_market(DataProvider):
                     try:
                         self.data.name = 'Penny'
                         self.data.code = 'hupennysup'
-                        self.data.postcode = poi_data['address']['zip'].strip()
-                        street_tmp = poi_data['address']['street'].split(',')[0]
+                        self.data.postcode = clean_string(poi_data.get('address')['zip'])
+                        street_tmp = clean_string(poi_data.get('address')['street'].split(',')[0])
                         self.data.city = clean_city(poi_data['address']['city'])
-                        self.data.original = poi_data['address']['street']
+                        self.data.original = clean_string(poi_data.get('address')['street'])
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data['address']['latitude'],
                                                                         poi_data['address']['longitude'])
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             street_tmp.title())
-                        if 'phone' in poi_data and poi_data['phone'] != '':
-                            self.data.phone = clean_phone_to_str(poi_data['phone'])
-                        if 'id' in poi_data and poi_data['id'] != '':
-                            self.data.ref = poi_data['id'].strip()
+                        self.data.phone = clean_phone_to_str(poi_data.get('phone'))
+                        self.data.ref = clean_string(poi_data.get('id'))
                         self.data.public_holiday_open = False
                         # TODO: Parsing opening_hours from datasource
                         self.data.add()

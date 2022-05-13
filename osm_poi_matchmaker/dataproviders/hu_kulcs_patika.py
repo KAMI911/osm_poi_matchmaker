@@ -7,7 +7,7 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_city
+    from osm_poi_matchmaker.libs.address import extract_all_address, clean_city, clean_string, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -59,15 +59,13 @@ class hu_kulcs_patika(DataProvider):
                         poi_data_poi = poi_data.get('poi')
                         try:
                             if 'Kulcs patika' not in poi_data_poi.get('patika'):
-                                self.data.name = poi_data_poi.get('patika')
+                                self.data.name = clean_string(poi_data_poi.get('patika'))
                                 self.data.branch = None
                             else:
                                 self.data.name = 'Kulcs patika'
-                                self.data.branch = poi_data_poi.get('patika')
+                                self.data.branch = clean_string(poi_data_poi.get('patika'))
                             self.data.code = 'hukulcspha'
-                            self.data.phone = poi_data_poi.get('phone').replace(',', ';')\
-                              if (poi_data.get('phone') is not None\
-                              and poi_data.get('phone') != '') else None
+                            self.data.phone = clean_phone_to_str(poi_data_poi.get('phone'))
                             self.data.lat, self.data.lon = \
                                 check_hu_boundary(poi_data_poi.get('latitude'),
                                                   poi_data_poi.get('longitude'))

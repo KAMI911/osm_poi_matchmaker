@@ -20,7 +20,7 @@ class TestURLTagGenerator(unittest.TestCase):
             {'poi_url_base': None, 'poi_website': '', 'converted': None},
             {'poi_url_base': '', 'poi_website': None, 'converted': None},
             {'poi_url_base': None, 'poi_website': None, 'converted': None},
-            {'poi_url_base': 'https://www.mkb.hu', 'poi_website': 'https://lny.io/MKB-WEB-HEREND', 'converted': 'https://lny.io/MKB-WEB-HEREND'},
+            {'poi_url_base': 'https://www.mkb.hu', 'poi_website': 'https://lny.io/MKB-WEB-HEREND', 'converted': 'https://lny.io/mkb-web-herend'},
         ]
 
     def test_url_tag_generator(self):

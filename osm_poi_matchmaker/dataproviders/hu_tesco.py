@@ -7,7 +7,8 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+        clean_url, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_osm_city_name_gpd
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -89,10 +90,10 @@ class hu_tesco(DataProvider):
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber,
                         # conscriptionnumber, ref, geom
-                        self.data.branch = poi_data.get('store_name')
-                        self.data.ref = poi_data.get('goldid')
-                        self.data.website = 'https://tesco.hu/aruhazak/aruhaz/{}/'.format(
-                            poi_data.get('urlname'))
+                        self.data.branch = clean_string(poi_data.get('store_name'))
+                        self.data.ref = clean_string(poi_data.get('goldid'))
+                        if clean_url(poi_data.get('urlname')) is not None:
+                            self.data.website = 'https://tesco.hu/aruhazak/aruhaz/{}/'.format(clean_url(poi_data.get('urlname')))
                         opening = json.loads(poi_data.get('opening'))
                         for i in range(0, 7):
                             ind = str(i + 1) if i != 6 else '0'
@@ -104,7 +105,7 @@ class hu_tesco(DataProvider):
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(
                                 poi_data.get('address'))
-                        self.data.postcode = poi_data.get('zipcode').strip()
+                        self.data.postcode = clean_string(poi_data.get('zipcode'))
                         self.data.city = clean_city(query_osm_city_name_gpd(
                             self.session, self.data.lat, self.data.lon))
                         if 'xpres' in poi_data.get('name'):

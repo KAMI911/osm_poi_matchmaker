@@ -7,7 +7,7 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -77,10 +77,9 @@ class hu_mol(DataProvider):
                             self.data.code = 'humolwfu'
                         else:
                             self.data.code = 'humolfu'
-                        if poi_data.get('postcode') is not None:
-                            self.data.postcode = poi_data.get('postcode').strip()
-                        self.data.city = clean_city(poi_data['city'])
-                        self.data.original = poi_data['address']
+                        self.data.postcode = clean_string(poi_data.get('postcode'))
+                        self.data.city = clean_city(poi_data.get('city'))
+                        self.data.original = clean_string(poi_data.get('address'))
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data['lat'], poi_data['lng'])
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(

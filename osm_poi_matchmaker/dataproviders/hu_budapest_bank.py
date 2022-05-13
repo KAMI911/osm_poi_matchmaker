@@ -7,7 +7,7 @@ try:
     import os
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
@@ -76,7 +76,7 @@ class hu_budapest_bank(DataProvider):
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                         extract_street_housenumber_better_2(poi_data['point_street'])
                     self.data.original = poi_data['point_street']
-                    self.data.branch = poi_data['point_name']
+                    self.data.branch = clean_string(poi_data.get('point_name'))
                     # Processing opening hours
                     oh = []
                     if poi_data.get('point_open_mon') is not None:

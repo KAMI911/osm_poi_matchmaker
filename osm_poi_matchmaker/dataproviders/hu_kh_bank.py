@@ -6,7 +6,7 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_all_address, clean_phone_to_str, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRaw
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -58,7 +58,7 @@ class hu_kh_bank(DataProvider):
                 with open(self.link, 'r') as f:
                     text = json.load(f)
                     data = POIDatasetRaw()
-                    for poi_data in text['results']:
+                    for poi_data in text.get('results'):
                         first_element = next(iter(poi_data))
                         if self.name == 'K&H Bank':
                             data.name = 'K&H Bank'
@@ -74,18 +74,12 @@ class hu_kh_bank(DataProvider):
                             data.nonstop = False
                         data.lat, data.lon = check_hu_boundary(poi_data.get(first_element)['latitude'],
                                                                poi_data.get(first_element)['longitude'])
-                        if poi_data.get(first_element)['address'] is not None and \
-                                poi_data.get(first_element)['address'] != '':
+                        if clean_string(poi_data.get(first_element)['address']) is not None:
                             data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = \
                                 extract_all_address(
                                     poi_data.get(first_element)['address'])
-                            data.original = poi_data.get(
-                                first_element)['address']
-                        if poi_data.get('phoneNumber') is not None and poi_data.get('phoneNumber') != '':
-                            data.phone = clean_phone_to_str(
-                                poi_data.get('phoneNumber'))
-                        else:
-                            data.phone = None
+                            data.original = clean_string(poi_data.get(first_element)['address'])
+                        data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
                         data.add()
                     if data is None or data.lenght() < 1:
                         logging.warning('Resultset is empty. Skipping ...')

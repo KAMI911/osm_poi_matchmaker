@@ -9,7 +9,7 @@ try:
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_all_address, extract_javascript_variable, clean_phone_to_str, \
-        clean_email
+        clean_email, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -68,17 +68,11 @@ class hu_avia(DataProvider):
                             self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
                                 self.data.conscriptionnumber = extract_all_address(
                                     poi_data['cim'])
-                        self.data.website = '/toltoallomas/?id={}'.format(str(poi_data['kutid'])) \
-                            if poi_data['kutid'] is not None and poi_data['kutid'] != '' else None
+                        self.data.website = '/toltoallomas/?id={}'.format(clean_string(poi_data.get('kutid'))) \
+                            if clean_string(poi_data.get('kutid')) is not None else None
                         self.data.original = poi_data['cim']
-                        if 'tel' in poi_data and poi_data['tel'] != '':
-                            self.data.phone = clean_phone_to_str(poi_data['tel'])
-                        else:
-                            self.data.phone = None
-                        if 'email' in poi_data and poi_data['email'] != '':
-                            self.data.email = clean_email(poi_data['email'])
-                        else:
-                            self.data.email = None
+                        self.data.phone = clean_phone_to_str(poi_data.get('tel'))
+                        self.data.email = clean_email(poi_data.get('email'))
                         self.data.public_holiday_open = False
                         self.data.fuel_octane_95 = True if poi_data.get('b95') == '1' or poi_data.get('b95g') == '1' \
                             else False

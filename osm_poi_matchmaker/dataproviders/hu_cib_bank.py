@@ -6,7 +6,7 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str, clean_email, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRaw
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -73,17 +73,14 @@ class hu_cib_bank(DataProvider):
                                     data.public_holiday_open = True
                                 data.lat, data.lon = check_hu_boundary(poi_data['location']['lat'],
                                                                     poi_data['location']['lon'])
-                                data.city = clean_city(poi_data['city'])
-                                data.postcode = poi_data.get('zip').strip()
-                                data.housenumber = poi_data['streetNo'].strip()
-                                data.street = poi_data['streetName'].strip()
-                                data.branch = poi_data['name']
-                                if 'phone' in poi_data and poi_data['phone'] != '':
-                                    data.phone = clean_phone_to_str(
-                                        poi_data['phone'])
-                                if 'email' in poi_data and poi_data['email'] != '':
-                                    data.email = poi_data['email'].strip()
-                                data.original = poi_data['fullAddress']
+                                data.city = clean_city(poi_data.get('city'))
+                                data.postcode = clean_string(poi_data.get('zip'))
+                                data.housenumber = clean_string(poi_data.get('streetNo'))
+                                data.street = clean_string(poi_data.get('streetName'))
+                                data.branch = clean_string(poi_data.get('name'))
+                                data.phone = clean_phone_to_str(poi_data.get('phone'))
+                                data.email = clean_email(poi_data.get('email'))
+                                data.original = clean_string(poi_data.get('fullAddress'))
                                 data.add()
                         except Exception as e:
                             logging.exception('Exception occurred: {}'.format(e))

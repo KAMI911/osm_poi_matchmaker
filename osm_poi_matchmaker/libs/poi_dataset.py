@@ -8,7 +8,7 @@ try:
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
-    from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch
+    from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch, clean_phone_to_str, clean_email
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.dao.poi_base import POIBase
@@ -159,8 +159,8 @@ class POIDatasetRaw:
         return self.__postcode
 
     @postcode.setter
-    def postcode(self, data: int):
-        self.__postcode = data
+    def postcode(self, data: str):
+        self.__postcode = clean_string(data)
 
     @property
     def city(self) -> str:
@@ -192,7 +192,7 @@ class POIDatasetRaw:
 
     @website.setter
     def website(self, data: str):
-        self.__website = clean_url(str(data).lower())
+        self.__website = clean_url(data)
 
     @property
     def description(self) -> str:
@@ -200,7 +200,7 @@ class POIDatasetRaw:
 
     @description.setter
     def description(self, data: str):
-        self.__description = clean_string(str(data))
+        self.__description = clean_string(data)
 
     @property
     def fuel_adblue(self) -> bool:
@@ -360,7 +360,7 @@ class POIDatasetRaw:
 
     @socket_chademo.setter
     def socket_chademo(self, data: int):
-        self.__socket_chademo = data
+        self.__socket_chademo = clean_string(data)
 
     @property
     def socket_chademo_output(self) -> str:
@@ -376,7 +376,7 @@ class POIDatasetRaw:
 
     @socket_type2_combo.setter
     def socket_type2_combo(self, data: int):
-        self.__socket_type2_combo = data
+        self.__socket_type2_combo = clean_string(data)
 
     @property
     def socket_type2_combo_output(self) -> str:
@@ -392,7 +392,7 @@ class POIDatasetRaw:
 
     @socket_type2_cable.setter
     def socket_type2_cable(self, data: int):
-        self.__socket_type2_cable = data
+        self.__socket_type2_cable = clean_string(data)
 
     @property
     def socket_type2_cable_output(self) -> str:
@@ -408,7 +408,7 @@ class POIDatasetRaw:
 
     @socket_type2.setter
     def socket_type2(self, data: int):
-        self.__socket_type2 = data
+        self.__socket_type2 = clean_string(data)
 
     @property
     def socket_type2_output(self) -> str:
@@ -432,7 +432,7 @@ class POIDatasetRaw:
 
     @model.setter
     def model(self, data: str):
-        self.__model = data
+        self.__model = clean_string(data)
 
     @property
     def original(self) -> str:
@@ -440,7 +440,7 @@ class POIDatasetRaw:
 
     @original.setter
     def original(self, data: str):
-        self.__original = data
+        self.__original = clean_string(data)
 
     @property
     def street(self) -> str:
@@ -472,7 +472,7 @@ class POIDatasetRaw:
 
     @ref.setter
     def ref(self, data: str):
-        self.__ref = clean_string(str(data))
+        self.__ref = clean_string(data)
 
     @property
     def phone(self) -> str:
@@ -480,10 +480,7 @@ class POIDatasetRaw:
 
     @phone.setter
     def phone(self, data: str):
-        if data == 'NULL':
-            self.__phone = None
-        else:
-            self.__phone = data
+        self.__phone = clean_phone_to_str(data)
 
     @property
     def email(self) -> str:
@@ -491,10 +488,7 @@ class POIDatasetRaw:
 
     @email.setter
     def email(self, data: str):
-        if data == 'NULL':
-            self.__email = None
-        else:
-            self.__email = clean_string(str(data).lower())
+        self.__email = clean_email(data)
 
     @property
     def geom(self) -> str:

@@ -10,7 +10,7 @@ try:
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import clean_city, extract_street_housenumber_better_2, clean_phone_to_str, \
-        extract_javascript_variable
+        extract_javascript_variable, clean_string, clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -57,9 +57,9 @@ class hu_mobil_petrol(DataProvider):
                     try:
                         self.data.name = 'Mobil Petrol'
                         self.data.code = 'humobpefu'
-                        self.data.website = poi_data.get('description')
+                        self.data.website = clean_url(poi_data.get('description'))
                         self.data.city = clean_city(poi_data.get('city'))
-                        self.data.original = poi_data.get('address')
+                        self.data.original = clean_string(poi_data.get('address'))
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data['location']['lat'],
                                                                         poi_data['location']['lng'])
                         self.data.postcode = None

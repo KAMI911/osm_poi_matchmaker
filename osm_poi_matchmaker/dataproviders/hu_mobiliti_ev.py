@@ -9,7 +9,8 @@ try:
     import math
     import traceback
     from osm_poi_matchmaker.libs.pandas import save_downloaded_pd
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+        clean_url, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
@@ -60,9 +61,9 @@ class hu_mobiliti_ev(DataProvider):
                     try:
                         self.data.name = 'Mobiliti'
                         self.data.code = 'humobilchs'
-                        self.data.ref = poi_data.get('Mobiliti azonosító')
-                        self.data.branch = poi_data.get('Töltőpont neve')
-                        self.data.postcode = poi_data.get('Irányító szám')
+                        self.data.ref = clean_string(poi_data.get('Mobiliti azonosító'))
+                        self.data.branch = clean_string(poi_data.get('Töltőpont neve'))
+                        self.data.postcode = clean_string(poi_data.get('Irányító szám'))
                         self.data.city = clean_city(poi_data.get('Település'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(

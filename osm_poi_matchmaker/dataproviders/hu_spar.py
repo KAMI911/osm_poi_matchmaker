@@ -8,7 +8,8 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_string, \
+        clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_OTP, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -95,14 +96,14 @@ class hu_spar(DataProvider):
                         self.data.ref = ref_match.group(
                             1).strip() if ref_match is not None else None
                         self.data.city = clean_city(poi_data['city'])
-                        self.data.postcode = poi_data.get('zipCode').strip()
-                        self.data.branch = poi_data['name'].split('(')[0].strip()
-                        self.data.website = poi_data['pageUrl'].strip()
+                        self.data.postcode = clean_string(poi_data.get('zipCode'))
+                        self.data.branch = clean_string(poi_data.get('name').split('(')[0])
+                        self.data.website = clean_url(poi_data.get('pageUrl'))
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data['latitude'], poi_data['longitude'])
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data['address'])
-                        self.data.original = poi_data['address']
+                        self.data.original = clean_string(poi_data.get('address'))
                         self.data.public_holiday_open = False
                         self.data.add()
                     except Exception as e:
