@@ -41,7 +41,7 @@ SZFKL = '. számú főközlekedési út'
 def remove_whitespace(wsp: str, rpl: str = '') -> str:
     """
     Remove whitespaces or replace to the selected sequence
-    :param wsp: Text string to be clearaed or replace.
+    :param wsp: Text string to be cleared or replace.
     :param rpl: String replaced to.
     :return: Whitespaces cleaned text string.
     """
