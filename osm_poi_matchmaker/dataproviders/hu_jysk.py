@@ -52,7 +52,7 @@ class hu_jysk(DataProvider):
                 soup_data = soup.find(
                     'script', {'data-drupal-selector': 'drupal-settings-json'})
                 json_data = json.loads(soup_data.text, strict=False)
-                for shop in json_data['storesLocator']['BuildCoordinates']:
+                for shop in json_data.get('storesLocator')['BuildCoordinates']:
                     try:
                         self.data.name = 'Jysk'
                         self.data.code = 'hujyskfur'
