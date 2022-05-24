@@ -402,7 +402,7 @@ def clean_string(clearable):
     if clearable is None:
         return None
     if not isinstance(clearable, str):
-        logging.info('Non string input as email (%s) trying to convert to string ...',clearable)
+        logging.info('Non string input as email (%s) trying to convert to string ...', clearable)
         clearable = str(clearable)
     # Remove all whitespaces
     clearable = remove_whitespace(clearable, ' ')
