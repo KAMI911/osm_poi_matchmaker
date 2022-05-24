@@ -23,7 +23,7 @@ class hu_kulcs_patika(DataProvider):
 
     def constains(self):
         self.link = 'https://kulcspatikak.hu/gykeress_feed.php'
-        self.tags = {'amenity': 'pharmacy', 'brand': 'Kulcs Patika',
+        self.tags = {'amenity': 'pharmacy', 'brand': 'Kulcs Patikák',
                      'dispensing': 'yes', 'air_conditioning': 'yes'}
         self.headers = {'Referer': 'https://kulcspatikak.hu/patikakereso',
                         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0',
@@ -41,7 +41,7 @@ class hu_kulcs_patika(DataProvider):
         self.__types = [
             {'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
              'poi_tags': hukulcspha,
-             'poi_url_base': 'https://www.kulcspatika.hu/', 'poi_search_name': '(kulcs patika|kulcs)',
+             'poi_url_base': 'https://www.kulcspatikak.hu/', 'poi_search_name': '(kulcs patikák|kulcs patika|kulcs)',
              'preserve_original_name': True},
         ]
         return self.__types
