@@ -48,6 +48,7 @@ class hu_omv(DataProvider):
         self.__types = [
             {'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
              'poi_tags': huomvfu, 'poi_url_base': 'https://www.omv.hu', 'poi_search_name': '(omv|omw|ömv|ömw|ovm|owm)',
+             'poi_search_avoid_name': '(mol|shell|m. petrol|avia|lukoil|hunoil)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 450,
              'osm_search_distance_unsafe': 60},
         ]

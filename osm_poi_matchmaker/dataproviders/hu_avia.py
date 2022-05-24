@@ -41,6 +41,7 @@ class hu_avia(DataProvider):
         self.__types = [
             {'poi_code': 'huaviafu', 'poi_name': 'Avia', 'poi_type': 'fuel', 'poi_tags': huaviafu,
              'poi_url_base': 'https://www.avia.hu', 'poi_search_name': 'avia',
+             'poi_search_avoid_name': '(mol|shell|m. petrol|lukoil|hunoil)',
              'osm_search_distance_perfect': 30000,
              'osm_search_distance_safe': 800, 'osm_search_distance_unsafe': 110},
         ]
