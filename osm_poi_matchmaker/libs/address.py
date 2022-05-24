@@ -264,7 +264,7 @@ def extract_phone_number(data: str) -> str:
                         else:
                             pn = phonenumbers.parse('+36 '.format(pn), 'HU')
                     except phonenumbers.phonenumberutil.NumberParseException:
-                        logging.debug('This is string is cannot converted to phone number: %s', pn)
+                        logging.debug('This is string is cannot converted to phone number: %s ...', pn)
                         return None
                     return phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
 
@@ -345,7 +345,7 @@ def clean_phone(phone):
             pn = []
             pn.append(phonenumbers.parse(phone, 'HU'))
     except phonenumbers.phonenumberutil.NumberParseException:
-        logging.debug('This is string is cannot converted to phone number: %s', original)
+        logging.debug('This is string is cannot converted to phone number: %s ...', original)
         return None
     if pn is not None:
         return [phonenumbers.format_number(i, phonenumbers.PhoneNumberFormat.INTERNATIONAL) for i in pn]
@@ -402,7 +402,7 @@ def clean_string(clearable):
     if clearable is None:
         return None
     if not isinstance(clearable, str):
-        logging.info('Non string input as email (%s) trying to convert to string...'.format(clearable))
+        logging.info('Non string input as email (%s) trying to convert to string ...',clearable)
         clearable = str(clearable)
     # Remove all whitespaces
     clearable = remove_whitespace(clearable, ' ')
