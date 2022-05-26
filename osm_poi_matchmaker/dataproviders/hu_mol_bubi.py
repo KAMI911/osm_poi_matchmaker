@@ -74,10 +74,10 @@ class hu_mol_bubi(DataProvider):
                                 if clean_string(poi_data.get('name').split('-')[2]) is not None:
                                     self.data.description = clean_string(poi_data.get('name').split('-')[2])
                             except IndexError as e:
-                                logging.notice('No additional data, Index Error Exception occurred: %s', e)
+                                logging.info('No additional data, Index Error Exception occurred: %s', e)
                             try:
-                                self.data.ref = clean_string(poi_data.get('name').split('-')[0]) \
-                                    if clean_string(poi_data.get('name')) is not None else None
+                                if clean_string(poi_data.get('name')) is not None:
+                                    self.data.ref = clean_string(poi_data.get('name').split('-')[0])
                             except IndexError as e:
                                 logging.exception('Index Error Exception occurred: %s', e)
                                 logging.exception(traceback.print_exc())
