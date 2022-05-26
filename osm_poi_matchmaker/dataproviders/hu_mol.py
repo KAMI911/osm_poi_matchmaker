@@ -41,8 +41,7 @@ class hu_mol(DataProvider):
                      'ref:HU:company': '01-10-041683'}
         self.waterway_fuel = {'waterway': 'fuel'}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(
-            self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         humolfu = self.tags.copy()
