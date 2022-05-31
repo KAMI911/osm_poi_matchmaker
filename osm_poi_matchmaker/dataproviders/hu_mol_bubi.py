@@ -24,8 +24,11 @@ class hu_mol_bubi(DataProvider):
 
     def constains(self):
         self.link = 'https://maps.nextbike.net/maps/nextbike-live.json?domains=bh&list_cities=0&bikes=0'
-        self.tags = {'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'operator': 'BKK MOL Bubi',
+        self.tags = {'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'brand:wikidata': 'Q16971969',
+                     'brand:wikipedia':'hu:MOL Bubi', 'operator': 'BKK MOL Bubi', 'operator:wikidata': 'Q608917',
+                     'operator:wikipedia': 'hu:Budapesti Közlekedési Központ',
                      'operator:addr':'1075 Budapest Rumbach Sebestyén utca 19-21.', 'network': 'bubi',
+                     'network:wikidata': 'Q16971969', 'network:wikipedia': 'hu:MOL Bubi',
                      'contact:phone': '+36 1 325 5255', 'contact:email': 'bkk@bkk.hu',
                      'contact:instagram': 'https://www.instagram.com/molbubi/',
                      'contact:facebook': 'https://www.facebook.com/molbubi',
