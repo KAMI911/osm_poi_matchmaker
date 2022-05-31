@@ -36,7 +36,9 @@ class POIBase:
         if self.db_connection.startswith('sqlite'):
             self.db_filename = self.db_connection
         try:
-            self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8', echo=True, pool_size=20, max_overflow=30)
+            self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8',
+                                                   echo=config.get_database_enable_query_log(), pool_size=20,
+                                                   max_overflow=30)
         except psycopg2.OperationalError as e:
             logging.error('Database error: %s', e)
             if self.retry_counter >= reco:
@@ -45,7 +47,9 @@ class POIBase:
                 logging.error('Cannot connect to the database. It will retry within %s seconds. [%s/%s]',
                               self.db_retry_sleep, reco, self.db_retry_counter)
                 time.sleep(self.db_retry_sleep)
-                self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8', echo=True, pool_size=20, max_overflow=30)
+                self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8',
+                                                       echo=config.get_database_enable_query_log(), pool_size=20,
+                                                       max_overflow=30)
                 self.db_retry_counter += 1
         self.Session = sqlalchemy.orm.sessionmaker(bind=self.engine)
         Base.metadata.create_all(self.engine)

@@ -48,6 +48,7 @@ KEY_DATABASE_WRITE_PORT = 'db.write.port'
 KEY_DATABASE_WRITE_USERNAME = 'db.write.username'
 KEY_DATABASE_WRITE_PASSWORD = 'db.write.password'
 KEY_DATABASE_POI_DATABASE = 'db.poi.database'
+KEY_DATABASE_ENABLE_QUERY_LOG = 'db.enable.query_log'
 KEY_DATABASE_ENABLE_ANALYZE = 'db.enable.analyze'
 KEY_DATABASE_ENABLE_HUGE_QUERY = 'db.enable.huge_query'
 KEY_GEO_DEFAULT_PROJECTION = 'geo.default.projection'
@@ -190,6 +191,14 @@ def get_database_poi_database():
         return setting
     else:
         return 'poi'
+
+def get_database_enable_query_log():
+    setting = get_config_bool(KEY_DATABASE_ENABLE_QUERY_LOG)
+    if setting is not None:
+        return setting
+    else:
+        return False
+
 
 def get_database_enable_analyze():
     setting = get_config_bool(KEY_DATABASE_ENABLE_ANALYZE)
