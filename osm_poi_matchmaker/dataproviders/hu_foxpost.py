@@ -42,6 +42,7 @@ class hu_foxpost(DataProvider):
         self.__types = [
             {'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': hufoxpocso, 'poi_url_base': 'https://www.foxpost.hu', 'poi_search_name': 'foxpost',
+             'poi_search_avoid_name': '(alzabox|alza|dpd|gls|pick pack|postapont)',
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 20},
         ]
         return self.__types
