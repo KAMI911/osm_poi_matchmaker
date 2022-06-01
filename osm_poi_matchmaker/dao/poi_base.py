@@ -174,9 +174,9 @@ class POIBase:
         if lat is not None and lat != '':
             query_params.update({'lat': lat})
         query_params.update({'buffer': buffer})
-        # Do not match with other specified names and brands
+        # Do not match with other specified names, brand names, network names
         if name is not None and name != '':
-            query_name = ' AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)))'
+            query_name = ' AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(network)) ~* LOWER(TEXT(:name)))'
             query_params.update({'name': '.*{}.*'.format(name)})
             # If we have PO common defined safe search radius distance, then use it (or use defaults specified above)
             if distance_perfect is None or distance_perfect != '' or math.isnan(distance_perfect):
@@ -184,9 +184,9 @@ class POIBase:
             query_params.update({'distance_perfect': distance_perfect})
         else:
             query_name = ''
-        # Do not match with other specified names and brands
+        # Do not match with other specified names, brand names, network names
         if avoid_name is not None and avoid_name != '':
-            query_avoid_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)))'
+            query_avoid_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(network)) !~* LOWER(TEXT(:avoid_name)))'
             query_params.update({'avoid_name': '.*{}.*'.format(avoid_name)})
         else:
             query_avoid_name = ''
