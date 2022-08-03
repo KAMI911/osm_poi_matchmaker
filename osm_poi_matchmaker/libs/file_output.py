@@ -228,23 +228,25 @@ def generate_osm_xml(df, session=None):
                         josm_object = 'w{}'.format(current_osm_id)
                     # Add way nodes without any modification)
                         node_data = []
-                        for n in row.get('osm_nodes'):
-                            data = etree.SubElement(main_data, 'nd', ref=str(n))
-                        if session is not None:
-                            # Go through the list except the last value (which is same as the first)
+                        if row.get('osm_nodes') is not None:
                             for n in row.get('osm_nodes'):
-                                # Add nodes only when it is not already added.
-                                if n not in added_nodes:
-                                    added_nodes.append(n)
-                                    way_node = db.query_from_cache(n, OSM_object_type.node)
-                                    if way_node is not None:
-                                        node_data = etree.SubElement(osm_xml_data, 'node',
+                                data = etree.SubElement(main_data, 'nd', ref=str(n))
+                        if session is not None:
+                            if row.get('osm_nodes') is not None:
+                            # Go through the list except the last value (which is same as the first)
+                                for n in row.get('osm_nodes'):
+                                    # Add nodes only when it is not already added.
+                                    if n not in added_nodes:
+                                        added_nodes.append(n)
+                                        way_node = db.query_from_cache(n, OSM_object_type.node)
+                                        if way_node is not None:
+                                            node_data = etree.SubElement(osm_xml_data, 'node',
                                                                      list_osm_node(n, way_node, 'osm'))
-                                        if node_data.get('osm_live_tags') is not None and \
-                                           node_data.get('osm_live_tags') != '':
-                                            node_osm_live_tags = node_data.get('osm_live_tags')
-                                            for k, v in sorted(node_osm_live_tags).items():
-                                                xml_node_tags = etree.SubElement(node_data, 'tag', k=k, v='{}'.format(v))
+                                            if node_data.get('osm_live_tags') is not None and \
+                                                node_data.get('osm_live_tags') != '':
+                                                node_osm_live_tags = node_data.get('osm_live_tags')
+                                                for k, v in sorted(node_osm_live_tags).items():
+                                                    xml_node_tags = etree.SubElement(node_data, 'tag', k=k, v='{}'.format(v))
                     except TypeError as e:
                         logging.warning('Missing nodes on this way: %s.', row.get('osm_id'))
                         logging.exception('Exception occurred: {}'.format(e))
@@ -431,6 +433,12 @@ def generate_osm_xml(df, session=None):
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.error(traceback.print_exc())
+            try:
+                # Remove name tag in export if export_poi_name is false
+                if row.get('export_poi_name') is False:
+                    tags.pop('name', None)
+            except KeyError as e:
+                logging.debug('No name tag is specified - do not have to remove.')
             try:
                 # Rendering tags to the XML file and JOSM magic link
                 logging.debug('Rendering OSM tag as XML comments.')

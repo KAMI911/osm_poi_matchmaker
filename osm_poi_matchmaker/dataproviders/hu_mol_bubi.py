@@ -43,7 +43,7 @@ class hu_mol_bubi(DataProvider):
         hububibir = self.tags.copy()
         self.__types = [
             {'poi_code': 'hububibir', 'poi_name': 'MOL Bubi', 'poi_type': 'bicycle_rental',
-             'poi_tags': hububibir, 'poi_url_base': 'https://molbubi.bkk.hu', 'poi_search_name': '(mol bubi|bubi)'},
+             'poi_tags': hububibir, 'poi_url_base': 'https://molbubi.bkk.hu', 'poi_search_name': '(mol bubi|bubi)', 'export_poi_name': False},
         ]
         return self.__types
 

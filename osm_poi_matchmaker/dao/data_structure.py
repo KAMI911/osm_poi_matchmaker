@@ -274,6 +274,7 @@ class POI_common(Base):
     poi_search_avoid_name = Column(Unicode(128))
     preserve_original_name = Column(Boolean, nullable=False, default=False)
     preserve_original_post_code = Column(Boolean, nullable=False, default=False)
+    export_poi_name = Column(Boolean, nullable=False, default=True)
     osm_search_distance_perfect = Column(Integer, nullable=True, index=False)
     osm_search_distance_safe = Column(Integer, nullable=True, index=False)
     osm_search_distance_unsafe = Column(Integer, nullable=True, index=False)
