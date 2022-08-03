@@ -29,7 +29,7 @@ class hu_tesco(DataProvider):
                      'operator:addr': '2040 Budaörs, Kinizsi út 1-3.',
                      'ref:HU:company': '13-10-040628', 'ref:vatin:hu': '10307078-2-44',
                      'ref:vatin': 'HU10307078', 'brand': 'Tesco',
-                     'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494',
+                     'brand:wikipedia': 'hu:Tesco',
                      'internet_access': 'wlan', 'internet_access:fee': 'no',
                      'internet_access:ssid': 'tesco-internet',
                      'contact:facebook': 'https://www.facebook.com/tescoaruhazak',
@@ -44,18 +44,18 @@ class hu_tesco(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hutescoexp = {'shop': 'convenience'}
+        hutescoexp = {'shop': 'convenience', 'brand:wikidata': 'Q98456772'}
         hutescoexp.update(self.tags)
         hutescoext = {'shop': 'supermarket',
-                      'wheelchair': 'yes', 'source:wheelchair': 'website'}
+                      'wheelchair': 'yes', 'source:wheelchair': 'website', 'brand:wikidata': 'Q25172225'}
         hutescoext.update(self.tags)
         hutescosup = {'shop': 'supermarket',
-                      'wheelchair': 'yes', 'source:wheelchair': 'website'}
+                      'wheelchair': 'yes', 'source:wheelchair': 'website', 'brand:wikidata': 'Q487494'}
         hutescosup.update(self.tags)
-        husmrktexp = {'shop': 'convenience', 'alt_name': 'Tesco Expressz'}
+        husmrktexp = {'shop': 'convenience', 'alt_name': 'Tesco Expressz', 'brand:wikidata': 'Q487494'} # TODO: create wikidata tag
         husmrktexp.update(self.tags)
         husmrktsup = {'shop': 'supermarket', 'wheelchair': 'yes',
-                      'source:wheelchair': 'website', 'alt_name': 'Tesco'}
+                      'source:wheelchair': 'website', 'alt_name': 'Tesco', 'brand:wikidata': 'Q487494'} # TODO: create wikidata tag
         husmrktsup.update(self.tags)
         self.__types = [
             {'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_type': 'shop',
