@@ -75,6 +75,7 @@ class POIBase:
         '''
         return pd.read_sql_table(table, self.engine)
 
+
     def query_all_gpd(self, table):
         '''
         Load all POI data from SQL that contains gometry
@@ -546,6 +547,7 @@ class POIBase:
             else:
                 logging.info('Item not found in {} stage.'.format(stage))
         logging.info('Item not found at all.')
+        self.session.close()
         return None
 
 
