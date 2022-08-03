@@ -402,11 +402,16 @@ def clean_string(clearable):
     if clearable is None:
         return None
     if not isinstance(clearable, str):
-        logging.info('Non string input as email (%s) trying to convert to string ...', clearable)
-        clearable = str(clearable)
+        try:
+            logging.info('Non string input (%s) trying to convert to string ...', clearable)
+            clearable = str(clearable)
+        except Exception as e:
+            logging.error(e)
+            logging.exception('Exception occurred')
+            return None
     # Remove all whitespaces
     clearable = remove_whitespace(clearable, ' ')
-    if clearable == '' or 'None' in clearable or 'NULL' in clearable:
+    if clearable == '' or clearable.upper() in ['NONE', 'NAN', 'NULL']:
         return None
     # Make list from words and join them with one space, removing double/multiple spaces
     clearable_parts = clearable.split()
