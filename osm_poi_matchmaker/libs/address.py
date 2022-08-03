@@ -130,7 +130,7 @@ def extract_all_address(clearable):
             city = None
         if len(clearable.split(',')) > 1:
             street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
-                clearable.split(',')[1].strip())
+                clearable.split(',')[-1].strip())
             return (postcode, city, street, housenumber, conscriptionnumber)
         else:
             space_separated = ' '.join(clearable.split(' ')[2:]).strip()
@@ -201,7 +201,7 @@ def extract_street_housenumber_better_2(clearable: str) -> str:
             # Normalize street
             street = street_match.group(1)
             street_type = street_match.group(2)
-            # Usually street_type is lower but we got few exceptions
+            # Usually street_type is lower, but we got few exceptions
             if street_type not in ['Vám']:
                 street_type = street_type.lower()
             street_length = len(street) + len(street_type)

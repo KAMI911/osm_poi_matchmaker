@@ -85,6 +85,8 @@ class TestFullAddressResolver(unittest.TestCase):
              'street': 'Köztársaság utca', 'housenumber': '8/A', 'conscriptionnumber': None},
             {'original': '2000 Szentendre Vasvári Pál u. 2794/16 hrsz.', 'postcode': '2000', 'city': 'Szentendre',
              'street': 'Vasvári Pál utca', 'housenumber': None, 'conscriptionnumber': '2794/16'},
+            {'original': '1213 Budapest, XXI, 21 Juharos utca 34.', 'postcode': '1213', 'city': 'Budapest',
+             'street': '21 Juharos utca', 'housenumber': '34', 'conscriptionnumber': None},
         ]
 
     def test_extract_all_address(self):
