@@ -142,6 +142,8 @@ def insert_city_dataframe(session, city_df):
     else:
         logging.info('Successfully added %s city items to the dataset.', len(city_df))
         session.commit()
+    finally:
+        session.close()
 
 
 def insert_street_type_dataframe(session, city_df):
@@ -158,6 +160,8 @@ def insert_street_type_dataframe(session, city_df):
     else:
         logging.info('Successfully added %s street type items to the dataset.', len(city_df))
         session.commit()
+    finally:
+        session.close()
 
 def insert_patch_data_dataframe(session, patch_df):
     patch_df.columns = ['poi_code', 'orig_postcode', 'orig_city', 'orig_street', 'orig_housenumber', 'orig_conscriptionnumber', 'orig_name','new_postcode', 'new_city', 'new_street', 'new_housenumber', 'new_conscriptionnumber', 'new_name']
@@ -177,6 +181,8 @@ def insert_patch_data_dataframe(session, patch_df):
     else:
         logging.info('Successfully added %s patch items to the dataset.', len(patch_df))
         session.commit()
+    finally:
+        session.close()
 
 def insert_country_data_dataframe(session, country_df):
     country_df.columns = ['country_code','continent_code','country_name','country_iso3','country_number','country_full_name']
@@ -194,6 +200,8 @@ def insert_country_data_dataframe(session, country_df):
     else:
         logging.info('Successfully added %s country items to the dataset.', len(country_df))
         session.commit()
+    finally:
+        session.close()
 
 def insert_common_dataframe(session, common_df):
     common_df.columns = ['poi_name', 'poi_tags', 'poi_url_base', 'poi_code']
@@ -209,6 +217,8 @@ def insert_common_dataframe(session, common_df):
     else:
         logging.info('Successfully added %s common items to the dataset.', len(common_df))
         session.commit()
+    finally:
+        session.close()
 
 
 def search_for_postcode(session, city_name):
@@ -253,6 +263,10 @@ def insert_poi_dataframe(session, poi_df, raw = True):
         except Exception as e:
             logging.exception('Exception occured: {} unsuccessfull commit: {}'.format(e, traceback.print_exc()))
             session.rollback()
+        finally:
+            session.close()
+    finally:
+        session.close()
 
 
 def insert_type(session, type_data):
@@ -268,6 +282,8 @@ def insert_type(session, type_data):
     else:
         logging.info('Successfully added %s type items to the dataset.', len(type_data))
         session.commit()
+    finally:
+        session.close()
 
 
 def insert(session, **kwargs):
