@@ -328,7 +328,8 @@ class POIDatasetRaw:
 
     @capacity.setter
     def capacity(self, data: int):
-        self.__capacity = int(clean_string(data))
+        if clean_string(data) is not None:
+            self.__capacity = int(float(clean_string(data)))
 
     @property
     def fee(self) -> bool:
@@ -360,7 +361,8 @@ class POIDatasetRaw:
 
     @socket_chademo.setter
     def socket_chademo(self, data: int):
-        self.__socket_chademo = int(clean_string(data))
+        if clean_string(data) is not None:
+            self.__socket_chademo = int(float(clean_string(data)))
 
     @property
     def socket_chademo_output(self) -> str:
@@ -376,7 +378,8 @@ class POIDatasetRaw:
 
     @socket_type2_combo.setter
     def socket_type2_combo(self, data: int):
-        self.__socket_type2_combo = int(clean_string(data))
+        if clean_string(data) is not None:
+            self.__socket_type2_combo = int(float(clean_string(data)))
 
     @property
     def socket_type2_combo_output(self) -> str:
@@ -392,7 +395,8 @@ class POIDatasetRaw:
 
     @socket_type2_cable.setter
     def socket_type2_cable(self, data: int):
-        self.__socket_type2_cable = int(clean_string(data))
+        if clean_string(data) is not None:
+            self.__socket_type2_cable = int(float(clean_string(data)))
 
     @property
     def socket_type2_cable_output(self) -> str:
@@ -408,7 +412,8 @@ class POIDatasetRaw:
 
     @socket_type2.setter
     def socket_type2(self, data: int):
-        self.__socket_type2 = int(clean_string(data))
+        if clean_string(data) is not None:
+            self.__socket_type2 = int(float(clean_string(data)))
 
     @property
     def socket_type2_output(self) -> str:
