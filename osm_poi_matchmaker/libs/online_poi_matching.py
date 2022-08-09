@@ -5,6 +5,7 @@ __author__ = 'kami911'
 try:
     import logging
     import sys
+    import math
     import pandas as pd
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osmapi import OsmApi
@@ -292,7 +293,7 @@ def online_poi_matching(args):
         logging.exception('Exception occurred')
 
 
-def smart_postcode_check(curr_data, osm_data, pc):
+def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
     """
     Enhancement for the former problem: addr:postcode was changed without
     changing any other parts of address. Issue #78
@@ -300,16 +301,31 @@ def smart_postcode_check(curr_data, osm_data, pc):
     When address or conscription number change or postcode is empty.
     """
     # Change postcode when there is no postcode in OSM or the address was changed
-    if pc is not None and pc != '' and osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] != pc and \
-            (osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] is None or
-             osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')] == '') or \
-            (curr_data.get('poi_addr_housenumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:housenumber')] or
-             curr_data.get('poi_addr_street') != osm_data.iloc[0, osm_data.columns.get_loc('addr:street')] or
-             curr_data.get('poi_city') != osm_data.iloc[0, osm_data.columns.get_loc('addr:city')] or
-             curr_data.get('poi_addr_conscriptionnumber') != osm_data.iloc[
-                 0, osm_data.columns.get_loc('addr:conscriptionnumber')]):
-        logging.info('Changing postcode from %s to %s.', curr_data.get('poi_postcode'), pc)
-        return pc
+    current_poscode = curr_data.get('poi_postcode')
+    osm_db_postcode = osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')]
+    if curr_data.get('poi_addr_housenumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:housenumber')] or \
+       curr_data.get('poi_addr_street') != osm_data.iloc[0, osm_data.columns.get_loc('addr:street')] or \
+       curr_data.get('poi_city') != osm_data.iloc[0, osm_data.columns.get_loc('addr:city')] or \
+       curr_data.get('poi_addr_conscriptionnumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:conscriptionnumber')]:
+        logging.debug('Address has changed via data provider so use calculated postcode if possible.')
+        postcode = ordered_postcode_check([osm_query_postcode, osm_db_postcode, current_poscode])
+        if postcode == current_poscode:
+            logging.info('The postcode is %s.', postcode)
+        else:
+            logging.info('Changing postcode from %s to %s.', osm_db_postcode, postcode)
+        return postcode
     else:
-        logging.debug('The postcode is %s.', osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')])
-        return osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')]
+        logging.debug('Address has not changed via data provider so use its postcode if possible.')
+        postcode = ordered_postcode_check([osm_db_postcode, osm_query_postcode, current_poscode])
+        if postcode == current_poscode:
+            logging.info('The postcode is %s.', postcode)
+        else:
+            logging.info('Changing postcode from %s to %s.', osm_db_postcode, postcode)
+        return postcode
+
+
+def ordered_postcode_check(postcode_list) -> str:
+    for postcode in postcode_list:
+        if postcode is not None and postcode != 0:
+            return postcode
+    return None

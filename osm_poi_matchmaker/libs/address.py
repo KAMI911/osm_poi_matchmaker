@@ -397,7 +397,7 @@ def clean_string(clearable):
     Remove whitespaces, extra spaces from strings and surrounding whitespace characters
     :param clearable: String that has to clean
     :return: Cleaned string
-    Returns None if the string is empty or cotanins only whitespace characters
+    Returns None if the string is empty or contains only whitespace characters
     '''
     if clearable is None:
         return None
@@ -411,7 +411,7 @@ def clean_string(clearable):
             return None
     # Remove all whitespaces
     clearable = remove_whitespace(clearable, ' ')
-    if clearable == '' or clearable.upper() in ['NONE', 'NAN', 'NULL']:
+    if clearable == '' or clearable.upper() in ['NONE', 'NAN', 'NULL', 'NULLNONE']:
         return None
     # Make list from words and join them with one space, removing double/multiple spaces
     clearable_parts = clearable.split()
@@ -419,7 +419,7 @@ def clean_string(clearable):
         return None
     clearable = ' '.join(clearable_parts)
     clearable = clearable.strip()
-    if clearable is not None and clearable != '' and clearable != ' ':
+    if clearable is not None and clearable != '' and clearable != ' ' and clearable.upper() not in ['NONE', 'NAN', 'NULL', 'NULLNONE']:
         return clearable
     else:
         return None

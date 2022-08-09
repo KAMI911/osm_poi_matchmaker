@@ -203,11 +203,13 @@ class TestStringCleaner(unittest.TestCase):
         ]
 
     def test_clean_string(self):
+        case = 0
         for i in self.phones:
+            case += 1
             original, ph = i['original'], i['converted']
             a = clean_string(original)
             with self.subTest():
-                self.assertEqual(ph, a)
+                self.assertEqual(ph, a, 'Case {}'.format(case))
 
 
 class TestURLCleaner(unittest.TestCase):
