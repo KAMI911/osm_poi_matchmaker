@@ -301,23 +301,27 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
     When address or conscription number change or postcode is empty.
     """
     # Change postcode when there is no postcode in OSM or the address was changed
-    current_poscode = curr_data.get('poi_postcode')
+    current_postcode = curr_data.get('poi_postcode')
     osm_db_postcode = osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')]
     if curr_data.get('poi_addr_housenumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:housenumber')] or \
        curr_data.get('poi_addr_street') != osm_data.iloc[0, osm_data.columns.get_loc('addr:street')] or \
        curr_data.get('poi_city') != osm_data.iloc[0, osm_data.columns.get_loc('addr:city')] or \
        curr_data.get('poi_addr_conscriptionnumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:conscriptionnumber')]:
         logging.debug('Address has changed via data provider so use calculated postcode if possible.')
-        postcode = ordered_postcode_check([osm_query_postcode, osm_db_postcode, current_poscode])
-        if postcode == current_poscode:
+        postcode = ordered_postcode_check([osm_query_postcode, osm_db_postcode, current_postcode])
+        if postcode is None or postcode == '0':
+            return None
+        if postcode == osm_db_postcode:
             logging.info('The postcode is %s.', postcode)
         else:
             logging.info('Changing postcode from %s to %s.', osm_db_postcode, postcode)
         return postcode
     else:
         logging.debug('Address has not changed via data provider so use its postcode if possible.')
-        postcode = ordered_postcode_check([osm_db_postcode, osm_query_postcode, current_poscode])
-        if postcode == current_poscode:
+        postcode = ordered_postcode_check([osm_db_postcode, osm_query_postcode, current_postcode])
+        if postcode is None or postcode == '0':
+            return None
+        if postcode == osm_db_postcode:
             logging.info('The postcode is %s.', postcode)
         else:
             logging.info('Changing postcode from %s to %s.', osm_db_postcode, postcode)
@@ -326,6 +330,6 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
 
 def ordered_postcode_check(postcode_list) -> str:
     for postcode in postcode_list:
-        if postcode is not None and postcode != 0:
-            return postcode
+        if postcode is not None and postcode != 0 and postcode != '0':
+            return str(postcode)
     return None
