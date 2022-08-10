@@ -4,9 +4,11 @@ try:
     import logging
     import sys
     import os
+    import json
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_string
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
+    from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
@@ -19,7 +21,7 @@ except ImportError as err:
 class hu_aldi(DataProvider):
 
     def constains(self):
-        self.link = 'https://www.aldi.hu/uzletek/'
+        self.link = 'https://www.aldi.hu/hu/hu/.get-stores-in-radius.json?latitude=47.162494&longitude=19.503304&radius=50000'
         self.tags = {'operator': 'ALDI Magyarország Élelmiszer Bt.',
                      'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi',
                      'ref:vatin:hu': '22234663-2-44', 'ref:vatin': 'HU22234663',
@@ -31,7 +33,7 @@ class hu_aldi(DataProvider):
                      'air_conditioning': 'yes', }
         self.tags.update(POS_HU_GEN)
         self.tags.update(PAY_CASH)
-        self.filetype = FileType.html
+        self.filetype = FileType.json
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)
 
@@ -45,28 +47,50 @@ class hu_aldi(DataProvider):
         return self.__types
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                    self.filetype)
-        poi_dataset = []
-        if soup is not None:
-            # parse the html using beautiful soap and store in variable `soup`
-            table = soup.find(
-                'table', attrs={'class': 'contenttable is-header-top'})
-            table_body = table.find('tbody')
-            rows = table_body.find_all('tr')
-            for row in rows:
-                cols = row.find_all('td')
-                cols = [element.text.strip() for element in cols]
-                poi_dataset.append(cols)
-            for poi_data in poi_dataset:
-                # Assign: code, postcode, city, name, branch, website, original
-                #         street, housenumber, conscriptionnumber, ref, geom
-                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                    poi_data[2])
-                self.data.name = 'Aldi'
-                self.data.code = 'hualdisup'
-                self.data.postcode = poi_data[0]
-                self.data.city = poi_data[1]
-                self.data.original = clean_string(poi_data[2])
-                self.data.public_holiday_open = False
-                self.data.add()
+        try:
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
+            poi_dataset = []
+            if soup is not None:
+                # parse the html using beautiful soap and store in variable `soup`
+                text = json.loads(soup, strict=False)
+                for poi_data in text.get('stores'):
+                    try:
+                        if poi_data.get('countryCode') == 'HU':
+                            self.data.name = 'Aldi'
+                            self.data.code = 'hualdisup'
+                            # Assign: code, postcode, city, name, branch, website, original
+                            #         street, housenumber, conscriptionnumber, ref, geom
+                            self.data.city = poi_data.get('city')
+                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data.get('streetAddress'))
+                            self.data.postcode = clean_string(poi_data.get('postalCode'))
+                            self.data.original = clean_string(poi_data.get('streetAddress'))
+                            self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'), poi_data.get('longitude'))
+                            self.data.public_holiday_open = False
+                            self.data.phone = clean_string(poi_data.get('phoneNumber'))
+                            for i in range(0, 7):
+                                for opening_day in poi_data.get('openUntilSorted').get('openingHours'):
+                                    if opening_day.get('dayIdx') == i:
+                                        oho = opening_day.get('open')
+                                        ohc = opening_day.get('close')
+                                        break
+                                self.data.day_open(i, oho)
+                                self.data.day_close(i, ohc)
+                            '''
+                            self.data.description.
+                            'BAKEBOX', 'Helyben sütött pékáru'
+                            'CAR_PARKING_LOT', 'Parkolóhely'
+                            'COFFEE_TOGO', ''
+                            'POST_STATION', 'Csomagküldő automata'
+                            'GAS_STATION', 'Benzinkút'
+                            'ELECTRIC_CAR_CHARGER', 'E-töltőállomás'
+                            'WHEELCHAIR_ACCESS', 'Akadálymentesített'
+                            '''
+                            self.data.add()
+                    except Exception as e:
+                        logging.error(e)
+                        logging.error(poi_data)
+                        logging.exception('Exception occurred')
+        except Exception as e:
+            logging.error(e)
+            logging.exception('Exception occurred')
