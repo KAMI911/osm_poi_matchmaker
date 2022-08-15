@@ -25,7 +25,7 @@ class hu_aldi(DataProvider):
         self.tags = {'operator': 'ALDI Magyarország Élelmiszer Bt.',
                      'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi',
                      'ref:vatin:hu': '22234663-2-44', 'ref:vatin': 'HU22234663',
-                     'ref:HU:company': '13 06 058506', 'ref:company:HU': '13-06-058506',
+                     'ref:company:HU': '13 06 058506',
                      'brand:wikipedia': 'hu:Aldi', 'brand:wikidata': 'Q125054',
                      'contact:facebook': 'https://www.facebook.com/ALDI.Magyarorszag',
                      'contact:youtube': 'https://www.youtube.com/user/ALDIMagyarorszag',
@@ -42,7 +42,8 @@ class hu_aldi(DataProvider):
         hualdisup.update(self.tags)
         self.__types = [
             {'poi_code': 'hualdisup', 'poi_name': 'Aldi', 'poi_type': 'shop', 'poi_tags': hualdisup,
-             'poi_url_base': 'https://www.aldi.hu', 'poi_search_name': 'aldi'},
+             'poi_url_base': 'https://www.aldi.hu', 'poi_search_name': 'aldi',
+             'osm_search_distance_perfect': 1000, 'osm_search_distance_safe': 200},
         ]
         return self.__types
 
@@ -69,8 +70,11 @@ class hu_aldi(DataProvider):
                             self.data.public_holiday_open = False
                             self.data.phone = clean_string(poi_data.get('phoneNumber'))
                             for i in range(0, 7):
+                                mi = i + 2
                                 for opening_day in poi_data.get('openUntilSorted').get('openingHours'):
-                                    if opening_day.get('dayIdx') == i:
+                                    if mi > 6:
+                                        mi -= 7
+                                    if opening_day.get('dayIdx') == mi:
                                         oho = opening_day.get('open')
                                         ohc = opening_day.get('close')
                                         break
@@ -84,6 +88,7 @@ class hu_aldi(DataProvider):
                             'POST_STATION', 'Csomagküldő automata'
                             'GAS_STATION', 'Benzinkút'
                             'ELECTRIC_CAR_CHARGER', 'E-töltőállomás'
+                            TODO: Wheelchair
                             'WHEELCHAIR_ACCESS', 'Akadálymentesített'
                             '''
                             self.data.add()
