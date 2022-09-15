@@ -451,9 +451,36 @@ class POIDatasetRaw:
     def street(self) -> str:
         return self.__street
 
-    @street.setter
+    '''@street.setter
     def street(self, data: str):
         self.__street = clean_string(data)
+    '''
+    # Temporary street locator for final check TODO: remove when two phase save is active
+    @street.setter
+    def street(self, data: str):
+        # Try to find street name around
+        try:
+            logging.debug('Checking street name ...')
+            if self.__lat is not None and self.__lon is not None:
+                query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
+                if query is None or query.empty:
+                    query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'metaphone')
+                    if query is None or query.empty:
+                        logging.warning('There is no street around named or metaphone named: %s', data)
+                        self.__street = data
+                    else:
+                        new_data = query.at[0, 'name']
+                        logging.info('There is a metaphone street around named: %s, original was: %s.', new_data, data)
+                        self.__street = new_data
+                else:
+                    logging.info('There is a street around named: %s.', data)
+                    self.__street = data
+            else:
+                logging.debug('There are not coordinates. Is this a bug or missing data?')
+                self.__street = data
+        except Exception as e:
+            logging.error(e)
+            logging.exception('Exception occurred')
 
     @property
     def housenumber(self) -> str:
@@ -941,10 +968,11 @@ class POIDataset(POIDatasetRaw):
     def street(self, data: str):
         # Try to find street name around
         try:
-            if self.lat is not None and self.lon is not None:
-                query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'name')
+            logging.debug('Checking street name ...')
+            if self.__lat is not None and self.__lon is not None:
+                query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
                 if query is None or query.empty:
-                    query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'metaphone')
+                    query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'metaphone')
                     if query is None or query.empty:
                         logging.warning('There is no street around named or metaphone named: %s', data)
                         self.__street = data
@@ -956,6 +984,7 @@ class POIDataset(POIDatasetRaw):
                     logging.info('There is a street around named: %s.', data)
                     self.__street = data
             else:
+                logging.debug('There are not coordinates. Is this a bug or missing data?')
                 self.__street = data
         except Exception as e:
             logging.error(e)

@@ -63,17 +63,17 @@ class hu_aldi(DataProvider):
                             # Assign: code, postcode, city, name, branch, website, original
                             #         street, housenumber, conscriptionnumber, ref, geom
                             self.data.city = poi_data.get('city')
+                            self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'), poi_data.get('longitude'))
                             self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data.get('streetAddress'))
                             self.data.postcode = clean_string(poi_data.get('postalCode'))
                             self.data.original = clean_string(poi_data.get('streetAddress'))
-                            self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'), poi_data.get('longitude'))
                             self.data.public_holiday_open = False
                             self.data.phone = clean_string(poi_data.get('phoneNumber'))
                             for i in range(0, 7):
-                                mi = i + 2
+                                mi = i + 1
                                 for opening_day in poi_data.get('openUntilSorted').get('openingHours'):
                                     if mi > 6:
-                                        mi -= 7
+                                        mi -= 6
                                     if opening_day.get('dayIdx') == mi:
                                         oho = opening_day.get('open')
                                         ohc = opening_day.get('close')
