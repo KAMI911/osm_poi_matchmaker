@@ -1057,7 +1057,7 @@ hupostapo	4174	Bihartorda	Kossuth Lajos utca	41/D			4174	Bihartorda	Kossuth Lajo
 *	4175	Bihardancsháza	Kossuth Lajos út	*			4175	Bihardancsháza	Kossuth Lajos utca	*		
 *	4200	Hajdúszoboszló	Kabai útfél		0228/2		4200	Hajdúszoboszló	Kabai út		0228/2	
 *	4200	Hajdúszoboszló	kabai útfél				4200	Hajdúszoboszló	Kabai út			
-*	4200	Hajdúszoboszló	Kabai útfél	022			4200	Hajdúszoboszló	Kabai út		022	
+*	4200	Hajdúszoboszló	Kabai útfél	22			4200	Hajdúszoboszló	Kabai út		22	
 *	4200	Hajdúszoboszló	Szilfákalja utca	*			4200	Hajdúszoboszló	Szilfákalja	*		
 hupostapo	4202	Hajdúszoboszló	Szilfákalja utca	44			4202	Hajdúszoboszló	Szilfákalja	44		
 *	4211	Ebes	Kossuth utca	*			4211	Ebes	Kossuth Lajos utca	*		
@@ -2026,3 +2026,17 @@ hupostapo	9801	Vasvár	Járdányi utca	4			9801	Vasvár	Járdányi professzor ut
 *	9970	Szentgotthárd	Hunyadi út	*			9970	Szentgotthárd	Hunyadi János utca	*		
 *	9982	Apátistvánfalva	Fő utca	*			9982	Apátistvánfalva	Fő út	*		
 *	9985	Felsőszölnök	Templom utca	*			9985	Felsőszölnök	Templom út	*		
+*	1048	Budapest	Óceánárok utca	*			1048	Budapest	Óceán-árok utca	*		
+*	2083	Solymár	Terstyánszky Ödön utca	*			2083	Solymár	Terstyánszky utca	*		
+*	5300	karcag	Kisújszállási út	*			5300	Karcag	Kisújszállási út	*		
+*	7400	Kaposvár	Petőfi utca	*			7400	Kaposvár	Petőfi Sándor utca	*		
+*	7632	Pécs	Árnyas utca	*			7632	Pécs	Árnyas út	*		
+*	7634	Pécs	Nyugati Ipari út	*			7634	Pécs	Nyugati ipari út	*		
+*	1194	Budapest	Hofherr Albert utca	40a			1194	Budapest	Hofherr Albert utca	40/a		
+*	6500	Baja	Dózsa György út	87			6503	Baja	Dózsa György út	87		
+*	7150	Bonyhád	Deák Ferenc utca	10b			7150	Bonyhád	Deák Ferenc utca	10/b		
+*	5100	Jászberény	Nagykátai utca	22/C			5100	Jászberény	Nagykátai út	22/c		
+*	2144	Kerepes	Szabadság útja	1/E			2144	Kerepes	Szabadság út	1/e		
+*	4200	Hajdúszoboszló	Kabai útfél	34			4200	Hajdúszoboszló	Kabai út		34	
+*	4220	Hajdúböszörmény	Külső-Szoboszlói utca	2/B			4220	Hajdúböszörmény	Külső Szoboszlói út	2/b		
+*	1171	Budapest	Pesti út	237			1173	Budapest	Pesti út	237		
