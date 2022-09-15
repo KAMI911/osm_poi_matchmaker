@@ -69,14 +69,14 @@ class hu_aldi(DataProvider):
                             self.data.original = clean_string(poi_data.get('streetAddress'))
                             self.data.public_holiday_open = False
                             self.data.phone = clean_string(poi_data.get('phoneNumber'))
-                            for i in range(0, 7):
+                            for i in range(7):
                                 mi = i + 1
                                 for opening_day in poi_data.get('openUntilSorted').get('openingHours'):
                                     if mi > 6:
-                                        mi -= 6
+                                        mi -= 7
                                     if opening_day.get('dayIdx') == mi:
-                                        oho = opening_day.get('open')
-                                        ohc = opening_day.get('close')
+                                        self.data.day_open(i, opening_day.get('open'))
+                                        self.data.day_close(i, opening_day.get('close'))
                                         break
                                 self.data.day_open(i, oho)
                                 self.data.day_close(i, ohc)
