@@ -27,7 +27,7 @@ services:
     container_name: opm_osm_load_app
     environment:
       - PGPASSWORD=poitest
-      - OSM2PGSQL_VERSION=1.0.0
+      - OSM2PGSQL_VERSION=1.6.0
     volumes:
       - ../container/osmdata:/opm/osm
     depends_on:
