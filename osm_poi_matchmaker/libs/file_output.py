@@ -433,7 +433,7 @@ def generate_osm_xml(df, session=None):
                 # This is a new POI - will add fix me tag to the new items.
                 if row.get('poi_new') is not None and row.get('poi_new') is True:
                     logging.debug('Add "fixme:verify import" OSM tag for new item.')
-                    tags['fixme'] = 'verify import'
+                    tags['fixme'] = 'Ellenőrizni a meglétét és a pontos helyére tenni;Check its existence and put it in the right place'
                 # Remove unwanted addr:country from file output as we discussed in Issue #33
                 logging.debug('Remove addr:country OSM tag.')
                 tags.pop('addr:country', None)
