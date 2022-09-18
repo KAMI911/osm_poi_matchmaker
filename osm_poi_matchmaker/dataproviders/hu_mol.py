@@ -40,6 +40,7 @@ class hu_mol(DataProvider):
                      'brand:wikipedia': 'hu:MOL Magyar Olaj- és Gázipari Nyrt.', 'brand:wikidata': 'Q549181',
                      'ref:HU:company': '01-10-041683'}
         self.waterway_fuel = {'waterway': 'fuel'}
+        self.fastfood = {'amenity': 'fastfood'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
@@ -52,6 +53,10 @@ class hu_mol(DataProvider):
         humolwfu.update(self.waterway_fuel)
         humolwfu.update(POS_HU_GEN)
         humolwfu.update(PAY_CASH)
+        humolfaf = self.tags.copy()
+        humolfaf.update(self.fastfood)
+        humolfaf.update(POS_HU_GEN)
+        humolfaf.update(PAY_CASH)
         self.__types = [
             {'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
              'poi_tags': humolfu, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
@@ -62,7 +67,12 @@ class hu_mol(DataProvider):
              'poi_tags': humolwfu, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
              'poi_search_avoid_name': '(shell|m. petrol|avia|lukoil|hunoil)',
              'osm_search_distance_perfect': 2000,
-             'osm_search_distance_safe': 800, 'osm_search_distance_unsafe': 300}, ]
+             'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 100},
+            {'poi_code': 'humolfaf', 'poi_name': 'Fresh Corner', 'poi_type': 'fastfood',
+             'poi_tags': humolfaf, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'fresh corner',
+             'poi_search_avoid_name': '(étterem|bistro|bisztr|csárda|bár)',
+             'osm_search_distance_perfect': 200,
+             'osm_search_distance_safe': 100, 'osm_search_distance_unsafe': 10}, ]
         return self.__types
 
     def process(self):
@@ -74,10 +84,13 @@ class hu_mol(DataProvider):
                 for poi_data in text:
                     try:
                         self.data.name = 'MOL'
-                        if " Sziget " in poi_data.get('name'):
+                        if ' Sziget ' in poi_data.get('name'):
                             self.data.code = 'humolwfu'
                         else:
-                            self.data.code = 'humolfu'
+                            if 'fresh_corner' in poi_data.get('servicesin') and not ('shop' in poi_data.get('servicesin') or ('adblue' in poi_data.get('servicesin') or ('matrica_magyar' in poi_data.get('servicesin')):
+                                self.data.code = 'humolfaf'
+                            else:
+                                self.data.code = 'humolfu'
                         self.data.postcode = clean_string(poi_data.get('postcode'))
                         self.data.city = clean_city(poi_data.get('city'))
                         self.data.original = clean_string(poi_data.get('address'))

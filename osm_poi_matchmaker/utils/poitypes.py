@@ -73,6 +73,8 @@ def getPOITypes(ptype):
         query_type = "amenity='charging_station'"
     elif ptype == 'waterway_fuel':
         query_type = "waterway='fuel'"
+    elif ptype == 'fastfood':
+        query_type = "amenity='fastfood'"
     else:
         query_type = None
         distance = 0
