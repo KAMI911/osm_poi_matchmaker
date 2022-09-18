@@ -78,8 +78,6 @@ class hu_aldi(DataProvider):
                                         self.data.day_open(i, opening_day.get('open'))
                                         self.data.day_close(i, opening_day.get('close'))
                                         break
-                                self.data.day_open(i, oho)
-                                self.data.day_close(i, ohc)
                             '''
                             self.data.description.
                             'BAKEBOX', 'Helyben sütött pékáru'
