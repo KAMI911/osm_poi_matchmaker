@@ -371,8 +371,14 @@ def generate_osm_xml(df, session=None):
                         source_url_2 = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
                         tags.pop(source_url_2, None)
                 tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt=DATE_FOTMAT)
-                # Add source tag, issue #101
-                tags['source'] = 'import;website'
+                # Add source tag, issue #101 and not just overwrite as #103
+                if tags.get('source') == None:
+                    tags['source'] = 'import;website'
+                else:
+                    source_tag = tags.get('source')
+                    for st in ['import', 'website']:
+                        if st not in source_tag:
+                            tags['source'] = f'{source_tag};{st}'
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.error(traceback.print_exc())
