@@ -375,10 +375,9 @@ def generate_osm_xml(df, session=None):
                 if tags.get('source') == None:
                     tags['source'] = 'import;website'
                 else:
-                    source_tag = tags.get('source')
                     for st in ['import', 'website']:
-                        if st not in source_tag:
-                            tags['source'] = f'{source_tag};{st}'
+                        if st not in tags['source']:
+                            tags['source'] = '{};{}'.format(tags['source'], st)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.error(traceback.print_exc())
@@ -400,7 +399,7 @@ def generate_osm_xml(df, session=None):
                             # Rewrite simple contact tag to contact:* tag
                             tags['contact:' + tr] = tags.pop(tr, None)
                         # rewrite email and website as small caps
-                        if tr in ['email', 'website' ]:
+                        if tr in ['email', 'website']:
                             if isinstance(tags.get('contact:{}'.format(tr)), str):
                                 tags['contact:{}'.format(tr)] = str(tags.get('contact:{}'.format(tr))).lower()
             except Exception as e:
