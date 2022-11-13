@@ -2,7 +2,7 @@
 
 Az osm_poi_matchmaker futtatása kényelmesen elvégezhető Docker-ben, ekkor a [Docker Compose segítségével kerül elindításra a működéshez szükséges három konténer](https://github.com/KAMI911/osm_poi_matchmaker/blob/master/docker-compose.yml).
 
-##Alkalmazott konténerek
+## Alkalmazott konténerek
 
 1. db konténer: az adatbázis konténer a PostGIS kiegészítővel PostgreSQL-t futtat
 2. osm_load_app konténer: az OpenStreetMap adatokat betölti a PostgreSQL adatbázis
