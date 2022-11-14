@@ -28,6 +28,8 @@ services:
     environment:
       - PGPASSWORD=poitest
       - OSM2PGSQL_VERSION=1.6.0
+      - http_proxy=http://172.20.30.5:3128/
+      - https_proxy=http://172.20.30.5:3128/
     volumes:
       - ../container/osmdata:/opm/osm
     depends_on:
@@ -38,6 +40,9 @@ services:
   poi_load_app:
     image: osm_poi_matchmaker:latest
     container_name: opm_poi_load_app
+    environment:
+      - http_proxy=http://172.20.30.5:3128/
+      - https_proxy=http://172.20.30.5:3128/
     volumes:
       - ../container/osmdata:/opm/osm
       - ../container/importdata:/opm/osm_poi_matchmaker/output
