@@ -55,7 +55,7 @@ class hu_benu(DataProvider):
             with open(self.link, 'r') as f:
                 if f is not None:
                     try:
-                        text = json.loads(str(f), strict=False)
+                        text = json.load(f, strict=False)
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
                         logging.exception(traceback.print_exc())

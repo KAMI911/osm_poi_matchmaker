@@ -133,6 +133,8 @@ class POI_address_raw(Base):
     poi_opening_hours_lunch_break_stop = Column(Time)
     poi_public_holiday_open = Column(Boolean)
     poi_opening_hours = Column(Unicode(256), nullable=True, unique=False, index=True)
+    poi_lat = Column(Float, nullable=True, index=True)
+    poi_lon = Column(Float, nullable=True, index=True)
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_updated = Column(DateTime(True))
     poi_deleted = Column(DateTime(True))
@@ -228,7 +230,6 @@ class POI_address(Base):
     poi_opening_hours_lunch_break_stop = Column(Time)
     poi_public_holiday_open = Column(Boolean)
     poi_opening_hours = Column(Unicode(256), nullable=True, unique=False, index=True)
-    pc_id = Column(Integer)
     osm_changeset = Column(Integer)
     osm_search_distance_unsafe = Column(Integer)
     osm_search_distance_safe = Column(Integer)
@@ -245,8 +246,8 @@ class POI_address(Base):
     preserve_original_post_code = Column(Boolean)
     poi_search_name = Column(Unicode(128))
     poi_search_avoid_name = Column(Unicode(128))
-    poi_lat = Column(Integer)
-    poi_lon = Column(Integer)
+    poi_lat = Column(Float, nullable=True, index=True)
+    poi_lon = Column(Float, nullable=True, index=True)
     poi_good = Column(JSON, nullable=True, index=False)
     poi_bad = Column(JSON, nullable=True, index=False)
     poi_hash = Column(Unicode(128), nullable=True, unique=False, index=True)
@@ -257,9 +258,16 @@ class POI_address(Base):
                           backref='poi_address')
     city = relationship('City', primaryjoin='POI_address.poi_addr_city == City.city_id', backref='poi_address')
 
+#'osm_changeset', 'osm_id', 'osm_live_tags', 'osm_node', 'osm_search_distance_perfect', 'osm_search_distance_safe', 'osm_search_distance_unsafe', 'osm_timestamp', 'osm_version', 'poi_search_avoid_name', 'poi_search_name', 'poi_tags', 'poi_type', 'poi_url_base', 'preserve_original_name', 'preserve_original_post_code'
     # def __repr__(self):
     #  return '<POI address {}: {}>'.format(self.pa_id, self.poi_name)
 
+
+    def __init__(self, **entries):
+        '''Override to avoid TypeError when passed spurious column names'''
+        col_names = set([col.name for col in self.__table__.columns])
+        superentries = {k : entries[k] for k in col_names.intersection(entries.keys())}
+        super().__init__(**superentries)
 
 class POI_common(Base):
     __tablename__ = 'poi_common'

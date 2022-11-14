@@ -71,14 +71,16 @@ class hu_mol_bubi(DataProvider):
                         self.data.city = 'Budapest'
                         if poi_data.get('name') is not None and poi_data.get('name') != '':
                             try:
-                                if clean_string(poi_data.get('name')) is not None:
-                                    self.data.branch = clean_string(poi_data.get('name').split('-')[1])
+                                if clean_string(poi_data.get('name')) is not None \
+                                  and len(clean_string(poi_data.get('name'))) > 1:
+                                      self.data.branch = clean_string(poi_data.get('name').split('-')[1])
                             except IndexError as e:
                                 logging.exception('Index Error Exception occurred: %s', e)
                                 logging.exception(traceback.print_exc())
                             try:
-                                if clean_string(poi_data.get('name').split('-')[2]) is not None:
-                                    self.data.description = clean_string(poi_data.get('name').split('-')[2])
+                                if clean_string(poi_data.get('name').split('-')[2]) is not None \
+                                  and len(clean_string(poi_data.get('name'))) > 2:
+                                      self.data.description = clean_string(poi_data.get('name').split('-')[2])
                             except IndexError as e:
                                 logging.info('No additional data, Index Error Exception occurred: %s', e)
                             try:

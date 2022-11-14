@@ -102,17 +102,19 @@ def extract_street_housenumber(clearable):
     # Split and clean up house number
     housenumber = clearable.split('(')[0]
     housenumber = clean_string(housenumber)
-    housenumber = housenumber.split(' ')[-1]
-    housenumber = housenumber.replace('.', '')
-    housenumber = housenumber.replace('–', '-')
-    housenumber = housenumber.upper()
+    if housenumber is not None:
+        housenumber = housenumber.split(' ')[-1]
+        housenumber = housenumber.replace('.', '')
+        housenumber = housenumber.replace('–', '-')
+        housenumber = housenumber.upper()
     # Split and clean up street
     street = clearable.split('(')[0]
     street = clean_string(street)
-    street = street.rsplit(' ', 1)[0]
-    street = street.replace(' u.', ' utca')
-    street = street.replace(' u ', ' utca')
-    street = street.replace(' krt.', ' körút')
+    if street is not None:
+        street = street.rsplit(' ', 1)[0]
+        street = street.replace(' u.', ' utca')
+        street = street.replace(' u ', ' utca')
+        street = street.replace(' krt.', ' körút')
     return street, housenumber
 
 
@@ -445,11 +447,11 @@ def clean_street(clearable):
     :return:
     '''
     clearable = str(clearable)
+    street = clean_string(clearable)
     if clearable is None:
         return None
     if clearable == '':
         return ''
-    street = clean_string(clearable)
     repls = ('Nyúl 82. sz. főút', 'Kossuth Lajos út'), \
             ('Nyúl  82. sz. főút', '82' + SZFKL), \
             ('Budafoki út, 6-os sz. főút', '6' + SZFKL), \
@@ -618,7 +620,7 @@ def clean_street_type(clearable):
     '''
 
     street = clean_string(clearable)
-    if clearable is None or clearable != '':
+    if street is None or clearable != '':
         return None
     street = street.replace('fkl. út', 'főközlekedési út')
     street = street.replace('főút', 'főközlekedési út')
@@ -641,7 +643,8 @@ def clean_branch(clearable):
     '''
     if clearable is not None and clearable != '':
         branch = clean_string(str(clearable))
-        branch = branch.replace('sz.', 'számú')
+        if branch is not None:
+            branch = branch.replace('sz.', 'számú')
         branch = clean_string(branch)
         return branch
     else:

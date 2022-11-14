@@ -68,6 +68,7 @@ def import_poi_data_module(module: str):
             insert_type(session, work.types())
             work.process()
             work.export_list()
+            logging.info('Finished processing %s module ...', module)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.error(traceback.print_exc())
