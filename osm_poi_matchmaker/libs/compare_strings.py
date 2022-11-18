@@ -13,10 +13,10 @@ except ImportError as err:
 
 def compare_strings(string1, string2=''):
     # New string
-    if (string1 is '' or string1 is None) and (string2 is not '' and string2 is not None):
+    if (string1 == '' or string1 is None) and (string2 != '' and string2 is not None):
         return ' NEW '
     # Deleted string
-    elif (string1 is not '' and string1 is not None) and (string2 is '' or string2 is None):
+    elif (string1 != '' and string1 is not None) and (string2 == '' or string2 is None):
         return ' DEL '
     # Modified string
     elif str(string1) != str(string2):

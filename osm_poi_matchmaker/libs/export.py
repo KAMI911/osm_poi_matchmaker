@@ -45,9 +45,9 @@ def export_grouped_poi_data(data):
         save_csv_file(output_dir, '{}.csv'.format(filename), rows, table)
         with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
             try:
-                logging.info('Saving %s to file: %s.osm'.format(table, filename))
+                logging.info('Saving {} to file: {}.osm'.format(table, filename))
                 oxf.write(generate_osm_xml(rows))
-                logging.info('The %s.osm was sucessfully saved', filename)
+                logging.info('The {}.osm was sucessfully saved'.format(filename))
             except Exception as e:
                 logging.exception('Exception occurred during write wile: {}'.format(e))
                 logging.error(traceback.print_exc())
@@ -75,7 +75,7 @@ def export_grouped_poi_data_with_postcode_groups(data):
             i = postcode_start
             for i in range(postcode_start, postcode_stop, postcode_gap):
                 stop = i + postcode_gap - 1
-                xml_export = rows[rows['poi_postcode'].between(i, stop)]
+                xml_export = rows[rows['poi_postcode'].between(int(i), int(stop), inclusive="both")]
                 print(xml_export.to_string())
                 if len(xml_export) != 0:
                     with open(os.path.join(output_dir, '{}_{:04d}-{:04d}.osm'.format(filename, i, stop)), 'wb') as oxf:

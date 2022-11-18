@@ -72,7 +72,6 @@ def load_poi_data(database, table='poi_address_raw', raw=True):
         os.makedirs(config.get_directory_output())
     # Build Dataframe from our POI database
     addr_data = database.query_all_gpd_in_order(table)
-    print(addr_data.to_string())
     if raw is True:
         addr_data.columns = POI_COLS_RAW
     else:
@@ -112,8 +111,9 @@ class WorkflowManager(object):
             logging.error(traceback.print_exc())
 
     def start_exporter(self, data: list, postfix: str = '', to_do=export_grouped_poi_data):
+        logging.debug(data.to_string())
         poi_codes = data['poi_code'].unique()
-        modules = [[config.get_directory_output(), 'poi_address_{}{}'.format(postfix, c), data[data.poi_code == c],
+        modules = [[config.get_directory_output(), 'poi_address_{}{}'.format(postfix, c[0]), data[data.poi_code == c[0]],
                     'poi_address'] for c in poi_codes]
         try:
             # Start multiprocessing in case multiple cores
@@ -179,10 +179,11 @@ def main():
         poi_addr_data['osm_timestamp'] = datetime.datetime.now()
         poi_addr_data['osm_live_tags'] = None
         logging.info('Starting STAGE 5 ...')
-        insert_poi_dataframe(session, poi_addr_data, True)
-        #del poi_addr_data
+        del poi_addr_data
         logging.info('Starting STAGE 6 ...')
-        #poi_addr_data = load_poi_data(db, 'poi_address', False)
+        poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
+        logging.info('Merging dataframes ...')
+        poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
         # Export non-transformed data
         export_raw_poi_data(poi_addr_data, poi_common_data)
         export_raw_poi_data_xml(poi_addr_data)
@@ -198,6 +199,7 @@ def main():
         logging.info('Starting online POI matching part...')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
+        insert_poi_dataframe(session, poi_addr_data, False)
         # Export filesets
         prefix = 'merge_'
         export_raw_poi_data(poi_addr_data, poi_common_data, prefix)

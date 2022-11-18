@@ -24,7 +24,7 @@ __version__ = '0.0.5'
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
-
+INTEGER_GEO = 100000
 
 class POIDatasetRaw:
     """Contains all handled OSM tags
@@ -924,7 +924,7 @@ class POIDatasetRaw:
                  self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
                  self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break_start,
                  self.__lunch_break_stop,
-                 self.__public_holiday_open, self.__opening_hours ])
+                 self.__public_holiday_open, self.__opening_hours, self.__lat, self.__lon ])
             self.clear_all()
         except Exception as e:
             logging.error(e)
@@ -1038,7 +1038,7 @@ class POIDataset(POIDatasetRaw):
                  self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
                  self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break_start,
                  self.__lunch_break_stop,
-                 self.__public_holiday_open, self.__opening_hours, self.__good, self.__bad])
+                 self.__public_holiday_open, self.__opening_hours, self.__lat, self.__lon, self.__good, self.__bad])
             self.clear_all()
         except Exception as e:
             logging.error(e)

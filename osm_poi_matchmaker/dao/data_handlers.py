@@ -36,19 +36,19 @@ def get_or_create(session, model, **kwargs):
 
 def get_or_create_poi(session, model, **kwargs):
     if kwargs['poi_common_id'] is not None:
-        if kwargs['poi_common_id'] is not None and kwargs['poi_addr_city'] is not None and (
-                (kwargs['poi_addr_street'] and kwargs['poi_addr_housenumber'] is not None) or (
-                kwargs['poi_conscriptionnumber'] is not None)):
+        if kwargs.get('poi_common_id') is not None and kwargs.get('poi_addr_city') is not None and (
+        ( kwargs.get('poi_addr_street') is not None and kwargs.get('poi_addr_housenumber') is not None) or (
+        kwargs.get('poi_conscriptionnumber') is not None)):
             logging.debug('Fully filled basic data record')
         else:
             logging.warning('Missing record data: %s', kwargs)
     instance = session.query(model) \
-        .filter_by(poi_common_id=kwargs['poi_common_id']) \
-        .filter_by(poi_addr_city=kwargs['poi_addr_city']) \
-        .filter_by(poi_addr_street=kwargs['poi_addr_street']) \
-        .filter_by(poi_addr_housenumber=kwargs['poi_addr_housenumber']) \
-        .filter_by(poi_conscriptionnumber=kwargs['poi_conscriptionnumber']) \
-        .filter_by(poi_branch=kwargs['poi_branch']) \
+        .filter_by(poi_common_id=kwargs.get('poi_common_id')) \
+        .filter_by(poi_addr_city=kwargs.get('poi_addr_city')) \
+        .filter_by(poi_addr_street=kwargs.get('poi_addr_street')) \
+        .filter_by(poi_addr_housenumber=kwargs.get('poi_addr_housenumber')) \
+        .filter_by(poi_conscriptionnumber=kwargs.get('poi_conscriptionnumber')) \
+        .filter_by(poi_branch=kwargs.get('poi_branch')) \
         .first()
     if instance:
         logging.debug('Already added: %s', instance)
@@ -231,21 +231,24 @@ def search_for_postcode(session, city_name):
 
 
 def insert_poi_dataframe(session, poi_df, raw = True):
-    #if raw is True:
-    #    poi_df.columns = POI_COLS_RAW
-    #else:
-    #    poi_df.columns = POI_COLS
+    if raw is True:
+        poi_df.columns = POI_COLS_RAW
+    else:
+        poi_df.columns = POI_COLS
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].fillna('0000')
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].astype('int32')
     poi_dict = poi_df.to_dict('records')
-    # print(poi_df.to_string())
     try:
         for poi_data in poi_dict:
-            city_col = session.query(City.city_id).filter(City.city_name == poi_data['poi_city']).filter(
-                City.city_post_code == poi_data['poi_postcode']).first()
-            common_col = session.query(POI_common.pc_id).filter(POI_common.poi_code == poi_data['poi_code']).first()
-            poi_data['poi_addr_city'] = city_col
-            poi_data['poi_common_id'] = common_col
+            city_col = session.query(City.city_id) \
+              .filter(City.city_name == poi_data.get('poi_city')) \
+              .filter(City.city_post_code == poi_data.get('poi_postcode')).first()
+            common_col = session.query(POI_common.pc_id) \
+              .filter(POI_common.poi_code == poi_data.get('poi_code')).first()
+            if city_col is not None:
+                poi_data['poi_addr_city'] = city_col[0]
+            if common_col is not None:
+                poi_data['poi_common_id'] = common_col[0]
             if 'poi_name' in poi_data: del poi_data['poi_name']
             if 'poi_code' in poi_data: del poi_data['poi_code']
             if raw is True:
