@@ -233,8 +233,6 @@ def search_for_postcode(session, city_name):
 def insert_poi_dataframe(session, poi_df, raw = True):
     if raw is True:
         poi_df.columns = POI_COLS_RAW
-    else:
-        poi_df.columns = POI_COLS
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].fillna('0000')
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].astype('int32')
     poi_dict = poi_df.to_dict('records')
