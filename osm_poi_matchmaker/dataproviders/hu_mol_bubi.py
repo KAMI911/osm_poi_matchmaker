@@ -72,22 +72,22 @@ class hu_mol_bubi(DataProvider):
                         if poi_data.get('name') is not None and poi_data.get('name') != '':
                             try:
                                 if clean_string(poi_data.get('name')) is not None \
-                                  and len(clean_string(poi_data.get('name'))) > 1:
+                                  and len(clean_string(poi_data.get('name')).split('-')) > 1:
                                       self.data.branch = clean_string(poi_data.get('name').split('-')[1])
                             except IndexError as e:
-                                logging.exception('Index Error Exception occurred: %s', e)
+                                logging.exception('There is no branch data: Index Error Exception occurred: %s', e)
                                 logging.exception(traceback.print_exc())
                             try:
                                 if clean_string(poi_data.get('name').split('-')[2]) is not None \
-                                  and len(clean_string(poi_data.get('name'))) > 2:
+                                  and len(clean_string(poi_data.get('name')).split('-')) > 2:
                                       self.data.description = clean_string(poi_data.get('name').split('-')[2])
                             except IndexError as e:
-                                logging.info('No additional data, Index Error Exception occurred: %s', e)
+                                logging.info('There is no description data: Index Error Exception occurred: %s', e)
                             try:
                                 if clean_string(poi_data.get('name')) is not None:
                                     self.data.ref = clean_string(poi_data.get('name').split('-')[0])
                             except IndexError as e:
-                                logging.exception('Index Error Exception occurred: %s', e)
+                                logging.exception('There is no ref data: Index Error Exception occurred: %s', e)
                                 logging.exception(traceback.print_exc())
                         self.data.capacity = clean_string(poi_data.get('bike_racks'))
                         self.data.nonstop = True
