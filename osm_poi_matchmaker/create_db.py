@@ -172,18 +172,18 @@ def main():
         logging.info('Merging dataframes ...')
         poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
         # Add additional empty fields
-        poi_addr_data['osm_id'] = None
-        poi_addr_data['osm_node'] = None
-        poi_addr_data['osm_version'] = None
-        poi_addr_data['osm_changeset'] = None
-        poi_addr_data['osm_timestamp'] = datetime.datetime.now()
-        poi_addr_data['osm_live_tags'] = None
         logging.info('Starting STAGE 5 ...')
         del poi_addr_data
         logging.info('Starting STAGE 6 ...')
         poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
         logging.info('Merging dataframes ...')
         poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
+        poi_addr_data['osm_id'] = None
+        poi_addr_data['osm_node'] = None
+        poi_addr_data['osm_version'] = None
+        poi_addr_data['osm_changeset'] = None
+        poi_addr_data['osm_timestamp'] = datetime.datetime.now()
+        poi_addr_data['osm_live_tags'] = None
         # Export non-transformed data
         export_raw_poi_data(poi_addr_data, poi_common_data)
         export_raw_poi_data_xml(poi_addr_data)
@@ -201,7 +201,7 @@ def main():
         manager.join()
         #insert_poi_dataframe(session, poi_addr_data, False)
         # Export filesets
-        prefix = '_merge_'
+        prefix = 'merge_'
         export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
         manager.start_exporter(poi_addr_data, prefix)
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
