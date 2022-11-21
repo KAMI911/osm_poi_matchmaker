@@ -203,7 +203,10 @@ def main():
         # Export filesets
         prefix = 'merge_'
         export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
+        logging.info('Starting matched POI ...')
         manager.start_exporter(poi_addr_data, prefix)
+        manager.join()
+        logging.info('Starting grouped matched POI ...')
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
         manager.join()
 
