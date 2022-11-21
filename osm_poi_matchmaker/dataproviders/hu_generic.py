@@ -59,7 +59,12 @@ class hu_city_postcode_from_xml():
         xml = save_downloaded_xml('{}'.format(self.link), os.path.join(
             self.download_cache, self.filename))
         insert_data = []
-        root = etree.fromstring(xml)
+        try:
+            root = etree.fromstring(xml)
+        except Exception as e:
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.error(traceback.print_exc())
+            logging.error(xml)
         for e in root.findall('zipCode'):
             cities = e[1].text
             postcode = e[0].text.strip()
@@ -82,7 +87,12 @@ class hu_street_types_from_xml():
         xml = save_downloaded_xml('{}'.format(self.link), os.path.join(
             self.download_cache, self.filename))
         insert_data = []
-        root = etree.fromstring(xml)
+        try:
+            root = etree.fromstring(xml)
+        except Exception as e:
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.error(traceback.print_exc())
+            logging.error(xml)
         for e in root.findall('streetType'):
             if e.text is not None:
                 street_type = e.text.strip()
