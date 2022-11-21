@@ -934,7 +934,7 @@ class POIDatasetRaw:
     def process(self):
         df = pd.DataFrame(self.insert_data)
         df.columns = POI_COLS_RAW
-        return df.replace(np.nan:None)
+        return df.replace({np.nan: None})
 
     def lenght(self):
         return len(self.insert_data)
