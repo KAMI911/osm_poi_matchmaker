@@ -23,7 +23,7 @@ except ImportError as err:
 class hu_omv(DataProvider):
 
     def constains(self):
-        self.link = 'https://app.wigeogis.com/kunden/omvpetrom/data/getresults.php'
+        self.link = 'https://app.wigeogis.com/kunden/omv/data/getresults.php'
         self.tags = {'amenity': 'fuel', 'name': 'OMV', 'brand': 'OMV', 'fuel:diesel': 'yes',
                      'fuel:octane_95': 'yes', 'air_conditioning': 'yes', 'brand:wikidata': 'Q168238',
                      'brand:wikipedia': 'en:OMV', 'brand:operator': 'OMV Hungária Kft.',
