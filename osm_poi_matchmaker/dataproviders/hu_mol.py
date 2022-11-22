@@ -87,7 +87,9 @@ class hu_mol(DataProvider):
                         if ' Sziget ' in poi_data.get('name'):
                             self.data.code = 'humolwfu'
                         else:
-                            if 'fresh_corner' in poi_data.get('servicesin') and not ('shop' in poi_data.get('servicesin') or ('adblue' in poi_data.get('servicesin') or ('matrica_magyar' in poi_data.get('servicesin')):
+                            if 'fresh_corner' in poi_data.get('servicesin') and \
+                              not ('shop' in poi_data.get('servicesin') or \
+                              ('adblue' in poi_data.get('servicesin') or ('matrica_magyar' in poi_data.get('servicesin')))):
                                 self.data.code = 'humolfaf'
                             else:
                                 self.data.code = 'humolfu'

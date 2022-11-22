@@ -263,6 +263,12 @@ class POI_address(Base):
     #  return '<POI address {}: {}>'.format(self.pa_id, self.poi_name)
 
 
+    def __init__(self, **entries):
+        '''Override to avoid TypeError when passed spurious column names'''
+        col_names = set([col.name for col in self.__table__.columns])
+        superentries = {k : entries[k] for k in col_names.intersection(entries.keys())}
+        super().__init__(**superentries)
+
 class POI_common(Base):
     __tablename__ = 'poi_common'
     _plural_name_ = 'poi_common'

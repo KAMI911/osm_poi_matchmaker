@@ -4,6 +4,7 @@ __author__ = 'kami911'
 try:
     import logging
     import sys
+    import numpy as np
     import pandas as pd
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
@@ -357,7 +358,7 @@ class POIDatasetRaw:
 
     @property
     def socket_chademo(self) -> int:
-        return self.__socket_chademo
+        return int(self.__socket_chademo)
 
     @socket_chademo.setter
     def socket_chademo(self, data: int):
@@ -374,7 +375,7 @@ class POIDatasetRaw:
 
     @property
     def socket_type2_combo(self) -> int:
-        return self.__socket_type2_combo
+        return int(self.__socket_type2_combo)
 
     @socket_type2_combo.setter
     def socket_type2_combo(self, data: int):
@@ -391,7 +392,7 @@ class POIDatasetRaw:
 
     @property
     def socket_type2_cable(self) -> int:
-        return self.__socket_type2_cable
+        return int(self.__socket_type2_cable)
 
     @socket_type2_cable.setter
     def socket_type2_cable(self, data: int):
@@ -408,7 +409,7 @@ class POIDatasetRaw:
 
     @property
     def socket_type2(self) -> int:
-        return self.__socket_type2
+        return int(self.__socket_type2)
 
     @socket_type2.setter
     def socket_type2(self, data: int):
@@ -933,7 +934,7 @@ class POIDatasetRaw:
     def process(self):
         df = pd.DataFrame(self.insert_data)
         df.columns = POI_COLS_RAW
-        return df.where((pd.notnull(df)), None)
+        return df.replace({np.nan: None})
 
     def lenght(self):
         return len(self.insert_data)

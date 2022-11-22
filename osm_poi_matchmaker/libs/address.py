@@ -110,7 +110,7 @@ def extract_street_housenumber(clearable):
     # Split and clean up street
     street = clearable.split('(')[0]
     street = clean_string(street)
-    in street is not None:
+    if street is not None:
         street = street.rsplit(' ', 1)[0]
         street = street.replace(' u.', ' utca')
         street = street.replace(' u ', ' utca')
