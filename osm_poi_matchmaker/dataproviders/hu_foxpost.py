@@ -11,6 +11,7 @@ try:
         clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHUUnAccented
+    from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
@@ -29,7 +30,7 @@ class hu_foxpost(DataProvider):
                      'ref:vatin:hu': '25034644-2-10', 'ref:HU:company': '10 10 020309',
                      'contact:facebook': 'https://www.facebook.com/foxpostzrt',
                      'contact:youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w',
-                     'contact:email': 'info@foxpost.hu', 'phone': '+36 1 999 03 69',
+                     'contact:email': 'info@foxpost.hu', 'contact:phone': '+36 1 999 03 69',
                      'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes',
                      'payment:cash': 'no', }
         self.filetype = FileType.json
@@ -38,12 +39,13 @@ class hu_foxpost(DataProvider):
 
     def types(self):
         hufoxpocso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes'}
+        hufoxpocso.update(POS_HU_GEN)
         hufoxpocso.update(self.tags)
         self.__types = [
             {'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': hufoxpocso, 'poi_url_base': 'https://www.foxpost.hu', 'poi_search_name': 'foxpost',
-             'poi_search_avoid_name': '(alzabox|alza|dpd|gls|pick pack|postapont)',
-             'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 20},
+             'poi_search_avoid_name': '(alzabox|alza|dpd|gls|pick pack|postapont|easybox|sameday)',
+             'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
         ]
         return self.__types
 
@@ -57,6 +59,8 @@ class hu_foxpost(DataProvider):
                     try:
                         self.data.name = 'Foxpost'
                         self.data.code = 'hufoxpocso'
+                        self.data.lat, self.data.lon = check_hu_boundary(
+                            poi_data['geolat'], poi_data['geolng'])
                         self.data.postcode = clean_string(poi_data.get('zip'))
                         self.data.city = clean_city(poi_data['city'])
                         self.data.branch = poi_data['name']
@@ -69,8 +73,6 @@ class hu_foxpost(DataProvider):
                             else:
                                 self.data.day_open_close(i, None, None)
                         self.data.original = poi_data['address']
-                        self.data.lat, self.data.lon = check_hu_boundary(
-                            poi_data['geolat'], poi_data['geolng'])
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data['street'])
                         self.data.public_holiday_open = False
