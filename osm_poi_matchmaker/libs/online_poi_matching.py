@@ -36,9 +36,8 @@ def online_poi_matching(args):
         Session = scoped_session(session_factory)
         session = Session()
         osm_live_query = OsmApi()
-        # for i, row in data.iterrows():
-        logging.info("wattafakka")
-        for i, row in data[data['poi_code'].str.contains('ping')].iterrows():
+        for i, row in data.iterrows():
+        # for i, row in data[data['poi_code'].str.contains('ping')].iterrows():
             logging.info("starting")
             try:
                 # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
