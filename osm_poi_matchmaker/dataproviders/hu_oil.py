@@ -22,7 +22,7 @@ except ImportError as err:
 
 class hu_oil(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'http://www.oil-benzinkutak.hu/wp-admin/admin-ajax.php?action=store_search&lat=47.162494&lng=19.5033041&max_results=1&search_radius=50&autoload=1'
         self.tags = {'amenity': 'fuel', 'name': 'OIL!', 'brand': 'OIL!', 'fuel:diesel': 'yes',
                      'fuel:octane_95': 'yes', 'brand:wikidata': 'Q2007561',

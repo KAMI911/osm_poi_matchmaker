@@ -29,10 +29,10 @@ class DataProvider:
         self.headers = None
         self.post = None
         self.__types = None
-        self.constains()
+        self.contains()
         self.data = POIDatasetRaw()
 
-    def constains(self):
+    def contains(self):
         self.POI_COMMON_TAGS = ""
         self.link = ''
 

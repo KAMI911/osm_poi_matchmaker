@@ -653,7 +653,7 @@ class POIBase:
                 SELECT * FROM
                   (SELECT name, osm_id, highway, {metadata_fields}
                     ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
-                  FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+                      FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                   WHERE "highway" is not NULL
                     AND {name_query}
                   ORDER BY distance ASC LIMIT 1) AS geo

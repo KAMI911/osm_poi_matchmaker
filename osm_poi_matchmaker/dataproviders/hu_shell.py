@@ -22,7 +22,7 @@ except ImportError as err:
 
 class hu_shell(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://shellgsllocator.geoapp.me/api/v1/locations/within_bounds?sw[]=45.48&sw[]=16.05&ne[]=48.35&ne[]=22.58&autoload=true&travel_mode=driving&avoid_tolls=false&avoid_highways=false&avoid_ferries=false&corridor_radius=5&driving_distances=false&format=json'
         self.tags = {'amenity': 'fuel', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}
         self.tags.update(POS_HU_GEN)

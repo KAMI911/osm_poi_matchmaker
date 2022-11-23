@@ -23,7 +23,7 @@ except ImportError as err:
 
 class hu_avia(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://www.avia.hu/kapcsolat/toltoallomasok'
         self.tags = {'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', 'fuel:diesel': 'yes',
                      'fuel:octane_95': 'yes', 'contact:email': 'avia@avia.hu',

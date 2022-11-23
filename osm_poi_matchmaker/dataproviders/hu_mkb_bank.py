@@ -25,7 +25,7 @@ except ImportError as err:
 
 class hu_mkb_bank(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = os.path.join(
             config.get_directory_cache_url(), 'hu_mkb_bank.csv')
         self.tags = {'brand': 'MKB Bank', 'brand:wikidata': 'Q916185', 'bic': 'MKKBHUHB',

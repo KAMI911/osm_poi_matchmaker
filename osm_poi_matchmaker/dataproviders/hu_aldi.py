@@ -20,7 +20,7 @@ except ImportError as err:
 
 class hu_aldi(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://www.aldi.hu/hu/hu/.get-stores-in-radius.json?latitude=47.162494&longitude=19.503304&radius=50000'
         self.tags = {'operator': 'ALDI Magyarország Élelmiszer Bt.',
                      'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi',

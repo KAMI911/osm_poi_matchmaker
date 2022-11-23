@@ -21,6 +21,7 @@ except ImportError as err:
 class hu_kh_bank(DataProvider):
 
     def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
+        super().__init__(session, download_cache)
         self.session = session
         self.download_cache = download_cache
         self.link = link
@@ -30,8 +31,7 @@ class hu_kh_bank(DataProvider):
         self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(
-            self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hukhbank = {'amenity': 'bank', 'atm': 'yes',

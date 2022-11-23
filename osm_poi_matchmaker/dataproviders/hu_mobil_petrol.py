@@ -24,7 +24,7 @@ except ImportError as err:
 
 class hu_mobil_petrol(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'http://www.mpetrol.hu/'
         self.tags = {'amenity': 'fuel', 'brand': 'Mobil Petrol', 'contact:email': 'info@mpetrol.hu',
                      'contact:facebook': 'https://www.facebook.com/mpetrolofficial/', 'name': 'Mobil Petrol',

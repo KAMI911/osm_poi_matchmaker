@@ -57,6 +57,7 @@ def import_basic_data(session):
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',
                                      config.get_directory_cache_url())
+    logging.info('Processing cities ...')
     work.process()
 
     logging.info('Importing street types ...')
@@ -113,7 +114,7 @@ class WorkflowManager(object):
     def start_exporter(self, data: list, postfix: str = '', to_do=export_grouped_poi_data):
         logging.debug(data.to_string())
         poi_codes = data['poi_code'].unique()
-        modules = [[config.get_directory_output(), 'poi_address_{}{}'.format(postfix, c[0]), data[data.poi_code == c[0]],
+        modules = [[config.get_directory_output(), 'poi_address_{}{}'.format(postfix, c), data[data.poi_code == c],
                     'poi_address'] for c in poi_codes]
         try:
             # Start multiprocessing in case multiple cores

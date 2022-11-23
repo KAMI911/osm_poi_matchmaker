@@ -23,7 +23,7 @@ except ImportError as err:
 
 class hu_gls(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://csomag.hu/api/parcel-shops'
         self.tags = {'brand': 'GLS', 'operator': 'GLS General Logistics Systems Hungary Csomag-Logisztikai Kft.',
                      'operator:addr': '2351 Alsónémedi, Európa utca 2.', 'ref:vatin': 'HU12369410',

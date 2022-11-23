@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
    build-essential \
    apt-utils \
    libgdal-dev \
+   libxml2-dev \
+   libxslt-dev \
  && python -m pip install --upgrade pip \
  && rm -rf /var/lib/apt/lists/*
 

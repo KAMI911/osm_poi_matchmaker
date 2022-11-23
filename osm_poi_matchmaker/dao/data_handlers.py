@@ -37,8 +37,8 @@ def get_or_create(session, model, **kwargs):
 def get_or_create_poi(session, model, **kwargs):
     if kwargs.get('poi_common_id') is not None:
         if kwargs.get('poi_common_id') is not None and kwargs.get('poi_addr_city') is not None and (
-        ( kwargs.get('poi_addr_street') is not None and kwargs.get('poi_addr_housenumber') is not None) or (
-        kwargs.get('poi_conscriptionnumber') is not None)):
+                (kwargs.get('poi_addr_street') is not None and kwargs.get('poi_addr_housenumber') is not None) or (
+                kwargs.get('poi_conscriptionnumber') is not None)):
             logging.debug('Fully filled basic data record')
         else:
             logging.warning('Missing record data: %s', kwargs)
@@ -62,6 +62,7 @@ def get_or_create_poi(session, model, **kwargs):
             logging.error('Cannot add to the database. (%s)', e)
             logging.exception('Exception occurred')
             raise e
+
 
 def search_poi_patch(session, model, **kwargs):
     if kwargs.get('poi_common_id') == "*":
@@ -97,34 +98,36 @@ def get_or_create_cache(session, model, **kwargs):
     if kwargs.get('osm_id') is not None and kwargs.get('osm_object_type'):
         instance = session.query(model) \
             .filter_by(osm_id=kwargs.get('osm_id')).filter_by(osm_object_type=kwargs.get('poi_addr_city')).first()
-    if instance:
-        logging.debug('Already added: %s', instance)
-        return instance
-    else:
-        try:
-            instance = model(**kwargs)
-            session.add(instance)
+        if instance:
+            logging.debug('Already added: %s', instance)
             return instance
-        except Exception as e:
-            logging.error('Cannot add to the database. (%s)', e)
-            logging.exception('Exception occurred')
-            raise e
+        else:
+            try:
+                instance = model(**kwargs)
+                session.add(instance)
+                return instance
+            except Exception as e:
+                logging.error('Cannot add to the database. (%s)', e)
+                logging.exception('Exception occurred')
+                raise e
+
 
 def get_or_create_common(session, model, **kwargs):
     if kwargs['poi_code'] is not None and kwargs['poi_code'] != '':
         instance = session.query(model).filter_by(poi_code=kwargs['poi_code']).first()
-    if instance:
-        logging.debug('Already added: %s', instance)
-        return instance
-    else:
-        try:
-            instance = model(**kwargs)
-            session.add(instance)
+        if instance:
+            logging.debug('Already added: %s', instance)
             return instance
-        except Exception as e:
-            logging.error('Cannot add to the database. (%s)', e)
-            logging.exception('Exception occurred')
-            raise e
+        else:
+            try:
+                instance = model(**kwargs)
+                session.add(instance)
+                return instance
+            except Exception as e:
+                logging.error('Cannot add to the database. (%s)', e)
+                logging.exception('Exception occurred')
+                raise e
+
 
 def insert_city_dataframe(session, city_df):
     city_df.columns = ['city_post_code', 'city_name']
@@ -163,15 +166,17 @@ def insert_street_type_dataframe(session, city_df):
     finally:
         session.close()
 
+
 def insert_patch_data_dataframe(session, patch_df):
-    patch_df.columns = ['poi_code', 'orig_postcode', 'orig_city', 'orig_street', 'orig_housenumber', 'orig_conscriptionnumber', 'orig_name','new_postcode', 'new_city', 'new_street', 'new_housenumber', 'new_conscriptionnumber', 'new_name']
+    patch_df.columns = ['poi_code', 'orig_postcode', 'orig_city', 'orig_street', 'orig_housenumber', 'orig_conscriptionnumber', 'orig_name', 'new_postcode', 'new_city', 'new_street',
+                        'new_housenumber', 'new_conscriptionnumber', 'new_name']
     try:
         for index, patch_data in patch_df.iterrows():
             get_or_create(session, POI_patch, poi_code=patch_data['poi_code'], orig_postcode=patch_data['orig_postcode'], orig_city=patch_data['orig_city'],
-            orig_street=patch_data['orig_street'], orig_housenumber=patch_data['orig_housenumber'], orig_conscriptionnumber=patch_data['orig_conscriptionnumber'],
-            orig_name=patch_data['orig_name'], new_postcode=patch_data['new_postcode'], new_city=patch_data['new_city'],
-            new_street=patch_data['new_street'], new_housenumber=patch_data['new_housenumber'], new_conscriptionnumber=patch_data['new_conscriptionnumber'],
-            new_name=patch_data['new_name'])
+                          orig_street=patch_data['orig_street'], orig_housenumber=patch_data['orig_housenumber'], orig_conscriptionnumber=patch_data['orig_conscriptionnumber'],
+                          orig_name=patch_data['orig_name'], new_postcode=patch_data['new_postcode'], new_city=patch_data['new_city'],
+                          new_street=patch_data['new_street'], new_housenumber=patch_data['new_housenumber'], new_conscriptionnumber=patch_data['new_conscriptionnumber'],
+                          new_name=patch_data['new_name'])
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(patch_data)
@@ -184,12 +189,13 @@ def insert_patch_data_dataframe(session, patch_df):
     finally:
         session.close()
 
+
 def insert_country_data_dataframe(session, country_df):
-    country_df.columns = ['country_code','continent_code','country_name','country_iso3','country_number','country_full_name']
+    country_df.columns = ['country_code', 'continent_code', 'country_name', 'country_iso3', 'country_number', 'country_full_name']
     try:
         for index, country_data in country_df.iterrows():
-            get_or_create(session, Country, country_code=country_data['country_code'],continent_code=country_data['continent_code'],country_name=country_data['country_name'],
-            country_iso3=country_data['country_iso3'],country_number=country_data['country_number'],country_full_name=country_data['country_full_name'])
+            get_or_create(session, Country, country_code=country_data['country_code'], continent_code=country_data['continent_code'], country_name=country_data['country_name'],
+                          country_iso3=country_data['country_iso3'], country_number=country_data['country_number'], country_full_name=country_data['country_full_name'])
 
     except Exception as e:
         logging.error('Rolled back: %s.', e)
@@ -202,6 +208,7 @@ def insert_country_data_dataframe(session, country_df):
         session.commit()
     finally:
         session.close()
+
 
 def insert_common_dataframe(session, common_df):
     common_df.columns = ['poi_name', 'poi_tags', 'poi_url_base', 'poi_code']
@@ -230,7 +237,7 @@ def search_for_postcode(session, city_name):
         return None
 
 
-def insert_poi_dataframe(session, poi_df, raw = True):
+def insert_poi_dataframe(session, poi_df, raw=True):
     if raw is True:
         poi_df.columns = POI_COLS_RAW
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].fillna('0000')
@@ -239,10 +246,10 @@ def insert_poi_dataframe(session, poi_df, raw = True):
     try:
         for poi_data in poi_dict:
             city_col = session.query(City.city_id) \
-              .filter(City.city_name == poi_data.get('poi_city')) \
-              .filter(City.city_post_code == poi_data.get('poi_postcode')).first()
+                .filter(City.city_name == poi_data.get('poi_city')) \
+                .filter(City.city_post_code == poi_data.get('poi_postcode')).first()
             common_col = session.query(POI_common.pc_id) \
-              .filter(POI_common.poi_code == poi_data.get('poi_code')).first()
+                .filter(POI_common.poi_code == poi_data.get('poi_code')).first()
             if city_col is not None:
                 poi_data['poi_addr_city'] = city_col[0]
             if common_col is not None:

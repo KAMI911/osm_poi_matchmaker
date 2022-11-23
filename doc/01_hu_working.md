@@ -39,7 +39,7 @@ Az egyes POI típusokra jellemző keresési sugár az app.conf fájl alapján ke
 ```
 geo.default.poi.distance=70
 geo.amenity.atm.poi.distance=20
-geo.shop.conveience.poi.distance=50
+geo.shop.convenience.poi.distance=50
 geo.amenity.post.office.poi.distance=260
 ```
 
@@ -63,7 +63,7 @@ Az egyes POI típusokra jellemző keresési sugár az app.conf fájl alapján ke
 ```
 geo.default.poi.distance=70
 geo.amenity.atm.poi.distance=20
-geo.shop.conveience.poi.distance=50
+geo.shop.convenience.poi.distance=50
 geo.amenity.post.office.poi.distance=260
 ```
 

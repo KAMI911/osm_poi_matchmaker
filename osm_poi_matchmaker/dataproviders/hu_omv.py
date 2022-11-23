@@ -22,7 +22,7 @@ except ImportError as err:
 
 class hu_omv(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://app.wigeogis.com/kunden/omv/data/getresults.php'
         self.tags = {'amenity': 'fuel', 'name': 'OMV', 'brand': 'OMV', 'fuel:diesel': 'yes',
                      'fuel:octane_95': 'yes', 'air_conditioning': 'yes', 'brand:wikidata': 'Q168238',

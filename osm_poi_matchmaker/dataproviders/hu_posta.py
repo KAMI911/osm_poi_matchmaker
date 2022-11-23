@@ -23,7 +23,7 @@ except ImportError as err:
 
 class hu_posta(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
         self.tags = {'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.',
                      'operator:addr': '1138 Budapest, Dunavirág utca 2-6.', 'ref:vatin:hu': '10901232-2-44',

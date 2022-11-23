@@ -20,7 +20,7 @@ except ImportError as err:
 
 class hu_sber_bank(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://www.sberbank.hu/servlet/maplocatorServlet'
         self.tags = {'brand': 'Sberbank', 'brand:wikidata': 'Q17379757', 'bic': 'MAVOHUHB',
                      'brand:wikipedia': 'en:Sberbank of Russia', 'operator': 'Sberbank Magyarország Zrt.',

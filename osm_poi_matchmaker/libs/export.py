@@ -72,7 +72,6 @@ def export_grouped_poi_data_with_postcode_groups(data):
         postcode_stop = 9999
         if len(rows) > batch:
             # Create sliced data output
-            i = postcode_start
             for i in range(postcode_start, postcode_stop, postcode_gap):
                 stop = i + postcode_gap - 1
                 xml_export = rows[rows['poi_postcode'].between(int(i), int(stop), inclusive="both")]

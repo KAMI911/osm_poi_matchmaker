@@ -23,7 +23,7 @@ except ImportError as err:
 
 class hu_jysk(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://jysk.hu/aruhazak'
         self.tags = {'shop': 'furniture', 'brand:wikidata': 'Q138913', 'brand:wikipedia': 'hu:JYSK',
                      'contact:facebook': 'https://www.facebook.com/JYSK.Magyarorszag/',

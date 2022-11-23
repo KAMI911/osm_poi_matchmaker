@@ -22,7 +22,7 @@ except ImportError as err:
 
 class hu_easybox(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://sameday.hu/wp/wp-admin/admin-ajax.php?action=get_lockers_request&search='
         self.tags = {'brand': 'Easybox', 'operator': 'Delivery Solutions Kft.',
                      'operator:addr': '1033 Budapest, Szentendrei út 89-95. X. épület', 'ref:vatin': 'HU28730978',

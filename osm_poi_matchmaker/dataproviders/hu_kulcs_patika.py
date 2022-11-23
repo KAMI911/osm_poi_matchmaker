@@ -21,7 +21,7 @@ except ImportError as err:
 
 class hu_kulcs_patika(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://kulcspatikak.hu/gykeress_feed.php'
         self.tags = {'amenity': 'pharmacy', 'brand': 'Kulcs Patikák',
                      'dispensing': 'yes', 'air_conditioning': 'yes'}

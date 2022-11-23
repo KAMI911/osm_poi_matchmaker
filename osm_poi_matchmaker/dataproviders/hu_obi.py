@@ -22,7 +22,7 @@ except ImportError as err:
 
 class hu_obi(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://www.obi.hu/storeLocatorRest/v1/stores/getAllByCountry/hu/hu?fields=name,address,phone,services,hours,storeNumber,path,email'
         self.tags = {'shop': 'doityourself', 'brand': 'OBI', 'brand:wikidata': 'Q300518',
                      'brand:wikipedia': 'en:Obi (store)', 'operator': 'OBI Hungary Retail Kft.',

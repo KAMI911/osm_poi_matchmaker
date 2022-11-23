@@ -24,7 +24,7 @@ POST_DATA = {'country': 'Magyarország', 'lat': '47.162494',
 
 class hu_mol(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json'
         self.headers = {'Referer': 'https://toltoallomaskereso.mol.hu',
                         'Origin': 'https://toltoallomaskereso.mol.hu',

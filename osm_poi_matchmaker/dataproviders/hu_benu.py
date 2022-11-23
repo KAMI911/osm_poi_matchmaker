@@ -23,7 +23,7 @@ except ImportError as err:
 
 class hu_benu(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1'
         self.link = os.path.join(config.get_directory_cache_url(), 'hu_benu.json')
         self.tags = {'brand': 'Benu gyógyszertár', 'dispensing': 'yes',

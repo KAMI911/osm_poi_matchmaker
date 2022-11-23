@@ -20,7 +20,7 @@ except ImportError as err:
 
 class hu_mol(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'hhttp://trafikok.nemzetidohany.hu/mind.jsonp'
         self.tags = {'shop': 'tobacco'}
         self.filetype = FileType.json

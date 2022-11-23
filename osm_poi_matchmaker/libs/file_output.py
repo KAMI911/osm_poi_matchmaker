@@ -52,7 +52,7 @@ POI_EV_TAGS = {'poi_capacity': 'capacity',
 TESTCASE_GEN_KEYS = ('original', 'poi_postcode', 'poi_city', 'poi_addr_street', 'poi_addr_housenumber', 'poi_conscriptionnumber')
 
 TIMESTAMP_FORMAT = '{:{dfmt}T{tfmt}Z}'
-DATE_FOTMAT = '%Y-%m-%d'
+DATE_FORMAT = '%Y-%m-%d'
 TIME_FORMAT = '%H:%M:%S'
 
 
@@ -79,7 +79,7 @@ def save_csv_file(path: str, file: str, data, message: str):
         # Save file to CSV file
         logging.info('Saving %s to file: %s', message, file)
         res = data.to_csv(os.path.join(path, file))
-        logging.info('The %s was sucessfully saved', file)
+        logging.info('The %s was successfully saved', file)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.error(traceback.print_exc())
@@ -105,7 +105,7 @@ def add_osm_node(osm_id: int, node_data: dict, prefix: str = 'poi') -> dict:
                 'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
                 'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
                 'user': '{}'.format('osm_poi_matchmaker'), 'uid': '{}'.format('8635934'), 'version': '{}'.format(osm_version),
-                'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FOTMAT, tfmt=TIME_FORMAT)}
+                'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FORMAT, tfmt=TIME_FORMAT)}
     logging.info('Created OSM data: {}'.format(osm_data))
     return osm_data
 
@@ -133,7 +133,7 @@ def list_osm_node(osm_id: int, node_data: dict, prefix='poi') -> dict:
                 'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
                 'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
                 'user': '{}'.format(osm_user), 'uid': '{}'.format(osm_user_id), 'version': '{}'.format(osm_version),
-                'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FOTMAT, tfmt=TIME_FORMAT)}
+                'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FORMAT, tfmt=TIME_FORMAT)}
     logging.debug(osm_data)
     return osm_data
 
@@ -156,7 +156,7 @@ def add_osm_way(osm_id: int, node_data: dict) -> dict:
     osm_data = {'action': 'modify', 'id': str(osm_id),
                 'user': '{}'.format('osm_poi_matchmaker'), 'uid': '{}'.format('8635934'),
                 'version': '{}'.format(osm_version),
-                'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FOTMAT, tfmt=TIME_FORMAT)}
+                'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FORMAT, tfmt=TIME_FORMAT)}
     return osm_data
 
 
@@ -191,8 +191,8 @@ def generate_osm_xml(df, session=None):
                                               config.get_database_poi_database()))
     pgsql_pool = db.pool
     session_factory = sessionmaker(pgsql_pool)
-    Session = scoped_session(session_factory)
-    session = Session()
+    scoped_session_instance = scoped_session(session_factory)
+    session = scoped_session_instance()
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
     default_osm_id = -1
     current_osm_id = default_osm_id
@@ -200,7 +200,7 @@ def generate_osm_xml(df, session=None):
     try:
         for index, row in df.iterrows():
             try:
-                logging.info('Start processing: {}. item'.format(index+1))
+                logging.info('Start processing: {}. item'.format(index + 1))
                 logging.debug(row.to_string())
                 tags = {}
                 xml_node_tags = None
@@ -226,14 +226,14 @@ def generate_osm_xml(df, session=None):
                         logging.debug('Object type is way.')
                         main_data = etree.SubElement(osm_xml_data, 'way', add_osm_way(current_osm_id, row))
                         josm_object = 'w{}'.format(current_osm_id)
-                    # Add way nodes without any modification)
+                        # Add way nodes without any modification)
                         node_data = []
                         if row.get('osm_nodes') is not None:
                             for n in row.get('osm_nodes'):
                                 data = etree.SubElement(main_data, 'nd', ref=str(n))
                         if session is not None:
                             if row.get('osm_nodes') is not None:
-                            # Go through the list except the last value (which is same as the first)
+                                # Go through the list except the last value (which is same as the first)
                                 for n in row.get('osm_nodes'):
                                     # Add nodes only when it is not already added.
                                     if n not in added_nodes:
@@ -241,9 +241,9 @@ def generate_osm_xml(df, session=None):
                                         way_node = db.query_from_cache(n, OSM_object_type.node)
                                         if way_node is not None:
                                             node_data = etree.SubElement(osm_xml_data, 'node',
-                                                                     list_osm_node(n, way_node, 'osm'))
+                                                                         list_osm_node(n, way_node, 'osm'))
                                             if node_data.get('osm_live_tags') is not None and \
-                                                node_data.get('osm_live_tags') != '':
+                                                    node_data.get('osm_live_tags') != '':
                                                 node_osm_live_tags = node_data.get('osm_live_tags')
                                                 for k, v in sorted(node_osm_live_tags).items():
                                                     xml_node_tags = etree.SubElement(node_data, 'tag', k=k, v='{}'.format(v))
@@ -370,9 +370,9 @@ def generate_osm_xml(df, session=None):
                     if row['poi_url_base'] is not None:
                         source_url_2 = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
                         tags.pop(source_url_2, None)
-                tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt=DATE_FOTMAT)
+                tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt=DATE_FORMAT)
                 # Add source tag, issue #101 and not just overwrite as #103
-                if tags.get('source') == None:
+                if tags.get('source') is None:
                     tags['source'] = 'import;website'
                 else:
                     for st in ['import', 'website']:
@@ -486,7 +486,9 @@ def generate_osm_xml(df, session=None):
             try:
                 logging.debug('Rendering test data as XML comment.')
                 test_case = {k: row.get(k, None) for k in TESTCASE_GEN_KEYS}
-                comment = etree.Comment("ˇ'original': '{t[original]}', 'postcode': '{t[poi_postcode]}', 'city': '{t[poi_city]}', 'street': '{t[poi_addr_street]}', 'housenumber': '{t[poi_addr_housenumber]}', 'conscriptionnumber': '{t[poi_conscriptionnumber]}'°".format(t=test_case))
+                comment = etree.Comment(
+                    "ˇ'original': '{t[original]}', 'postcode': '{t[poi_postcode]}', 'city': '{t[poi_city]}', 'street': '{t[poi_addr_street]}', 'housenumber': '{t[poi_addr_housenumber]}', 'conscriptionnumber': '{t[poi_conscriptionnumber]}'°".format(
+                        t=test_case))
                 osm_xml_data.append(comment)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
@@ -518,7 +520,7 @@ def generate_osm_xml(df, session=None):
             # Not use preserved name for next item
             if 'preserved_name' in locals():
                 del preserved_name
-            logging.info('Finished processing: {}. item'.format(index+1))
+            logging.info('Finished processing: {}. item'.format(index + 1))
         logging.info('What is happening here')
     except ValueError as e:
         logging.exception('ValueError Exception occurred: {}'.format(e))

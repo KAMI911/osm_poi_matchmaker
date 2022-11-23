@@ -36,8 +36,10 @@ def online_poi_matching(args):
         Session = scoped_session(session_factory)
         session = Session()
         osm_live_query = OsmApi()
-        for i, row in data.iterrows():
-        #for i, row in data[data['poi_code'].str.contains('avia')].iterrows():
+        # for i, row in data.iterrows():
+        logging.info("wattafakka")
+        for i, row in data[data['poi_code'].str.contains('ping')].iterrows():
+            logging.info("starting")
             try:
                 # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
                 osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
@@ -62,7 +64,7 @@ def online_poi_matching(args):
                     lat = osm_query.get('lat').values[0]
                     lon = osm_query.get('lon').values[0]
                     if data.at[i, 'poi_lat'] != lat and data.at[i, 'poi_lon'] != lon:
-                        logging.info('Using new coodinates %s %s instead of %s %s.',
+                        logging.info('Using new coordinates %s %s instead of %s %s.',
                                      lat, lon, data.at[i, 'poi_lat'], data.at[i, 'poi_lon'])
                         data.at[i, 'poi_lat'] = lat
                         data.at[i, 'poi_lon'] = lon
@@ -290,6 +292,7 @@ def online_poi_matching(args):
                 logging.exception('Exception occurred')
 
         session.commit()
+        logging.info("bye bye")
         return data
     except Exception as e:
         logging.error(e)

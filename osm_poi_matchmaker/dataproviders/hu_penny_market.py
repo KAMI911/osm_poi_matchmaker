@@ -22,7 +22,7 @@ except ImportError as err:
 
 class hu_penny_market(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://www.penny.hu/uzleteim'
         self.tags = {'shop': 'supermarket', 'operator': 'Penny Market Kft.', 'brand': 'Penny Market',
                      'brand:wikidata': 'Q284688', 'brand:wikipedia': 'en:Penny (supermarket)',

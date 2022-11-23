@@ -83,7 +83,7 @@ def extract_javascript_variable(input_soup, removable, use_replace=False):
             else:
                 return None
         except AttributeError as e:
-            logging.warning('An exception has occured during JavaScript variable extraction.')
+            logging.warning('An exception has occurred during JavaScript variable extraction.')
     except Exception as e:
         logging.error(e)
         logging.exception('Exception occurred')
@@ -154,7 +154,7 @@ def extract_city_street_housenumber_address(clearable):
         if len(clearable.split(',')) > 1:
             street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
                 clearable.split(',')[1].strip())
-            return (city, street, housenumber, conscriptionnumber)
+            return city, street, housenumber, conscriptionnumber
         else:
             return city, None, None, None
     else:
@@ -330,7 +330,7 @@ def clean_phone(phone):
     phone = clean_string(str(phone))
     if phone is None or phone == '':
         return None
-   # Remove all whitespaces
+    # Remove all whitespaces
     original = phone
     if '(' in phone:
         phone = phone.split('(')[0]

@@ -20,7 +20,7 @@ except ImportError as err:
 
 class hu_budapest_bank(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://www.budapestbank.hu/apps/backend/branch-and-atm'
         self.tags = {'brand': 'Budapest Bank', 'brand:wikidata': 'Q27493463', 'bic': 'BUDAHUHB',
                      'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.',

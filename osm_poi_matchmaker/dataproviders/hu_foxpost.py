@@ -23,7 +23,7 @@ except ImportError as err:
 
 class hu_foxpost(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://cdn.foxpost.hu/foxpost_terminals_extended_v3.json'
         self.tags = {'brand': 'Foxpost', 'operator': 'FoxPost Zrt.',
                      'operator:addr': '3200 Gyöngyös, Batsányi János utca 9.', 'ref:vatin': 'HU25034644',

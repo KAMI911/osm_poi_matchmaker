@@ -25,7 +25,7 @@ PATTERN_SPAR_REF = re.compile('\((.*?)\)')
 
 class hu_spar(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://www.spar.hu/uzletek/_jcr_content.stores.v2'
         self.tags = {'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar',
                      'brand:wikipedia': 'hu:Spar', 'brand:wikidata': 'Q610492',

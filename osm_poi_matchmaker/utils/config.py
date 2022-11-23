@@ -35,6 +35,7 @@ def set_mode(mode):
 
 
 if not config.has_section(__mode.name):
+    logging.fatal('sections: %s', config.sections())
     logging.fatal('Config section missing for server %s', __mode.name)
     sys.exit(-1)
 
@@ -57,7 +58,7 @@ KEY_GEO_DEFAULT_POI_UNSAFE_DISTANCE = 'geo.default.poi.unsafe.distance'
 KEY_GEO_DEFAULT_POI_PERFECT_DISTANCE = 'geo.default.poi.perfect.distance'
 KEY_GEO_DEFAULT_POI_ROAD_DISTANCE = 'geo.default.poi.road.distance'
 KEY_GEO_AMENITY_ATM_POI_DISTANCE = 'geo.amenity.atm.poi.distance'
-KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE = 'geo.shop.conveience.poi.distance'
+KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE = 'geo.shop.convenience.poi.distance'
 KEY_GEO_AMENITY_POST_OFFICE_POI_DISTANCE = 'geo.amenity.post.office.poi.distance'
 KEY_GEO_PREFER_OSM_POSTCODE = 'geo.prefer.osm.postcode'
 KEY_GEO_ALTERNATIVE_OPENING_HOURS = 'geo.alternative.opening.hours'
@@ -162,7 +163,7 @@ def get_database_writer_username():
     if setting == 'poi':
         logging.warning(
             'Using default username. For security concerns please change default username in the config file and the database.')
-        if None != setting:
+        if setting is not None:
             return setting
     else:
         return 'poi'
@@ -191,6 +192,7 @@ def get_database_poi_database():
         return setting
     else:
         return 'poi'
+
 
 def get_database_enable_query_log():
     setting = get_config_bool(KEY_DATABASE_ENABLE_QUERY_LOG)
@@ -330,12 +332,14 @@ def get_use_general_source_website_date():
     else:
         return True
 
+
 def get_use_general_source_website_date_tag():
     setting = get_config_string(KEY_USE_GENERAL_SOURCE_WEBSITE_DATE_TAG)
     if setting is not None:
         return setting
     else:
         return 'source:date'
+
 
 def get_dataproviders_modules_available():
     setting = get_config_list(KEY_DATAPROVIDERS_MODULES_AVAILABLE)

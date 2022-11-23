@@ -23,7 +23,7 @@ except ImportError as err:
 
 class hu_cba(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'http://www.cba.hu/uzletlista'
         self.tags = {}
         self.tags.update(POS_HU_GEN)

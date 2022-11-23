@@ -15,12 +15,12 @@ services:
     ports:
       - "15432:5432"
     shm_size: 1G
-    volumes:
+    # volumes:
       #- ../container/dbdata-9.6-2.5:/var/lib/postgresql/data/
       # - ../container/dbdata-9.6:/var/lib/postgresql/data/
-      - ../container/dbdata-fresh:/var/lib/postgresql/data/
+      # - ../container/dbdata-fresh:/var/lib/postgresql/data/
       # - ${PWD}/osm2pgsql/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-    restart: on-failure:10
+    restart: on-failure
     oom_score_adj: -100
   osm_load_app:
     image: osm_loader:latest
@@ -28,27 +28,24 @@ services:
     environment:
       - PGPASSWORD=poitest
       - OSM2PGSQL_VERSION=1.6.0
-      - http_proxy=http://172.20.30.5:3128/
-      - https_proxy=http://172.20.30.5:3128/
     volumes:
       - ../container/osmdata:/opm/osm
     depends_on:
       - db
-    restart: on-failure:10
+    links:
+      - db
+    restart: on-failure
     oom_score_adj: -100
     mem_limit: 4g
   poi_load_app:
     image: osm_poi_matchmaker:latest
     container_name: opm_poi_load_app
-    environment:
-      - http_proxy=http://172.20.30.5:3128/
-      - https_proxy=http://172.20.30.5:3128/
     volumes:
       - ../container/osmdata:/opm/osm
       - ../container/importdata:/opm/osm_poi_matchmaker/output
       - ../container/downloaddata:/opm/osm_poi_matchmaker/cache_url
     depends_on:
       - db
-    restart: on-failure:10
+    restart: on-failure
     oom_score_adj: -100
     mem_limit: 4g

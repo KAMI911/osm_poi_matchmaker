@@ -20,7 +20,7 @@ except ImportError as err:
 class hu_mol_bubi(DataProvider):
     # Processing https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb file
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb'
         self.tags = {'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'operator': 'BKK MOL Bubi', 'network': 'bubi',
                      'contact:instagram': 'https://www.instagram.com/molbubi/',

@@ -22,7 +22,7 @@ except ImportError as err:
 
 class hu_takko(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = ''
         self.tags = {'shop': 'clothes', 'operator': 'Takko Fashion Kft.',
                      'operator:addr': '2040 Budaörs, Ébner György köz 4.',

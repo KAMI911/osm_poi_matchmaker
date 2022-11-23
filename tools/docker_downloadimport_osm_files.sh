@@ -60,13 +60,13 @@ if [ -f "${OUTPUT_DIR}/do_osm_import" -a "${IMPORT}" -eq "1" ]; then
     osm2pgsql -v -c -l -s -d poi --style /opm/osm2pgsql/default.style --number-processes 12 --extra-attributes --multi-geometry --cache-strategy optimized -C 800 -U poi -H opm_db ${OUTPUT_DIR}/${FILE}
     exitcode=${?}
     if [ "$exitcode" != "0" ]; then
-      echo "ERROR occured during OSM import!"
+      echo "ERROR occurred during OSM import!"
       exit 10
     else
       rm "${OUTPUT_DIR}/osm_download.lock" "${OUTPUT_DIR}/osm_import.lock"
     fi
   else
-    echo "Non zero exit code for md5sum, please redownload the OSM pbf file."
+    echo "Non zero exit code for md5sum, please re-download the OSM pbf file."
     exit 5
   fi
 else

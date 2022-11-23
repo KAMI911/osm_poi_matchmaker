@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import traceback
 
 try:
     import logging
@@ -104,13 +105,14 @@ class hu_street_types_from_xml():
 class poi_patch_from_csv():
     """Insert CVS patch data into database poi_patch table
     """
-    def __init__(self, session, filename : str='poi_patch.csv'):
+
+    def __init__(self, session, filename: str = 'poi_patch.csv'):
         """[summary]
 
         Args:
             session ([type]): [description]
             filename (str, optional): Filename of CSV file to import. Defaults to 'poi_patch.csv'.
-        """        
+        """
         self.session = session
         self.filename = filename
 
@@ -119,16 +121,18 @@ class poi_patch_from_csv():
         csv = csv.replace({np.nan: None})
         insert_patch_data_dataframe(self.session, csv)
 
+
 class poi_country_from_csv():
     """Insert CVS country data into database country table
     """
-    def __init__(self, session, filename : str='country.csv'):
+
+    def __init__(self, session, filename: str = 'country.csv'):
         """[summary]
 
         Args:
             session ([type]): [description]
             filename (str, optional): Filename of CSV file to import. Defaults to 'country.csv'.
-        """        
+        """
         self.session = session
         self.filename = filename
 

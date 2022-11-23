@@ -23,7 +23,7 @@ except ImportError as err:
 
 class hu_mol_plugee_ev(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = os.path.join(
             config.get_directory_cache_url(), 'hu_mol_plugee_ev.csv')
         self.tags = {'amenity': 'charging_station', 'authentication:app': 'yes', 'authentication:none': 'yes',

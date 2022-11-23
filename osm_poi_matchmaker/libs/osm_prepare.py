@@ -9,6 +9,7 @@ except ImportError as err:
 
     sys.exit(128)
 
+
 def index_osm_data(session):
     query = sqlalchemy.text('''
 CREATE INDEX IF NOT EXISTS i_street_type ON street_type(street_type);

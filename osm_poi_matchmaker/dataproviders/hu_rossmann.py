@@ -24,7 +24,7 @@ except ImportError as err:
 
 class hu_rossmann(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://www.rossmann.hu/uzletkereso'
         self.tags = {'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.',
                      'operator:addr': '2225 Üllő, Zsaróka út 8.', 'ref:vatin:hu': '11149769-2-44',

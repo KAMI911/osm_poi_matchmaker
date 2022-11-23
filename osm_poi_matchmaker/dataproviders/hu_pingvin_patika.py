@@ -25,7 +25,7 @@ except ImportError as err:
 
 class hu_pingvin_patika(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://pingvinpatika.hu/patikak'
 
         self.tags = {'brand': 'Pingvin Patika', 'dispensing': 'yes',
@@ -62,8 +62,8 @@ class hu_pingvin_patika(DataProvider):
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 extract = extract_javascript_variable(soup, 'pharmacies')
-                #extract = extract[:-1]
-                extract = extract.replace('">','\">')
+                # extract = extract[:-1]
+                extract = extract.replace('">', '\">')
                 extract = extract.replace('="', '=\"')
                 extract = extract.replace('" ', '\" ')
                 pois = json.loads(extract)
@@ -71,10 +71,10 @@ class hu_pingvin_patika(DataProvider):
                     try:
                         self.data.name = 'Pingvin Patika'
                         self.data.code = 'hupingvpha'
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'),
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lon'))
                         self.data.city, self.data.street, self.data.housenumber, \
-                          self.data.conscriptionnumber = extract_city_street_housenumber_address(poi_data.get('address'))
-                                                                         poi_data.get('lon'))
+                        self.data.conscriptionnumber = extract_city_street_housenumber_address(poi_data.get('address'))
+
                         # TODO: Process opening_hours
                         soup = BeautifulSoup(poi_data.get('content'))
                         try:

@@ -22,7 +22,7 @@ except ImportError as err:
 
 class hu_tom_market(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://tommarket.hu/hu/?mod=partners&cla=partners&fun=getPartnerCoordinates&ajax=1'
         self.tags = {'shop': 'convenience', 'name': 'Tom Market',
                      'contact:facebook': 'https://www.facebook.com/TOM.Market.Magyarorszag'}

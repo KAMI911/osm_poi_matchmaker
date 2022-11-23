@@ -22,7 +22,7 @@ except ImportError as err:
 
 class hu_dm(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://services.dm.de/storedata/stores/bbox/49%2C16%2C45%2C23'
         self.tags = {'shop': 'chemist', 'operator': 'dm Kft.', 'brand': 'dm',
                      'brand:wikidata': 'Q266572', 'brand:wikipedia': 'en:Dm-drogerie markt',
