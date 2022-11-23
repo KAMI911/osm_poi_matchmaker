@@ -35,7 +35,7 @@ def get_or_create(session, model, **kwargs):
 
 
 def get_or_create_poi(session, model, **kwargs):
-    if kwargs['poi_common_id'] is not None:
+    if kwargs.get('poi_common_id') is not None:
         if kwargs.get('poi_common_id') is not None and kwargs.get('poi_addr_city') is not None and (
         ( kwargs.get('poi_addr_street') is not None and kwargs.get('poi_addr_housenumber') is not None) or (
         kwargs.get('poi_conscriptionnumber') is not None)):
