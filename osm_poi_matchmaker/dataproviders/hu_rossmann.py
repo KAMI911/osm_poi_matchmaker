@@ -7,9 +7,10 @@ try:
     import re
     import json
     import traceback
+    from bs4 import BeautifulSoup
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
-        extract_javascript_variable, clean_opening_hours, clean_string
+    from osm_poi_matchmaker.libs.address import extract_all_address, extract_street_housenumber_better_2, clean_city, \
+        clean_opening_hours, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.enums import WeekDaysLong
@@ -35,8 +36,7 @@ class hu_rossmann(DataProvider):
                      'contact:youtube': 'https://www.youtube.com/channel/UCmUCPmvMLL3IaXRBtx7-J7Q',
                      'contact:instagram': 'https://www.instagram.com/rossmann_hu', 'air_conditioning': 'yes'}
         self.filetype = FileType.html
-        self.filename = '{}.{}'.format(
-            self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hurossmche = self.tags.copy()
@@ -46,7 +46,8 @@ class hu_rossmann(DataProvider):
             {'poi_code': 'hurossmche', 'poi_name': 'Rossmann', 'poi_type': 'chemist',
              'poi_tags': hurossmche, 'poi_url_base': 'https://www.rossmann.hu', 'poi_search_name': 'rossmann',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-             'osm_search_distance_unsafe': 3}]
+             'osm_search_distance_unsafe': 3},
+        ]
         return self.__types
 
     def process(self):
@@ -55,43 +56,35 @@ class hu_rossmann(DataProvider):
                                         self.filetype, None, self.verify_link)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
-                text = json.loads(extract_javascript_variable(soup, 'locations'))
-                pois = []
-                for poi_temp in text:
-                    try:
-                        poi_id = int(clean_string(poi_temp.get('id')))
-                        pois.insert(poi_id, poi_temp)
-                    except Exception as e:
-                        logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
-                        logging.exception(poi_temp)
-                text = json.loads(extract_javascript_variable(soup, 'additionals'))
-                for poi_temp in text:
-                    try:
-                        poi_id = int(clean_string(poi_temp.get('id')))
-                        pois.insert(poi_id, poi_temp)
-                    except Exception as e:
-                        logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
-                        logging.exception(poi_temp)
+                try:
+                    pois = json.loads(soup.find('script', {"type":"application/json"}).text).get('props').get('pageProps').get('stores')
+                except Exception as e:
+                    logging.exception('Exception occurred: {}'.format(e))
+                    logging.exception(traceback.print_exc())
+                    logging.exception(import_text)
+                    logging.exception(pois)
+                if pois is None:
+                    return None
                 for poi_data in pois:
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                         self.data.name = 'Rossmann'
                         self.data.code = 'hurossmche'
-                        self.data.city = clean_city(poi_data.get('city'))
-                        self.data.postcode = clean_string(poi_data.get('zip')) \
-                            if ('zip' in poi_data and poi_data.get('zip') != '') else None
-                        for i in range(0, 7):
-                            if WeekDaysLong(i).name.lower() in poi_data:
-                                opening, closing = clean_opening_hours(
-                                    poi_data[WeekDaysLong(i).name.lower()])
-                                self.data.day_open_close(i, opening, closing)
-                            else:
-                                self.data.day_open_close(i, None, None)
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data.get('street'))
-                        self.data.original = clean_string(poi_data.get('street'))
+                        self.data.postcode = clean_string(poi_data.get('zip_code'))
+                        self.data.city = clean_city(poi_data.get('city'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                                poi_data.get(('street')))
+                        opening_hours_raw = poi_data.get('openings')
+                        if opening_hours_raw is not None:
+                            opening_hours_dict = opening_hours_raw.split("\n")
+                            for i in range(0, 7):
+                                opening, closing = clean_opening_hours(opening_hours_dict[i])
+                                if opening is not None and closing is not None:
+                                    self.data.day_open_close(i, opening, closing)
+                                else:
+                                    self.data.day_open_close(i, None, None)
+                        self.data.original = clean_string(poi_data.get(('address')))
                         self.data.public_holiday_open = False
                         self.data.add()
                     except Exception as e:
