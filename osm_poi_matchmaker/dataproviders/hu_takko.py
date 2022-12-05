@@ -38,7 +38,7 @@ class hu_takko(DataProvider):
         hutakkocl.update(POS_HU_GEN)
         hutakkocl.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'hutakkocl', 'poi_name': 'Takko', 'poi_type': 'shop',
+            {'poi_code': 'hutakkocl', 'poi_name': 'Takko', 'poi_type': 'clothes',
              'poi_tags': hutakkocl, 'poi_url_base': 'https://takko.hu', 'poi_search_name': 'takko'},
         ]
         return self.__types
