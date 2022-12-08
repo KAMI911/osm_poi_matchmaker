@@ -245,10 +245,10 @@ def insert_poi_dataframe(session, poi_df, raw=True):
     poi_dict = poi_df.to_dict('records')
     try:
         for poi_data in poi_dict:
-            city_col = session.query(City.city_id) \
-                .filter(City.city_name == poi_data.get('poi_city')) \
+            city_col = session.query(City.city_id)\
+                .filter(City.city_name == poi_data.get('poi_city'))\
                 .filter(City.city_post_code == poi_data.get('poi_postcode')).first()
-            common_col = session.query(POI_common.pc_id) \
+            common_col = session.query(POI_common.pc_id)\
                 .filter(POI_common.poi_code == poi_data.get('poi_code')).first()
             if city_col is not None:
                 poi_data['poi_addr_city'] = city_col[0]
