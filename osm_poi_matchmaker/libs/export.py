@@ -47,7 +47,7 @@ def export_grouped_poi_data(data):
             try:
                 logging.info('Saving {} to file: {}.osm'.format(table, filename))
                 oxf.write(generate_osm_xml(rows))
-                logging.info('The {}.osm was sucessfully saved'.format(filename))
+                logging.info('The {}.osm was successfully saved'.format(filename))
             except Exception as e:
                 logging.exception('Exception occurred during write wile: {}'.format(e))
                 logging.error(traceback.print_exc())
@@ -62,19 +62,24 @@ def export_grouped_poi_data_with_postcode_groups(data):
         output_dir = data[0]
         filename = data[1]
         rows = data[2]
+        # Workaround for 'TypeError: geometries are not orderable error'
+        # https://github.com/geopandas/geopandas/issues/725
+        rows['geometry_wkb'] = rows['poi_geom'].apply(lambda poi_geom: poi_geom.wkb)
+        rows = data[2].sort_values(by=['geometry_wkb'])
         # Maximum number of items in one file
         batch = 100
         # Minimum difference between postcode grouped data sets
         postcode_gap = 200
         # Postcode minimum value
-        postcode_start = 1000
+        postcode_start = 0
         # Postcode maximum value
-        postcode_stop = 9999
-        if len(rows) > batch:
+        postcode_stop = len(rows)
+        if postcode_stop > batch:
             # Create sliced data output
             for i in range(postcode_start, postcode_stop, postcode_gap):
                 stop = i + postcode_gap - 1
-                xml_export = rows[rows['poi_postcode'].between(int(i), int(stop), inclusive="both")]
+                # xml_export = rows[rows['poi_postcode'].between(int(i), int(stop), inclusive="both")]
+                xml_export = rows[i:stop]
                 print(xml_export.to_string())
                 if len(xml_export) != 0:
                     with open(os.path.join(output_dir, '{}_{:04d}-{:04d}.osm'.format(filename, i, stop)), 'wb') as oxf:
