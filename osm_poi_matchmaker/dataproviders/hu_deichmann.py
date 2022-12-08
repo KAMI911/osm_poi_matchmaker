@@ -79,6 +79,8 @@ class hu_deichmann(DataProvider):
                                 closing =  poi_data.get('openingHours').get('weekDayOpeningList')[i].get('closingTime').get('formattedHour')
                                 self.data.day_open(i, opening)
                                 self.data.day_close(i, closing)
+                        except AttributeError:
+                            logging.info('Non existing opening hours value: {}'.format(poi_data))
                         except Exception as e:
                             logging.exception('Exception occurred: {}'.format(e))
                             logging.exception(traceback.print_exc())
