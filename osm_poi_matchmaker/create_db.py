@@ -175,6 +175,7 @@ def main():
         # Add additional empty fields
         logging.info('Starting STAGE 5 ...')
         del poi_addr_data
+
         logging.info('Starting STAGE 6 ...')
         poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
         logging.info('Merging dataframes ...')
@@ -200,7 +201,10 @@ def main():
         logging.info('Starting online POI matching part...')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
-        #insert_poi_dataframe(session, poi_addr_data, False)
+        '''
+        poi_addr_data['geometry_wkb'] = poi_addr_data['poi_geom'].apply(lambda poi_geom: poi_geom.wkb)
+        insert_poi_dataframe(session, poi_addr_data, False)
+        '''
         # Export filesets
         prefix = 'merge_'
         export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
@@ -210,7 +214,6 @@ def main():
         logging.info('Starting grouped matched POI ...')
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
         manager.join()
-
     except (KeyboardInterrupt, SystemExit):
         logging.info('Interrupt signal received')
         sys.exit(1)
