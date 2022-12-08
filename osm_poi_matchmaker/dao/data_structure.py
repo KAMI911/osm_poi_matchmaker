@@ -49,6 +49,7 @@ class POI_type(enum.Enum):
     waterway_fuel = 20
     fastfood = 21
     shoes = 22
+    optician = 23
 
 
 class POI_address_raw(Base):
