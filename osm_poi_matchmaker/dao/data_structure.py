@@ -50,6 +50,7 @@ class POI_type(enum.Enum):
     fastfood = 21
     shoes = 22
     optician = 23
+    bus_stop = 24
 
 
 class POI_address_raw(Base):
@@ -145,8 +146,15 @@ class POI_address_raw(Base):
                           backref='poi_address_raw')
     city = relationship('City', primaryjoin='POI_address_raw.poi_addr_city == City.city_id', backref='poi_address_raw')
 
-    # def __repr__(self):
-    #  return '<POI address {}: {}>'.format(self.pa_id, self.poi_name)
+    def __repr__(self):
+        return '<POI Address RAW {}: {} {} {} {};{}>'.format(
+            self.id,
+            self.poi_city,
+            self.poi_addr_street,
+            self.poi_addr_housenumber,
+            self.poi_lat,
+            self.poi_lon
+        )
 
 
 class POI_address(Base):
@@ -260,16 +268,26 @@ class POI_address(Base):
                           backref='poi_address')
     city = relationship('City', primaryjoin='POI_address.poi_addr_city == City.city_id', backref='poi_address')
 
-#'osm_changeset', 'osm_id', 'osm_live_tags', 'osm_node', 'osm_search_distance_perfect', 'osm_search_distance_safe', 'osm_search_distance_unsafe', 'osm_timestamp', 'osm_version', 'poi_search_avoid_name', 'poi_search_name', 'poi_tags', 'poi_type', 'poi_url_base', 'preserve_original_name', 'preserve_original_post_code'
+    # 'osm_changeset', 'osm_id', 'osm_live_tags', 'osm_node', 'osm_search_distance_perfect', 'osm_search_distance_safe', 'osm_search_distance_unsafe', 'osm_timestamp', 'osm_version', 'poi_search_avoid_name', 'poi_search_name', 'poi_tags', 'poi_type', 'poi_url_base', 'preserve_original_name', 'preserve_original_post_code'
     # def __repr__(self):
     #  return '<POI address {}: {}>'.format(self.pa_id, self.poi_name)
-
 
     def __init__(self, **entries):
         '''Override to avoid TypeError when passed spurious column names'''
         col_names = set([col.name for col in self.__table__.columns])
-        superentries = {k : entries[k] for k in col_names.intersection(entries.keys())}
+        superentries = {k: entries[k] for k in col_names.intersection(entries.keys())}
         super().__init__(**superentries)
+
+    def __repr__(self):
+        return '<POI Address {}: {} {} {} {};{}>'.format(
+            self.id,
+            self.poi_city,
+            self.poi_addr_street,
+            self.poi_addr_housenumber,
+            self.poi_lat,
+            self.poi_lon
+        )
+
 
 class POI_common(Base):
     __tablename__ = 'poi_common'
@@ -351,6 +369,7 @@ class POI_osm(Base):
 
     __table_args__ = (UniqueConstraint('poi_osm_id', 'poi_osm_object_type', name='uc_poi_osm_osm_type'),)
 
+
 class POI_patch(Base):
     """ This is database modell for patch table
     ph_id or id: primary key id
@@ -374,6 +393,10 @@ class POI_patch(Base):
     new_conscriptionnumber = Column(Unicode(16))
     new_name = Column(Unicode(64), unique=False, nullable=True, index=True)
 
+    def __repr__(self):
+        return '<POI patch {} {} {} {}>'.format(self.ph_id, self.orig_city, self.orig_street, self.orig_housenumber)
+
+
 class Country(Base):
     """ This is database modell for country table
     ph_id or id: primary key id
@@ -389,3 +412,6 @@ class Country(Base):
     country_iso3 = Column(Unicode(3), unique=True, nullable=False, index=True)
     country_number = Column(Integer, unique=True, nullable=False, index=True)
     country_full_name = Column(Unicode(128), unique=True, nullable=False, index=True)
+
+    def __repr__(self):
+        return '<Country {}>'.format(self.country_code)

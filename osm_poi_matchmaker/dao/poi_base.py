@@ -38,7 +38,7 @@ class POIBase:
         try:
             self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8',
                                                    echo=config.get_database_enable_query_log(), pool_size=20,
-                                                   max_overflow=10, pool_pre_ping=True, pool_use_lifo= True)
+                                                   max_overflow=10, pool_pre_ping=True, pool_use_lifo=True)
         except psycopg2.OperationalError as e:
             logging.error('Database error: %s', e)
             if self.retry_counter >= reco:
@@ -49,7 +49,7 @@ class POIBase:
                 time.sleep(self.db_retry_sleep)
                 self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8',
                                                        echo=config.get_database_enable_query_log(), pool_size=20,
-                                                       max_overflow=10, pool_pre_ping=True, pool_use_lifo= True)
+                                                       max_overflow=10, pool_pre_ping=True, pool_use_lifo=True)
                 self.db_retry_counter += 1
         self.Session = sqlalchemy.orm.sessionmaker(bind=self.engine)
         Base.metadata.create_all(self.engine)
@@ -74,7 +74,6 @@ class POIBase:
         :return: Full table read from SQL database table
         '''
         return pd.read_sql_table(table, self.engine)
-
 
     def query_all_gpd(self, table):
         '''
@@ -257,9 +256,9 @@ class POIBase:
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
                 perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type, query_name=query_name,
-                                                          metadata_fields=metadata_fields,
-                                                          conscriptionnumber_query=conscriptionnumber_query,
-                                                          city_query=city_query))
+                                                                                    metadata_fields=metadata_fields,
+                                                                                    conscriptionnumber_query=conscriptionnumber_query,
+                                                                                    city_query=city_query))
                 perf = self.session.execute(perf_query, query_params)
                 perf_rows = [row.values()[0] for row in perf]
                 logging.debug('\n'.join(perf_rows))
@@ -312,10 +311,10 @@ class POIBase:
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
                 perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type, query_name=query_name,
-                                                                    query_avoid_name=query_avoid_name,
-                                                                    metadata_fields=metadata_fields,
-                                                                    street_query=street_query, city_query=city_query,
-                                                                    housenumber_query=housenumber_query))
+                                                                                    query_avoid_name=query_avoid_name,
+                                                                                    metadata_fields=metadata_fields,
+                                                                                    street_query=street_query, city_query=city_query,
+                                                                                    housenumber_query=housenumber_query))
                 perf = self.session.execute(perf_query, query_params)
                 perf_rows = [row.values()[0] for row in perf]
                 logging.debug('\n'.join(perf_rows))
@@ -520,20 +519,20 @@ class POIBase:
         if config.get_database_enable_huge_query() == True:
             query_text = ['UNION ALL'.join(query_arr) + ' ORDER BY priority ASC, distance ASC;']
         else:
-            query_text = [ i + ' ORDER BY priority ASC, distance ASC;' for i in query_arr]
+            query_text = [i + ' ORDER BY priority ASC, distance ASC;' for i in query_arr]
         stage = 0
         for q in query_text:
             stage += 1
             query = sqlalchemy.text(q.format(query_type=query_type, query_name=query_name,
-                                    query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
-                                    street_query=street_query, city_query=city_query,
-                                    housenumber_query=housenumber_query))
+                                             query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
+                                             street_query=street_query, city_query=city_query,
+                                             housenumber_query=housenumber_query))
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
                 p_query = sqlalchemy.text('EXPLAIN ANALYZE ' + q.format(query_type=query_type, query_name=query_name,
-                                          query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
-                                          street_query=street_query, city_query=city_query,
-                                          housenumber_query=housenumber_query))
+                                                                        query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
+                                                                        street_query=street_query, city_query=city_query,
+                                                                        housenumber_query=housenumber_query))
                 perf = self.session.execute(p_query, query_params)
                 perf_rows = [row.values()[0] for row in perf]
                 logging.debug('\n'.join(perf_rows))
@@ -549,7 +548,6 @@ class POIBase:
         logging.info('Item not found at all.')
         self.session.close()
         return None
-
 
     def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='',
                                    in_building_percentage=0.50, distance=60):

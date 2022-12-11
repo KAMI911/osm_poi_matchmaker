@@ -79,6 +79,8 @@ def getPOITypes(ptype):
         query_type = "shop='shoes'"
     elif ptype == 'optician':
         query_type = "shop='optician'"
+    elif ptype == 'bus_stop':
+        query_type = "public_transport='stop_area'"
     else:
         query_type = None
         distance = 0

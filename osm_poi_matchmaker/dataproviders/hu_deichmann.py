@@ -23,14 +23,13 @@ except ImportError as err:
 
 class hu_deichmann(DataProvider):
 
-
     def contains(self):
         self.link = 'https://www.deichmann.com/hu-hu/rest/v2/deichmann-hu/mosaic/stores?latitude=47.6874569&longitude=17.6503974&pageSize=10000&radius=1000000&fields=FULL&format=json&lang=hu_HU'
         self.tags = {'shop': 'shoes', 'operator': ' Deichmann Cipőkereskedelmi Kft.',
                      'operator:addr': '1134 Budapest, Kassák Lajos utca 19-25. 6. emelet', 'ref:vatin:hu': '12583083-2-44',
                      'ref:vatin': 'HU12583083', 'ref:HU:company': '01 09 693582', 'brand': 'CCC', 'brand:wikidata': 'Q11788344',
                      'brand:wikipedia': 'hu:Deichmann', 'contact:email': 'ugyfelszolgalat@deichmann.com',
-                     'phone': '+36 80 840 840', 'contact:linkedin': 'https://www.linkedin.com/company/cccsa',
+                     'phone': '+36 80 840 840',
                      'contact:facebook': 'https://www.facebook.com/Deichmann.HU/',
                      'contact:youtube': 'https://www.youtube.com/user/Deichmann/',
                      'contact:instagram': 'https://www.instagram.com/deichmannhu/',
@@ -40,7 +39,6 @@ class hu_deichmann(DataProvider):
                      'air_conditioning': 'yes'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
-
 
     def types(self):
         hudeichsho = self.tags.copy()
@@ -54,7 +52,6 @@ class hu_deichmann(DataProvider):
              'osm_search_distance_unsafe': 50},
         ]
         return self.__types
-
 
     def process(self):
         try:
@@ -75,8 +72,8 @@ class hu_deichmann(DataProvider):
                         self.data.original = clean_string(poi_data.get('street'))
                         try:
                             for i in range(7):
-                                opening =  poi_data.get('openingHours').get('weekDayOpeningList')[i].get('openingTime').get('formattedHour')
-                                closing =  poi_data.get('openingHours').get('weekDayOpeningList')[i].get('closingTime').get('formattedHour')
+                                opening = poi_data.get('openingHours').get('weekDayOpeningList')[i].get('openingTime').get('formattedHour')
+                                closing = poi_data.get('openingHours').get('weekDayOpeningList')[i].get('closingTime').get('formattedHour')
                                 self.data.day_open(i, opening)
                                 self.data.day_close(i, closing)
                         except AttributeError:
