@@ -23,11 +23,13 @@ class DataProvider:
         self.session = session
         self.download_cache = download_cache
         self.filename = '{}.{}'.format(self.__class__.__name__, filetype)
+        self.filetype = None
         self.verify_link = verify_link
         self.link = None
         self.POI_COMMON_TAGS = None
         self.headers = None
         self.post = None
+        self.tags = None
         self.__types = None
         self.contains()
         self.data = POIDatasetRaw()

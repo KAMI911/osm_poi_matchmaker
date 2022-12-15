@@ -18,6 +18,10 @@ POI_COLS = poi_array_structure.POI_COLS
 POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
 
 
+def count(session, model):
+    return session.query(model.id).count()
+
+
 def get_or_create(session, model, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()
     if instance:
@@ -130,7 +134,16 @@ def get_or_create_common(session, model, **kwargs):
 
 
 def insert_city_dataframe(session, city_df):
+    db_count = count(session, City)
+    df_count = len(city_df)
+    logging.debug('city db_count={} patch_count={}'.format(db_count, df_count))
+    if db_count == df_count:
+        logging.debug('city dataframe count same as db row count, skipping processing data')
+        session.close()
+        return
+
     city_df.columns = ['city_post_code', 'city_name']
+
     try:
         for index, city_data in city_df.iterrows():
             get_or_create(session, City, city_post_code=city_data['city_post_code'],
@@ -149,25 +162,41 @@ def insert_city_dataframe(session, city_df):
         session.close()
 
 
-def insert_street_type_dataframe(session, city_df):
-    city_df.columns = ['street_type']
+def insert_street_type_dataframe(session, street_df):
+    db_count = count(session, Street_type)
+    df_count = len(street_df)
+    logging.debug('street db_count={} patch_count={}'.format(db_count, df_count))
+    if db_count == df_count:
+        logging.debug('street dataframe count same as db row count, skipping processing data')
+        session.close()
+        return
+
+    street_df.columns = ['street_type']
     try:
-        for index, city_data in city_df.iterrows():
-            get_or_create(session, Street_type, street_type=city_data['street_type'])
+        for index, street_data in street_df.iterrows():
+            get_or_create(session, Street_type, street_type=street_data['street_type'])
     except Exception as e:
         logging.error('Rolled back: %s.', e)
-        logging.error(city_data)
+        logging.error(street_data)
         logging.exception('Exception occurred')
 
         session.rollback()
     else:
-        logging.info('Successfully added %s street type items to the dataset.', len(city_df))
+        logging.info('Successfully added %s street type items to the dataset.', len(street_df))
         session.commit()
     finally:
         session.close()
 
 
 def insert_patch_data_dataframe(session, patch_df):
+    db_count = count(session, POI_patch)
+    df_count = len(patch_df)
+    logging.debug('poi patch db_count={} patch_count={}'.format(db_count, df_count))
+    if db_count == df_count:
+        logging.debug('poi patch dataframe count same as db row count, skipping processing data')
+        session.close()
+        return
+
     patch_df.columns = ['poi_code', 'orig_postcode', 'orig_city', 'orig_street', 'orig_housenumber', 'orig_conscriptionnumber', 'orig_name', 'new_postcode', 'new_city', 'new_street',
                         'new_housenumber', 'new_conscriptionnumber', 'new_name']
     try:
@@ -191,6 +220,14 @@ def insert_patch_data_dataframe(session, patch_df):
 
 
 def insert_country_data_dataframe(session, country_df):
+    db_count = count(session, Country)
+    df_count = len(country_df)  # minus header & last empty line
+    logging.debug('country db_count={} patch_count={}'.format(db_count, df_count))
+    if db_count == df_count:
+        logging.debug('country dataframe count same as db row count, skipping processing data')
+        session.close()
+        return
+
     country_df.columns = ['country_code', 'continent_code', 'country_name', 'country_iso3', 'country_number', 'country_full_name']
     try:
         for index, country_data in country_df.iterrows():
@@ -243,12 +280,25 @@ def insert_poi_dataframe(session, poi_df, raw=True):
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].fillna('0000')
     poi_df[['poi_postcode']] = poi_df[['poi_postcode']].astype('int32')
     poi_dict = poi_df.to_dict('records')
+
+    df_count = len(poi_df)
+    if raw is True:
+        db_count = count(session, POI_address_raw)
+    else:
+        db_count = count(session, POI_address)
+
+    logging.debug('poi address raw={} db_count={} patch_count={}'.format(raw, db_count, df_count))
+    if db_count == df_count:
+        logging.debug('poi address raw={} dataframe count same as db row count, skipping processing data'.format(raw))
+        session.close()
+        return
+
     try:
         for poi_data in poi_dict:
-            city_col = session.query(City.city_id)\
-                .filter(City.city_name == poi_data.get('poi_city'))\
+            city_col = session.query(City.city_id) \
+                .filter(City.city_name == poi_data.get('poi_city')) \
                 .filter(City.city_post_code == poi_data.get('poi_postcode')).first()
-            common_col = session.query(POI_common.pc_id)\
+            common_col = session.query(POI_common.pc_id) \
                 .filter(POI_common.poi_code == poi_data.get('poi_code')).first()
             if city_col is not None:
                 poi_data['poi_addr_city'] = city_col[0]
@@ -261,7 +311,7 @@ def insert_poi_dataframe(session, poi_df, raw=True):
             else:
                 get_or_create_poi(session, POI_address, **poi_data)
     except Exception as e:
-        logging.exception('Exception occured: {} rolled back: {}'.format(e, traceback.print_exc()))
+        logging.exception('Exception occurred: {} rolled back: {}'.format(e, traceback.print_exc()))
         session.rollback()
         raise e
     else:
@@ -281,15 +331,15 @@ def insert_type(session, type_data):
     try:
         for i in type_data:
             get_or_create_common(session, POI_common, **i)
+
+        logging.info('Successfully added %s type items to the dataset.', len(type_data))
+        session.commit()
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(i)
         logging.exception('Exception occurred')
 
         session.rollback()
-    else:
-        logging.info('Successfully added %s type items to the dataset.', len(type_data))
-        session.commit()
     finally:
         session.close()
 

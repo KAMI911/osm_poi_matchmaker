@@ -4,7 +4,6 @@ try:
     import logging
     import sys
     import configparser
-    import sys
     import os
     from enum import Enum
 except ImportError as err:

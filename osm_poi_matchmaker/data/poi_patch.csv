@@ -56,7 +56,6 @@ hupostacso	1836	Budapest	Bécsi út	258			1037	Budapest	Bécsi út	258
 *	1043	Budapest	Pozsonyi út	1			1045	Budapest	Pozsonyi utca	1		
 *	1046	Budapest	Kiss utca	*			1046	Budapest	Kiss Ernő utca	*		
 *	1048	Budapest	Külső-Szilágyi út	*			1048	Budapest	Külső Szilágyi út	*		
-*	1048	Budapest	Óceánárok utca	*			1048	Budapest	Óceán-árok utca	*		
 *	1052	Budapest	Apáczai Csere János  utca	*			1051	Budapest	Apáczai Csere János utca	*		
 *	1052	Budapest	Apáczai Csere János utca	*			1051	Budapest	Apáczai Csere János utca	*		
 *	1051	Budapest	Nádor u.	*			1051	Budapest	Nádor utca	*		
@@ -352,7 +351,6 @@ hupostapo	2046	Törökbálint	Depo raktár 				2046	Törökbálint	Depo
 *	2081	Piliscsaba	Kinizsi u.	*			2081	Piliscsaba	Kinizsi Pál utca	*		
 *	2083	Solymár	Mátyás Király utca	*			2083	Solymár	Mátyás király utca	*		
 *	2082	Solymár	Szent Flórián utca	*			2083	Solymár	Szent Flórián utca	*		
-*	2083	Solymár	Terstyánszky Ödön utca	*			2083	Solymár	Terstyánszky utca	*		
 *	2083	Solymár	Tersztyánszky Ödön utca	*			2083	Solymár	Terstyánszky utca	*		
 *	2083	Solymár	Tersztyánszky út	*			2083	Solymár	Terstyánszky utca	*		
 *	2084	Pilisszentiván	Szabadság utca	*			2084	Pilisszentiván	Szabadság út	*		
@@ -1063,7 +1061,6 @@ hupostapo	4202	Hajdúszoboszló	Szilfákalja utca	44			4202	Hajdúszoboszló	Szi
 *	4211	Ebes	Kossuth utca	*			4211	Ebes	Kossuth Lajos utca	*		
 *	4220	Hajdúböszörmény	Baltazár Dezső utca	*			4220	Hajdúböszörmény	Balthazár Dezső utca	*		
 *	4220	Hajduböszörmény	bánság tér				4220	Hajdúböszörmény	Bánság tér			
-*	4220	Hajdúböszörmény	Külső-Szoboszlói utca	2/B			4220	Hajdúböszörmény	Külső Szoboszlói út	2/b		
 *	0	Józsa	M35 autópálya 31. km szelvény JOBB oldal				4225	Debrecen	M35 autópálya			
 *	0	Józsa	M35 autópálya 31. km szelvény BAL oldal				4225	Debrecen	M35 autópálya			
 *	4225	Debrecen	Szentgyörgyfalvi utca	*			4225	Debrecen	Szentgyörgyfalvi út	*		

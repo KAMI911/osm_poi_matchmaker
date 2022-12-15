@@ -14,8 +14,9 @@ try:
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.libs.poi_qc import POIQC
+    from osm_poi_matchmaker.utils.cache import get_cached, set_cached
 except ImportError as err:
-    logging.error('Error %s import module: %s', module=__name__, error=err)
+    logging.error('Error %s import module: %s', err, __name__)
     logging.exception('Exception occurred')
 
     sys.exit(128)
@@ -27,9 +28,11 @@ POI_COLS = poi_array_structure.POI_COLS
 POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
 INTEGER_GEO = 100000
 
+
 class POIDatasetRaw:
     """Contains all handled OSM tags
     """
+
     def __init__(self):
         """
         """
@@ -456,13 +459,20 @@ class POIDatasetRaw:
     def street(self, data: str):
         self.__street = clean_string(data)
     '''
+
     # Temporary street locator for final check TODO: remove when two phase save is active
     @street.setter
     def street(self, data: str):
+        self.__street = data
+        cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
         # Try to find street name around
         try:
             logging.debug('Checking street name ...')
             if self.__lat is not None and self.__lon is not None:
+                cached = get_cached(cache_key)
+                if cached is not None:
+                    self.__street = cached
+                    return
                 query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
                 if query is None or query.empty:
                     query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'metaphone')
@@ -479,6 +489,7 @@ class POIDatasetRaw:
             else:
                 logging.debug('There are not coordinates. Is this a bug or missing data?')
                 self.__street = data
+            set_cached(cache_key, self.__street)
         except Exception as e:
             logging.error(e)
             logging.exception('Exception occurred')
@@ -925,7 +936,7 @@ class POIDatasetRaw:
                  self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
                  self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break_start,
                  self.__lunch_break_stop,
-                 self.__public_holiday_open, self.__opening_hours, self.__lat, self.__lon ])
+                 self.__public_holiday_open, self.__opening_hours, self.__lat, self.__lon])
             self.clear_all()
         except Exception as e:
             logging.error(e)
@@ -939,9 +950,11 @@ class POIDatasetRaw:
     def lenght(self):
         return len(self.insert_data)
 
+
 class POIDataset(POIDatasetRaw):
     """Contains all handled OSM tags
     """
+
     def __init__(self):
         """
         """
@@ -960,7 +973,6 @@ class POIDataset(POIDatasetRaw):
         self.__good = []
         self.__bad = []
 
-
     @property
     def street(self) -> str:
         return self.__street
@@ -970,7 +982,13 @@ class POIDataset(POIDatasetRaw):
         # Try to find street name around
         try:
             logging.debug('Checking street name ...')
+            cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
             if self.__lat is not None and self.__lon is not None:
+                cached = get_cached(cache_key)
+                if cached is not None:
+                    self.__street = cached
+                    return
+
                 query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
                 if query is None or query.empty:
                     query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'metaphone')
@@ -987,6 +1005,7 @@ class POIDataset(POIDatasetRaw):
             else:
                 logging.debug('There are not coordinates. Is this a bug or missing data?')
                 self.__street = data
+            set_cached(cache_key, self.__street)
         except Exception as e:
             logging.error(e)
             logging.exception('Exception occurred')

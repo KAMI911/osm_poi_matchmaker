@@ -12,3 +12,4 @@ psycopg2-binary>= 2.8.5
 xlrd>= 1.2.0
 phonenumbers>= 8.13.0
 lxml
+gtfs-kit>= 5.2.3

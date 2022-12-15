@@ -68,3 +68,4 @@ class FileType(enum.Enum):
     json = 1
     csv = 2
     xml = 3
+    zip = 4
