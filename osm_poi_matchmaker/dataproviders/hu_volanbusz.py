@@ -29,7 +29,7 @@ class hu_volanbusz(DataProvider):
 
     def contains(self):
         self.link = 'http://opendata.menetrendek.hu/public_gtfs/volanbusz_gtfs.zip'
-        self.tags = {'public_transport': 'platform', 'operator': 'Volánbusz Zrt.',
+        self.tags = {'highway': 'bus_stop', 'public_transport': 'platform', 'operator': 'Volánbusz Zrt.',
                      'operator:addr': '1091 Budapest, Üllői út 131.', 'ref:vatin:hu': '10824346-2-44',
                      'ref:vatin': 'HU10824346', 'brand': 'Volánbusz', 'brand:wikidata': 'Q746503',
                      'brand:wikipedia': 'hu:Volánbusz', 'contact:email': 'info@volanbusz.hu',
@@ -42,13 +42,11 @@ class hu_volanbusz(DataProvider):
 
     def types(self):
         huvolantra = self.tags.copy()
-        huvolantra.update(POS_HU_GEN)
-        huvolantra.update(PAY_CASH)
         self.__types = [
             {'poi_code': 'huvolantra', 'poi_name': 'Volánbusz', 'poi_type': 'bus_stop',
-             'poi_tags': 'huvolantra', 'poi_url_base': 'https://www.volanbusz.hu', 'poi_search_name': 'volanbusz',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-             'osm_search_distance_unsafe': 3},
+             'poi_tags': huvolantra, 'poi_url_base': 'https://www.volanbusz.hu', 'poi_search_name': 'volanbusz',
+             'osm_search_distance_perfect': 20, 'osm_search_distance_safe': 20,
+             'osm_search_distance_unsafe': 5},
         ]
         return self.__types
 
@@ -68,33 +66,35 @@ class hu_volanbusz(DataProvider):
 
             # processing stops
             for index, stop in stops_df.iterrows():
+                try:
+                    if index > 0 and index % 100 == 0:
+                        now = timer()
+                        per_item = (now - start) / index
+                        remaining = (len(stops_df) - index) * per_item
+                        logging.debug('stops {}/{}  elapsed={}  remaining={} total={}'.format(
+                            index,
+                            len(stops_df),
+                            timedelta(seconds=round(now - start)),
+                            timedelta(seconds=round(remaining)),
+                            timedelta(seconds=round(per_item * len(stops_df)))
+                        ))
 
-                if index > 0 and index % 100 == 0:
-                    if index > 1000:  # TODO remove me ;)
-                        break
-                    now = timer()
-                    per_item = (now - start) / index
-                    remaining = (len(stops_df) - index) * per_item
-                    logging.debug('stops {}/{}  elapsed={}  remaining={} total={}'.format(
-                        index,
-                        len(stops_df),
-                        timedelta(seconds=round(now - start)),
-                        timedelta(seconds=round(remaining)),
-                        timedelta(seconds=round(per_item * len(stops_df)))
+                    # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
+                    self.data.name = stop.get('stop_name')
+                    self.data.code = 'huvolantra'
+                    self.data.ref = 'volan:{}'.format(stop.get('stop_id'))
+                    self.data.lat, self.data.lon = check_hu_boundary(stop.get('stop_lat'), stop.get('stop_lon'))
+                    self.data.original = clean_string('id={} lat={} lon={} name={}'.format(
+                        stop.get('stop_id'),
+                        stop.get('stop_lat'),
+                        stop.get('stop_lon'),
+                        stop.get('stop_name')
                     ))
-
-                # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                self.data.name = stop.get('stop_name')
-                self.data.code = 'huvolantra:{}'.format(stop.get('stop_id'))
-                self.data.lat, self.data.lon = check_hu_boundary(stop.get('stop_lat'), stop.get('stop_lon'))
-                self.data.original = clean_string('id={} lat={} lon={} name={}'.format(
-                    stop.get('stop_id'),
-                    stop.get('stop_lat'),
-                    stop.get('stop_lon'),
-                    stop.get('stop_name')
-                ))
-                self.data.add()
-
+                    self.data.add()
+                except Exception as e:
+                    logging.exception('Exception occurred: {}'.format(e))
+                    logging.exception(traceback.print_exc())
+                    logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
             logging.exception(traceback.print_exc())
