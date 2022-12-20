@@ -270,9 +270,10 @@ class TestExtractPhoneNumber(unittest.TestCase):
              'replaced': '+36 26 501 400'},
             {'original': 'Akadálymentesen megközelíthető fiók és ATM<br />A fiókban a Prémium szolgáltatás elérhető.  <br> Telefonszám:(22) 515-260 </br>',
              'replaced': '+36 22 515 260'},
-            {
-                'original': 'Pláza, földszint, Búza tér felőli bejárat<br />Akadálymentesen megközelíthető fiók és ATM  <br> Telefonszám:(46) 504-540 </br>',
-                'replaced': '+36 46 504 540'},
+            {'original': 'Pláza, földszint, Búza tér felőli bejárat<br />Akadálymentesen megközelíthető fiók és ATM  <br> Telefonszám:(46) 504-540 </br>',
+             'replaced': '+36 46 504 540'},
+            {'original': '(+36) 20 2976 393',
+             'replaced': '+36 20 2976 393'},
         ]
 
     def test_extract_phone_number(self):
