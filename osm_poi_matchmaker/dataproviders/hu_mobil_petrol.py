@@ -61,11 +61,11 @@ class hu_mobil_petrol(DataProvider):
                         self.data.website = clean_url(poi_data.get('description'))
                         self.data.city = clean_city(poi_data.get('city'))
                         self.data.original = clean_string(poi_data.get('address'))
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data['location']['lat'],
-                                                                        poi_data['location']['lng'])
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('location').get('lat'),
+                                                                         poi_data.get('location').get('lng'))
                         self.data.postcode = None
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                            poi_data.get('address'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_street_housenumber_better_2(poi_data.get('address'))
                         self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                         self.data.public_holiday_open = False
                         if '0-24' in poi_data.get('services'):
