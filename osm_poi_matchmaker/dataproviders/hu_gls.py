@@ -61,7 +61,7 @@ class hu_gls(DataProvider):
                         self.data.code = 'huglscso'
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('location')[0], poi_data.get('location')[1])
-                        self.data.postcode = clean_string(poi_data.get('contact').get('zip'))
+                        self.data.postcode = clean_string(poi_data.get('contact').get('zipCode'))
                         self.data.city = clean_city(poi_data.get('contact').get('city'))
                         self.data.branch = poi_data.get('id')
                         self.data.original = poi_data.get('contact').get('address')
