@@ -405,7 +405,7 @@ def clean_string(clearable):
         return None
     if not isinstance(clearable, str):
         try:
-            logging.info('Non string input (%s) trying to convert to string ...', clearable)
+            # logging.debug('Non string input (%s) trying to convert to string ...', clearable)
             clearable = str(clearable)
         except Exception as e:
             logging.error(e)
