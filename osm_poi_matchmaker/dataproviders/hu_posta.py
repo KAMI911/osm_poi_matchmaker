@@ -174,8 +174,8 @@ class hu_posta(DataProvider):
                         # Get street name and type
                         street_tmp_1 = clean_street(e.street.find('name').get_text().strip()) \
                             if e.street.find('name') is not None else None
-                        street_tmp_2 = clean_street_type(e.street.type.get_text().strip()) \
-                            if e.street.type is not None else None
+                        street_tmp_2 = clean_street_type(e.street.find('type').get_text().strip()) \
+                            if e.street.find('type') is not None else None
                         # Streets without types
                         if street_tmp_2 is None:
                             self.data.street = street_tmp_1

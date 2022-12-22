@@ -255,7 +255,8 @@ class POIBase:
             logging.debug(str(query))
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
-                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type, query_name=query_name,
+                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
+                                                                                    query_name=query_name,
                                                                                     metadata_fields=metadata_fields,
                                                                                     conscriptionnumber_query=conscriptionnumber_query,
                                                                                     city_query=city_query))
@@ -310,10 +311,12 @@ class POIBase:
             logging.debug(str(query))
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
-                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type, query_name=query_name,
+                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
+                                                                                    query_name=query_name,
                                                                                     query_avoid_name=query_avoid_name,
                                                                                     metadata_fields=metadata_fields,
-                                                                                    street_query=street_query, city_query=city_query,
+                                                                                    street_query=street_query,
+                                                                                    city_query=city_query,
                                                                                     housenumber_query=housenumber_query))
                 perf = self.session.execute(perf_query, query_params)
                 perf_rows = [row.values()[0] for row in perf]
@@ -329,7 +332,7 @@ class POIBase:
         if street_query is not None and street_query != '':
             # Using street name for query
             if housenumber_query is not None and housenumber_query != '':
-                wnwswh = '''
+                wnwswh_w = '''
                 --- WITH NAME, WITH STREETNAME, WITH HOUSENUMBER
                 --- The way selector with street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 950 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -341,7 +344,9 @@ class POIBase:
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query} {housenumber_query}
                     AND ST_DistanceSphere(way, point.geom) < :distance_perfect
-                UNION ALL
+                '''
+                wnwswh_n = '''
+                --- WITH NAME, WITH STREETNAME, WITH HOUSENUMBER
                 --- The node selector with street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 950 AS priority, 'node' AS node, shop, amenity, "addr:housename",
                        "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
@@ -352,7 +357,9 @@ class POIBase:
                 FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE ({query_type}) AND osm_id > 0 {query_name} {street_query} {housenumber_query}
                     AND ST_DistanceSphere(way, point.geom) < :distance_perfect
-                UNION ALL
+                '''
+                wnwswh_r = '''
+                --- WITH NAME, WITH STREETNAME, WITH HOUSENUMBER
                 --- The relation selector with street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 950 AS priority, 'relation' AS node, shop, amenity,
                        "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
@@ -364,7 +371,7 @@ class POIBase:
                 WHERE ({query_type}) AND osm_id < 0 {query_name} {street_query} {housenumber_query}
                     AND ST_DistanceSphere(way, point.geom) < :distance_perfect
                 '''
-            wnwsnh = '''
+            wnwsnh_w = '''
             --- WITH NAME, WITH STREETNAME, NO HOUSENUMBER
             --- The way selector with street name and without housenumber
             SELECT name, osm_id, {metadata_fields} 970 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -376,7 +383,9 @@ class POIBase:
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE (({query_type}) AND osm_id > 0 {query_name} {street_query})
                 AND ST_DistanceSphere(way, point.geom) < :distance_safe
-            UNION ALL
+            '''
+            wnwsnh_n = '''
+            --- WITH NAME, WITH STREETNAME, NO HOUSENUMBER
             --- The node selector with street name and without housenumber
             SELECT name, osm_id, {metadata_fields} 970 AS priority, 'node' AS node, shop, amenity, "addr:housename",
                    "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
@@ -387,7 +396,9 @@ class POIBase:
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE (({query_type}) AND osm_id > 0 {query_name} {street_query})
                 AND ST_DistanceSphere(way, point.geom) < :distance_safe
-            UNION ALL
+            '''
+            wnwsnh_r = '''
+            --- WITH NAME, WITH STREETNAME, NO HOUSENUMBER
             --- The relation selector with street name and without housenumber
             SELECT name, osm_id, {metadata_fields} 970 AS priority, 'relation' AS node, shop, amenity,
                    "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
@@ -401,7 +412,7 @@ class POIBase:
             '''
         else:
             if housenumber_query is not None and housenumber_query != '':
-                wnnswh = '''
+                wnnswh_w = '''
                 --- WITH NAME, NO STREETNAME, WITH HOUSENUMBER
                 --- The way selector without street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 970 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -413,7 +424,9 @@ class POIBase:
                 FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE (({query_type}) AND osm_id > 0 {query_name} {housenumber_query})
                     AND ST_DistanceSphere(way, point.geom) < :distance_safe
-                UNION ALL
+                '''
+                wnnswh_n = '''
+                --- WITH NAME, NO STREETNAME, WITH HOUSENUMBER
                 --- The node selector without street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 970 AS priority, 'node' AS node, shop, amenity, "addr:housename",
                        "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
@@ -424,7 +437,9 @@ class POIBase:
                 FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
                 WHERE (({query_type}) AND osm_id > 0 {query_name} {housenumber_query})
                     AND ST_DistanceSphere(way, point.geom) < :distance_safe
-                UNION ALL
+                '''
+                wnnswh_r = '''
+                --- WITH NAME, NO STREETNAME, WITH HOUSENUMBER
                 --- The relation selector without street name and with housenumber
                 SELECT name, osm_id, {metadata_fields} 970 AS priority, 'relation' AS node, shop, amenity,
                        "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
@@ -438,7 +453,7 @@ class POIBase:
                     AND ST_DistanceSphere(way, point.geom) < :distance_safe
                 '''
         # Trying without street name and house number in case when the street name and/or the house not matching at all
-        wnnsnh = '''
+        wnnsnh_w = '''
         --- WITH NAME, NO STREETNAME, NO HOUSENUMBER
         --- The way selector without street name and without housenumber
         SELECT name, osm_id, {metadata_fields} 980 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -450,7 +465,9 @@ class POIBase:
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
         WHERE (({query_type}) AND osm_id > 0 {query_name} )
             AND ST_DistanceSphere(way, point.geom) < :distance_safe
-        UNION ALL
+        '''
+        wnnsnh_n = '''
+        --- WITH NAME, NO STREETNAME, NO HOUSENUMBER
         --- The node selector without street name and without housenumber
         SELECT name, osm_id, {metadata_fields} 980 AS priority, 'node' AS node, shop, amenity, "addr:housename",
                "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
@@ -461,7 +478,9 @@ class POIBase:
         FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
         WHERE (({query_type}) AND osm_id > 0 {query_name} )
             AND ST_DistanceSphere(way, point.geom) < :distance_safe
-        UNION ALL
+        '''
+        wnnsnh_r = '''
+        --- WITH NAME, NO STREETNAME, NO HOUSENUMBER
         --- The relation selector without street name and without housenumber
         SELECT name, osm_id, {metadata_fields} 980 AS priority, 'relation' AS node, shop, amenity,
                "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
@@ -474,7 +493,7 @@ class POIBase:
         WHERE (({query_type}) AND osm_id < 0 {query_name} )
             AND ST_DistanceSphere(way, point.geom) < :distance_safe
         '''
-        nnnsnh = '''
+        nnnsnh_w = '''
             --- NO NAME, NO STREETNAME, NO HOUSENUMBER
             --- The way selector without name and street name
             SELECT name, osm_id, {metadata_fields} 990 AS priority, 'way' AS node, shop, amenity, "addr:housename",
@@ -486,7 +505,9 @@ class POIBase:
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE (({query_type}) AND osm_id > 0 {query_avoid_name} )
                 AND ST_DistanceSphere(way, point.geom) < :distance_unsafe
-            UNION ALL
+        '''
+        nnnsnh_n = '''
+            --- NO NAME, NO STREETNAME, NO HOUSENUMBER
             --- The node selector without name and street name
             SELECT name, osm_id, {metadata_fields} 990 AS priority, 'node' AS node, shop, amenity, "addr:housename",
                    "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
@@ -497,7 +518,9 @@ class POIBase:
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE (({query_type}) AND osm_id > 0 {query_avoid_name} )
                 AND ST_DistanceSphere(way, point.geom) < :distance_unsafe
-            UNION ALL
+        '''
+        nnnsnh_r = '''
+            --- NO NAME, NO STREETNAME, NO HOUSENUMBER
             --- The relation selector without name street name
             SELECT name, osm_id, {metadata_fields} 990 AS priority, 'relation' AS node, shop, amenity,
                    "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
@@ -511,12 +534,28 @@ class POIBase:
                 AND ST_DistanceSphere(way, point.geom) < :distance_unsafe
         '''
         query_text = []
-        if 'wnwswh' in locals(): query_arr.append(wnwswh)
-        if 'wnwsnh' in locals(): query_arr.append(wnwsnh)
-        if 'wnnsnh' in locals(): query_arr.append(wnnsnh)
-        if 'nnnsnh' in locals(): query_arr.append(nnnsnh)
+        if 'wnwswh_w' in locals(): query_arr.append(wnwswh_w)
+        if 'wnwswh_n' in locals(): query_arr.append(wnwswh_n)
+        if 'wnwswh_r' in locals(): query_arr.append(wnwswh_r)
+
+        if 'wnwsnh_w' in locals(): query_arr.append(wnwsnh_w)
+        if 'wnwsnh_n' in locals(): query_arr.append(wnwsnh_n)
+        if 'wnwsnh_r' in locals(): query_arr.append(wnwsnh_r)
+
+        if 'wnnsnh_w' in locals(): query_arr.append(wnnsnh_w)
+        if 'wnnsnh_n' in locals(): query_arr.append(wnnsnh_n)
+        if 'wnnsnh_r' in locals(): query_arr.append(wnnsnh_r)
+
+        if 'wnnswh_w' in locals(): query_arr.append(wnnswh_w)
+        if 'wnnswh_n' in locals(): query_arr.append(wnnswh_n)
+        if 'wnnswh_r' in locals(): query_arr.append(wnnswh_r)
+
+        if 'nnnsnh_w' in locals(): query_arr.append(nnnsnh_w)
+        if 'nnnsnh_n' in locals(): query_arr.append(nnnsnh_n)
+        if 'nnnsnh_r' in locals(): query_arr.append(nnnsnh_r)
+
         #  Create smaller queries Issue #100
-        if config.get_database_enable_huge_query() == True:
+        if config.get_database_enable_huge_query():
             query_text = ['UNION ALL'.join(query_arr) + ' ORDER BY priority ASC, distance ASC;']
         else:
             query_text = [i + ' ORDER BY priority ASC, distance ASC;' for i in query_arr]
@@ -530,8 +569,10 @@ class POIBase:
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
                 p_query = sqlalchemy.text('EXPLAIN ANALYZE ' + q.format(query_type=query_type, query_name=query_name,
-                                                                        query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
-                                                                        street_query=street_query, city_query=city_query,
+                                                                        query_avoid_name=query_avoid_name,
+                                                                        metadata_fields=metadata_fields,
+                                                                        street_query=street_query,
+                                                                        city_query=city_query,
                                                                         housenumber_query=housenumber_query))
                 perf = self.session.execute(p_query, query_params)
                 perf_rows = [row.values()[0] for row in perf]

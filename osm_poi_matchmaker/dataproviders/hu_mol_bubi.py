@@ -92,8 +92,7 @@ class hu_mol_bubi(DataProvider):
                         self.data.capacity = clean_string(poi_data.get('bike_racks'))
                         self.data.nonstop = True
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
-                        self.data.postcode = query_postcode_osm_external(True, self.session, self.data.lon,
-                                                                         self.data.lat, None)
+                        self.data.postcode = None
                         self.data.public_holiday_open = True
                         self.data.add()
                     except Exception as e:

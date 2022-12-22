@@ -6,10 +6,12 @@ try:
     import sys
     import numpy as np
     import pandas as pd
+    from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
     from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch, clean_phone_to_str, clean_email
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.dao.poi_base import POIBase
@@ -22,7 +24,7 @@ except ImportError as err:
     sys.exit(128)
 
 __program__ = 'poi_dataset'
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
@@ -43,6 +45,10 @@ class POIDatasetRaw:
                                          config.get_database_writer_host(),
                                          config.get_database_writer_port(),
                                          config.get_database_poi_database()))
+        self.__pgsql_pool = self.__db.pool
+        self.__session_factory = sessionmaker(self.__pgsql_pool)
+        self.__Session = scoped_session(self.__session_factory)
+        self.__session = self.__Session()
         self.__code = None
         self.__postcode = None
         self.__city = None
@@ -463,36 +469,7 @@ class POIDatasetRaw:
     # Temporary street locator for final check TODO: remove when two phase save is active
     @street.setter
     def street(self, data: str):
-        self.__street = data
-        cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
-        # Try to find street name around
-        try:
-            logging.debug('Checking street name ...')
-            if self.__lat is not None and self.__lon is not None:
-                cached = get_cached(cache_key)
-                if cached is not None:
-                    self.__street = cached
-                    return
-                query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
-                if query is None or query.empty:
-                    query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'metaphone')
-                    if query is None or query.empty:
-                        logging.warning('There is no street around named or metaphone named: %s', data)
-                        self.__street = data
-                    else:
-                        new_data = query.at[0, 'name']
-                        logging.info('There is a metaphone street around named: %s, original was: %s.', new_data, data)
-                        self.__street = new_data
-                else:
-                    logging.info('There is a street around named: %s.', data)
-                    self.__street = data
-            else:
-                logging.debug('There are not coordinates. Is this a bug or missing data?')
-                self.__street = data
-            set_cached(cache_key, self.__street)
-        except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+        self.__street = clean_string(data)
 
     @property
     def housenumber(self) -> str:
@@ -890,10 +867,56 @@ class POIDatasetRaw:
     def dump_opening_hours(self):
         print(self.__opening_hours)
 
+    def process_street(self):
+        data = clean_string(self.__street)
+        if data is not None and data != 'None' and data != '':
+            cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
+            # Try to find street name around
+            try:
+                logging.debug('Checking street name ...')
+                if self.__lat is not None and self.__lon is not None:
+                    cached = get_cached(cache_key)
+                    if cached is not None:
+                        self.__street = cached
+                        return
+                    query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
+                    if query is None or query.empty:
+                        query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'metaphone')
+                        if query is None or query.empty:
+                            logging.warning('(1) There is no street around named or metaphone named: %s', data)
+                            self.__street = data
+                        else:
+                            new_data = query.at[0, 'name']
+                            logging.info('(1) There is a metaphone street around named: %s, original was: %s.', new_data, data)
+                            self.__street = new_data
+                    else:
+                        logging.info('(1) There is a street around named: %s.', data)
+                        self.__street = data
+                else:
+                    logging.debug('There are not coordinates. Is this a bug or missing data?')
+                    self.__street = data
+                set_cached(cache_key, self.__street)
+            except Exception as e:
+                logging.error(e)
+                logging.exception('Exception occurred')
+
+    def process_postcode(self):
+        '''Try to find postcode if it was not specified
+        '''
+        data = clean_string(self.__postcode)
+        if data is None or data == 0 or data == '':
+            osm_postcode = query_postcode_osm_external(True, self.__session, self.__lon, self.__lat, None)
+            if osm_postcode is None or data == 0:
+                self.__postcode = osm_postcode
+            else:
+                self.__postcode = None
+
     def add(self):
         try:
             self.process_opening_hours()
             self.process_geom()
+            self.process_street()
+            self.process_postcode()
             self.insert_data.append(
                 [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website,
                  self.__description, self.__fuel_adblue, self.__fuel_octane_100, self.__fuel_octane_98,
@@ -965,6 +988,10 @@ class POIDataset(POIDatasetRaw):
                                          config.get_database_writer_host(),
                                          config.get_database_writer_port(),
                                          config.get_database_poi_database()))
+        self.__pgsql_pool = self.__db.pool
+        self.__session_factory = sessionmaker(self.__pgsql_pool)
+        self.__Session = scoped_session(self.__session_factory)
+        self.__session = self.__Session()
         self.__good = []
         self.__bad = []
 
@@ -979,36 +1006,38 @@ class POIDataset(POIDatasetRaw):
 
     @street.setter
     def street(self, data: str):
-        # Try to find street name around
-        try:
-            logging.debug('Checking street name ...')
-            cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
-            if self.__lat is not None and self.__lon is not None:
-                cached = get_cached(cache_key)
-                if cached is not None:
-                    self.__street = cached
-                    return
+        data = clean_string(data)
+        if data is not None and data != '':
+            # Try to find street name around
+            try:
+                logging.debug('Checking street name ...')
+                cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
+                if self.__lat is not None and self.__lon is not None:
+                    cached = get_cached(cache_key)
+                    if cached is not None:
+                        self.__street = cached
+                        return
 
-                query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
-                if query is None or query.empty:
-                    query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'metaphone')
+                    query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
                     if query is None or query.empty:
-                        logging.warning('There is no street around named or metaphone named: %s', data)
-                        self.__street = data
+                        query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'metaphone')
+                        if query is None or query.empty:
+                            logging.warning('There is no street around named or metaphone named: %s', data)
+                            self.__street = data
+                        else:
+                            new_data = query.at[0, 'name']
+                            logging.info('There is a metaphone street around named: %s, original was: %s.', new_data, data)
+                            self.__street = new_data
                     else:
-                        new_data = query.at[0, 'name']
-                        logging.info('There is a metaphone street around named: %s, original was: %s.', new_data, data)
-                        self.__street = new_data
+                        logging.info('There is a street around named: %s.', data)
+                        self.__street = data
                 else:
-                    logging.info('There is a street around named: %s.', data)
+                    logging.debug('There are not coordinates. Is this a bug or missing data?')
                     self.__street = data
-            else:
-                logging.debug('There are not coordinates. Is this a bug or missing data?')
-                self.__street = data
-            set_cached(cache_key, self.__street)
-        except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+                set_cached(cache_key, self.__street)
+            except Exception as e:
+                logging.error(e)
+                logging.exception('Exception occurred')
 
     def add(self):
         try:
