@@ -78,9 +78,10 @@ def online_poi_matching(args):
                     data.at[i, 'osm_id'] = osm_id
                     data.at[i, 'osm_node'] = osm_node
                     # Refine postcode
-                    if row['preserve_original_post_code'] is not True:
+                    if row.get('preserve_original_post_code') is not True:
                         # Current OSM postcode based on lat,long query.
-                        postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session, lon, lat, row.get('poi_postcode'))
+                        postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session, lon, lat,
+                                                               row.get('poi_postcode'))
                         force_postcode_change = False  # TODO: Has to be a setting in app.conf
                         if force_postcode_change is True:
                             # Force to use datasource postcode
@@ -89,9 +90,9 @@ def online_poi_matching(args):
                                 data.at[i, 'poi_postcode'] = postcode
                         else:
                             # Try to use smart method for postcode check
-                            ch_posctode = smart_postcode_check(row, osm_query, postcode)
-                            if ch_posctode is not None:
-                                data.at[i, 'poi_postcode'] = ch_posctode
+                            ch_postcode = smart_postcode_check(row, osm_query, postcode)
+                            if ch_postcode is not None:
+                                data.at[i, 'poi_postcode'] = ch_postcode
                     else:
                         logging.info('Preserving original postcode %s', row.get('poi_postcode'))
                     # Overwrite housenumber import data with OSM truth
