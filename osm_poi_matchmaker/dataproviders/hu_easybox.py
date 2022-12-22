@@ -56,7 +56,6 @@ class hu_easybox(DataProvider):
                 for poi_data in text.get('data'):
                     try:
                         if poi_data.get('countryId') == 237:
-                            self.data.name = 'Easybox'
                             self.data.code = 'hueasybcso'
                             self.data.lat, self.data.lon = check_hu_boundary(
                                 poi_data.get('lat'), poi_data.get('lng'))

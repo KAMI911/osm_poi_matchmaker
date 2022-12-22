@@ -110,20 +110,15 @@ class hu_tesco(DataProvider):
                             self.session, self.data.lat, self.data.lon))
                         if 'xpres' in poi_data.get('name'):
                             if self.data.city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:
-                                self.data.name = 'Tesco Expressz'
                                 self.data.code = 'hutescoexp'
                             else:
-                                self.data.name = 'S-Market'
                                 self.data.code = 'husmrktexp'
                         elif 'xtra' in poi_data.get('name'):
-                            self.data.name = 'Tesco Extra'
                             self.data.code = 'hutescoext'
                         else:
                             if self.data.city not in ['Levél']:
-                                self.data.name = 'Tesco'
                                 self.data.code = 'hutescosup'
                             else:
-                                self.data.name = 'S-Market'
                                 self.data.code = 'husmrktsup'
                         self.data.original = poi_data.get('address')
                         if poi_data.get('phone') is not None and poi_data.get('phone') != '':

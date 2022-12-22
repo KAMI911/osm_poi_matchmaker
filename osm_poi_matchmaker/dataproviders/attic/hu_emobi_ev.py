@@ -53,7 +53,6 @@ class hu_emobi_ev(DataProvider):
             if poi_dict is not None:
                 for poi_data in poi_dict:
                     try:
-                        self.data.name = 'e-töltőpont'
                         self.data.code = 'huemobichs'
                         self.data.ref = poi_data.get('Mobiliti azonosító')
                         self.data.branch = poi_data.get('Töltőpont neve')

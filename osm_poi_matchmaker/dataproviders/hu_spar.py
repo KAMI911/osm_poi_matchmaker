@@ -75,19 +75,14 @@ class hu_spar(DataProvider):
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                         if 'xpres' in poi_data['name']:
-                            self.data.name = 'Spar Expressz'
                             self.data.code = 'husparecon'
                         elif 'INTER' in poi_data['name']:
-                            self.data.name = 'Interspar'
                             self.data.code = 'husparisup'
                         elif 'market' in poi_data['name']:
-                            self.data.name = 'Spar'
                             self.data.code = 'husparsup'
                         elif 'DESPAR' in poi_data['name']:
-                            self.data.name = 'DeSpar'
                             self.data.code = 'huspardcon'
                         else:
-                            self.data.name = 'Spar'
                             self.data.code = 'husparsup'
                         poi_data['name'] = poi_data['name'].replace(
                             'INTERSPAR', 'Interspar')

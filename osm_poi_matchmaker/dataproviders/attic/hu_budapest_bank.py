@@ -62,11 +62,9 @@ class hu_budapest_bank(DataProvider):
                 for poi_data in text:
                   try:
                     if poi_data['point_category'] == 1:
-                        self.data.name = 'Budapest Bank'
                         self.data.code = 'hubpbank'
                         self.data.public_holiday_open = False
                     else:
-                        self.data.name = 'Budapest Bank ATM'
                         self.data.code = 'hubpatm'
                         self.data.public_holiday_open = True
                     self.data.postcode = poi_data['point_zip']

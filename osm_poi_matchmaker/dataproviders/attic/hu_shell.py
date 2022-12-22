@@ -65,14 +65,12 @@ class hu_shell(DataProvider):
                 poi_dict = csv.to_dict('records')
                 for poi_data in poi_dict:
                     if poi_data['Brand'] == 'Shell':
-                        self.data.name = 'Shell'
                         self.data.code = 'hushellfu'
                         self.data.website = 'https://shell.hu/'
                     elif poi_data['Brand'] == 'Mobilpetrol':
                         # It seems Mobil Petrol data is outdated so do not process here
                         continue
                         """
-                        self.data.name = 'M. Petrol'
                         self.data.code = 'humobpefu'
                         self.data.website = 'http://mpetrol.hu/'
                         """

@@ -69,7 +69,6 @@ class hu_pingvin_patika(DataProvider):
                 pois = json.loads(extract)
                 for poi_data in pois:
                     try:
-                        self.data.name = 'Pingvin Patika'
                         self.data.code = 'hupingvpha'
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lon'))
                         self.data.city, self.data.street, self.data.housenumber, \

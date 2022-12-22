@@ -56,7 +56,6 @@ class hu_oil(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text:
                     try:
-                        self.data.name = 'OIL!'
                         self.data.code = 'huoilfu'
                         self.data.postcode = clean_string(poi_data.get('zip'))
                         self.data.city = clean_city(poi_data.get('city'))

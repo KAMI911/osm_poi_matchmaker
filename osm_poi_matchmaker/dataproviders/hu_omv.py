@@ -62,7 +62,6 @@ class hu_omv(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text:
                     try:
-                        self.data.name = 'OMV'
                         self.data.code = 'huomvfu'
                         self.data.postcode = clean_string(poi_data.get('postcode'))
                         self.data.city = clean_city(poi_data.get('town_l'))

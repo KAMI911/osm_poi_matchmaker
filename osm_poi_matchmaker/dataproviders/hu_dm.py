@@ -56,7 +56,6 @@ class hu_dm(DataProvider):
                 for poi_data in text['stores']:
                     try:
                         if poi_data.get('localeCountry').strip().upper() == 'HU':
-                            self.data.name = 'dm'
                             self.data.code = 'hudmche'
                             self.data.postcode = clean_string(poi_data.get('address')['zip'])
                             street_tmp = poi_data.get(

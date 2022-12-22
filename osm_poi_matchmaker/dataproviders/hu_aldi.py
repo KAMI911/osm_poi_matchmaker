@@ -58,7 +58,6 @@ class hu_aldi(DataProvider):
                 for poi_data in text.get('stores'):
                     try:
                         if poi_data.get('countryCode') == 'HU':
-                            self.data.name = 'Aldi'
                             self.data.code = 'hualdisup'
                             # Assign: code, postcode, city, name, branch, website, original
                             #         street, housenumber, conscriptionnumber, ref, geom

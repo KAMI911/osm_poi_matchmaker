@@ -80,7 +80,7 @@ class hu_volanbusz(DataProvider):
                         ))
 
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                    self.data.name = stop.get('stop_name')
+                    self.data.name = stop.get('stop_name').strip()
                     self.data.code = 'huvolantra'
                     self.data.poi_additional_ref = clean_string(stop.get('stop_id'))
                     self.data.lat, self.data.lon = check_hu_boundary(stop.get('stop_lat'), stop.get('stop_lon'))

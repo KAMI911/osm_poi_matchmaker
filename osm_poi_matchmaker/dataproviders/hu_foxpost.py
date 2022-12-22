@@ -57,7 +57,6 @@ class hu_foxpost(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text:
                     try:
-                        self.data.name = 'Foxpost'
                         self.data.code = 'hufoxpocso'
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data['geolat'], poi_data['geolng'])

@@ -59,7 +59,6 @@ class hu_mobiliti_ev(DataProvider):
                 for poi_data in poi_dict:
                     logging.info(poi_data)
                     try:
-                        self.data.name = 'Mobiliti'
                         self.data.code = 'humobilchs'
                         self.data.ref = clean_string(poi_data.get('Mobiliti azonosító'))
                         self.data.branch = clean_string(poi_data.get('Töltőpont neve'))

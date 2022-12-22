@@ -56,7 +56,6 @@ class hu_mobil_petrol(DataProvider):
                     extract_javascript_variable(soup, 'totem_stations'))
                 for poi_data in text.values():
                     try:
-                        self.data.name = 'Mobil Petrol'
                         self.data.code = 'humobpefu'
                         self.data.website = clean_url(poi_data.get('description'))
                         self.data.city = clean_city(poi_data.get('city'))

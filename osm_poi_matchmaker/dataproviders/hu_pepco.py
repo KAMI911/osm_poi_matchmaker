@@ -68,7 +68,6 @@ class hu_pepco(DataProvider):
                             self.data.city = clean_city(poi_data['city'])
                         else:
                             continue
-                        self.data.name = 'Pepco'
                         self.data.code = 'hupepcoclo'
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                         self.data.lat, self.data.lon = \

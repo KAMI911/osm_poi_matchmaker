@@ -62,7 +62,6 @@ class hu_kulcs_patika(DataProvider):
                                 self.data.name = clean_string(poi_data_poi.get('patika'))
                                 self.data.branch = None
                             else:
-                                self.data.name = 'Kulcs patika'
                                 self.data.branch = clean_string(poi_data_poi.get('patika'))
                             self.data.code = 'hukulcspha'
                             self.data.phone = clean_phone_to_str(poi_data_poi.get('phone'))

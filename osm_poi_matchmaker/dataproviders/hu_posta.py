@@ -86,15 +86,12 @@ class hu_posta(DataProvider):
                         continue
                     else:
                         if e.servicepointtype.get_text() == 'PM':
-                            self.data.name = 'Posta'
                             self.data.code = 'hupostapo'
                             self.data.public_holiday_open = False
                         elif e.servicepointtype.get_text() == 'CS':
-                            self.data.name = 'Posta csomagautomata'
                             self.data.code = 'hupostacso'
                             self.data.public_holiday_open = True
                         elif e.servicepointtype.get_text() == 'PP':
-                            self.data.name = 'PostaPont'
                             self.data.code = 'hupostapp'
                             self.data.public_holiday_open = False
                         else:
