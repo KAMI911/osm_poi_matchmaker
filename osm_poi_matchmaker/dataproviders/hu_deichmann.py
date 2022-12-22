@@ -45,7 +45,7 @@ class hu_deichmann(DataProvider):
         hudeichsho.update(POS_HU_GEN)
         hudeichsho.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'hudeichsho', 'poi_name': 'Deichmann', 'poi_type': 'shoes',
+            {'poi_code': 'hudeichsho', 'poi_common_name': 'Deichmann', 'poi_type': 'shoes',
              'poi_tags': hudeichsho, 'poi_url_base': 'https://www.deichmann.com/hu-hu', 'poi_search_name': 'deichmann',
              'poi_search_avoid_name': '(ccc)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,

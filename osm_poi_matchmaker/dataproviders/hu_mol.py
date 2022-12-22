@@ -58,17 +58,17 @@ class hu_mol(DataProvider):
         humolfaf.update(POS_HU_GEN)
         humolfaf.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'humolfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
+            {'poi_code': 'humolfu', 'poi_common_name': 'MOL', 'poi_type': 'fuel',
              'poi_tags': humolfu, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
              'poi_search_avoid_name': '(shell|m. petrol|avia|lukoil|hunoil)',
              'osm_search_distance_perfect': 2000,
              'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
-            {'poi_code': 'humolwfu', 'poi_name': 'MOL', 'poi_type': 'fuel',
+            {'poi_code': 'humolwfu', 'poi_common_name': 'MOL', 'poi_type': 'fuel',
              'poi_tags': humolwfu, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
              'poi_search_avoid_name': '(shell|m. petrol|avia|lukoil|hunoil)',
              'osm_search_distance_perfect': 2000,
              'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 100},
-            {'poi_code': 'humolfaf', 'poi_name': 'Fresh Corner', 'poi_type': 'fastfood',
+            {'poi_code': 'humolfaf', 'poi_common_name': 'Fresh Corner', 'poi_type': 'fastfood',
              'poi_tags': humolfaf, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'fresh corner',
              'poi_search_avoid_name': '(étterem|bistro|bisztr|csárda|bár)',
              'osm_search_distance_perfect': 200,

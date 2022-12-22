@@ -37,13 +37,13 @@ class hu_budapest_bank(DataProvider):
         hubpatm = {'amenity': 'atm'}
         hubpatm.update(self.tags)
         self.__types = [
-            {'poi_code': 'hubpbank', 'poi_name': 'Budapest Bank', 'poi_type': 'bank',
+            {'poi_code': 'hubpbank',  'poi_common_name':  'Budapest Bank', 'poi_type': 'bank',
              'poi_tags': hubpbank, 'poi_url_base': 'https://www.budapestbank.hu',
              'poi_search_name': '(budapest bank|bp bank)',
              'poi_search_avoid_name': '(otpbank|otp|otp bank)',
              'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 40},
-            {'poi_code': 'hubpatm', 'poi_name': 'Budapest Bank ATM', 'poi_type': 'atm',
+            {'poi_code': 'hubpatm',  'poi_common_name':  'Budapest Bank ATM', 'poi_type': 'atm',
              'poi_tags': hubpatm,
              'poi_url_base': 'https://www.budapestbank.hu',
              'poi_search_name': '(budapest bank|budapest bank atm|bp bank|bp bank atm)',

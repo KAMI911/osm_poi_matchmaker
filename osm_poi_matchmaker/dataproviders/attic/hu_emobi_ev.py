@@ -37,7 +37,7 @@ class hu_emobi_ev(DataProvider):
 
     def types(self):
         self.__types = [
-            {'poi_code': 'huemobichs', 'poi_name': 'Mobility', 'poi_type': 'charging_station',
+            {'poi_code': 'huemobichs',  'poi_common_name':  'Mobility', 'poi_type': 'charging_station',
              'poi_tags': self.tags,
              'poi_url_base': 'https://www.mobiliti.hu/emobilitas',
              'poi_search_name': '(e-mobi|emobi|e-töltőpont|mobility)',

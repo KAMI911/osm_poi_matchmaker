@@ -40,7 +40,7 @@ class hu_yves_rocher(DataProvider):
         huyvesrcos.update(POS_HU_GEN)
         huyvesrcos.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'huyvesrcos', 'poi_name': 'Yves Rocher', 'poi_type': 'cosmetics',
+            {'poi_code': 'huyvesrcos', 'poi_common_name': 'Yves Rocher', 'poi_type': 'cosmetics',
              'poi_tags': huyvesrcos, 'poi_url_base': 'https://www.yves-rocher.hu/',
              'poi_search_name': 'yves rocher',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,

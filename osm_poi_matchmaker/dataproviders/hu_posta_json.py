@@ -55,16 +55,16 @@ class hu_posta_json(DataProvider):
         hupostamp.update(self.tags)
 
         data = [
-            {'poi_code': 'hupostapo', 'poi_name': 'Posta', 'poi_type': 'post_office',
+            {'poi_code': 'hupostapo', 'poi_common_name': 'Posta', 'poi_type': 'post_office',
              'poi_tags': hupostapo, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta'},
-            {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkautomata', 'poi_type': 'vending_machine_cheques',
+            {'poi_code': 'hupostacse', 'poi_common_name': 'Posta csekkautomata', 'poi_type': 'vending_machine_cheques',
              'poi_tags': hupostacse, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta'},
-            {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata',
+            {'poi_code': 'hupostacso', 'poi_common_name': 'Posta csomagautomata',
              'poi_type': 'vending_machine_parcel_locker',
              'poi_tags': hupostacso, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(mpl|posta)'},
-            {'poi_code': 'hupostapp', 'poi_name': 'PostaPont', 'poi_type': 'post_office',
+            {'poi_code': 'hupostapp', 'poi_common_name': 'PostaPont', 'poi_type': 'post_office',
              'poi_tags': hupostapp, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(postapont|posta)'},
-            {'poi_code': 'hupostamp', 'poi_name': 'Mobilposta', 'poi_type': 'post_office',
+            {'poi_code': 'hupostamp', 'poi_common_name': 'Mobilposta', 'poi_type': 'post_office',
              'poi_tags': hupostamp, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta'}]
         return data
 

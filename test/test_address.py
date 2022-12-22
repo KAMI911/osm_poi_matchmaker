@@ -156,6 +156,8 @@ class TestPhoneClener(unittest.TestCase):
             {'original': '06205089009(Központi Telszám: Benzinkút, Motel, Kávézó, Szobafoglalás)',
              'converted': ['+36 20 508 9009']},
             {'original': '  ', 'converted': None},
+            {'original': '(+36) 20 2976 393', 'converted': '+36 20 2976 393'},
+
         ]
 
     def test_clean_phone(self):
@@ -272,8 +274,6 @@ class TestExtractPhoneNumber(unittest.TestCase):
              'replaced': '+36 22 515 260'},
             {'original': 'Pláza, földszint, Búza tér felőli bejárat<br />Akadálymentesen megközelíthető fiók és ATM  <br> Telefonszám:(46) 504-540 </br>',
              'replaced': '+36 46 504 540'},
-            {'original': '(+36) 20 2976 393',
-             'replaced': '+36 20 2976 393'},
         ]
 
     def test_extract_phone_number(self):

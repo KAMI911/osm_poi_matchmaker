@@ -46,7 +46,7 @@ class hu_pingvin_patika(DataProvider):
         hupingvpha.update(POS_HU_GEN)
         hupingvpha.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'hupingvpha', 'poi_name': 'Pingvin Patika', 'poi_type': 'pharmacy',
+            {'poi_code': 'hupingvpha', 'poi_common_name': 'Pingvin Patika', 'poi_type': 'pharmacy',
              'poi_tags': hupingvpha, 'poi_url_base': 'https://pingvinpatika.hu',
              'poi_search_name': '(pingvinpatika|pingvin patika)',
              'poi_search_avoid_name': '(alma|benu|plus|kulcs|unipatika)',

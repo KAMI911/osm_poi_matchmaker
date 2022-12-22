@@ -38,7 +38,7 @@ class hu_obi(DataProvider):
         huobidiy.update(POS_HU_GEN)
         huobidiy.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'huobidiy', 'poi_name': 'OBI', 'poi_type': 'doityourself',
+            {'poi_code': 'huobidiy', 'poi_common_name': 'OBI', 'poi_type': 'doityourself',
              'poi_tags': huobidiy, 'poi_url_base': 'https://www.obi.hu', 'poi_search_name': 'obi',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
         ]

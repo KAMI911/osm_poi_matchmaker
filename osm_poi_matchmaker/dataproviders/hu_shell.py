@@ -40,7 +40,7 @@ class hu_shell(DataProvider):
                           'brand:wikidata': 'Q154950', 'brand:wikipedia': 'hu:Royal Dutch Shell',
                           'air_conditioning': 'yes'})
         self.__types = [
-            {'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel', 'poi_tags': hushellfu,
+            {'poi_code': 'hushellfu', 'poi_common_name': 'Shell', 'poi_type': 'fuel', 'poi_tags': hushellfu,
              'poi_url_base': 'https://shell.hu', 'poi_search_name': 'shell',
              'poi_search_avoid_name': '(mol|m. petrol|avia|lukoil|hunoil)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},

@@ -40,11 +40,11 @@ class hu_kh_bank(DataProvider):
         hukhatm = {'amenity': 'atm'}
         hukhatm.update(self.tags)
         self.__types = [
-            {'poi_code': 'hukhbank', 'poi_name': 'K&H Bank', 'poi_type': 'bank',
+            {'poi_code': 'hukhbank', 'poi_common_name': 'K&H Bank', 'poi_type': 'bank',
              'poi_tags': hukhbank, 'poi_url_base': 'https://www.kh.hu',
              'poi_search_name': '(kh bank|k&h bank|k&h|kh)', 'osm_search_distance_perfect': 2000,
              'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 4},
-            {'poi_code': 'hukhatm', 'poi_name': 'K&H Bank ATM', 'poi_type': 'atm',
+            {'poi_code': 'hukhatm', 'poi_common_name': 'K&H Bank ATM', 'poi_type': 'atm',
              'poi_tags': hukhatm, 'poi_url_base': 'https://www.kh.hu',
              'poi_search_name': '(kh bank atm|k&h bank atm|k&h atm|kh atm)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80,

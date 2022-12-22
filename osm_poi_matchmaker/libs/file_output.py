@@ -24,7 +24,7 @@ except ImportError as err:
 
     sys.exit(128)
 
-POI_TAGS = {'poi_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:postcode',
+POI_TAGS = {'poi_common_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:postcode',
             'poi_addr_street': 'addr:street', 'poi_addr_housenumber': 'addr:housenumber',
             'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email'}
 
@@ -348,6 +348,14 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.error(traceback.print_exc())
             try:
+                # If there is additional_ref_name then use it as key and poi_additional_ref as value
+                if row.get('additional_ref_name') is not None and row.get('poi_additional_ref') is not None:
+                    tags['ref:{}'.format(row.get('additional_ref_name'))] = row.get('poi_additional_ref')
+                    logging.debug('Add ref:{} tag with phone numbers.'.format(row.get('additional_ref_name')))
+            except Exception as e:
+                logging.exception('Exception occurred: {}'.format(e))
+                logging.error(traceback.print_exc())
+            try:
                 # If we got POI website tag use it as OSM contact:website tag
                 logging.debug('Add contact:website tag with website URL.')
                 tags['contact:website'] = url_tag_generator(row.get('poi_url_base'), row.get('poi_website'))
@@ -383,9 +391,12 @@ def generate_osm_xml(df, session=None):
                 logging.error(traceback.print_exc())
             try:
                 # Write back the saved name tag
-                logging.debug('Add back preserved name.')
                 if 'preserved_name' in locals():
+                    logging.debug('Add back "{}" preserved name instead of common name.'.format(preserved_name))
                     tags['name'] = preserved_name
+                elif row.get('name') is not None:
+                    logging.debug('Add "{}" individual name instead of common name.'.format(row.get('name')))
+                    tags['name'] = row.get('name')
                 # Rewrite old contact tags to contact:* tag form
                 logging.debug('Rewrite old contact tags to contact:* tag form.')
                 tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax']
