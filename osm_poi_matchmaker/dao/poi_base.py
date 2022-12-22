@@ -138,9 +138,11 @@ class POIBase:
         return data.values.tolist()[0][0]
 
     def query_osm_shop_poi_gpd(self, lon: float, lat: float, ptype: str = 'shop', name: str = None,
-                               avoid_name: str = None, street_name: str = None, housenumber: str = None,
-                               conscriptionnumber: str = None, city: str = None, distance_perfect: int = None,
-                               distance_safe: int = None, distance_unsafe: int = None, with_metadata: bool = True):
+                               avoid_name: str = None, unique_name: str = None,
+                               additional_ref_name: str = None, unique_ref: str = None,
+                               street_name: str = None, housenumber: str = None, conscriptionnumber: str = None,
+                               city: str = None, distance_perfect: int = None, distance_safe: int = None,
+                               distance_unsafe: int = None, with_metadata: bool = True):
         '''
         Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
         :param lon:
@@ -148,6 +150,9 @@ class POIBase:
         :param ptype:
         :param name:
         :param avoid_name:
+        :param unique_name: Individual name of selected POI
+        :param additional_ref_name: name of additional reference type
+        :param unique_ref:  Individual reference number of additional reference type
         :param street_name:
         :param housenumber:
         :param conscriptionnumber:
@@ -155,7 +160,7 @@ class POIBase:
         :param distance_perfect:
         :param distance_safe:
         :param distance_unsafe:
-        :parm with_metadata:
+        :param with_metadata:
         :return:
         '''
         buffer = 10
@@ -190,6 +195,16 @@ class POIBase:
             query_params.update({'avoid_name': '.*{}.*'.format(avoid_name)})
         else:
             query_avoid_name = ''
+        if unique_name is not None and unique_name != '':
+            query_unique_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:unique_name))'
+            query_params.update({'unique_name': unique_name})
+        else:
+            query_unique_name = ''
+        if additional_ref_name is not None and additional_ref_name != '' and unique_ref is not None and unique_ref != '':
+            query_unique_ref = ' AND (LOWER(TEXT(ref:{})) = LOWER(TEXT(:unique_ref))'.format(additional_ref_name)
+            query_params.update({'unique_ref': unique_ref})
+        else:
+            query_unique_ref = ''
         if with_metadata is True:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
         else:
@@ -216,7 +231,102 @@ class POIBase:
             city_query = ''
         logging.debug('%s %s: %s, %s (NOT %s), %s %s %s (%s) [%s, %s, %s]', lon, lat, ptype, name, avoid_name, city,
                       street_name, housenumber, conscriptionnumber, distance_perfect, distance_safe, distance_unsafe)
-        # Looking for way (building)
+        if additional_ref_name is not None and additional_ref_name != '' and unique_ref is not None and unique_ref != '':
+            query_text = '''
+            --- WITH ADDITIONAL REF
+            --- The way selector with additional ref
+            SELECT name, osm_id, {metadata_fields} 930 AS priority, 'way' AS node, highway, "ref:{additional_ref_name}",
+                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
+                   ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
+            FROM planet_osm_polygon
+            WHERE ({query_type}) AND osm_id > 0 {query_unique_ref}
+            UNION ALL
+            --- The node selector with with additional ref
+            SELECT name, osm_id, {metadata_fields} 930 AS priority, 'node' AS node, highway, "ref:{additional_ref_name}",
+                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   ST_X(planet_osm_point.way) as lon,
+                   ST_Y(planet_osm_point.way) as lat
+            FROM planet_osm_point
+            WHERE ({query_type}) AND osm_id > 0 {query_unique_ref}
+            UNION ALL
+            --- The relation selector with additional ref
+            SELECT name, osm_id, {metadata_fields} 930 AS priority, 'relation' AS node, highway, "ref:{additional_ref_name}",
+                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
+                   ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
+            FROM planet_osm_polygon
+            WHERE ({query_type}) AND osm_id < 0 {query_unique_ref}
+            '''
+            query = sqlalchemy.text(query_text.format(query_type=query_type,
+                                                      metadata_fields=metadata_fields,
+                                                      additional_ref_name=additional_ref_name,
+                                                      query_unique_ref=query_unique_ref))
+            logging.debug(str(query))
+            #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
+            if config.get_database_enable_analyze() is True:
+                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
+                                                      metadata_fields=metadata_fields,
+                                                      additional_ref_name=additional_ref_name,
+                                                      query_unique_ref=query_unique_ref))
+                perf = self.session.execute(perf_query, query_params)
+                perf_rows = [row.values()[0] for row in perf]
+                logging.debug('\n'.join(perf_rows))
+            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
+            if not data.empty:
+                logging.info('Found item with simple additional ref search.')
+                logging.debug(data.to_string())
+                logging.debug('Return with additional ref search data: {}'.format(data.iloc[[0]]))
+                return data.iloc[[0]]
+            else:
+                logging.info('Item not found with additional ref search.')
+        if unique_name is not None and unique_name != '':
+            query_text = '''
+            --- WITH UNIQUE NAME
+            --- The way selector with unique name
+            SELECT name, osm_id, {metadata_fields} 930 AS priority, 'way' AS node, highway,
+                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
+                   ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
+            FROM planet_osm_polygon
+            WHERE ({query_type}) AND osm_id > 0 {query_unique_name}
+            UNION ALL
+            --- The node selector with unique name
+            SELECT name, osm_id, {metadata_fields} 930 AS priority, 'node' AS node, highway,
+                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   ST_X(planet_osm_point.way) as lon,
+                   ST_Y(planet_osm_point.way) as lat
+            FROM planet_osm_point
+            WHERE ({query_type}) AND osm_id > 0 {query_unique_name}
+            UNION ALL
+            --- The relation selector with unique name
+            SELECT name, osm_id, {metadata_fields} 930 AS priority, 'relation' AS node, highway,
+                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
+                   ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
+            FROM planet_osm_polygon
+            WHERE ({query_type}) AND osm_id < 0 {query_unique_name}
+            '''
+            query = sqlalchemy.text(query_text.format(query_type=query_type,
+                                                      metadata_fields=metadata_fields,
+                                                      query_unique_name=query_unique_name))
+            logging.debug(str(query))
+            #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
+            if config.get_database_enable_analyze() is True:
+                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
+                                                      metadata_fields=metadata_fields,
+                                                      query_unique_name=query_unique_name))
+                perf = self.session.execute(perf_query, query_params)
+                perf_rows = [row.values()[0] for row in perf]
+                logging.debug('\n'.join(perf_rows))
+            data = gpd.GeoDataFrame.from_postgis(query, self.engine, geom_col='way', params=query_params)
+            if not data.empty:
+                logging.info('Found item with simple unique name search.')
+                logging.debug(data.to_string())
+                logging.debug('Return with additional unique name data: {}'.format(data.iloc[[0]]))
+                return data.iloc[[0]]
+            else:
+                logging.info('Item not found with unique name search.')
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
                 conscriptionnumber_query is not None and conscriptionnumber_query != '':
             query_text = '''
@@ -270,7 +380,7 @@ class POIBase:
                 logging.debug('Return with simple conscription number search data: {}'.format(data.iloc[[0]]))
                 return data.iloc[[0]]
             else:
-                logging.info('Item not found with simple search.')
+                logging.info('Item not found with simple conscription number search.')
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
                 street_query is not None and street_query != '' and \
                 housenumber_query is not None and housenumber_query != '':
