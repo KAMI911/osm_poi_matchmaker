@@ -40,7 +40,7 @@ class hu_mobiliti_ev(DataProvider):
 
     def types(self):
         self.__types = [
-            {'poi_code': 'humobilchs', 'poi_name': 'Mobiliti', 'poi_type': 'charging_station',
+            {'poi_code': 'humobilchs', 'poi_common_name': 'Mobiliti', 'poi_type': 'charging_station',
              'poi_tags': self.tags, 'poi_url_base': 'https://www.mobiliti.hu',
              'poi_search_name': '(mobility|e-mobi|emobi|e-töltőpont)', 'poi_search_avoid_name': '(tesla|supercharger|plugee)',
              'osm_search_distance_perfect': 50,

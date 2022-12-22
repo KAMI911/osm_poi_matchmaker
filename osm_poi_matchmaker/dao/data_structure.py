@@ -59,6 +59,7 @@ class POI_address_raw(Base):
     pa_id = Column(Integer, primary_key=True, index=True)
     id = synonym('pa_id')
     poi_common_id = Column(ForeignKey('poi_common.pc_id'), index=True)
+    poi_name = Column(Unicode(64), unique=False, nullable=False, index=True)
     poi_branch = Column(Unicode(128), nullable=True, index=True)
     poi_addr_city = Column(ForeignKey('city.city_id'), index=True)
     poi_postcode = Column(Integer)
@@ -83,7 +84,8 @@ class POI_address_raw(Base):
     poi_restaurant = Column(Boolean)
     poi_food = Column(Boolean)
     poi_truck = Column(Boolean)
-    poi_ref = Column(Unicode(16))
+    poi_ref = Column(Unicode(32))
+    poi_additional_ref = Column(Unicode(32))
     poi_phone = Column(Unicode(64))
     poi_email = Column(Unicode(128))
     poi_authentication_app = Column(Boolean)
@@ -163,6 +165,7 @@ class POI_address(Base):
     pa_id = Column(Integer, primary_key=True, index=True)
     id = synonym('pa_id')
     poi_common_id = Column(ForeignKey('poi_common.pc_id'), index=True)
+    poi_name = Column(Unicode(64), unique=False, nullable=False, index=True)
     poi_branch = Column(Unicode(128), nullable=True, index=True)
     poi_addr_city = Column(ForeignKey('city.city_id'), index=True)
     poi_postcode = Column(Integer)
@@ -188,6 +191,7 @@ class POI_address(Base):
     poi_food = Column(Boolean)
     poi_truck = Column(Boolean)
     poi_ref = Column(Unicode(32))
+    poi_additional_ref = Column(Unicode(32))
     poi_phone = Column(Unicode(64))
     poi_email = Column(Unicode(128))
     poi_authentication_app = Column(Boolean)
@@ -294,7 +298,7 @@ class POI_common(Base):
     _plural_name_ = 'poi_common'
     pc_id = Column(Integer, primary_key=True, index=True)
     id = synonym('pc_id')
-    poi_name = Column(Unicode(64), unique=False, nullable=False, index=True)
+    poi_common_name = Column(Unicode(64), unique=False, nullable=False, index=True)
     poi_type = Column(Enum(POI_type))
     poi_tags = Column(JSON, nullable=False, index=False)
     poi_url_base = Column(Unicode(128))
@@ -307,9 +311,10 @@ class POI_common(Base):
     osm_search_distance_perfect = Column(Integer, nullable=True, index=False)
     osm_search_distance_safe = Column(Integer, nullable=True, index=False)
     osm_search_distance_unsafe = Column(Integer, nullable=True, index=False)
+    additional_ref_name = Column(Unicode(16), nullable=True, index=False)
 
     def __repr__(self):
-        return '<POI common {}: {}>'.format(self.pc_id, self.poi_name)
+        return '<POI common {}: {}>'.format(self.pc_id, self.poi_common_name)
 
 
 class POI_OSM_cache(Base):

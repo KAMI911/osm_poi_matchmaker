@@ -33,7 +33,7 @@ class hu_mol_bubi(DataProvider):
     def types(self):
         hububibir = self.tags.copy()
         self.__types = [
-            {'poi_code': 'hububibir', 'poi_name': 'MOL Bubi', 'poi_type': 'bicycle_rental',
+            {'poi_code': 'hububibir',  'poi_common_name':  'MOL Bubi', 'poi_type': 'bicycle_rental',
              'poi_tags': hububibir, 'poi_url_base': 'https://molbubi.bkk.hu', 'poi_search_name': '(mol bubi|bubi)'},
         ]
         return self.__types

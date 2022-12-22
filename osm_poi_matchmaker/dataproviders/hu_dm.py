@@ -40,7 +40,7 @@ class hu_dm(DataProvider):
         hudmche.update(POS_HU_GEN)
         hudmche.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'hudmche', 'poi_name': 'dm', 'poi_type': 'chemist',
+            {'poi_code': 'hudmche', 'poi_common_name': 'dm', 'poi_type': 'chemist',
              'poi_tags': hudmche, 'poi_url_base': 'https://www.dm.hu', 'poi_search_name': 'dm',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 15},

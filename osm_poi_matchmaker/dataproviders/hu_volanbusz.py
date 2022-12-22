@@ -43,10 +43,10 @@ class hu_volanbusz(DataProvider):
     def types(self):
         huvolantra = self.tags.copy()
         self.__types = [
-            {'poi_code': 'huvolantra', 'poi_name': 'Volánbusz', 'poi_type': 'bus_stop',
+            {'poi_code': 'huvolantra', 'poi_common_name': 'Volánbusz', 'poi_type': 'bus_stop',
              'poi_tags': huvolantra, 'poi_url_base': 'https://www.volanbusz.hu', 'poi_search_name': 'volanbusz',
              'osm_search_distance_perfect': 20, 'osm_search_distance_safe': 20,
-             'osm_search_distance_unsafe': 5, 'preserve_original_name': True},
+             'osm_search_distance_unsafe': 5, 'preserve_original_name': True, 'additional_ref_name': 'volan'},
         ]
         return self.__types
 
@@ -82,7 +82,7 @@ class hu_volanbusz(DataProvider):
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
                     self.data.name = stop.get('stop_name')
                     self.data.code = 'huvolantra'
-                    self.data.ref = 'volan:{}'.format(stop.get('stop_id'))
+                    self.data.poi_additional_ref = clean_string(stop.get('stop_id'))
                     self.data.lat, self.data.lon = check_hu_boundary(stop.get('stop_lat'), stop.get('stop_lon'))
                     self.data.original = clean_string('id={} lat={} lon={} name={}'.format(
                         stop.get('stop_id'),
@@ -94,7 +94,7 @@ class hu_volanbusz(DataProvider):
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
                     logging.exception(traceback.print_exc())
-                    logging.exception(poi_data)
+                    logging.exception(stop)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
             logging.exception(traceback.print_exc())

@@ -41,11 +41,11 @@ class hu_magnet_bank(DataProvider):
         humagnatm = {'amenity': 'atm'}
         humagnatm.update(self.tags)
         self.__types = [
-            {'poi_code': 'humagnbank', 'poi_name': 'MagNet Bank', 'poi_type': 'bank',
+            {'poi_code': 'humagnbank', 'poi_common_name': 'MagNet Bank', 'poi_type': 'bank',
              'poi_tags': humagnbank, 'poi_url_base': 'https://www.magnetbank.hu',
              'poi_search_name': '(magnet bank|magnetbank)', 'osm_search_distance_perfect': 2000,
              'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 10},
-            {'poi_code': 'humagnatm', 'poi_name': 'MagNet Bank ATM', 'poi_type': 'atm',
+            {'poi_code': 'humagnatm', 'poi_common_name': 'MagNet Bank ATM', 'poi_type': 'atm',
              'poi_tags': humagnatm, 'poi_url_base': 'https://www.magnetbank.hu',
              'poi_search_name': '(magnet bank|magnetbank|magnet bank atm|magnet atm)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 10},

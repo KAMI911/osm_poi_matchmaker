@@ -42,7 +42,7 @@ class hu_ofotert(DataProvider):
         huofoteopt.update(POS_HU_GEN)
         huofoteopt.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'ofoteopt', 'poi_name': 'Ofotért', 'poi_type': 'optician',
+            {'poi_code': 'ofoteopt', 'poi_common_name': 'Ofotért', 'poi_type': 'optician',
              'poi_tags': huofoteopt, 'poi_url_base': 'https://www.ofotert.hu', 'poi_search_name': 'ofotért',
              'poi_search_avoid_name': '(vision)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,

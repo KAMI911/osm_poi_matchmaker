@@ -40,7 +40,7 @@ class hu_benu(DataProvider):
         hubenupha = {'amenity': 'pharmacy'}
         hubenupha.update(self.tags)
         self.__types = [
-            {'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
+            {'poi_code': 'hubenupha', 'poi_common_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
              'poi_tags': hubenupha, 'poi_url_base': 'https://benu.hu',
              'poi_search_name': '(benu gyogyszertár|benu)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,

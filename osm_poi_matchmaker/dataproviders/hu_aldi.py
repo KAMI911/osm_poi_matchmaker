@@ -41,7 +41,7 @@ class hu_aldi(DataProvider):
         hualdisup = {'shop': 'supermarket'}
         hualdisup.update(self.tags)
         self.__types = [
-            {'poi_code': 'hualdisup', 'poi_name': 'Aldi', 'poi_type': 'shop', 'poi_tags': hualdisup,
+            {'poi_code': 'hualdisup', 'poi_common_name': 'Aldi', 'poi_type': 'shop', 'poi_tags': hualdisup,
              'poi_url_base': 'https://www.aldi.hu', 'poi_search_name': 'aldi',
              'osm_search_distance_perfect': 1000, 'osm_search_distance_safe': 200},
         ]

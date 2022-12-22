@@ -30,7 +30,7 @@ class hu_mol(DataProvider):
     def types(self):
         hunemdoto = self.tags.copy()
         self.__types = [
-            {'poi_code': 'hunemdoto', 'poi_name': 'Nemzeti dohánybolt', 'poi_type': 'tobacco',
+            {'poi_code': 'hunemdoto', 'poi_common_name': 'Nemzeti dohánybolt', 'poi_type': 'tobacco',
              'poi_tags': hunemdoto, 'poi_url_base': 'https://www.nemzetidohany.hu/',
              'poi_search_name': '(nemzeti dohánybolt|dohánybolt)', 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 0},

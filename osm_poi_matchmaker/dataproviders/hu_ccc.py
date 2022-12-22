@@ -43,7 +43,7 @@ class hu_ccc(DataProvider):
         hucccsho.update(POS_HU_GEN)
         hucccsho.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'hucccsho', 'poi_name': 'CCC', 'poi_type': 'shoes',
+            {'poi_code': 'hucccsho', 'poi_common_name': 'CCC', 'poi_type': 'shoes',
              'poi_tags': hucccsho, 'poi_url_base': 'https://ccc.eu/hu/', 'poi_search_name': 'ccc',
              'poi_search_avoid_name': '(deichmann)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,

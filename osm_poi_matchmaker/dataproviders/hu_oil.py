@@ -39,7 +39,7 @@ class hu_oil(DataProvider):
         huoilfu.update(POS_HU_GEN)
         huoilfu.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'huoilfu', 'poi_name': 'OIL!', 'poi_type': 'fuel',
+            {'poi_code': 'huoilfu', 'poi_common_name': 'OIL!', 'poi_type': 'fuel',
              'poi_tags': huoilfu, 'poi_url_base': 'https://www.oil-benzinkutak.hu',
              'poi_search_name': '(oil|oil!|oil benzinkutak|oil-benzinkutak)',
              'poi_search_avoid_name': '(mol|shell|m. petrol|avia|lukoil|hunoil)',

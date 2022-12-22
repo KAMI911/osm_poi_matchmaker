@@ -39,7 +39,7 @@ class hu_kulcs_patika(DataProvider):
         hukulcspha.update(POS_HU_GEN)
         hukulcspha.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'hukulcspha', 'poi_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
+            {'poi_code': 'hukulcspha', 'poi_common_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
              'poi_tags': hukulcspha,
              'poi_url_base': 'https://www.kulcspatikak.hu/', 'poi_search_name': '(kulcs patikák|kulcs patika|kulcs)',
              'preserve_original_name': True},

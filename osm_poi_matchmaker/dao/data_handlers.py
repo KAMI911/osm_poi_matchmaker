@@ -39,21 +39,33 @@ def get_or_create(session, model, **kwargs):
 
 
 def get_or_create_poi(session, model, **kwargs):
-    if kwargs.get('poi_common_id') is not None:
-        if kwargs.get('poi_common_id') is not None and kwargs.get('poi_addr_city') is not None and (
-                (kwargs.get('poi_addr_street') is not None and kwargs.get('poi_addr_housenumber') is not None) or (
-                kwargs.get('poi_conscriptionnumber') is not None)):
-            logging.debug('Fully filled basic data record')
-        else:
-            logging.warning('Missing record data: %s', kwargs)
-    instance = session.query(model) \
-        .filter_by(poi_common_id=kwargs.get('poi_common_id')) \
-        .filter_by(poi_addr_city=kwargs.get('poi_addr_city')) \
-        .filter_by(poi_addr_street=kwargs.get('poi_addr_street')) \
-        .filter_by(poi_addr_housenumber=kwargs.get('poi_addr_housenumber')) \
-        .filter_by(poi_conscriptionnumber=kwargs.get('poi_conscriptionnumber')) \
-        .filter_by(poi_branch=kwargs.get('poi_branch')) \
-        .first()
+    # There is no additional ref name, so let's use simple address query (additional_ref_name)
+    if kwargs.get('poi_additional_ref') is None:
+        if kwargs.get('poi_common_id') is not None:
+            # Check if all data are available
+            if kwargs.get('poi_common_id') is not None and kwargs.get('poi_addr_city') is not None and (
+                    (kwargs.get('poi_addr_street') is not None and kwargs.get('poi_addr_housenumber') is not None) or (
+                    kwargs.get('poi_conscriptionnumber') is not None)):
+                logging.debug('Fully filled basic data record.')
+            else:
+                logging.warning('Missing record data: %s', kwargs)
+        instance = session.query(model) \
+            .filter_by(poi_common_id=kwargs.get('poi_common_id'))\
+            .filter_by(poi_addr_city=kwargs.get('poi_addr_city'))\
+            .filter_by(poi_addr_street=kwargs.get('poi_addr_street'))\
+            .filter_by(poi_addr_housenumber=kwargs.get('poi_addr_housenumber'))\
+            .filter_by(poi_conscriptionnumber=kwargs.get('poi_conscriptionnumber'))\
+            .filter_by(poi_branch=kwargs.get('poi_branch'))\
+            .first()
+    else:
+        # If there is additional ref name then try to search using that field
+        # Fields like ref:bkk, ref: volan
+        if kwargs.get('poi_additional_ref') is not None:
+            logging.debug('Search based on addition ref field, not a standard address based query.')
+            instance = session.query(model)\
+                .filter_by(poi_common_id=kwargs.get('poi_common_id'))\
+                .filter_by(poi_additional_ref=kwargs.get('poi_additional_ref'))\
+                .first()
     if instance:
         logging.debug('Already added: %s', instance)
         return instance
@@ -77,12 +89,12 @@ def search_poi_patch(session, model, **kwargs):
         kwargs['valami'] == "%"
 
     instance = session.query(model) \
-        .filter_by(poi_common_id=kwargs['poi_common_id']) \
-        .filter_by(poi_addr_city=kwargs['poi_addr_city']) \
-        .filter_by(poi_addr_street=kwargs['poi_addr_street']) \
-        .filter_by(poi_addr_housenumber=kwargs['poi_addr_housenumber']) \
-        .filter_by(poi_conscriptionnumber=kwargs['poi_conscriptionnumber']) \
-        .filter_by(poi_branch=kwargs['poi_branch']) \
+        .filter_by(poi_common_id=kwargs['poi_common_id'])\
+        .filter_by(poi_addr_city=kwargs['poi_addr_city'])\
+        .filter_by(poi_addr_street=kwargs['poi_addr_street'])\
+        .filter_by(poi_addr_housenumber=kwargs['poi_addr_housenumber'])\
+        .filter_by(poi_conscriptionnumber=kwargs['poi_conscriptionnumber'])\
+        .filter_by(poi_branch=kwargs['poi_branch'])\
         .first()
     if instance:
         logging.debug('Already added: %s', instance)
@@ -248,7 +260,7 @@ def insert_country_data_dataframe(session, country_df):
 
 
 def insert_common_dataframe(session, common_df):
-    common_df.columns = ['poi_name', 'poi_tags', 'poi_url_base', 'poi_code']
+    common_df.columns = ['poi_common_name', 'poi_tags', 'poi_url_base', 'poi_code']
     try:
         for index, poi_common_data in common_df.iterrows():
             get_or_create_common(session, POI_common, **poi_common_data)
@@ -304,7 +316,7 @@ def insert_poi_dataframe(session, poi_df, raw=True):
                 poi_data['poi_addr_city'] = city_col[0]
             if common_col is not None:
                 poi_data['poi_common_id'] = common_col[0]
-            if 'poi_name' in poi_data: del poi_data['poi_name']
+            # if 'poi_name' in poi_data: del poi_data['poi_name']
             if 'poi_code' in poi_data: del poi_data['poi_code']
             if raw is True:
                 get_or_create_poi(session, POI_address_raw, **poi_data)
@@ -356,7 +368,7 @@ def insert(session, **kwargs):
                                   kwargs['poi_addr_street'], kwargs['poi_addr_housenumber'],
                                   kwargs['poi_conscriptionnumber']).lower().replace(' ', '').encode(
                 'utf-8')).hexdigest()
-        if 'poi_name' in kwargs: del kwargs['poi_name']
+        # if 'poi_name' in kwargs: del kwargs['poi_name']
         if 'poi_code' in kwargs: del kwargs['poi_code']
         get_or_create_poi(session, POI_address, **kwargs)
     except Exception as e:

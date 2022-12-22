@@ -38,7 +38,7 @@ class hu_jysk(DataProvider):
         hujyskfur.update(POS_HU_GEN)
         hujyskfur.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'hujyskfur', 'poi_name': 'Jysk', 'poi_type': 'furniture',
+            {'poi_code': 'hujyskfur', 'poi_common_name': 'Jysk', 'poi_type': 'furniture',
              'poi_tags': hujyskfur, 'poi_url_base': 'https://jysk.hu', 'poi_search_name': 'jysk',
              'osm_search_distance_perfect': 800, 'osm_search_distance_safe': 300,
              'osm_search_distance_unsafe': 80},

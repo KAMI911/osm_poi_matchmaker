@@ -40,7 +40,7 @@ class hu_pepco(DataProvider):
         hupepcoclo.update(POS_HU_GEN)
         hupepcoclo.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'hupepcoclo', 'poi_name': 'Pepco', 'poi_type': 'clothes',
+            {'poi_code': 'hupepcoclo', 'poi_common_name': 'Pepco', 'poi_type': 'clothes',
              'poi_tags': hupepcoclo, 'poi_url_base': 'https://pepco.hu', 'poi_search_name': 'pepco',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 5},

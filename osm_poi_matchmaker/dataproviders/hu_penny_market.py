@@ -41,7 +41,7 @@ class hu_penny_market(DataProvider):
         hupennysup.update(POS_HU_GEN)
         hupennysup.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'hupennysup', 'poi_name': 'Penny Market', 'poi_type': 'shop',
+            {'poi_code': 'hupennysup', 'poi_common_name': 'Penny Market', 'poi_type': 'shop',
              'poi_tags': hupennysup, 'poi_url_base': 'https://www.penny.hu', 'poi_search_name': 'penny',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
         ]
