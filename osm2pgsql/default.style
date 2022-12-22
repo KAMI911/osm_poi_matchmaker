@@ -204,6 +204,11 @@ node,way   socket:type2:output text     linear
 node,way   manufacturer text     linear
 node,way   model        text     linear
 
+
+### Add these additional tags
+node,way   ref:bkk text         linear
+node,way   ref:mav text         linear
+node,way   ref:volanbusz text         linear
 # Area tags
 # We don't make columns for these tags, but objects with them are areas.
 # Mainly for use with hstore
