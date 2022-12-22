@@ -61,7 +61,6 @@ class hu_shell(DataProvider):
                         else:
                             logging.info('Shell fuel station NOT in Hungary')
                             continue
-                        self.data.name = 'Shell'
                         self.data.code = 'hushellfu'
                         self.data.website = clean_url(poi_data.get('website_url')) if ('website_url' in poi_data and poi_data.get('website_url') != '') else 'https://shell.hu/'
                         self.data.postcode = clean_string(poi_data.get('postcode')) if ('postcode' in poi_data and poi_data.get('postcode') != '') else None

@@ -71,11 +71,9 @@ class hu_mkb_bank(DataProvider):
                     logging.info(poi_dict)
                     try:
                         if poi_data.get('Típus') == 'FIOKATM':
-                            self.data.name = 'MKB Bank'
                             self.data.code = 'humkbbank'
                             self.data.public_holiday_open = False
                         else:
-                            self.data.name = 'MKB Bank ATM'
                             self.data.code = 'humkbatm'
                             self.data.public_holiday_open = True
                         self.data.postcode = poi_data.get('Körzetszám')

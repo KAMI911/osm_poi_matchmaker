@@ -59,7 +59,6 @@ class hu_ccc(DataProvider):
                 pois = json.loads(soup.find('div', {"id": "pos-list-json"}).text)
                 for poi_data in pois:
                     try:
-                        self.data.name = 'CCC'
                         self.data.code = 'hucccsho'
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'), poi_data.get('longitude'))
                         self.data.postcode = clean_string(poi_data.get('postcode'))

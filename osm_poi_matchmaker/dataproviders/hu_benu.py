@@ -66,7 +66,6 @@ class hu_benu(DataProvider):
                                 self.data.name = poi_data.get('title').strip()
                                 self.data.branch = None
                             else:
-                                self.data.name = 'Benu gyógyszertár'
                                 self.data.branch = poi_data.get('title').strip()
                             self.data.code = 'hubenupha'
                             if poi_data.get('description') is not None:

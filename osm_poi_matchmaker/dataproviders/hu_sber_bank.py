@@ -58,7 +58,6 @@ class hu_sber_bank(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text['atmList']:
                     try:
-                        self.data.name = 'Sberbank ATM'
                         self.data.code = 'husberatm'
                         self.data.public_holiday_open = True if poi_data.get(
                             'atmNonstop') is True else False
@@ -80,7 +79,6 @@ class hu_sber_bank(DataProvider):
                         logging.exception(poi_data)
                 for poi_data in text['branchList']:
                     try:
-                        self.data.name = 'Sberbank'
                         self.data.code = 'husberbank'
                         self.data.public_holiday_open = False
                         self.data.postcode = poi_data.get('address')['zipCode']

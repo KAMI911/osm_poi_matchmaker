@@ -57,7 +57,6 @@ class hu_gls(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text.get('data'):
                     try:
-                        self.data.name = 'GLS CsomagPont'
                         self.data.code = 'huglscso'
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('location')[0], poi_data.get('location')[1])

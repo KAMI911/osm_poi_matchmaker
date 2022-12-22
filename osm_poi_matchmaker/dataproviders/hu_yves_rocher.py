@@ -59,7 +59,6 @@ class hu_yves_rocher(DataProvider):
                         if poi_data.get('country_id') != 3:
                             continue
                         else:
-                            self.data.name = 'Yves Rocher'
                             self.data.code = 'huyvesrcos'
                             self.data.lat, self.data.lon = \
                                 check_hu_boundary(poi_data.get(

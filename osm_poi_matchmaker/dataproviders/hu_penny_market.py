@@ -55,7 +55,6 @@ class hu_penny_market(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text['markets']:
                     try:
-                        self.data.name = 'Penny'
                         self.data.code = 'hupennysup'
                         self.data.postcode = clean_string(poi_data.get('address')['zip'])
                         street_tmp = clean_string(poi_data.get('address')['street'].split(',')[0])

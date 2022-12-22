@@ -44,7 +44,6 @@ class hu_mol_bubi(DataProvider):
                                         self.filetype)
             for pla in soup.findAll('place'):
                 try:
-                    self.data.name = 'MOL Bubi'
                     self.data.code = 'hububibir'
                     self.data.city = 'Budapest'
                     if pla.get('name') is not None and pla.get('name') != '':

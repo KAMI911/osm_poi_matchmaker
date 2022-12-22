@@ -52,7 +52,6 @@ class hu_obi(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text.get('stores'):
                     try:
-                        self.data.name = 'OBI'
                         self.data.code = 'huobidiy'
                         self.data.postcode = clean_string(poi_data['address']['zip'].strip())
                         self.data.city = clean_city(poi_data['address']['city'])

@@ -57,7 +57,6 @@ class hu_avia(DataProvider):
                     soup, 'markers', True), strict=False)
                 for poi_data in text:
                     try:
-                        self.data.name = 'Avia'
                         self.data.code = 'huaviafu'
                         if self.data.city is None:
                             self.data.city = poi_data['title']

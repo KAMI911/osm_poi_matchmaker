@@ -75,7 +75,6 @@ class hu_cba(DataProvider):
                         self.data.city = clean_city(poi_data.get('A_VAROS'))
                         self.data.postcode = clean_string(poi_data.get('A_IRSZ'))
                         self.data.branch = clean_string(poi_data.get('P_NAME'))
-                        self.data.name = 'Príma' if 'Príma' in self.data.branch else 'CBA'
                         self.data.code = 'huprimacon' if 'Príma' in self.data.branch else 'hucbacon'
                         for i in range(0, 7):
                             self.data.day_open(i, clean_opening_hours_2(

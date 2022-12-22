@@ -68,7 +68,6 @@ class hu_rossmann(DataProvider):
                 for poi_data in pois:
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                        self.data.name = 'Rossmann'
                         self.data.code = 'hurossmche'
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
                         self.data.postcode = clean_string(poi_data.get('zip_code'))

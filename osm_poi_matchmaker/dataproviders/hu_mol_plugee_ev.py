@@ -54,7 +54,6 @@ class hu_mol_plugee_ev(DataProvider):
                 poi_dict = csv.to_dict('records')
                 for poi_data in poi_dict:
                     try:
-                        self.data.name = 'MOL Plugee'
                         self.data.code = 'humolplchs'
                         self.data.ref = clean_string(poi_data.get('Azonosító'))
                         self.data.postcode = clean_string(poi_data.get('Irányító szám'))

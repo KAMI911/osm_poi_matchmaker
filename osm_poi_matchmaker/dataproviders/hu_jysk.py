@@ -54,7 +54,6 @@ class hu_jysk(DataProvider):
                 json_data = json.loads(soup_data.text, strict=False)
                 for shop in json_data.get('storesLocator')['BuildCoordinates']:
                     try:
-                        self.data.name = 'Jysk'
                         self.data.code = 'hujyskfur'
                         self.data.lat, self.data.lon = check_hu_boundary(
                             shop.get('lat'), shop.get('lon'))

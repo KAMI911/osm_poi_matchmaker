@@ -83,7 +83,6 @@ class hu_mol(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text:
                     try:
-                        self.data.name = 'MOL'
                         if ' Sziget ' in poi_data.get('name'):
                             self.data.code = 'humolwfu'
                         else:

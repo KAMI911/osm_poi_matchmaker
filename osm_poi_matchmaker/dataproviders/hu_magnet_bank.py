@@ -61,11 +61,9 @@ class hu_magnet_bank(DataProvider):
                         try:
                             if poi_data.get('address') is not None:
                                 if poi_data.get('type') == '1':
-                                    self.data.name = 'MagNet Bank ATM'
                                     self.data.code = 'humagnatm'
                                     self.data.public_holiday_open = True
                                 elif poi_data.get('type') in ['0', '2']:
-                                    self.data.name = 'MagNet Bank'
                                     self.data.code = 'humagnbank'
                                     self.data.public_holiday_open = False
                                     self.data.email = clean_email(poi_data.get('email'))

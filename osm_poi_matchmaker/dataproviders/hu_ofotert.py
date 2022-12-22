@@ -59,7 +59,6 @@ class hu_ofotert(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text.get('stores'):
                     try:
-                        self.data.name = 'ofotért'
                         self.data.code = 'huofoteopt'
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('geo_lat'), poi_data.get('geo_lng'))
                         self.data.postcode = clean_string(poi_data.get('address_zip'))
