@@ -64,11 +64,9 @@ class hu_cib_bank(DataProvider):
                         try:
                             if 'locationStatus' in poi_data and poi_data['locationStatus'] == 'IN_SERVICE':
                                 if self.name == 'CIB Bank':
-                                    data.name = 'CIB Bank'
                                     data.code = 'hucibbank'
                                     data.public_holiday_open = False
                                 else:
-                                    data.name = 'CIB Bank ATM'
                                     data.code = 'hucibatm'
                                     data.public_holiday_open = True
                                 data.lat, data.lon = check_hu_boundary(poi_data['location']['lat'],
