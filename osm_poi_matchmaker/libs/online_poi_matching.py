@@ -254,7 +254,10 @@ def online_poi_matching(args):
                     # for a PostGIS function: https://postgis.net/docs/ST_LineInterpolatePoint.html
                     # If there is more than one POI in a building this will try to do a different location and
                     # not only on center or not only on edge
-                    ib = row.get('poi_name')
+                    if row.get('poi_name') is not None:
+                        ib = row.get('poi_name')
+                    elif row.get('poi_common_name') is not None:
+                        ib = row.get('poi_common_name')
                     if ib is not None:
                         ibp = 1 - (((ord(ib[0]) // 16) + 1) / 17)
                     else:
