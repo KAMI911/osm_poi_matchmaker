@@ -77,22 +77,17 @@ class hu_posta_json(DataProvider):
             for poi_data in text['items']:
                 if poi_data['type'] == 'posta':
                     if 'mobilposta' in poi_data['name']:
-                        data.name = 'Mobilposta'
                         data.code = 'hupostamp'
                     else:
-                        data.name = 'Posta'
                         data.code = 'hupostapo'
                         data.public_holiday_open = False
                 elif poi_data['type'] == 'csekkautomata':
-                    data.name = 'Posta csekkautomata'
                     data.code = 'hupostacse'
                     data.public_holiday_open = True
                 elif poi_data['type'] == 'postamachine':
-                    data.name = 'Posta csomagautomata'
                     data.code = 'hupostacso'
                     data.public_holiday_open = True
                 elif poi_data['type'] == 'postapoint':
-                    data.name = 'PostaPont'
                     data.code = 'hupostapp'
                     data.public_holiday_open = False
                 else:
