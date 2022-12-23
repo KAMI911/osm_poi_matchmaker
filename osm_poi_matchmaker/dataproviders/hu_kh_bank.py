@@ -61,11 +61,9 @@ class hu_kh_bank(DataProvider):
                     for poi_data in text.get('results'):
                         first_element = next(iter(poi_data))
                         if self.name == 'K&H Bank':
-                            data.name = 'K&H Bank'
                             data.code = 'hukhbank'
                             data.public_holiday_open = False
                         elif self.name == 'K&H Bank ATM':
-                            data.name = 'K&H Bank ATM'
                             data.code = 'hukhatm'
                             data.public_holiday_open = True
                         if data.code == 'hukhatm':
