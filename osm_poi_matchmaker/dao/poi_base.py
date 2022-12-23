@@ -181,7 +181,8 @@ class POIBase:
         query_params.update({'buffer': buffer})
         # Do not match with other specified names, brand names, network names
         if name is not None and name != '':
-            query_name = ' AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(network)) ~* LOWER(TEXT(:name)))'
+            query_name = 'AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)) OR '\
+                         'LOWER(TEXT(network)) ~* LOWER(TEXT(:name))) '
             query_params.update({'name': '.*{}.*'.format(name)})
             # If we have PO common defined safe search radius distance, then use it (or use defaults specified above)
             if distance_perfect is None or distance_perfect != '' or math.isnan(distance_perfect):
@@ -191,17 +192,18 @@ class POIBase:
             query_name = ''
         # Do not match with other specified names, brand names, network names
         if avoid_name is not None and avoid_name != '':
-            query_avoid_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(network)) !~* LOWER(TEXT(:avoid_name)))'
+            query_avoid_name = 'AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(' \
+                               'TEXT(:avoid_name)) AND LOWER(TEXT(network)) !~* LOWER(TEXT(:avoid_name))) '
             query_params.update({'avoid_name': '.*{}.*'.format(avoid_name)})
         else:
             query_avoid_name = ''
         if unique_name is not None and unique_name != '':
-            query_unique_name = ' AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:unique_name))'
+            query_unique_name = ' AND LOWER(TEXT(name)) = LOWER(TEXT(:unique_name))'
             query_params.update({'unique_name': unique_name})
         else:
             query_unique_name = ''
         if additional_ref_name is not None and additional_ref_name != '' and unique_ref is not None and unique_ref != '':
-            query_unique_ref = ' AND (LOWER(TEXT(ref:{})) = LOWER(TEXT(:unique_ref))'.format(additional_ref_name)
+            query_unique_ref = ' AND LOWER(TEXT(ref:{})) = LOWER(TEXT(:unique_ref))'.format(additional_ref_name)
             query_params.update({'unique_ref': unique_ref})
         else:
             query_unique_ref = ''
