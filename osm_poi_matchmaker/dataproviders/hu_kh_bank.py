@@ -79,7 +79,7 @@ class hu_kh_bank(DataProvider):
                             data.original = clean_string(poi_data.get(first_element)['address'])
                         data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
                         data.add()
-                    if data is None or data.lenght() < 1:
+                    if data is None or data.length() < 1:
                         logging.warning('Resultset is empty. Skipping ...')
                     else:
                         insert_poi_dataframe(self.session, data.process())
