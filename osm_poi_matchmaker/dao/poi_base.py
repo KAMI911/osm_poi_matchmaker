@@ -192,7 +192,7 @@ class POIBase:
             query_name = ''
         # Do not match with other specified names, brand names, network names
         if avoid_name is not None and avoid_name != '':
-            query_avoid_name = 'AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) AND LOWER(TEXT(brand)) !~* LOWER(' \
+            query_avoid_name = 'AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name))) AND LOWER(TEXT(brand)) !~* LOWER(' \
                                'TEXT(:avoid_name)) AND LOWER(TEXT(network)) !~* LOWER(TEXT(:avoid_name))) '
             query_params.update({'avoid_name': '.*{}.*'.format(avoid_name)})
         else:

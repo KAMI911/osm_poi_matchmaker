@@ -84,7 +84,7 @@ class hu_cib_bank(DataProvider):
                             logging.exception('Exception occurred: {}'.format(e))
                             logging.exception(traceback.print_exc())
                             logging.exception(poi_data)
-                if data is None or data.lenght() < 1:
+                if data is None or data.length() < 1:
                     logging.warning('Resultset is empty. Skipping ...')
                 else:
                     insert_poi_dataframe(self.session, data.process())
