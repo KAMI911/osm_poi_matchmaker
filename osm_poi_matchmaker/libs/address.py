@@ -394,7 +394,7 @@ def clean_email(email):
     return email
 
 
-def clean_string(clearable):
+def clean_string(clearable: str):
     '''
     Remove whitespaces, extra spaces from strings and surrounding whitespace characters
     :param clearable: String that has to clean
@@ -426,6 +426,10 @@ def clean_string(clearable):
     else:
         return None
 
+def clean_postcode(clearable: str):
+    clearable = clean_string(clearable)
+    if clearable is not None and (clearable == '' or clearable == '0'):
+        return None
 
 def clean_url(clearable):
     '''
