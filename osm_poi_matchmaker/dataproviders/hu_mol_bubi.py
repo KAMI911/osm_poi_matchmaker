@@ -43,7 +43,8 @@ class hu_mol_bubi(DataProvider):
         hububibir = self.tags.copy()
         self.__types = [
             {'poi_code': 'hububibir', 'poi_common_name': 'MOL Bubi', 'poi_type': 'bicycle_rental',
-             'poi_tags': hububibir, 'poi_url_base': 'https://molbubi.bkk.hu', 'poi_search_name': '(mol bubi|bubi)', 'export_poi_name': False},
+             'poi_tags': hububibir, 'poi_url_base': 'https://molbubi.bkk.hu', 'poi_search_name': '(mol bubi|bubi)',
+             'export_poi_name': False, 'do_not_export_addr_tags': True},
         ]
         return self.__types
 
@@ -82,7 +83,7 @@ class hu_mol_bubi(DataProvider):
                                   and len(clean_string(poi_data.get('name')).split('-')) > 2:
                                       self.data.description = clean_string(poi_data.get('name').split('-')[2])
                             except IndexError as e:
-                                logging.info('There is no description data: Index Error Exception occurred: %s', e)
+                                logging.debug('There is no description data: Index Error occurred: %s', e)
                             try:
                                 if clean_string(poi_data.get('name')) is not None:
                                     self.data.ref = clean_string(poi_data.get('name').split('-')[0])
