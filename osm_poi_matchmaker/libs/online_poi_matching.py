@@ -312,7 +312,15 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
     """
     # Change postcode when there is no postcode in OSM or the address was changed
     current_postcode = curr_data.get('poi_postcode')
-    osm_db_postcode = osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')]
+    try:
+        osm_db_postcode = osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')]
+    except KeyError as err:
+        logging.debug('Not found postcode in OSM database caused {}'.format(err))
+        osm_db_postcode = None
+    else:
+        if osm_db_postcode == 0 or osm_db_postcode == '' or osm_db_postcode == 'None' or osm_db_postcode == 'NaN' or \
+                osm_db_postcode is None:
+            osm_db_postcode = None
     if curr_data.get('poi_addr_housenumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:housenumber')] or \
        curr_data.get('poi_addr_street') != osm_data.iloc[0, osm_data.columns.get_loc('addr:street')] or \
        curr_data.get('poi_city') != osm_data.iloc[0, osm_data.columns.get_loc('addr:city')] or \

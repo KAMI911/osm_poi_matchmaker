@@ -10,7 +10,7 @@ try:
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
-    from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch, clean_phone_to_str, clean_email
+    from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch, clean_phone_to_str, clean_email, clean_postcode
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.utils import config
@@ -167,12 +167,12 @@ class POIDatasetRaw:
         self.__code = clean_string(data)
 
     @property
-    def postcode(self) -> int:
+    def postcode(self) -> str:
         return self.__postcode
 
     @postcode.setter
     def postcode(self, data: str):
-        self.__postcode = clean_string(data)
+        self.__postcode = clean_postcode(data)
 
     @property
     def city(self) -> str:

@@ -8,7 +8,7 @@ try:
     from OSMPythonTools.overpass import Overpass
     from OSMPythonTools.nominatim import Nominatim
     from OSMPythonTools.overpass import overpassQueryBuilder
-    from osm_poi_matchmaker.libs.address import clean_string
+    from osm_poi_matchmaker.libs.address import clean_string, clean_postcode
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -44,13 +44,13 @@ def query_osm_postcode_gpd(session, lon, lat):
 
 
 def query_postcode_osm_external(prefer_osm, session, lon, lat, postcode_ext):
-    if prefer_osm is False and clean_string(postcode_ext) is not None:
-        return postcode_ext
+    if prefer_osm is False and clean_postcode(postcode_ext) is not None:
+        return clean_postcode(postcode_ext)
     query_postcode = query_osm_postcode_gpd(session, lon, lat)
-    if prefer_osm is True and clean_string(query_postcode) is not None:
-        return query_postcode
-    elif prefer_osm is True and clean_string(query_postcode) is None:
-        return postcode_ext
+    if prefer_osm is True and clean_postcode(query_postcode) is not None:
+        return clean_postcode(query_postcode)
+    elif prefer_osm is True and clean_postcode(query_postcode) is None:
+        return clean_postcode(postcode_ext)
 
 
 def relationer(relation_text):
