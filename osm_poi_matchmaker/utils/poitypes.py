@@ -83,6 +83,8 @@ def getPOITypes(ptype):
         query_type = "highway='bus_stop'"  # OR public_transport='stop_area'"
     elif ptype == 'train_stop':
         query_type = "railway='train_stop'"
+    elif ptype == 'fire_station':
+        query_type = "amenity='fire_station'"
     else:
         query_type = None
         distance = 0

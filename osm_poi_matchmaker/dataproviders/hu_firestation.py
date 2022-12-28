@@ -7,10 +7,8 @@ try:
     import re
     import json
     import traceback
-    from bs4 import BeautifulSoup
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address, extract_street_housenumber_better_2, clean_city, \
-        clean_opening_hours, clean_string
+    from osm_poi_matchmaker.libs.address import extract_all_address, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.enums import WeekDaysLong
@@ -23,30 +21,72 @@ except ImportError as err:
     sys.exit(128)
 
 
-class hu_rossmann(DataProvider):
+class hu_fire_station(DataProvider):
 
     def contains(self):
-        self.link = 'https://www.rossmann.hu/uzletkereso'
-        self.tags = {'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.',
-                     'operator:addr': '2225 Üllő, Zsaróka út 8.', 'ref:vatin:hu': '11149769-2-44',
-                     'ref:vatin': 'HU11149769', 'brand': 'Rossmann', 'brand:wikidata': 'Q316004',
-                     'brand:wikipedia': 'de:Dirk Rossmann GmbH', 'contact:email': 'ugyfelszolgalat@rossmann.hu',
-                     'phone': '+36 29 889-800;+36 70 4692 800',
-                     'contact:facebook': 'https://www.facebook.com/Rossmann.hu',
-                     'contact:youtube': 'https://www.youtube.com/channel/UCmUCPmvMLL3IaXRBtx7-J7Q',
-                     'contact:instagram': 'https://www.instagram.com/rossmann_hu', 'air_conditioning': 'yes'}
+        self.link = 'https://www.katasztrofavedelem.hu/33856/tuzoltosagok-elhelyezkedese'
+        self.tags = {'amenity': 'fire_station'}
         self.filetype = FileType.html
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
+    '''
+    HTP = Hivatásos Tűzoltó-parancsnokság (1)
+    KVŐ = Katasztrófavédelmi Őrs (2)
+    ÖTE = Önkéntes Tűzoltó Egyesület (5)
+    ÖTP = Önkormányzati Tűzoltó-parancsnokság (3)
+    LTP = Létesítményi Tűzoltó-parancsnokság (?)
+
+    fire_station:type=HTP | KVŐ | ÖTE | ÖTP | LTP`?
+    
+    Angol elnevezésekkel:
+    HTP = main_station
+    KVŐ = local_station
+    ÖTE = voluntary
+    ÖTP = municipal
+    LTP = concern
+    '''
     def types(self):
-        hurossmche = self.tags.copy()
-        hurossmche.update(POS_HU_GEN)
-        hurossmche.update(PAY_CASH)
+        hufiremsta = self.tags.copy()
+        hufiremsta.update({'fire_station:type': 'main_station'})
+        hufirelsta = self.tags.copy()
+        hufirelsta.update({'fire_station:type': 'local_station'})
+        hufirevsta = self.tags.copy()
+        hufirevsta.update({'fire_station:type': 'voluntary'})
+        hufireusta = self.tags.copy()
+        hufireusta.update({'fire_station:type': 'municipal'})
+        hufirecsta = self.tags.copy()
+        hufirecsta.update({'fire_station:type': 'concern'})
         self.__types = [
-            {'poi_code': 'hurossmche', 'poi_common_name': 'Rossmann', 'poi_type': 'chemist',
-             'poi_tags': hurossmche, 'poi_url_base': 'https://www.rossmann.hu', 'poi_search_name': 'rossmann',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
-             'osm_search_distance_unsafe': 3},
+            {'poi_code': 'hufiremsta', 'poi_common_name': 'Hivatásos Tűzoltó-parancsnokság',
+             'poi_type': 'fire_station',
+             'poi_tags': hufiremsta, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
+             'poi_search_name': '(tűzoltó-parancsnokság)',
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
+             'osm_search_distance_unsafe': 100},
+            {'poi_code': 'hufirelsta', 'poi_common_name': 'Katasztrófavédelmi Őrs',
+             'poi_type': 'fire_station',
+             'poi_tags': hufirelsta, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
+             'poi_search_name': '(katasztrófavédelmi|örs)',
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
+             'osm_search_distance_unsafe': 100},
+            {'poi_code': 'hufirevsta', 'poi_common_name': 'Önkéntes Tűzoltó Egyesület',
+             'poi_type': 'fire_station',
+             'poi_tags': hufirevsta, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
+             'poi_search_name': '(tűzoltó|egyesület)',
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
+             'osm_search_distance_unsafe': 100},
+            {'poi_code': 'hufireusta', 'poi_common_name': 'Önkormányzati Tűzoltó-parancsnokság',
+             'poi_type': 'fire_station',
+             'poi_tags': hufireusta, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
+             'poi_search_name': '(tűzoltó|önkormányzati)',
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
+             'osm_search_distance_unsafe': 100},
+            {'poi_code': 'hufirecsta', 'poi_common_name': 'Létesítményi Tűzoltó-parancsnokság',
+             'poi_type': 'fire_station',
+             'poi_tags': hufirecsta, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
+             'poi_search_name': '(tűzoltó|létesítményi)',
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
+             'osm_search_distance_unsafe': 100},
         ]
         return self.__types
 
@@ -57,8 +97,7 @@ class hu_rossmann(DataProvider):
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 try:
-                    pois = json.loads(soup.find('script', {"type": "application/json"}).text).get('props')\
-                        .get('pageProps').get('stores')
+                    pois = json.loads(soup.find(re.search('(\[.*\]);', soup.findAll('script')[-17].text)[1]))
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
                     logging.exception(traceback.print_exc())
@@ -67,24 +106,41 @@ class hu_rossmann(DataProvider):
                     return None
                 for poi_data in pois:
                     try:
-                        # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                        self.data.code = 'hurossmche'
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
-                        self.data.postcode = clean_string(poi_data.get('zip_code'))
-                        self.data.city = clean_city(poi_data.get('city'))
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                                poi_data.get(('street')))
-                        opening_hours_raw = poi_data.get('openings')
-                        if opening_hours_raw is not None:
-                            opening_hours_dict = opening_hours_raw.split("\n")
-                            for i in range(0, 7):
-                                opening, closing = clean_opening_hours(opening_hours_dict[i])
-                                if opening is not None and closing is not None:
-                                    self.data.day_open_close(i, opening, closing)
-                                else:
-                                    self.data.day_open_close(i, None, None)
-                        self.data.original = clean_string(poi_data.get(('address')))
-                        self.data.public_holiday_open = False
+                        # Önkéntes Tűzoltó Egyesület
+                        if poi_data.get('category') == 5:
+                            self.data.code = 'hufirevsta'
+                        elif poi_data.get('category') == 4:
+                            logging.warning('Maybe this is not existing')
+                        # Önkormányzati Tűzoltó-parancsnokság
+                        elif poi_data.get('category') == 3:
+                            self.data.code = 'hufireusta'
+                            try:
+                                self.data.name == poi_data.get('name').replace('ÖTP', 'Önkormányzati Tűzoltó-parancsnokság')
+                            except Exception as err:
+                                continue
+                        # Katasztrófavédelmi Őrs
+                        elif poi_data.get('category') == 2:
+                            self.data.code = 'hufirelsta'
+                            try:
+                                    self.data.name == poi_data.get('name').replace('KŐ', 'Katasztrófavédelmi Őrs')
+                            except Exception as err:
+                                continue
+                        # Hivatásos Tűzoltó-parancsnokság
+                        elif poi_data.get('category') == 1:
+                            self.data.code = 'hufiremsta'
+                            try:
+                                self.data.name == poi_data.get('name').replace('HTP', 'Hivatásos Tűzoltó-parancsnokság')
+                            except Exception as err:
+                                continue
+                        else:
+                            logging.warning('Unknown fire station category.')
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'),
+                                                                         poi_data.get('longitude'))
+                        self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
+                            self.data.conscriptionnumber = extract_all_address(poi_data.get('address'))
+                        self.data.phone(poi_data.get('phone'))
+                        self.data.email(poi_data.get('email'))
+                        self.data.original = clean_string(poi_data.get('address'))
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))

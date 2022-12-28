@@ -52,6 +52,7 @@ class POI_type(enum.Enum):
     optician = 23
     bus_stop = 24
     train_stop = 25
+    fire_station = 26
 
 
 class POI_address_raw(Base):
