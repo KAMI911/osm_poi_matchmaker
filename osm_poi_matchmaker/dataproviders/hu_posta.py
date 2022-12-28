@@ -74,42 +74,42 @@ class hu_posta(DataProvider):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
-            for e in soup.findAll('post'):
+            for poi_data in soup.findAll('post'):
                 try:
                     # If this is a closed post office, skip it
-                    # if e.get('ispostpoint') == '0':
+                    # if poi_data.get('ispostpoint') == '0':
                     #    continue
                     #  The 'kirendeltség' post offices are not available to end users, so we remove them
-                    if 'okmányiroda' in e.find('name').get_text().lower() or \
-                            'mol kirendeltség' in e.find('name').get_text().lower():
+                    if 'okmányiroda' in poi_data.find('name').get_text().lower() or \
+                            'mol kirendeltség' in poi_data.find('name').get_text().lower():
                         logging.debug('Skipping non public post office.')
                         continue
                     else:
-                        if e.servicepointtype.get_text() == 'PM':
+                        if poi_data.servicepointtype.get_text() == 'PM':
                             self.data.code = 'hupostapo'
                             self.data.public_holiday_open = False
-                        elif e.servicepointtype.get_text() == 'CS':
+                        elif poi_data.servicepointtype.get_text() == 'CS':
                             self.data.code = 'hupostacso'
                             self.data.public_holiday_open = True
-                        elif e.servicepointtype.get_text() == 'PP':
+                        elif poi_data.servicepointtype.get_text() == 'PP':
                             self.data.code = 'hupostapp'
                             self.data.public_holiday_open = False
                         else:
                             logging.error('Non existing Posta type.')
-                        self.data.postcode = clean_string(e.get('zipcode'))
-                        self.data.housenumber = e.street.housenumber.get_text().split('(', 1)[0].strip() \
-                            if e.street.housenumber is not None else None
+                        self.data.postcode = clean_string(poi_data.get('zipcode'))
+                        self.data.housenumber = poi_data.street.housenumber.get_text().split('(', 1)[0].strip() \
+                            if poi_data.street.housenumber is not None else None
                         if self.data.housenumber == 'belterület HRSZ 3162':
                             self.data.housenumber = None
                             self.data.conscriptionnumber = '3162'
                         self.data.conscriptionnumber = None
-                        self.data.city = clean_city(e.city.get_text())
-                        self.data.branch = clean_string(e.find('name').get_text()
-                        ) if e.find('name') is not None else None
+                        self.data.city = clean_city(poi_data.city.get_text())
+                        self.data.branch = clean_string(poi_data.find('name').get_text()
+                        ) if poi_data.find('name') is not None else None
                         if self.data.code == 'hupostapo':
                             self.data.branch = re.sub(
                                 r"(\d{1,3})", r"\1. számú", self.data.branch)
-                        days = e.findAll('days') if e.findAll(
+                        days = poi_data.findAll('days') if poi_data.findAll(
                             'days') is not None else None
                         nonstop_num = 0
                         for d in days:
@@ -166,13 +166,13 @@ class hu_posta(DataProvider):
                             logging.debug('It is a non stop post office.')
                             self.data.nonstop = True
                         self.data.lat, self.data.lon = \
-                            check_hu_boundary(e.gpsdata.wgslat.get_text().replace(',', '.'),
-                                              e.gpsdata.wgslon.get_text().replace(',', '.'))
+                            check_hu_boundary(poi_data.gpsdata.wgslat.get_text().replace(',', '.'),
+                                              poi_data.gpsdata.wgslon.get_text().replace(',', '.'))
                         # Get street name and type
-                        street_tmp_1 = clean_street(e.street.find('name').get_text().strip()) \
-                            if e.street.find('name') is not None else None
-                        street_tmp_2 = clean_street_type(e.street.find('type').get_text().strip()) \
-                            if e.street.find('type') is not None else None
+                        street_tmp_1 = clean_street(poi_data.street.find('name').get_text().strip()) \
+                            if poi_data.street.find('name') is not None else None
+                        street_tmp_2 = clean_street_type(poi_data.street.find('type').get_text().strip()) \
+                            if poi_data.street.find('type') is not None else None
                         # Streets without types
                         if street_tmp_2 is None:
                             self.data.street = street_tmp_1
@@ -196,14 +196,14 @@ class hu_posta(DataProvider):
                         else:
                             logging.error(
                                 'Non handled state in street data processing!')
-                        self.data.phone = clean_phone_to_str(e.phonearea.get_text()) \
-                            if e.phonearea is not None else None
-                        self.data.email = clean_email(e.email.get_text()) if e.email is not None else None
+                        self.data.phone = clean_phone_to_str(poi_data.phonearea.get_text()) \
+                            if poi_data.phonearea is not None else None
+                        self.data.email = clean_email(poi_data.email.get_text()) if poi_data.email is not None else None
                         self.data.add()
                 except Exception as err:
                     logging.exception('Exception occurred: {}'.format(err))
                     logging.exception(traceback.print_exc())
-                    logging.exception(e)
+                    logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
             logging.exception(traceback.print_exc())
