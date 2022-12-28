@@ -309,6 +309,7 @@ class POI_common(Base):
     preserve_original_name = Column(Boolean, nullable=False, default=False)
     preserve_original_post_code = Column(Boolean, nullable=False, default=False)
     export_poi_name = Column(Boolean, nullable=False, default=True)
+    do_not_export_addr_tags = Column(Boolean, nullable=False, default=False)
     osm_search_distance_perfect = Column(Integer, nullable=True, index=False)
     osm_search_distance_safe = Column(Integer, nullable=True, index=False)
     osm_search_distance_unsafe = Column(Integer, nullable=True, index=False)

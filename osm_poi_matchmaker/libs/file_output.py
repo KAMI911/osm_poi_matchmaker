@@ -348,10 +348,24 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.error(traceback.print_exc())
             try:
+                if row.get('do_not_export_addr_tags'):
+                    logging.debug('Removing address tags based on common file settings')
+                    tags_remove = ['addr:postcode', 'addr:city', 'addr:street', 'addr:housenumber', 'addr:conscriptionnumber']
+                    for tr in tags_remove:
+                        tr_removed = []
+                        if tr in tags:
+                            tags.pop(tr, None)
+                            tr_removed.append(tr)
+                    if len(tr_removed) >= 1:
+                        logging.debug('Removed tags are: {}'.format(','.join(tr_removed)))
+            except Exception as e:
+                logging.exception('Exception occurred: {}'.format(e))
+                logging.error(traceback.print_exc())
+            try:
                 # If there is additional_ref_name then use it as key and poi_additional_ref as value
                 if row.get('additional_ref_name') is not None and row.get('poi_additional_ref') is not None:
                     tags['ref:{}'.format(row.get('additional_ref_name'))] = row.get('poi_additional_ref')
-                    logging.debug('Add ref:{} tag with phone numbers.'.format(row.get('additional_ref_name')))
+                    logging.debug('Add ref:{} tag with additional ref name.'.format(row.get('additional_ref_name')))
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.error(traceback.print_exc())
