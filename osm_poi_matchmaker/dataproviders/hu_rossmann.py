@@ -57,11 +57,11 @@ class hu_rossmann(DataProvider):
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 try:
-                    pois = json.loads(soup.find('script', {"type":"application/json"}).text).get('props').get('pageProps').get('stores')
+                    pois = json.loads(soup.find('script', {"type": "application/json"}).text).get('props')\
+                        .get('pageProps').get('stores')
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
                     logging.exception(traceback.print_exc())
-                    logging.exception(import_text)
                     logging.exception(pois)
                 if pois is None:
                     return None
