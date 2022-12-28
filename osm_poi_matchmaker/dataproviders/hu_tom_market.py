@@ -19,6 +19,7 @@ except ImportError as err:
 
     sys.exit(128)
 
+company_types = [' e.v.', ' ev.', ' kft.', ' KFT', ' bt.', ' bt']
 
 class hu_tom_market(DataProvider):
 
@@ -56,14 +57,16 @@ class hu_tom_market(DataProvider):
                         self.data.code = 'hutommacon'
                         self.data.city = poi_data.get('city')
                         if poi_data.get('name') is not None and poi_data.get('name') != '':
-                            if [' e.v.', ' ev.' ' kft.', ' KFT', ' bt.' ' bt'] in poi_data.get('name'):
+                            # Search list of multiple string fragments in a string
+                            if any(map(poi_data.get('name').__contains__, company_types)):
                                 continue
                                 #self.data.operator = poi_data.get('name')
                             else:
                                 self.data.branch = poi_data.get('name')
                         self.data.website = None
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(poi_data.get('address'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber =\
+                            extract_street_housenumber_better_2(poi_data.get('address'))
                         self.data.city = clean_city(poi_data.get('city'))
                         self.data.postcode = clean_string(poi_data.get('postcode'))
                         self.data.original = poi_data.get('address')
