@@ -980,7 +980,7 @@ class POIDatasetRaw:
         df.columns = POI_COLS_RAW
         return df.replace({np.nan: None})
 
-    def lenght(self):
+    def length(self):
         return len(self.insert_data)
 
 
