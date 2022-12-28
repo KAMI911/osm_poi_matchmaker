@@ -62,7 +62,8 @@ class hu_deichmann(DataProvider):
                 for poi_data in text.get('stores'):
                     try:
                         self.data.code = 'hudeichsho'
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('geoPoint').get('latitude'), poi_data.get('geoPoint').get('longitude'))
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('geoPoint').get('latitude'),
+                                                                         poi_data.get('geoPoint').get('longitude'))
                         self.data.postcode = clean_string(poi_data.get('address').get('postalCode'))
                         self.data.city = clean_city(poi_data.get('address').get('town'))
                         self.data.street = clean_street(poi_data.get('address').get('line1'))
