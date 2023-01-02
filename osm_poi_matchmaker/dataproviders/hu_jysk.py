@@ -50,9 +50,9 @@ class hu_jysk(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), self.filetype)
             if soup is not None:
                 soup_data = soup.find(
-                    'script', {'data-drupal-selector': 'drupal-settings-json'})
+                    'div', {'data-jysk-react-component': 'StoresLocatorLayout'})
                 json_data = json.loads(soup_data.text, strict=False)
-                for shop in json_data.get('storesLocator')['BuildCoordinates']:
+                for shop in json_data.get('storesCoordinates'):
                     try:
                         self.data.code = 'hujyskfur'
                         self.data.lat, self.data.lon = check_hu_boundary(
