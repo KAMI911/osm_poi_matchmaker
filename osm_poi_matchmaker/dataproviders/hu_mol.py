@@ -63,7 +63,7 @@ class hu_mol(DataProvider):
              'poi_search_avoid_name': '(shell|m. petrol|avia|lukoil|hunoil)',
              'osm_search_distance_perfect': 2000,
              'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
-            {'poi_code': 'humolwfu', 'poi_common_name': 'MOL', 'poi_type': 'fuel',
+            {'poi_code': 'humolwfu', 'poi_common_name': 'MOL', 'poi_type': 'waterway_fuel',
              'poi_tags': humolwfu, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
              'poi_search_avoid_name': '(shell|m. petrol|avia|lukoil|hunoil)',
              'osm_search_distance_perfect': 2000,
