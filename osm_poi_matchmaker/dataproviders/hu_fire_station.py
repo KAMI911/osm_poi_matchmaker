@@ -8,7 +8,7 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_string
+    from osm_poi_matchmaker.libs.address import extract_all_address, clean_string, clean_phone
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.enums import WeekDaysLong
@@ -45,6 +45,7 @@ class hu_fire_station(DataProvider):
     ÖTP = municipal
     LTP = concern
     '''
+
     def types(self):
         hufiremsta = self.tags.copy()
         hufiremsta.update({'fire_station:type': 'main_station'})
@@ -97,7 +98,10 @@ class hu_fire_station(DataProvider):
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 try:
-                    pois = json.loads(soup.find(re.search('(\[.*\]);', soup.findAll('script')[-17].text)[1]))
+                    # Extract JSON from scripts
+                    pois_script = soup.findAll('script')[-17].text
+                    pois_variable = re.search('(\[.*\]);', pois_script)
+                    pois = json.loads(pois_variable[1])
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
                     logging.exception(traceback.print_exc())
@@ -106,40 +110,42 @@ class hu_fire_station(DataProvider):
                     return None
                 for poi_data in pois:
                     try:
+                        category = clean_string(poi_data.get('category'))
                         # Önkéntes Tűzoltó Egyesület
-                        if poi_data.get('category') == 5:
+                        if category == '5':
                             self.data.code = 'hufirevsta'
-                        elif poi_data.get('category') == 4:
+                        elif category == '4':
                             logging.warning('Maybe this is not existing')
                         # Önkormányzati Tűzoltó-parancsnokság
-                        elif poi_data.get('category') == 3:
+                        elif category == '3':
                             self.data.code = 'hufireusta'
                             try:
-                                self.data.name == poi_data.get('name').replace('ÖTP', 'Önkormányzati Tűzoltó-parancsnokság')
+                                self.data.name == poi_data.get('name').replace('ÖTP',
+                                                                               'Önkormányzati Tűzoltó-parancsnokság')
                             except Exception as err:
                                 continue
                         # Katasztrófavédelmi Őrs
-                        elif poi_data.get('category') == 2:
+                        elif category == '2':
                             self.data.code = 'hufirelsta'
                             try:
-                                    self.data.name == poi_data.get('name').replace('KŐ', 'Katasztrófavédelmi Őrs')
+                                self.data.name == poi_data.get('name').replace('KŐ', 'Katasztrófavédelmi Őrs')
                             except Exception as err:
                                 continue
                         # Hivatásos Tűzoltó-parancsnokság
-                        elif poi_data.get('category') == 1:
+                        elif category == '1':
                             self.data.code = 'hufiremsta'
                             try:
                                 self.data.name == poi_data.get('name').replace('HTP', 'Hivatásos Tűzoltó-parancsnokság')
                             except Exception as err:
                                 continue
                         else:
-                            logging.warning('Unknown fire station category.')
+                            logging.warning('Unknown fire station category: {}'.format(poi_data.get('category')))
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'),
                                                                          poi_data.get('longitude'))
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
                             self.data.conscriptionnumber = extract_all_address(poi_data.get('address'))
-                        self.data.phone(poi_data.get('phone'))
-                        self.data.email(poi_data.get('email'))
+                        self.data.phone = clean_phone(poi_data.get('phone'))
+                        self.data.email = clean_string(poi_data.get('email'))
                         self.data.original = clean_string(poi_data.get('address'))
                         self.data.add()
                     except Exception as e:
