@@ -22,4 +22,4 @@ class TestTiming(unittest.TestCase):
         timer = Timing()
         time.sleep(self.one_sec_timer)
         end = timer.end()
-        self.assertRegexpMatches(end, '{}.*'.format(self.one_sec), 10)
+        self.assertRegex(end, '{}.*'.format(self.one_sec), 10)
