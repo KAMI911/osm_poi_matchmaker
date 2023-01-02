@@ -6,6 +6,7 @@ try:
     import os
     import json
     import traceback
+    import re
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
         clean_string
@@ -20,6 +21,7 @@ except ImportError as err:
 
     sys.exit(128)
 
+PATTERN_REF = re.compile('([A-Z]{2}\d{2,4})')
 
 class hu_foxpost(DataProvider):
 
@@ -63,19 +65,25 @@ class hu_foxpost(DataProvider):
                         self.data.postcode = clean_string(poi_data.get('zip'))
                         self.data.city = clean_city(poi_data['city'])
                         self.data.branch = poi_data['name']
-                        for i in range(0, 7):
-                            if poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()] is not None:
-                                opening, closing = clean_opening_hours(
-                                    poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()])
-                                self.data.day_open(i, opening)
-                                self.data.day_close(i, closing)
-                            else:
-                                self.data.day_open_close(i, None, None)
+                        self.data.description = clean_string(poi_data.get('findme'))
+                        if 'kültéri' in self.data.description:
+                            self.data.nonstop = True
+                        else:
+                            for i in range(0, 7):
+                                if poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()] is not None:
+                                    opening, closing = clean_opening_hours(
+                                        poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()])
+                                    self.data.day_open(i, opening)
+                                    self.data.day_close(i, closing)
+                                else:
+                                    self.data.day_open_close(i, None, None)
                         self.data.original = poi_data['address']
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data['street'])
                         self.data.public_holiday_open = False
-                        self.data.description = clean_string(poi_data.get('findme'))
+                        ref_match = PATTERN_REF.search(self.data.description)
+                        if ref_match is not None:
+                            self.data.ref = ref_match.group(1)
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
