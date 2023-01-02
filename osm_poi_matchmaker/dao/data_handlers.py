@@ -59,9 +59,9 @@ def get_or_create_poi(session, model, **kwargs):
             .first()
     else:
         # If there is additional ref name then try to search using that field
-        # Fields like ref:bkk, ref: volan
+        # Fields like ref:bkk, ref: volanbusz
         if kwargs.get('poi_additional_ref') is not None:
-            logging.debug('Search based on addition ref field, not a standard address based query.')
+            logging.debug('Search based on additional ref field, not a standard address based query.')
             instance = session.query(model)\
                 .filter_by(poi_common_id=kwargs.get('poi_common_id'))\
                 .filter_by(poi_additional_ref=kwargs.get('poi_additional_ref'))\
@@ -317,6 +317,7 @@ def insert_poi_dataframe(session, poi_df, raw=True):
             if common_col is not None:
                 poi_data['poi_common_id'] = common_col[0]
             # if 'poi_name' in poi_data: del poi_data['poi_name']
+            logging.warning('POI Name is {}'.format(poi_data.get('poi_name')))
             if 'poi_code' in poi_data: del poi_data['poi_code']
             if raw is True:
                 get_or_create_poi(session, POI_address_raw, **poi_data)
@@ -331,7 +332,7 @@ def insert_poi_dataframe(session, poi_df, raw=True):
             session.commit()
             logging.info('Successfully added %s POI items to the dataset.', len(poi_dict))
         except Exception as e:
-            logging.exception('Exception occured: {} unsuccessfull commit: {}'.format(e, traceback.print_exc()))
+            logging.exception('Exception occurred: {} unsuccessfull commit: {}'.format(e, traceback.print_exc()))
             session.rollback()
         finally:
             session.close()
