@@ -24,7 +24,7 @@ except ImportError as err:
 class hu_posta(DataProvider):
 
     def contains(self):
-        self.link = 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
+        self.link = 'https://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
         self.tags = {'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.',
                      'operator:addr': '1138 Budapest, Dunavirág utca 2-6.', 'ref:vatin:hu': '10901232-2-44',
                      'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614',
@@ -85,17 +85,17 @@ class hu_posta(DataProvider):
                         logging.debug('Skipping non public post office.')
                         continue
                     else:
-                        if poi_data.servicepointtype.get_text() == 'PM':
+                        if poi_data.servicepointtype.get_text().upper() == 'PM':
                             self.data.code = 'hupostapo'
                             self.data.public_holiday_open = False
-                        elif poi_data.servicepointtype.get_text() == 'CS':
+                        elif poi_data.servicepointtype.get_text().upper() == 'CS':
                             self.data.code = 'hupostacso'
                             self.data.public_holiday_open = True
-                        elif poi_data.servicepointtype.get_text() == 'PP':
+                        elif poi_data.servicepointtype.get_text().upper() == 'PP':
                             self.data.code = 'hupostapp'
                             self.data.public_holiday_open = False
                         else:
-                            logging.error('Non existing Posta type.')
+                            logging.error('Non existing Posta type: {}'.format(poi_data.servicepointtype.get_text().upper()))
                         self.data.postcode = clean_string(poi_data.get('zipcode'))
                         self.data.housenumber = poi_data.street.housenumber.get_text().split('(', 1)[0].strip() \
                             if poi_data.street.housenumber is not None else None
@@ -158,10 +158,10 @@ class hu_posta(DataProvider):
                                     else:
                                         # It seems there are duplications in Posta data source
                                         # Remove duplicates
-                                        logging.warning('Dulicated opening hours in post office: %s: %s-%s; %s-%s.',
+                                        logging.warning('Duplicated opening hours in post office: %s: %s-%s; %s-%s.',
                                                         self.data.branch, from1, to1, from2, to2)
                                         from2, to2 = None, None
-                        # All times are open so it is non stop
+                        # All times are open so it is non-stop
                         if nonstop_num >= 7:
                             logging.debug('It is a non stop post office.')
                             self.data.nonstop = True
@@ -207,3 +207,4 @@ class hu_posta(DataProvider):
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
             logging.exception(traceback.print_exc())
+            logging.exception(soup)
