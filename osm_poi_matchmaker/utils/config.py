@@ -68,6 +68,7 @@ KEY_USE_GENERAL_SOURCE_WEBSITE_DATE = 'use.general.source.website.date'
 KEY_USE_GENERAL_SOURCE_WEBSITE_DATE_TAG = 'use.general.source.website.date.tag'
 KEY_DATAPROVIDERS_MODULES_AVAILABLE = 'dataproviders.modules.available'
 KEY_DATAPROVIDERS_MODULES_ENABLE = 'dataproviders.modules.enable'
+KEY_DATAPROVIDERS_LIMIT_ELEMENTS = 'dataproviders.limit.elements'
 
 
 def get_config(key):
@@ -360,3 +361,17 @@ def get_dataproviders_modules_enable():
         return setting
     else:
         return True
+
+def get_dataproviders_limit_elemets():
+    try:
+        setting = get_config_int(KEY_DATAPROVIDERS_LIMIT_ELEMENTS)
+    except Exception as err:
+        setting = None
+    env_setting = os.environ.get('OPM_DATAPROVIDERS_LIMIT_ELEMENTS')
+    if env_setting is not None:
+        setting = env_setting
+    if setting is not None:
+        logging.info('Setting is not None: {}'.format(setting))
+        return setting
+    else:
+        return None
