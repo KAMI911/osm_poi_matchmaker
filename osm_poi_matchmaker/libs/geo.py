@@ -48,7 +48,7 @@ def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
                 return None
         else:
             lat = latitude
-        if not isinstance(longitude, float) and not isinstance(latitude, int):
+        if not isinstance(longitude, float) and not isinstance(longitude, int):
             lo = PATTERN_COORDINATE.search(longitude.replace(',', '.').strip())
             try:
                 if lo is not None:
