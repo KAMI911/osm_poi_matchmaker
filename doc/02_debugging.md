@@ -13,6 +13,17 @@ SELECT pc.pc_id, poi_name, COUNT(pa.pa_id)
   ORDER BY poi_name, pc.pc_id;
 ```
 
+## Current number of importeble POIs grouped by POI names from POI RAW table
+
+```
+SELECT pc.pc_id, pc.poi_common_name, COUNT(pa.pa_id)
+  FROM poi_address_raw as pa
+  FULL OUTER JOIN poi_common as pc
+    ON pa.poi_common_id = pc.pc_id
+  GROUP BY pc.pc_id, pc.poi_common_name
+  ORDER BY pc.poi_common_name, pc.pc_id;
+```
+
 # Debugging SQL queries
 
 There are a few longer but not so complex SQL squeries that are essential parts of the POI matching mechanism. Fine tuning of those queries are key to create useful output files.
