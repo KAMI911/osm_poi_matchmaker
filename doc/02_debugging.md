@@ -13,6 +13,17 @@ SELECT pc.pc_id, poi_name, COUNT(pa.pa_id)
   ORDER BY poi_name, pc.pc_id;
 ```
 
+## Current number of importeble POIs grouped by POI names from POI RAW table
+
+```
+SELECT pc.pc_id, pc.poi_common_name, COUNT(pa.pa_id)
+  FROM poi_address_raw as pa
+  FULL OUTER JOIN poi_common as pc
+    ON pa.poi_common_id = pc.pc_id
+  GROUP BY pc.pc_id, pc.poi_common_name
+  ORDER BY pc.poi_common_name, pc.pc_id;
+```
+
 # Debugging SQL queries
 
 There are a few longer but not so complex SQL squeries that are essential parts of the POI matching mechanism. Fine tuning of those queries are key to create useful output files.
@@ -197,6 +208,7 @@ FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(21.623189,47.553246), 4
 WHERE (amenity='post_office') AND osm_id < 0  AND name ~* 'posta'
     AND ST_DWithin(ST_Buffer(way,10),ST_Transform(point.geom, 3857), 430)
 ORDER BY priority ASC, distance ASC;
+```
 
 ## Additional indexes
 
@@ -227,6 +239,4 @@ CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_amenity ON planet_osm_polygon(am
 CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_shop ON planet_osm_polygon(shop);
 CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_name ON planet_osm_polygon(name);
 CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_brand ON planet_osm_polygon(brand);
-```
-
 ```
