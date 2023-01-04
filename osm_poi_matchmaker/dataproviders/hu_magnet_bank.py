@@ -29,7 +29,7 @@ class hu_magnet_bank(DataProvider):
                      'brand:wikipedia': 'hu:MagNet Bank', 'operator': 'MagNet Magyar Közösségi Bank Zrt.',
                      'operator:addr': '1062 Budapest, Andrássy út 98.', 'contact:fax': '+36 1 428 8889',
                      'ref:HU:company': '01 10 046111', 'ref:vatin': 'HU14413591',
-                     'ref:vatin:hu': '14413591-4-44', }
+                     'ref:HU:vatin': '14413591-4-44', }
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)

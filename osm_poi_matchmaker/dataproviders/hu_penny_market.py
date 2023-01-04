@@ -31,7 +31,7 @@ class hu_penny_market(DataProvider):
                      'contact:facebook': 'https://www.facebook.com/PennyMarketMagyarorszag',
                      'contact:instagram': 'https://www.instagram.com/pennymarkethu',
                      'contact:youtube': 'https://www.youtube.com/channel/UCSy0KKUrDxVWkx8qicky_pQ',
-                     'ref:vatin:hu': '10969629-2-44', 'ref:vatin': 'HU10969629'}
+                     'ref:HU:vatin': '10969629-2-44', 'ref:vatin': 'HU10969629'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)

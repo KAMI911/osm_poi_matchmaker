@@ -27,7 +27,7 @@ class hu_ofotert(DataProvider):
     def contains(self):
         self.link = 'https://www.ofotert.hu/hu/api/store-locator'
         self.tags = {'shop': 'optician', 'operator': 'GrandVision Hungary Kft.',
-                     'operator:addr': '1113 Budapest, Bocskai út 134-146.', 'ref:vatin:hu': '12142143-2-44',
+                     'operator:addr': '1113 Budapest, Bocskai út 134-146.', 'ref:HU:vatin': '12142143-2-44',
                      'ref:vatin': 'HU12142143', 'ref:HU:company': '01-09-468765', 'brand': 'Ofotért',
                      'contact:email': 'vevoszolgalat@ofotert.hu',
                      'contact:facebook': 'https://www.facebook.com/ofotert',

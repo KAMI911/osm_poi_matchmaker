@@ -30,7 +30,7 @@ class hu_mav(DataProvider):
     def contains(self):
         self.link = 'https://www.mavcsoport.hu/gtfs/gtfsMavMenetrend.zip'
         self.tags = {'railway': 'train_stop', 'public_transport': 'stop_position', 'operator': 'MÁV-START Zrt.',
-                     'operator:addr': '1087 Budapest, Könyves Kálmán körút 54-60.', 'ref:vatin:hu': '13834492-2-44',
+                     'operator:addr': '1087 Budapest, Könyves Kálmán körút 54-60.', 'ref:HU:vatin': '13834492-2-44',
                      'ref:vatin': 'HU13834492', 'brand': 'MÁV-START', 'brand:wikidata': 'Q1180332',
                      'brand:wikipedia': 'hu:MÁV-START_Zrt.', 'contact:email': 'eszrevetel@mav-start.hu',
                      'phone': '+36 1 349 4949',

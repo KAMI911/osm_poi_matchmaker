@@ -26,7 +26,7 @@ class hu_posta(DataProvider):
     def contains(self):
         self.link = 'https://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
         self.tags = {'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.',
-                     'operator:addr': '1138 Budapest, Dunavirág utca 2-6.', 'ref:vatin:hu': '10901232-2-44',
+                     'operator:addr': '1138 Budapest, Dunavirág utca 2-6.', 'ref:HU:vatin': '10901232-2-44',
                      'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614',
                      'contact:email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200',
                      'contact:facebook': 'https://www.facebook.com/MagyarPosta',

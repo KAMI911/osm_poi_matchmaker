@@ -27,7 +27,7 @@ class hu_obi(DataProvider):
         self.tags = {'shop': 'doityourself', 'brand': 'OBI', 'brand:wikidata': 'Q300518',
                      'brand:wikipedia': 'en:Obi (store)', 'operator': 'OBI Hungary Retail Kft.',
                      'operator:addr': '1097 Budapest, Könyves Kálmán körút 12-14',
-                     'ref:vatin:hu': '13136062-2-44', 'ref:vatin': 'HU13136062',
+                     'ref:HU:vatin': '13136062-2-44', 'ref:vatin': 'HU13136062',
                      'wheelchair': 'yes', 'air_conditioning': 'yes', }
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(

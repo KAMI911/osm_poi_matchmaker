@@ -31,7 +31,7 @@ class hu_yves_rocher(DataProvider):
                      'contact:youtube': 'https://www.youtube.com/channel/UC6GA7lucPWgbNlC_MoomB9g',
                      'contact:instagram': 'https://www.instagram.com/yves_rocher_magyarorszag/',
                      'operator:addr': '1132 Budapest, Váci út 20-26.', 'ref:vatin': 'HU10618646',
-                     'ref:vatin:hu': '10618646-2-41', 'ref:HU:company': '01-09-079930', 'air_conditioning': 'yes'}
+                     'ref:HU:vatin': '10618646-2-41', 'ref:HU:company': '01-09-079930', 'air_conditioning': 'yes'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)

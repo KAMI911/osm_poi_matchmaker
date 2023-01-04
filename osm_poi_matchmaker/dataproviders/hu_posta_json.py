@@ -29,7 +29,7 @@ class hu_posta_json(DataProvider):
     def __init__(self, session, link, download_cache, filename='hu_posta.json'):
         self.session = session
         self.link = link
-        self.tags = {'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:vatin:hu': '10901232-2-44',
+        self.tags = {'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:HU:vatin': '10901232-2-44',
                      'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614',
                      'contact:email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200',
                      'contact:facebook': 'https://www.facebook.com/MagyarPosta',

@@ -30,7 +30,7 @@ class hu_volanbusz(DataProvider):
     def contains(self):
         self.link = 'http://opendata.menetrendek.hu/public_gtfs/volanbusz_gtfs.zip'
         self.tags = {'highway': 'bus_stop', 'public_transport': 'platform', 'operator': 'Volánbusz Zrt.',
-                     'operator:addr': '1091 Budapest, Üllői út 131.', 'ref:vatin:hu': '10824346-2-44',
+                     'operator:addr': '1091 Budapest, Üllői út 131.', 'ref:HU:vatin': '10824346-2-44',
                      'ref:vatin': 'HU10824346', 'brand': 'Volánbusz', 'brand:wikidata': 'Q746503',
                      'brand:wikipedia': 'hu:Volánbusz', 'contact:email': 'info@volanbusz.hu',
                      'phone': '+36 1 219 8000',

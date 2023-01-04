@@ -33,7 +33,7 @@ class hu_mol(DataProvider):
         self.fuel = {'amenity': 'fuel', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}
         self.tags = {'brand': 'MOL', 'operator': 'MOL Nyrt.',
                      'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.',
-                     'ref:vatin:hu': '10625790-4-44',
+                     'ref:HU:vatin': '10625790-4-44',
                      'contact:facebook': 'https://www.facebook.com/mol.magyarorszag/',
                      'contact:youtube': 'https://www.youtube.com/user/molgrouptv',
                      'contact:instagram': 'https://www.instagram.com/mol.magyarorszag/',
