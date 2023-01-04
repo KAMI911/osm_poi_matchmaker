@@ -328,10 +328,13 @@ class POIBase:
                 logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
             if not data.empty:
-                logging.info('Found item with simple unique name search.')
-                logging.debug(data.to_string())
-                logging.debug('Return with additional unique name data: {}'.format(data.iloc[[0]]))
-                return data.iloc[[0]]
+                if len(data) > 1:
+                    logging.info('Multiple items found with simple unique name search. Skipping this method ...')
+                else:
+                    logging.info('Found item with simple unique name search.')
+                    logging.debug(data.to_string())
+                    logging.debug('Return with additional unique name data: {}'.format(data.iloc[[0]]))
+                    return data.iloc[[0]]
             else:
                 logging.info('Item not found with unique name search.')
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
