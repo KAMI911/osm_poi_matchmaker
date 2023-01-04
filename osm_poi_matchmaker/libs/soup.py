@@ -81,6 +81,7 @@ def save_downloaded_soup(link, file, filetype, post_data=None, verify=config.get
                     if filetype == FileType.zip:
                         with open(file, mode='wb') as file:
                             file.write(content)
+                            return True
                     else:
                         with open(file, mode='w', encoding='utf-8') as code:
                             if filetype == FileType.html:
@@ -106,6 +107,8 @@ def save_downloaded_soup(link, file, filetype, post_data=None, verify=config.get
         else:
             logging.info('Using file only: %s. There is not downloadable URL only just the file. Do not forget to update file manually!',
                 file)
+    if filetype == FileType.zip:
+        return True
     if os.path.exists(file):
         content = readfile(file, filetype)
     else:
