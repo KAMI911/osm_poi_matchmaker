@@ -510,7 +510,8 @@ def generate_osm_xml(df, session=None):
                 logging.error(traceback.print_exc())
             try:
                 logging.debug('Rendering test data as XML comment.')
-                test_case = {k: row.get(k, None) for k in TESTCASE_GEN_KEYS}
+                test_case = {ckey: (row.get(ckey, None).replace('-', '\-') if isinstance(row.get(ckey, None), str) else\
+                    row.get(ckey, None)) for ckey in TESTCASE_GEN_KEYS}
                 comment = etree.Comment(
                     "ˇ'original': '{t[original]}', 'postcode': '{t[poi_postcode]}', 'city': '{t[poi_city]}', 'street': '{t[poi_addr_street]}', 'housenumber': '{t[poi_addr_housenumber]}', 'conscriptionnumber': '{t[poi_conscriptionnumber]}'°".format(
                         t=test_case))
@@ -518,6 +519,7 @@ def generate_osm_xml(df, session=None):
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.error(traceback.print_exc())
+                logging.error(test_case)
             try:
                 logging.debug('XML node tags check.')
                 if xml_node_tags is not None:
