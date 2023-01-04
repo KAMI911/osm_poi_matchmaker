@@ -28,7 +28,7 @@ class hu_ccc(DataProvider):
         self.link = 'https://ccc.eu/hu/sklepy'
         self.tags = {'shop': 'shoes', 'operator': ' CCC Hungary Shoes Kft.',
                      'operator:addr': '1123 Budapest, Alkotás utca 53.', 'ref:HU:vatin': '24128296-2-44',
-                     'ref:vatin': 'HU24128296', 'ref:HU:company': '01 09 991763', 'brand': 'CCC', 'brand:wikidata': 'Q11788344',
+                     'ref:vatin': 'HU24128296', 'ref:HU:company': '01-09-991763', 'brand': 'CCC', 'brand:wikidata': 'Q11788344',
                      'brand:wikipedia': 'pl:CCC (przedsiębiorstwo)', 'contact:email': 'info.hu@ccc.eu',
                      'phone': '+36 1 445 3701', 'contact:linkedin': 'https://www.linkedin.com/company/cccsa',
                      'contact:facebook': 'https://www.facebook.com/CCC.Hungary/',

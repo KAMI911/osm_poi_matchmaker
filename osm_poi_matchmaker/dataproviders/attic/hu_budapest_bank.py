@@ -25,7 +25,7 @@ class hu_budapest_bank(DataProvider):
         self.tags = {'brand': 'Budapest Bank', 'brand:wikidata': 'Q27493463', 'bic': 'BUDAHUHB',
                      'brand:wikipedia': 'en:Budapest Bank', 'operator': 'Budapest Bank Zrt.',
                      'operator:addr': '1138 Budapest, Váci út 193.', 'ref:vatin': 'HU10196445',
-                     'ref:HU:vatin': '10196445-4-44', 'ref:HU:company': '01 10 041037', 'air_conditioning': 'yes'}
+                     'ref:HU:vatin': '10196445-4-44', 'ref:HU:company': '01-10-041037', 'air_conditioning': 'yes'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)

@@ -27,7 +27,7 @@ class hu_kh_bank(DataProvider):
         self.link = link
         self.tags = {'brand': 'K&H', 'operator': 'K&H Bank Zrt.',
                      'operator:addr': '1095 Budapest, Lechner Ödön fasor 9.', 'bic': 'OKHBHUHB',
-                     'ref:vatin': 'HU10195664', 'ref:HU:vatin': '10195664-4-44', 'ref:HU:company': '01 10 041043', }
+                     'ref:vatin': 'HU10195664', 'ref:HU:vatin': '10195664-4-44', 'ref:HU:company': '01-10-041043', }
         self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name
         self.filetype = FileType.json

@@ -28,7 +28,7 @@ class hu_emobi_ev(DataProvider):
                      'authentication:membership_card': 'yes', 'operator': 'e-Mobi Elektromobilitás Nonprofit Kft.',
                      'operator:addr': '1037 Budapest, Montevideo utca 2/C', 'fee': 'yes', 'parking:fee': 'no',
                      'opening_hours': '24/7', 'ref:vatin': 'HU25539431', 'ref:HU:vatin': '25539431-2-41',
-                     'ref:HU:company': '01 09 281052', 'alt_name': 'e-mobi', 'contact:website': 'https://e-mobi.hu/hu',
+                     'ref:HU:company': '01-09-281052', 'alt_name': 'e-mobi', 'contact:website': 'https://e-mobi.hu/hu',
                      'contact:email': 'kapcsolat@e-mobi.hu', 'contact:phone': '+36 80 210 012',
                      'contact:facebook': 'https://www.facebook.com/elektromobilitas', }
         self.filetype = FileType.csv
