@@ -36,7 +36,7 @@ class hu_pingvin_patika(DataProvider):
                      'contact:pinterest': 'https://www.pinterest.com/pingvinpatika/',
                      'operator': 'Pingvin Napfény Zrt.', 'operator:addr': '6720 Szeged, Széchenyi tér 17.',
                      'ref:vatin': 'HU24700450', 'ref:HU:vatin': '24700450-2-06',
-                     'ref:HU:company': '06 10 000456', 'air_conditioning': 'yes', }
+                     'ref:HU:company': '06-10-000456', 'air_conditioning': 'yes', }
         self.filetype = FileType.html
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)

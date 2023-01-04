@@ -26,7 +26,7 @@ class hu_cib_bank(DataProvider):
         self.link = link
         self.tags = {'brand': 'CIB Bank', 'operator': 'CIB Bank Zrt.', 'operator:addr': '1027 Budapest, Medve u 4-14.',
                      'bic': 'CIBHHUHB', 'ref:vatin': 'HU10136915', 'ref:HU:vatin': '10136915-4-44',
-                     'ref:HU:company': '01 10 041004', 'brand:wikidata': 'Q839566',
+                     'ref:HU:company': '01-10-041004', 'brand:wikidata': 'Q839566',
                      'brand:wikipedia': 'hu:CIB Bank', }
         self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name

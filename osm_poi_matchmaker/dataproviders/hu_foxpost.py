@@ -29,7 +29,7 @@ class hu_foxpost(DataProvider):
         self.link = 'https://cdn.foxpost.hu/foxpost_terminals_extended_v3.json'
         self.tags = {'brand': 'Foxpost', 'operator': 'FoxPost Zrt.',
                      'operator:addr': '3200 Gyöngyös, Batsányi János utca 9.', 'ref:vatin': 'HU25034644',
-                     'ref:HU:vatin': '25034644-2-10', 'ref:HU:company': '10 10 020309',
+                     'ref:HU:vatin': '25034644-2-10', 'ref:HU:company': '10-10-020309',
                      'contact:facebook': 'https://www.facebook.com/foxpostzrt',
                      'contact:youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w',
                      'contact:email': 'info@foxpost.hu', 'contact:phone': '+36 1 999 03 69',

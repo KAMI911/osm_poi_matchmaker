@@ -27,7 +27,7 @@ class hu_gls(DataProvider):
         self.link = 'https://csomag.hu/api/parcel-shops'
         self.tags = {'brand': 'GLS', 'operator': 'GLS General Logistics Systems Hungary Csomag-Logisztikai Kft.',
                      'operator:addr': '2351 Alsónémedi, Európa utca 2.', 'ref:vatin': 'HU12369410',
-                     'ref:HU:vatin': '12369410-2-44', 'ref:HU:company': '13 09 111755',
+                     'ref:HU:vatin': '12369410-2-44', 'ref:HU:company': '13-09-111755',
                      'contact:facebook': 'https://www.facebook.com/GLSHungaryKft/',
                      'contact:youtube': 'https://www.youtube.com/channel/UC-Lv4AkW50HM80ZZQEq8Sqw/',
                      'contact:email': ' info@gls-hungary.com', 'contact:phone': '+36 29 886 700', 'contact:mobile': '+36 20 890 0660',

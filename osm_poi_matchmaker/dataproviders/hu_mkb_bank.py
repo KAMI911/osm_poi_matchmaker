@@ -31,7 +31,7 @@ class hu_mkb_bank(DataProvider):
         self.tags = {'brand': 'MKB Bank', 'brand:wikidata': 'Q916185', 'bic': 'MKKBHUHB',
                      'brand:wikipedia': 'hu:MKB Bank', 'operator': 'MKB Bank Nyrt.',
                      'operator:addr': '1056 Budapest, Váci u. 38.', 'ref:vatin': 'HU10011922',
-                     'ref:HU:vatin': '10011922-4-44', 'ref:HU:company': '01 10 040952', 'air_conditioning': 'yes'}
+                     'ref:HU:vatin': '10011922-4-44', 'ref:HU:company': '01-10-040952', 'air_conditioning': 'yes'}
         self.filetype = FileType.csv
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)
