@@ -153,13 +153,12 @@ def main():
                                               config.get_database_poi_database()))
     pgsql_pool = db.pool
     session_factory = sessionmaker(pgsql_pool)
-    Session = scoped_session(session_factory)
-    session = Session()
+    session_object = scoped_session(session_factory)
     try:
         logging.info('Starting STAGE 0 ...')
-        import_basic_data(db.session)
+        import_basic_data(session_object())
         logging.info('Starting STAGE 1 ...')
-        index_osm_data(db.session)
+        index_osm_data(session_object())
         logging.info('Starting STAGE 2 ...')
         manager = WorkflowManager()
         manager.start_poi_harvest()

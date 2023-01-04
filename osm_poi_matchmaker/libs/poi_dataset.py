@@ -47,8 +47,8 @@ class POIDatasetRaw:
                                          config.get_database_poi_database()))
         self.__pgsql_pool = self.__db.pool
         self.__session_factory = sessionmaker(self.__pgsql_pool)
-        self.__Session = scoped_session(self.__session_factory)
-        self.__session = self.__Session()
+        self.__session_object = scoped_session(self.__session_factory)
+        self.__session = self.__session_object()
         self.__code = None
         self.__postcode = None
         self.__city = None
@@ -172,7 +172,9 @@ class POIDatasetRaw:
 
     @postcode.setter
     def postcode(self, data: str):
+        logging.debug('Original postcode is: {}'.format(data))
         self.__postcode = clean_postcode(data)
+        logging.debug('Stored postcode is: {}'.format(self.__postcode))
 
     @property
     def city(self) -> str:
@@ -915,7 +917,7 @@ class POIDatasetRaw:
         '''
         data = clean_string(self.__postcode)
         if data is None or data == 0 or data == '':
-            osm_postcode = query_postcode_osm_external(True, self.__session, self.__lon, self.__lat, None)
+            osm_postcode = query_postcode_osm_external(True, self.__session_object(), self.__lon, self.__lat, None)
             if osm_postcode is None or data == 0:
                 self.__postcode = osm_postcode
             else:
@@ -1000,8 +1002,8 @@ class POIDataset(POIDatasetRaw):
                                          config.get_database_poi_database()))
         self.__pgsql_pool = self.__db.pool
         self.__session_factory = sessionmaker(self.__pgsql_pool)
-        self.__Session = scoped_session(self.__session_factory)
-        self.__session = self.__Session()
+        self.__session_object = scoped_session(self.__session_factory)
+        self.__session = self.__session_object()
         self.__good = []
         self.__bad = []
 
