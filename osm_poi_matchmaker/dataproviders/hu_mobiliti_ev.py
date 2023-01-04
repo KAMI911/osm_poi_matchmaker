@@ -31,7 +31,7 @@ class hu_mobiliti_ev(DataProvider):
         self.tags = {'amenity': 'charging_station', 'authentication:app': 'yes', 'authentication:none': 'yes',
                      'authentication:membership_card': 'yes', 'operator': 'NKM Mobilitás Kft.',
                      'operator:addr': '1081 Budapest, II. János Pál pápa tér 20.', 'fee': 'yes', 'parking:fee': 'no',
-                     'opening_hours': '24/7', 'ref:vatin': 'HU23443486', 'ref:vatin:hu': '23443486-2-42',
+                     'opening_hours': '24/7', 'ref:vatin': 'HU23443486', 'ref:HU:vatin': '23443486-2-42',
                      'ref:HU:company': '01-09-965868', 'contact:website': 'https://www.mobiliti.hu/emobilitas',
                      'contact:email': 'help@mobiliti.hu', 'contact:phone': '+36 62 565 758', }
         self.filetype = FileType.csv

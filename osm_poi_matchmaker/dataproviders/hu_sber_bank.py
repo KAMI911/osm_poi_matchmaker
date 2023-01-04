@@ -25,7 +25,7 @@ class hu_sber_bank(DataProvider):
         self.tags = {'brand': 'Sberbank', 'brand:wikidata': 'Q17379757', 'bic': 'MAVOHUHB',
                      'brand:wikipedia': 'en:Sberbank of Russia', 'operator': 'Sberbank Magyarország Zrt.',
                      'operator:addr': '1088 Budapest, Rákóczi út 1-3.', 'brand:ru': 'Сбербанк',
-                     'name:ru': 'Сбербанк', 'ref:vatin': 'HU10776999', 'ref:vatin:hu': '10776999-2-44',
+                     'name:ru': 'Сбербанк', 'ref:vatin': 'HU10776999', 'ref:HU:vatin': '10776999-2-44',
                      'ref:HU:company': '01 10 041720'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(

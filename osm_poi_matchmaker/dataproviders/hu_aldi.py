@@ -24,7 +24,7 @@ class hu_aldi(DataProvider):
         self.link = 'https://www.aldi.hu/hu/hu/.get-stores-in-radius.json?latitude=47.162494&longitude=19.503304&radius=50000'
         self.tags = {'operator': 'ALDI Magyarország Élelmiszer Bt.',
                      'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi',
-                     'ref:vatin:hu': '22234663-2-44', 'ref:vatin': 'HU22234663',
+                     'ref:HU:vatin': '22234663-2-44', 'ref:vatin': 'HU22234663',
                      'ref:company:HU': '13 06 058506',
                      'brand:wikipedia': 'hu:Aldi', 'brand:wikidata': 'Q125054',
                      'contact:facebook': 'https://www.facebook.com/ALDI.Magyarorszag',

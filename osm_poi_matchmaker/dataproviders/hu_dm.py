@@ -29,7 +29,7 @@ class hu_dm(DataProvider):
                      'contact:facebook': 'https://www.facebook.com/dm.Magyarorszag',
                      'contact:youtube': 'https://www.youtube.com/user/dmMagyarorszag',
                      'contact:instagram': 'https://www.instagram.com/dm_magyarorszag',
-                     'ref:vatin': 'HU11181530', 'ref:vatin:hu': '11181530-2-44', 'ref:HU:company': '13 09 078006',
+                     'ref:vatin': 'HU11181530', 'ref:HU:vatin': '11181530-2-44', 'ref:HU:company': '13 09 078006',
                      'air_conditioning': 'yes'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(

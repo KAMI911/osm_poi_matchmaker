@@ -28,7 +28,7 @@ class hu_oil(DataProvider):
                      'fuel:octane_95': 'yes', 'brand:wikidata': 'Q2007561',
                      'brand:wikipedia': 'OIL! Tankstellen', 'operator': 'Mabanaft Hungary Kft.',
                      'operator:addr': '1016 Budapest, Mészáros utca 58/B',
-                     'ref:vatin:hu': '12700226-2-44', 'ref:vatin': 'HU12700226',
+                     'ref:HU:vatin': '12700226-2-44', 'ref:vatin': 'HU12700226',
                      'ref:HU:company': '01-09-699184',
                      'contact:facebook': 'https://www.facebook.com/OILHungary/', }
         self.filetype = FileType.json

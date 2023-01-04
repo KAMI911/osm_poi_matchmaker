@@ -28,7 +28,7 @@ class hu_rossmann(DataProvider):
     def contains(self):
         self.link = 'https://www.rossmann.hu/uzletkereso'
         self.tags = {'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.',
-                     'operator:addr': '2225 Üllő, Zsaróka út 8.', 'ref:vatin:hu': '11149769-2-44',
+                     'operator:addr': '2225 Üllő, Zsaróka út 8.', 'ref:HU:vatin': '11149769-2-44',
                      'ref:vatin': 'HU11149769', 'brand': 'Rossmann', 'brand:wikidata': 'Q316004',
                      'brand:wikipedia': 'de:Dirk Rossmann GmbH', 'contact:email': 'ugyfelszolgalat@rossmann.hu',
                      'phone': '+36 29 889-800;+36 70 4692 800',

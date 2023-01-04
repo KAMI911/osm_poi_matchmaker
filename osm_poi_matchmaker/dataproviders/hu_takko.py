@@ -26,7 +26,7 @@ class hu_takko(DataProvider):
         self.link = ''
         self.tags = {'shop': 'clothes', 'operator': 'Takko Fashion Kft.',
                      'operator:addr': '2040 Budaörs, Ébner György köz 4.',
-                     'ref:HU:company': '13-10-040628', 'ref:vatin:hu': '1335199-2-13', 'ref:vatin': 'HU1335199',
+                     'ref:HU:company': '13-10-040628', 'ref:HU:vatin': '1335199-2-13', 'ref:vatin': 'HU1335199',
                      'brand': 'Takko', 'contact:website': 'https://www.takko.com/hu-hu/', 'loyalty_card': 'yes',
                      'air_conditioning': 'yes'}
         self.filetype = FileType.json
