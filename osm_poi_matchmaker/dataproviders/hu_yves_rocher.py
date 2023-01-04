@@ -7,7 +7,8 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str,\
+        clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -22,7 +23,7 @@ except ImportError as err:
 class hu_yves_rocher(DataProvider):
 
     def contains(self):
-        self.link = 'https://storelocator.yves-rocher.eu/api/v1/map/stores'
+        self.link = '' # 'https://storelocator.yves-rocher.eu/api/v1/map/stores'
         self.tags = {'shop': 'cosmetics', 'operator': 'Yves Rocher Hungary Kft. ',
                      'brand': 'Yves Rocher', 'brand:wikidata': 'Q28496595',
                      'brand:wikipedia': 'en:Yves Rocher (company)', 'contact:email': 'vevoszolgalat@yrnet.com',
@@ -56,40 +57,37 @@ class hu_yves_rocher(DataProvider):
                 text = json.loads(str(soup))
                 for poi_data in text.get('list'):
                     try:
-                        if poi_data.get('country_id') != 3:
-                            continue
-                        else:
-                            self.data.code = 'huyvesrcos'
-                            self.data.lat, self.data.lon = \
-                                check_hu_boundary(poi_data.get(
-                                    'latitude'), poi_data.get('longitude'))
-                            self.data.website = None
-                            opening = poi_data.get('hours')
-                            for i in range(0, 7):
-                                if i in opening:
-                                    self.data.day_open(
-                                        i, opening[i]['hour_from'])
-                                    self.data.day_close(
-                                        i, opening[i]['hour_to'])
-                            self.data.postcode = poi_data.get('zip')
-                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                                extract_street_housenumber_better_2(
-                                    poi_data.get('address'))
-                            self.data.city = clean_city(poi_data.get('city'))
-                            self.data.original = poi_data.get('address')
-                            if poi_data.get('phone') is not None and poi_data.get('phone') != '':
-                                self.data.phone = clean_phone_to_str(
-                                    poi_data.get('phone'))
-                            if poi_data.get('mobile') is not None and poi_data.get('mobile') != '' \
-                                    and self.data.phone is not None:
-                                self.data.phone = '{};{}'.format(self.data.phone,
-                                                                 clean_phone_to_str(poi_data.get('mobile')))
-                            elif poi_data.get('mobile') is not None and poi_data.get('mobile') != '' \
-                                    and self.data.phone is None:
-                                self.data.phone = clean_phone_to_str(
-                                    poi_data.get('mobile'))
-                            self.data.public_holiday_open = False
-                            self.data.add()
+                        self.data.code = 'huyvesrcos'
+                        self.data.lat, self.data.lon = \
+                            check_hu_boundary(poi_data.get(
+                                'latitude'), poi_data.get('longitude'))
+                        self.data.website = None
+                        opening = poi_data.get('hours')
+                        for i in range(0, 7):
+                            if i in opening:
+                                self.data.day_open(
+                                    i, opening[i]['hour_from'])
+                                self.data.day_close(
+                                    i, opening[i]['hour_to'])
+                        self.data.postcode = poi_data.get('zip')
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_street_housenumber_better_2(
+                                poi_data.get('address'))
+                        self.data.city = clean_city(poi_data.get('city'))
+                        self.data.original = poi_data.get('address')
+                        if poi_data.get('phone') is not None and poi_data.get('phone') != '':
+                            self.data.phone = clean_phone_to_str(
+                                poi_data.get('phone'))
+                        if poi_data.get('mobile') is not None and poi_data.get('mobile') != '' \
+                                and self.data.phone is not None:
+                            self.data.phone = '{};{}'.format(self.data.phone,
+                                                             clean_phone_to_str(poi_data.get('mobile')))
+                        elif poi_data.get('mobile') is not None and poi_data.get('mobile') != '' \
+                                and self.data.phone is None:
+                            self.data.phone = clean_phone_to_str(
+                                poi_data.get('mobile'))
+                        self.data.public_holiday_open = False
+                        self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
                         logging.exception(traceback.print_exc())
