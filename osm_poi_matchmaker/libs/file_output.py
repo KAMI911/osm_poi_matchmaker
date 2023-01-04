@@ -174,6 +174,21 @@ def add_osm_link_comment(osm_id: int, osm_type) -> str:
     return osm_comment
 
 
+def add_osm_coordinate_comment(lat: str, long: str, zoom_level: int = 18) -> str:
+    """Create OpenStreetMap osm.org link coordinates
+
+    Args:
+        lat: latitude
+        long: longitude
+        zoom_level: map zoom level
+
+    Returns:
+        str: [description]
+    """
+    osm_comment = ' OSM link: https://osm.org/#map={}/{}/{} '.format(zoom_level, lat, long)
+    return osm_comment
+
+
 def generate_osm_xml(df, session=None):
     """Crete OpenStreetMap (OSM XML) file from passed Panda Dataframe
 
@@ -280,7 +295,7 @@ def generate_osm_xml(df, session=None):
                     comment = etree.Comment(' OSM <-> POI distance: {} m'.format(row.get('poi_distance')))
                 else:
                     logging.debug('New POI, have not got distance data.')
-                    comment = etree.Comment(' OSM <-> POI distance: Non exist')
+                    comment = etree.Comment(' OSM <-> POI distance: Non exist \n {}'.format(add_osm_coordinate_comment(row.get('').split(' ')[0], row.get('').split(' ')[1])))
                 osm_xml_data.append(comment)
                 if 'poi_good' in row and 'poi_bad' in row:
                     logging.debug('Add good/bad quality comments.')
