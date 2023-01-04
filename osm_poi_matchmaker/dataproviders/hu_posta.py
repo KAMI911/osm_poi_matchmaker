@@ -80,18 +80,19 @@ class hu_posta(DataProvider):
                     # if poi_data.get('ispostpoint') == '0':
                     #    continue
                     #  The 'kirendeltség' post offices are not available to end users, so we remove them
+                    servicepointtype = clean_string(poi_data.servicepointtype.get_text().upper()) if poi_data.servicepointtype is not None else None
                     if 'okmányiroda' in poi_data.find('name').get_text().lower() or \
                             'mol kirendeltség' in poi_data.find('name').get_text().lower():
                         logging.debug('Skipping non public post office.')
                         continue
                     else:
-                        if poi_data.servicepointtype.get_text().upper() == 'PM':
+                        if servicepointtype == 'PM':
                             self.data.code = 'hupostapo'
                             self.data.public_holiday_open = False
-                        elif poi_data.servicepointtype.get_text().upper() == 'CS':
+                        elif servicepointtype == 'CS':
                             self.data.code = 'hupostacso'
                             self.data.public_holiday_open = True
-                        elif poi_data.servicepointtype.get_text().upper() == 'PP':
+                        elif servicepointtype == 'PP':
                             self.data.code = 'hupostapp'
                             self.data.public_holiday_open = False
                         else:
@@ -118,12 +119,15 @@ class hu_posta(DataProvider):
                                 # Try to match day name in data source (day tag) with on of WeekDaysLongHU enum element
                                 # Select day based on d.day matching
                                 for rd in WeekDaysLongHU:
-                                    if rd.name == d.day.get_text():
-                                        day_key = rd.value
-                                        break
+                                    if d.day is not None:
+                                        if rd.name == d.day.get_text():
+                                            day_key = rd.value
+                                            break
+                                        else:
+                                            day_key = None
                                     else:
                                         day_key = None
-                                    # No day matching skip to next
+                                # No day matching skip to next
                                 # Skip days that are not exist at data provider's
                                 if day_key is None:
                                     logging.warning('Cannot find any opening hours information for day {}.'.
