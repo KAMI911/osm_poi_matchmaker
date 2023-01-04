@@ -80,7 +80,7 @@ def export_grouped_poi_data_with_postcode_groups(data):
                 stop = i + postcode_gap - 1
                 # xml_export = rows[rows['poi_postcode'].between(int(i), int(stop), inclusive="both")]
                 xml_export = rows[i:stop]
-                print(xml_export.to_string())
+                # print(xml_export.to_string())
                 if len(xml_export) != 0:
                     with open(os.path.join(output_dir, '{}_{:04d}-{:04d}.osm'.format(filename, i, stop)), 'wb') as oxf:
                         oxf.write(generate_osm_xml(xml_export))
