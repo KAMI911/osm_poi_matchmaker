@@ -26,17 +26,11 @@ RETRY = 3
 
 
 def online_poi_matching(args):
-    data, comm_data = args
+    db, connection, data, comm_data = args
     try:
-        db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
-                                                  config.get_database_writer_password(),
-                                                  config.get_database_writer_host(),
-                                                  config.get_database_writer_port(),
-                                                  config.get_database_poi_database()))
-        pgsql_pool = db.pool
-        session_factory = sessionmaker(pgsql_pool)
+        session_factory = sessionmaker(bind=connection)
         session_object = scoped_session(session_factory)
-        session = session_object()
+        one_session = session_object()
         osm_live_query = OsmApi()
         for i, row in data.head(config.get_dataproviders_limit_elemets()).iterrows():
         # for i, row in data[data['poi_code'].str.contains('ping')].iterrows():

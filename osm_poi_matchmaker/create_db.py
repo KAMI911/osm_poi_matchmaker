@@ -17,6 +17,7 @@ try:
     import traceback
     from osm_poi_matchmaker.utils import config, timing
     from osm_poi_matchmaker.libs.osm import timestamp_now
+    from osm_poi_matchmaker.dao.database import Database
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
@@ -88,7 +89,9 @@ def load_common_data(database):
 
 class WorkflowManager(object):
 
-    def __init__(self):
+    def __init__(self, poi_database, connection):
+        self.__database = poi_database
+        self.__connection = connection
         self.manager = multiprocessing.Manager()
         self.queue = self.manager.Queue()
         self.NUMBER_OF_PROCESSES = multiprocessing.cpu_count()
@@ -105,7 +108,7 @@ class WorkflowManager(object):
             logging.info('Starting processing on %s cores.', process_count)
             self.results = []
             self.pool = multiprocessing.Pool(processes=process_count)
-            self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable())
+            self.results = self.pool.map_async(import_poi_data_module, [self.__connection, config.get_dataproviders_modules_enable()])
             self.pool.close()
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
@@ -133,7 +136,7 @@ class WorkflowManager(object):
             workers = self.NUMBER_OF_PROCESSES
             self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES//2)
             self.results = self.pool.map_async(online_poi_matching,
-                                               [(d, comm_data) for d in np.array_split(data, workers)])
+                                               [(self.__database, self.__connection, d, comm_data) for d in np.array_split(data, workers)])
             self.pool.close()
             return pd.concat(list(self.results.get()), sort=False)
         except Exception as e:
@@ -146,26 +149,29 @@ class WorkflowManager(object):
 
 def main():
     logging.info('Starting %s ...', __program__)
-    db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
-                                              config.get_database_writer_password(),
-                                              config.get_database_writer_host(),
-                                              config.get_database_writer_port(),
-                                              config.get_database_poi_database()))
-    pgsql_pool = db.pool
-    session_factory = sessionmaker(pgsql_pool)
-    session_object = scoped_session(session_factory)
+
+    database_type = config.get_database_type()
+    database_username = config.get_database_writer_username(),
+    database_password = config.get_database_writer_password(),
+    database_host = config.get_database_writer_host(),
+    database_port = config.get_database_writer_port(),
+    database_database = config.get_database_poi_database()
+    db = Database('{database_type}://{database_username}:{database_password}@{database_host}:{database_port}/{database_database}', 'osm_poi')
+
+    poi_db = POIBase(db.connect())
+
     try:
         logging.info('Starting STAGE 0 ...')
-        import_basic_data(session_object())
+        import_basic_data(db.session_object())
         logging.info('Starting STAGE 1 ...')
-        index_osm_data(session_object())
+        index_osm_data(db.session_object())
         logging.info('Starting STAGE 2 ...')
-        manager = WorkflowManager()
+        manager = WorkflowManager(db.connect())
         manager.start_poi_harvest()
         manager.join()
         logging.info('Starting STAGE 3 ...')
         # Load basic dataset from database
-        poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
+        poi_addr_data = load_poi_data(poi_db, 'poi_address_raw', True)
         # Download and load POI dataset to database
         logging.info('Starting STAGE 4 ...')
         poi_common_data = load_common_data(db)
@@ -176,7 +182,7 @@ def main():
         del poi_addr_data
 
         logging.info('Starting STAGE 6 ...')
-        poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
+        poi_addr_data = load_poi_data(poi_db, 'poi_address_raw', True)
         logging.info('Merging dataframes ...')
         poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
         poi_addr_data['osm_id'] = None

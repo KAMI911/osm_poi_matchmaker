@@ -18,20 +18,17 @@ except ImportError as err:
     sys.exit(128)
 
 
-def import_poi_data_module(module: str):
+def import_poi_data_module(args):
     """Process all data provider modules enabled in app.conf and write to the database
 
     Args:
-        module (str): Name of module to run
+        args:
+          connection
+          module (str) Name of module to run
     """
+    connection, module = args
     try:
-        db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
-                                                  config.get_database_writer_password(),
-                                                  config.get_database_writer_host(),
-                                                  config.get_database_writer_port(),
-                                                  config.get_database_poi_database()))
-        pgsql_pool = db.pool
-        session_factory = sessionmaker(pgsql_pool)
+        session_factory = sessionmaker(bind=connection)
         session_object = scoped_session(session_factory)
         one_session = session_object()
         module = module.strip()
