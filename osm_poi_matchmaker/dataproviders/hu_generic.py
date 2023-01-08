@@ -45,7 +45,7 @@ class hu_city_postcode():
             df['city_name'] = city
             df = df[['city_post_code', 'city_name']]
             df.drop_duplicates('city_post_code', keep='first', inplace=True)
-            insert_city_dataframe(self.session, df)
+            insert_city_dataframe(self.session(), df)
 
 
 class hu_city_postcode_from_xml():
@@ -73,7 +73,7 @@ class hu_city_postcode_from_xml():
                 insert_data.append([postcode, i.strip()])
         df = pd.DataFrame(insert_data)
         df.columns = POI_COLS_CITY
-        insert_city_dataframe(self.session, df)
+        insert_city_dataframe(self.session(), df)
 
 
 class hu_street_types_from_xml():
@@ -100,7 +100,7 @@ class hu_street_types_from_xml():
                 insert_data.append(street_type)
         df = pd.DataFrame(insert_data)
         df.columns = POI_COLS_STREET_TYPE
-        insert_street_type_dataframe(self.session, df)
+        insert_street_type_dataframe(self.session(), df)
 
 class poi_patch_from_csv():
     """Insert CVS patch data into database poi_patch table
@@ -119,7 +119,7 @@ class poi_patch_from_csv():
     def process(self):
         csv = save_downloaded_pd(None, os.path.join('data', self.filename), None)
         csv = csv.replace({np.nan: None})
-        insert_patch_data_dataframe(self.session, csv)
+        insert_patch_data_dataframe(self.session(), csv)
 
 
 class poi_country_from_csv():
@@ -139,4 +139,4 @@ class poi_country_from_csv():
     def process(self):
         csv = save_downloaded_pd(None, os.path.join('data', self.filename), None)
         csv = csv.replace({np.nan: None})
-        insert_country_data_dataframe(self.session, csv)
+        insert_country_data_dataframe(self.session(), csv)

@@ -39,16 +39,6 @@ class POIDatasetRaw:
         """
         """
         self.insert_data = []
-        self.__db = POIBase(
-            '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
-                                         config.get_database_writer_password(),
-                                         config.get_database_writer_host(),
-                                         config.get_database_writer_port(),
-                                         config.get_database_poi_database()))
-        self.__pgsql_pool = self.__db.pool
-        self.__session_factory = sessionmaker(self.__pgsql_pool)
-        self.__session_object = scoped_session(self.__session_factory)
-        self.__session = self.__session_object()
         self.__code = None
         self.__postcode = None
         self.__city = None

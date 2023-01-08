@@ -24,6 +24,8 @@ try:
     from osm_poi_matchmaker.libs.export import export_raw_poi_data, export_raw_poi_data_xml, export_grouped_poi_data, \
         export_grouped_poi_data_with_postcode_groups
     from sqlalchemy.orm import scoped_session, sessionmaker
+    from sqlalchemy import create_engine
+    from osm_poi_matchmaker.dao.database import session_scope
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.libs.osm_prepare import index_osm_data
@@ -43,29 +45,38 @@ def init_log():
     logging.config.fileConfig('log.conf')
 
 
-def import_basic_data(session):
-    logging.info('Importing patch table ...')
-    from osm_poi_matchmaker.dataproviders.hu_generic import poi_patch_from_csv
-    work = poi_patch_from_csv(session, 'poi_patch.csv')
-    work.process()
+def import_basic_data():
+    try:
+        logging.info('Importing patch table ...')
+        with session_scope() as session:
+            from osm_poi_matchmaker.dataproviders.hu_generic import poi_patch_from_csv
+            work = poi_patch_from_csv(session, 'poi_patch.csv')
+            work.process()
 
-    logging.info('Importing countries ...')
-    from osm_poi_matchmaker.dataproviders.hu_generic import poi_country_from_csv
-    work = poi_country_from_csv(session, 'country.csv')
-    work.process()
+        logging.info('Importing countries ...')
+        with session_scope() as session:
+            from osm_poi_matchmaker.dataproviders.hu_generic import poi_country_from_csv
+            work = poi_country_from_csv(session, 'country.csv')
+            work.process()
 
-    logging.info('Importing cities ...')
-    from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
-    work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',
-                                     config.get_directory_cache_url())
-    logging.info('Processing cities ...')
-    work.process()
+        logging.info('Importing cities ...')
+        with session_scope() as session:
+            from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
+            work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',
+                                             config.get_directory_cache_url())
+            logging.info('Processing cities ...')
+        with session_scope() as session:
+            work.process()
 
-    logging.info('Importing street types ...')
-    from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
-    work = hu_street_types_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml',
-                                    config.get_directory_cache_url())
-    work.process()
+            logging.info('Importing street types ...')
+        with session_scope() as session:
+            from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
+            work = hu_street_types_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml',
+                                            config.get_directory_cache_url())
+            work.process()
+    except Exception as err_ibd:
+        logging.exception(f'Exception occurred during opening file: {err_ibd}')
+        logging.error(traceback.print_exc())
 
 
 def load_poi_data(database, table='poi_address_raw', raw=True):
@@ -89,9 +100,8 @@ def load_common_data(database):
 
 class WorkflowManager(object):
 
-    def __init__(self, poi_database, connection):
+    def __init__(self, poi_database):
         self.__database = poi_database
-        self.__connection = connection
         self.manager = multiprocessing.Manager()
         self.queue = self.manager.Queue()
         self.NUMBER_OF_PROCESSES = multiprocessing.cpu_count()
@@ -108,7 +118,7 @@ class WorkflowManager(object):
             logging.info('Starting processing on %s cores.', process_count)
             self.results = []
             self.pool = multiprocessing.Pool(processes=process_count)
-            self.results = self.pool.map_async(import_poi_data_module, [self.__connection, config.get_dataproviders_modules_enable()])
+            self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable())
             self.pool.close()
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
@@ -149,81 +159,84 @@ class WorkflowManager(object):
 
 def main():
     logging.info('Starting %s ...', __program__)
+    engine_url = '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
+                                              config.get_database_writer_password(), config.get_database_writer_host(),
+                                              config.get_database_writer_port(), config.get_database_poi_database())
 
-    database_type = config.get_database_type()
-    database_username = config.get_database_writer_username(),
-    database_password = config.get_database_writer_password(),
-    database_host = config.get_database_writer_host(),
-    database_port = config.get_database_writer_port(),
-    database_database = config.get_database_poi_database()
-    db = Database('{database_type}://{database_username}:{database_password}@{database_host}:{database_port}/{database_database}', 'osm_poi')
 
-    poi_db = POIBase(db.connect())
 
     try:
-        logging.info('Starting STAGE 0 ...')
-        import_basic_data(db.session_object())
-        logging.info('Starting STAGE 1 ...')
-        index_osm_data(db.session_object())
-        logging.info('Starting STAGE 2 ...')
-        manager = WorkflowManager(db.connect())
-        manager.start_poi_harvest()
-        manager.join()
-        logging.info('Starting STAGE 3 ...')
-        # Load basic dataset from database
-        poi_addr_data = load_poi_data(poi_db, 'poi_address_raw', True)
-        # Download and load POI dataset to database
-        logging.info('Starting STAGE 4 ...')
-        poi_common_data = load_common_data(db)
-        logging.info('Merging dataframes ...')
-        poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
-        # Add additional empty fields
-        logging.info('Starting STAGE 5 ...')
-        del poi_addr_data
+        try:
+            logging.info('Creating database connection ...')
+            db = Database(engine_url)
+        except Exception as err_main:
+            logging.info('Failed to create database connection. Exiting and go home.')
+            sys.exit(160)
+        with session_scope() as session:
+            poi_db = POIBase(db.connect())
+            logging.info('Starting STAGE 0 ...')
+            import_basic_data()
+            logging.info('Starting STAGE 1 ...')
+            index_osm_data()
+            logging.info('Starting STAGE 2 ...')
+            manager = WorkflowManager(poi_db)
+            manager.start_poi_harvest()
+            manager.join()
+            logging.info('Starting STAGE 3 ...')
+            # Load basic dataset from database
+            poi_addr_data = load_poi_data(poi_db, 'poi_address_raw', True)
+            # Download and load POI dataset to database
+            logging.info('Starting STAGE 4 ...')
+            poi_common_data = load_common_data(poi_db)
+            logging.info('Merging dataframes ...')
+            poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
+            # Add additional empty fields
+            logging.info('Starting STAGE 5 ...')
+            del poi_addr_data
 
-        logging.info('Starting STAGE 6 ...')
-        poi_addr_data = load_poi_data(poi_db, 'poi_address_raw', True)
-        logging.info('Merging dataframes ...')
-        poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
-        poi_addr_data['osm_id'] = None
-        poi_addr_data['osm_node'] = None
-        poi_addr_data['osm_version'] = None
-        poi_addr_data['osm_changeset'] = None
-        poi_addr_data['osm_timestamp'] = datetime.datetime.now()
-        poi_addr_data['osm_live_tags'] = None
-        # Export non-transformed data
-        export_raw_poi_data(poi_addr_data, poi_common_data)
-        export_raw_poi_data_xml(poi_addr_data)
-        logging.info('Saving poi_code grouped filesets...')
-        # Export non-transformed filesets
-        manager.start_exporter(poi_addr_data)
-        manager.join()
-        logging.info('Merging with OSM datasets ...')
-        poi_addr_data['osm_nodes'] = None
-        poi_addr_data['poi_distance'] = None
-        logging.info('Starting STAGE 7 ...')
-        # Enrich POI datasets from online OpenStreetMap database
-        logging.info('Starting online POI matching part...')
-        poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
-        manager.join()
-        '''
-        poi_addr_data['geometry_wkb'] = poi_addr_data['poi_geom'].apply(lambda poi_geom: poi_geom.wkb)
-        insert_poi_dataframe(session, poi_addr_data, False)
-        '''
-        # Export filesets
-        prefix = 'merge_'
-        export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
-        logging.info('Starting matched POI ...')
-        manager.start_exporter(poi_addr_data, prefix)
-        manager.join()
-        logging.info('Starting grouped matched POI ...')
-        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
-        manager.join()
+            logging.info('Starting STAGE 6 ...')
+            poi_addr_data = load_poi_data(poi_db, 'poi_address_raw', True)
+            logging.info('Merging dataframes ...')
+            poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
+            poi_addr_data['osm_id'] = None
+            poi_addr_data['osm_node'] = None
+            poi_addr_data['osm_version'] = None
+            poi_addr_data['osm_changeset'] = None
+            poi_addr_data['osm_timestamp'] = datetime.datetime.now()
+            poi_addr_data['osm_live_tags'] = None
+            # Export non-transformed data
+            export_raw_poi_data(poi_addr_data, poi_common_data)
+            export_raw_poi_data_xml(poi_addr_data)
+            logging.info('Saving poi_code grouped filesets...')
+            # Export non-transformed filesets
+            manager.start_exporter(poi_addr_data)
+            manager.join()
+            logging.info('Merging with OSM datasets ...')
+            poi_addr_data['osm_nodes'] = None
+            poi_addr_data['poi_distance'] = None
+            logging.info('Starting STAGE 7 ...')
+            # Enrich POI datasets from online OpenStreetMap database
+            logging.info('Starting online POI matching part...')
+            poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
+            manager.join()
+            '''
+            poi_addr_data['geometry_wkb'] = poi_addr_data['poi_geom'].apply(lambda poi_geom: poi_geom.wkb)
+            insert_poi_dataframe(session, poi_addr_data, False)
+            '''
+            # Export filesets
+            prefix = 'merge_'
+            export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
+            logging.info('Starting matched POI ...')
+            manager.start_exporter(poi_addr_data, prefix)
+            manager.join()
+            logging.info('Starting grouped matched POI ...')
+            manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
+            manager.join()
     except (KeyboardInterrupt, SystemExit):
-        logging.info('Interrupt signal received')
+        logging.info('Interrupt signal received.')
         sys.exit(1)
-    except Exception as e:
-        logging.exception('Exception occurred: {}'.format(e))
+    except Exception as err:
+        logging.exception(f'Exception occurred: {err}')
         logging.exception(traceback.print_exc())
 
 

@@ -83,7 +83,7 @@ def get_config_bool(key):
 
 
 def get_config_int(key):
-    return config.getint(__mode.name, key)
+    return int(config.getint(__mode.name, key))
 
 
 def get_config_string(key):

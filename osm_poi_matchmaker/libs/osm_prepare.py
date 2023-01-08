@@ -2,6 +2,7 @@
 try:
     import logging
     import sys
+    from osm_poi_matchmaker.dao.database import session_scope
     import sqlalchemy
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -10,8 +11,9 @@ except ImportError as err:
     sys.exit(128)
 
 
-def index_osm_data(session):
-    query = sqlalchemy.text('''
+def index_osm_data():
+    with session_scope() as session:
+        query = sqlalchemy.text('''
 CREATE INDEX IF NOT EXISTS i_street_type ON street_type(street_type);
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_way ON planet_osm_point(way);
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_amenity_addr_lower ON planet_osm_polygon(LOWER("amenity"),"osm_id",LOWER("name"),LOWER("brand"),LOWER("addr:street"));
@@ -48,7 +50,7 @@ CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_shop ON planet_osm_polygon(shop)
 CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_name ON planet_osm_polygon(name);
 CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_brand ON planet_osm_polygon(brand);
 ''')
-    data = session.execute(query)
+        data = session.execute(query)
     if data is None:
         return None
     else:
