@@ -26,8 +26,13 @@ RETRY = 3
 
 
 def online_poi_matching(args):
-    db, connection, data, comm_data = args
+    data, comm_data = args
     try:
+
+        #with Database.engine.connect() as conn:
+        #    with conn.begin():
+        #        conn.execute(...)
+        #        conn.execute(...)
         session_factory = sessionmaker(bind=connection)
         session_object = scoped_session(session_factory)
         one_session = session_object()
