@@ -50,7 +50,7 @@ class hu_jysk(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename), self.filetype)
             if soup is not None:
                 soup_data = soup.find('div', {'data-jysk-react-component': 'StoresLocatorLayout'})['data-jysk-react-properties']
-                json_data = json.loads(soup_data.text, strict=False)
+                json_data = json.loads(soup_data, strict=False)
                 for shop in json_data.get('storesCoordinates'):
                     try:
                         self.data.code = 'hujyskfur'
