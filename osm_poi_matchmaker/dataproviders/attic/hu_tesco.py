@@ -21,8 +21,7 @@ POI_DATA = 'http://tesco.hu/aruhazak/nyitvatartas'
 
 class hu_tesco():
 
-    def __init__(self, session, download_cache, filename='hu_tesco.html'):
-        self.session = session
+    def __init__(download_cache, filename='hu_tesco.html'):
         self.link = POI_DATA
         self.download_cache = download_cache
         self.filename = filename
@@ -106,4 +105,4 @@ class hu_tesco():
             else:
                 df = pd.DataFrame(insert_data)
                 df.columns = POI_COLS
-                insert_poi_dataframe(self.session, df)
+                insert_poi_dataframe(df)

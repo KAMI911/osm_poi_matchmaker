@@ -20,9 +20,8 @@ except ImportError as err:
 
 class hu_kh_bank(DataProvider):
 
-    def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
-        super().__init__(session, download_cache)
-        self.session = session
+    def __init__(self, download_cache, prefer_osm_postcode, link, name):
+        super().__init__(download_cache)
         self.download_cache = download_cache
         self.link = link
         self.tags = {'brand': 'K&H', 'operator': 'K&H Bank Zrt.',
@@ -82,7 +81,7 @@ class hu_kh_bank(DataProvider):
                     if data is None or data.length() < 1:
                         logging.warning('Resultset is empty. Skipping ...')
                     else:
-                        insert_poi_dataframe(self.session, data.process())
+                        insert_poi_dataframe(data.process())
         except Exception as e:
             logging.exception('Exception occurred')
 

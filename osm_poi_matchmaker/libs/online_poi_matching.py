@@ -8,7 +8,6 @@ try:
     import math
     import traceback
     import pandas as pd
-    from sqlalchemy.orm import scoped_session, sessionmaker
     from osmapi import OsmApi
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.utils import config
@@ -16,6 +15,7 @@ try:
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao.data_handlers import get_or_create_cache
     from osm_poi_matchmaker.utils.config import get_dataproviders_limit_elemets
+    from osm_poi_matchmaker.dao.database import session_scope
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -25,17 +25,13 @@ except ImportError as err:
 RETRY = 3
 
 
-def online_poi_matching(args):
+def online_poi_matching(db, args):
     data, comm_data = args
     try:
-
         #with Database.engine.connect() as conn:
         #    with conn.begin():
         #        conn.execute(...)
         #        conn.execute(...)
-        session_factory = sessionmaker(bind=connection)
-        session_object = scoped_session(session_factory)
-        one_session = session_object()
         osm_live_query = OsmApi()
         for i, row in data.head(config.get_dataproviders_limit_elemets()).iterrows():
         # for i, row in data[data['poi_code'].str.contains('ping')].iterrows():
@@ -86,8 +82,8 @@ def online_poi_matching(args):
                                 # Current OSM postcode based on lat,long query.
                                 postcode = None
                                 try:
-                                    postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session_object(), lon, lat,
-                                                                       row.get('poi_postcode'))
+                                    postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(),
+                                                                               lon, lat, row.get('poi_postcode'))
                                 except Exception as err:
                                     logging.exception('Exception occurred during postcode query (1): {}'.format(err))
                                     logging.error(traceback.print_exc())
@@ -190,7 +186,7 @@ def online_poi_matching(args):
                         data.at[i, 'osm_nodes'] = nodes
                     if changed_from_osm == False:
                         logging.info('Old %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
-                                 data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'], 
+                                 data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'],
                                  data.at[i, 'poi_type'], data.at[i, 'poi_distance'],
                                  data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
                                  data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'])
@@ -223,7 +219,7 @@ def online_poi_matching(args):
                                                      'osm_lat': None,
                                                      'osm_lon': None,
                                                      'osm_nodes': live_tags_container.get('nd')}
-                                        get_or_create_cache(session_object(), POI_OSM_cache, **cache_row)
+                                        get_or_create_cache(POI_OSM_cache, **cache_row)
                                         # Downloading referenced nodes of the way
                                         for way_nodes in live_tags_container['nd']:
                                             logging.debug('Getting node %s belongs to way %s', way_nodes, osm_id)
@@ -239,14 +235,13 @@ def online_poi_matching(args):
                                                          'osm_lat': live_tags_node.get('lat'),
                                                          'osm_lon': live_tags_node.get('lon'),
                                                          'osm_nodes': None}
-                                            get_or_create_cache(session_object(), POI_OSM_cache, **cache_row)
+                                            get_or_create_cache(POI_OSM_cache, **cache_row)
                                         break
                                     else:
                                         logging.warning('Download of external data for way has failed.')
                                 else:
                                     data.at[i, 'osm_live_tags'] = cached_way.get('osm_live_tags')
                                     break
-                            session.commit()
                         # Download OSM POI node live tags
                         elif osm_node == OSM_object_type.node:
                             for rtc in range(0, RETRY):
@@ -267,14 +262,13 @@ def online_poi_matching(args):
                                                      'osm_lat': live_tags_container.get('lat'),
                                                      'osm_lon': live_tags_container.get('lon'),
                                                      'osm_nodes': None}
-                                        get_or_create_cache(session_object(), POI_OSM_cache, **cache_row)
+                                        get_or_create_cache(POI_OSM_cache, **cache_row)
                                         break
                                     else:
                                         logging.warning('Download of external data for node has failed.')
                                 else:
                                     data.at[i, 'osm_live_tags'] = cached_node.get('osm_live_tags')
                                     break
-                            session.commit()
                         elif osm_node == OSM_object_type.relation:
                             for rtc in range(0, RETRY):
                                 logging.info('Downloading OSM live tags to this relation: %s.', osm_id)
@@ -284,7 +278,6 @@ def online_poi_matching(args):
                                     break
                                 else:
                                     logging.warning('Download of external data for relation has failed.')
-                            session.commit()
                         else:
                             logging.warning('Invalid state for live tags.')
 
@@ -329,7 +322,6 @@ def online_poi_matching(args):
                     if row['preserve_original_post_code'] is not True:
                         try:
                             postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(),
-                                                                   session_object(),
                                                                    data.at[i, 'poi_lon'], data.at[i, 'poi_lat'],
                                                                    row.get('poi_postcode'))
                         except Exception as err:
@@ -348,8 +340,6 @@ def online_poi_matching(args):
                 logging.error(e)
                 logging.error(row)
                 logging.exception('Exception occurred')
-
-        session.commit()
         logging.info("bye bye")
         return data
     except Exception as e:
@@ -369,8 +359,8 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
     current_postcode = curr_data.get('poi_postcode')
     try:
         osm_db_postcode = osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')]
-    except KeyError as err:
-        logging.debug('Not found postcode in OSM database caused {}'.format(err))
+    except KeyError as err_smart:
+        logging.debug(f'Not found postcode in OSM database caused {err_smart}')
         osm_db_postcode = None
     else:
         if osm_db_postcode == 0 or osm_db_postcode == '' or osm_db_postcode == 'None' or osm_db_postcode == 'NaN' or \

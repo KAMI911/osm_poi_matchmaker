@@ -35,9 +35,8 @@ class POIDatasetRaw:
     """Contains all handled OSM tags
     """
 
-    def __init__(self):
-        """
-        """
+    def __init__(self, connection):
+        self.__connection = connection
         self.insert_data = []
         self.__code = None
         self.__postcode = None
@@ -870,6 +869,8 @@ class POIDatasetRaw:
         print(self.__opening_hours)
 
     def process_street(self):
+        '''
+        TODO: Enable if database connection is solved
         data = clean_string(self.__street)
         if data is not None and data != 'None' and data != '':
             cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
@@ -901,13 +902,15 @@ class POIDatasetRaw:
             except Exception as e:
                 logging.error(e)
                 logging.exception('Exception occurred')
+        '''
+
 
     def process_postcode(self):
         '''Try to find postcode if it was not specified
         '''
         data = clean_string(self.__postcode)
         if data is None or data == 0 or data == '':
-            osm_postcode = query_postcode_osm_external(True, self.__session_object(), self.__lon, self.__lat, None)
+            osm_postcode = query_postcode_osm_external(True, self.__lon, self.__lat, None)
             if osm_postcode is None or data == 0:
                 self.__postcode = osm_postcode
             else:
@@ -980,20 +983,10 @@ class POIDataset(POIDatasetRaw):
     """Contains all handled OSM tags
     """
 
-    def __init__(self):
+    def __init__(self, connection):
         """
         """
         POIDatasetRaw.__init__(self)
-        self.__db = POIBase(
-            '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
-                                         config.get_database_writer_password(),
-                                         config.get_database_writer_host(),
-                                         config.get_database_writer_port(),
-                                         config.get_database_poi_database()))
-        self.__pgsql_pool = self.__db.pool
-        self.__session_factory = sessionmaker(self.__pgsql_pool)
-        self.__session_object = scoped_session(self.__session_factory)
-        self.__session = self.__session_object()
         self.__good = []
         self.__bad = []
 
@@ -1009,6 +1002,9 @@ class POIDataset(POIDatasetRaw):
     @street.setter
     def street(self, data: str):
         data = clean_string(data)
+        self.__street = data
+        '''
+        TODO: Enable if database connection is solved
         if data is not None and data != '':
             # Try to find street name around
             try:
@@ -1040,7 +1036,7 @@ class POIDataset(POIDatasetRaw):
             except Exception as e:
                 logging.error(e)
                 logging.exception('Exception occurred')
-
+        '''
     def add(self):
         try:
             self.process_opening_hours()

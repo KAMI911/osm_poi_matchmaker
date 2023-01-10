@@ -57,7 +57,7 @@ class hu_mol_bubi(DataProvider):
                     self.data.lat, self.data.lon = \
                         check_hu_boundary(pla.get('lat').replace(',', '.'),
                                           pla.get('lng').replace(',', '.'))
-                    self.data.postcode = query_postcode_osm_external(True, self.session, self.data.lon,
+                    self.data.postcode = query_postcode_osm_external(True, self.data.lon,
                                                                      self.data.lat, None)
                     self.data.public_holiday_open = True
                     self.data.add()

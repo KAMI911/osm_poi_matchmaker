@@ -4,13 +4,13 @@ try:
     import sys
     import geopandas as gpd
     import pandas as pd
-    from sqlalchemy.orm import scoped_session, sessionmaker
     import sqlalchemy
     import time
     import math
     from math import isnan
     from osm_poi_matchmaker.utils import config, poitypes
     from osm_poi_matchmaker.dao.data_structure import Base
+    from osm_poi_matchmaker.dao.database import session_scope
     import psycopg2
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -30,9 +30,6 @@ class POIBase:
         print(db_connection)
         self.__connection = db_connection
         Base.metadata.create_all(self.__connection)
-        self.__session_maker = sessionmaker(bind=self.__connection)
-        self.session_object = scoped_session(self.__session_maker)
-        self.one_session = self.session_object()
 
     def query_all_pd(self, table):
 
@@ -237,7 +234,8 @@ class POIBase:
                                                       metadata_fields=metadata_fields,
                                                       additional_ref_name=additional_ref_name,
                                                       query_unique_ref=query_unique_ref))
-                perf = self.one_session.execute(perf_query, query_params)
+                with session_scope() as session:
+                    perf = session.execute(perf_query, query_params)
                 perf_rows = [row.values()[0] for row in perf]
                 logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame.from_postgis(query, self.__connection, geom_col='way', params=query_params)
@@ -284,7 +282,8 @@ class POIBase:
                 perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
                                                       metadata_fields=metadata_fields,
                                                       query_unique_name=query_unique_name))
-                perf = self.one_session.execute(perf_query, query_params)
+                with session_scope() as session:
+                    perf = session.execute(perf_query, query_params)
                 perf_rows = [row.values()[0] for row in perf]
                 logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame.from_postgis(query, self.__connection, geom_col='way', params=query_params)
@@ -341,7 +340,8 @@ class POIBase:
                                                                                     metadata_fields=metadata_fields,
                                                                                     conscriptionnumber_query=conscriptionnumber_query,
                                                                                     city_query=city_query))
-                perf = self.one_session.execute(perf_query, query_params)
+                with session_scope() as session:
+                    perf = session.execute(perf_query, query_params)
                 perf_rows = [row.values()[0] for row in perf]
                 logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame.from_postgis(query, self.__connection, geom_col='way', params=query_params)
@@ -399,7 +399,8 @@ class POIBase:
                                                                                     street_query=street_query,
                                                                                     city_query=city_query,
                                                                                     housenumber_query=housenumber_query))
-                perf = self.one_session.execute(perf_query, query_params)
+                with session_scope() as session:
+                    perf = session.execute(perf_query, query_params)
                 perf_rows = [row.values()[0] for row in perf]
                 logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame.from_postgis(query, self.__connection, geom_col='way', params=query_params)
@@ -655,7 +656,8 @@ class POIBase:
                                                                         street_query=street_query,
                                                                         city_query=city_query,
                                                                         housenumber_query=housenumber_query))
-                perf = self.one_session.execute(p_query, query_params)
+                with session_scope() as session:
+                    perf = session.execute(p_query, query_params)
                 perf_rows = [row.values()[0] for row in perf]
                 logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame.from_postgis(query, self.__connection, geom_col='way', params=query_params)
@@ -668,7 +670,6 @@ class POIBase:
             else:
                 logging.info('Item not found in {} stage.'.format(stage))
         logging.info('Item not found at all.')
-        self.one_session.close()
         return None
 
     def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='',

@@ -9,6 +9,7 @@ try:
     from OSMPythonTools.nominatim import Nominatim
     from OSMPythonTools.overpass import overpassQueryBuilder
     from osm_poi_matchmaker.libs.address import clean_string, clean_postcode
+    from osm_poi_matchmaker.dao.database import session_scope
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -17,7 +18,7 @@ except ImportError as err:
 
 
 def get_area_id(area):
-    # Query Nominatom
+    # Query Nominatim
     nominatim = Nominatim()
     return nominatim.query(area).areaId()
 
@@ -29,24 +30,25 @@ def query_overpass(area_id, query_statement, element_type='node'):
     return overpass.query(query)
 
 
-def query_osm_postcode_gpd(session, lon, lat):
+def query_osm_postcode_gpd(lon, lat):
     if lat is None or lat == '' or lon == '' or lon is None:
         return None
-    query = sqlalchemy.text('''
-        SELECT name
-        FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat),4326) as geom) point
-        WHERE boundary='postal_code' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
-    data = session.execute(query, {'lon': lon, 'lat': lat}).first()
-    if data is None:
-        return None
-    row = dict(zip(data.keys(), data))
+    with session_scope() as session:
+        query = sqlalchemy.text('''
+            SELECT name
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat),4326) as geom) point
+            WHERE boundary='postal_code' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
+        data = session.execute(query, {'lon': lon, 'lat': lat}).first()
+        if data is None:
+            return None
+        row = dict(zip(data.keys(), data))
     return int(row['name'].split(' ')[0]) if row['name'].split(' ')[0] is not None else None
 
 
-def query_postcode_osm_external(prefer_osm, session, lon, lat, postcode_ext):
+def query_postcode_osm_external(prefer_osm, lon, lat, postcode_ext):
     if prefer_osm is False and clean_postcode(postcode_ext) is not None:
         return clean_postcode(postcode_ext)
-    query_postcode = query_osm_postcode_gpd(session, lon, lat)
+    query_postcode = query_osm_postcode_gpd(lon, lat)
     if prefer_osm is True and clean_postcode(query_postcode) is not None:
         return clean_postcode(query_postcode)
     elif prefer_osm is True and clean_postcode(query_postcode) is None:
@@ -79,14 +81,15 @@ def osm_timestamp_now():
     return '{:{dfmt}T{tfmt}Z}'.format(datetime.datetime.now(), dfmt='%Y-%m-%d', tfmt='%H:%M:%S')
 
 
-def query_osm_city_name_gpd(session, lon, lat):
+def query_osm_city_name_gpd(lon, lat):
     if lat is None or lat == '' or lon == '' or lon is None:
         return None
-    query = sqlalchemy.text('''
-        SELECT name
-        FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lat,:lon),4326) as geom) point
-        WHERE admin_level='8' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
-    data = session.execute(query, {'lon': lon, 'lat': lat}).first()
+    with session_scope() as session:
+        query = sqlalchemy.text('''
+            SELECT name
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lat,:lon),4326) as geom) point
+            WHERE admin_level='8' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
+        data = session.execute(query, {'lon': lon, 'lat': lat}).first()
     if data is None:
         return None
     else:
@@ -94,10 +97,11 @@ def query_osm_city_name_gpd(session, lon, lat):
 
 
 def query_osm_city_name(session, name):
-    query = sqlalchemy.text('''
-        SELECT name
-        FROM planet_osm_polygon WHERE admin_level='8' and name=:name ORDER BY name LIMIT 1;''')
-    data = session.execute(query, {'name': name}).first()
+    with session_scope() as session:
+        query = sqlalchemy.text('''
+            SELECT name
+            FROM planet_osm_polygon WHERE admin_level='8' and name=:name ORDER BY name LIMIT 1;''')
+        data = session.execute(query, {'name': name}).first()
     if data is None:
         return None
     else:

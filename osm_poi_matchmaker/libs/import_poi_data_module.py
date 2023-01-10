@@ -60,8 +60,7 @@ def import_poi_data_module(args):
             from osm_poi_matchmaker.dataproviders.hu_posta_json import hu_posta_json
             # We are using only for csekkautomata since there is no XML from another data source
             with session_scope as session:
-                work = hu_posta_json(session(),
-                                     'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
+                work = hu_posta_json('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
                                      config.get_directory_cache_url(), 'hu_postacsekkautomata.json')
                 work.process()
         else:

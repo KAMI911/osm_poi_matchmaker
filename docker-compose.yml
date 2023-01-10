@@ -6,7 +6,7 @@ volumes:
   opm_outputdata:
 services:
   db:
-    image: postgis/postgis:14-3.2
+    image: postgis/postgis:15-3.3-alpine
     container_name: opm_db
     environment:
       - POSTGRES_USER=poi
@@ -15,13 +15,12 @@ services:
     ports:
       - "15432:5432"
     shm_size: 1G
-    # volumes:
-      #- ../container/dbdata-9.6-2.5:/var/lib/postgresql/data/
-      # - ../container/dbdata-9.6:/var/lib/postgresql/data/
-      # - ../container/dbdata-fresh:/var/lib/postgresql/data/
+    volumes:
+      - ../container/dbdata:/var/lib/postgresql/data/
       # - ${PWD}/osm2pgsql/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
     restart: on-failure
-    oom_score_adj: -100
+    oom_score_adj: -500
+    mem_limit: 16g
   osm_load_app:
     image: osm_loader:latest
     container_name: opm_osm_load_app
@@ -47,5 +46,11 @@ services:
     depends_on:
       - db
     restart: on-failure
-    oom_score_adj: -100
-    mem_limit: 4g
+    oom_score_adj: -300
+    mem_limit: 8g
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "20"
+        compress: "true"

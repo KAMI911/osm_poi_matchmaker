@@ -104,4 +104,4 @@ class hu_posta_json(DataProvider):
             if data is None or data.length() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:
-                insert_poi_dataframe(self.session, data.process())
+                insert_poi_dataframe(data.process())

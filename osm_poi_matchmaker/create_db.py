@@ -29,6 +29,7 @@ try:
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.libs.osm_prepare import index_osm_data
+    from functools import partial
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -48,32 +49,27 @@ def init_log():
 def import_basic_data():
     try:
         logging.info('Importing patch table ...')
-        with session_scope() as session:
-            from osm_poi_matchmaker.dataproviders.hu_generic import poi_patch_from_csv
-            work = poi_patch_from_csv(session, 'poi_patch.csv')
-            work.process()
+        from osm_poi_matchmaker.dataproviders.hu_generic import poi_patch_from_csv
+        work = poi_patch_from_csv('poi_patch.csv')
+        work.process()
 
         logging.info('Importing countries ...')
-        with session_scope() as session:
-            from osm_poi_matchmaker.dataproviders.hu_generic import poi_country_from_csv
-            work = poi_country_from_csv(session, 'country.csv')
-            work.process()
+        from osm_poi_matchmaker.dataproviders.hu_generic import poi_country_from_csv
+        work = poi_country_from_csv('country.csv')
+        work.process()
 
         logging.info('Importing cities ...')
-        with session_scope() as session:
-            from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
-            work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',
-                                             config.get_directory_cache_url())
-            logging.info('Processing cities ...')
-        with session_scope() as session:
-            work.process()
+        from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
+        work = hu_city_postcode_from_xml('http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',
+                                         config.get_directory_cache_url())
+        logging.info('Processing cities ...')
+        work.process()
 
-            logging.info('Importing street types ...')
-        with session_scope() as session:
-            from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
-            work = hu_street_types_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml',
-                                            config.get_directory_cache_url())
-            work.process()
+        logging.info('Importing street types ...')
+        from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
+        work = hu_street_types_from_xml('http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml',
+                                        config.get_directory_cache_url())
+        work.process()
     except Exception as err_ibd:
         logging.exception(f'Exception occurred during opening file: {err_ibd}')
         logging.error(traceback.print_exc())
@@ -118,7 +114,9 @@ class WorkflowManager(object):
             logging.info('Starting processing on %s cores.', process_count)
             self.results = []
             self.pool = multiprocessing.Pool(processes=process_count)
-            self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable())
+            # This a workaround to use more than on parameter to pass database connection
+            harvest_func = partial(import_poi_data_module, self.__database)
+            self.results = self.pool.map_async(harvest_func, config.get_dataproviders_modules_enable())
             self.pool.close()
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
@@ -135,7 +133,9 @@ class WorkflowManager(object):
             logging.info('Starting processing on %s cores.', process_count)
             self.results = []
             self.pool = multiprocessing.Pool(processes=process_count)
-            self.results = self.pool.map_async(to_do, modules)
+            # This a workaround to use more than on parameter to pass database connection
+            exporter_func = partial(to_do, self.__database)
+            self.results = self.pool.map_async(exporter_func, modules)
             self.pool.close()
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
@@ -145,8 +145,10 @@ class WorkflowManager(object):
         try:
             workers = self.NUMBER_OF_PROCESSES
             self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES//2)
-            self.results = self.pool.map_async(online_poi_matching,
-                                               [(self.__database, self.__connection, d, comm_data) for d in np.array_split(data, workers)])
+            # This a workaround to use more than on parameter to pass database connection
+            matcher_func = partial(online_poi_matching, self.__database)
+            self.results = self.pool.map_async(matcher_func,
+                                               [(d, comm_data) for d in np.array_split(data, workers)])
             self.pool.close()
             return pd.concat(list(self.results.get()), sort=False)
         except Exception as e:
@@ -159,21 +161,19 @@ class WorkflowManager(object):
 
 def main():
     logging.info('Starting %s ...', __program__)
-    engine_url = '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
-                                              config.get_database_writer_password(), config.get_database_writer_host(),
-                                              config.get_database_writer_port(), config.get_database_poi_database())
-
-
-
     try:
-        try:
-            logging.info('Creating database connection ...')
-            db = Database(engine_url)
-        except Exception as err_main:
-            logging.info('Failed to create database connection. Exiting and go home.')
-            sys.exit(160)
+        engine_url = '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
+                                                  config.get_database_writer_password(),
+                                                  config.get_database_writer_host(),
+                                                  config.get_database_writer_port(), config.get_database_poi_database())
+        logging.info('Creating database connection ...')
+        db = Database(engine_url)
+    except Exception as err_db:
+        logging.info(f'Failed to create database connection: {err_db} Exiting and go home.')
+        sys.exit(160)
+    try:
         with session_scope() as session:
-            poi_db = POIBase(db.connect())
+            poi_db = POIBase(db.connect()) # got database connection
             logging.info('Starting STAGE 0 ...')
             import_basic_data()
             logging.info('Starting STAGE 1 ...')
@@ -235,8 +235,8 @@ def main():
     except (KeyboardInterrupt, SystemExit):
         logging.info('Interrupt signal received.')
         sys.exit(1)
-    except Exception as err:
-        logging.exception(f'Exception occurred: {err}')
+    except Exception as err_main:
+        logging.exception(f'Exception occurred: {err_main}')
         logging.exception(traceback.print_exc())
 
 

@@ -19,8 +19,7 @@ POI_DATA = ''
 
 class DataProvider:
 
-    def __init__(self, session, download_cache, filetype=FileType.json, verify_link=True):
-        self.session = session
+    def __init__(self, download_cache, filetype=FileType.json, verify_link=True):
         self.download_cache = download_cache
         self.filename = '{}.{}'.format(self.__class__.__name__, filetype)
         self.filetype = None
@@ -49,4 +48,4 @@ class DataProvider:
         if self.data is None or self.data.length() < 1:
             logging.warning('Resultset is empty. Skipping ...')
         else:
-            insert_poi_dataframe(self.session, self.data.process())
+            insert_poi_dataframe(self.data.process())
