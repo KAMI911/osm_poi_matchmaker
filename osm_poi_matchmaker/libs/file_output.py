@@ -296,7 +296,7 @@ def generate_osm_xml(df, session=None):
                 else:
                     logging.debug('New POI, have not got distance data.')
                     comment = etree.Comment(' OSM <-> POI distance: Non exist \n {}'.format(
-                        add_osm_coordinate_comment(row.get('poi_geom').x, row.get('poi_geom').y)))
+                        add_osm_coordinate_comment(row.get('poi_geom').y, row.get('poi_geom').x)))
                 osm_xml_data.append(comment)
                 if 'poi_good' in row and 'poi_bad' in row:
                     logging.debug('Add good/bad quality comments.')
