@@ -47,7 +47,7 @@ def online_poi_matching(args):
                                                       comm_data.loc[comm_data['pc_id'] == row.get('poi_common_id')][
                                                           'poi_type'].values[0], row.get('poi_search_name'),
                                                       row.get('poi_search_avoid_name'), row.get('poi_name'),
-                                                      row.get('additional_ref_name'),
+                                                      row.get('additional_ref_name'), row.get('poi_ref'),
                                                       row.get('poi_addr_street'), row.get('poi_addr_housenumber'),
                                                       row.get('poi_conscriptionnumber'), row.get('poi_city'),
                                                       row.get('osm_search_distance_perfect'),
