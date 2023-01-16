@@ -50,7 +50,7 @@ class hu_kulcs_patika(DataProvider):
         try:
             if self.link:
                 soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache,
-                                            self.filename), self.filetype, post_data=self.post,
+                                            self.filename), self.filetype, False, post_data=self.post,
                                             verify=self.verify_link, headers=self.headers)
                 if soup is not None:
                     text = json.loads(soup, strict=False)

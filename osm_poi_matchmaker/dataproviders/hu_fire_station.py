@@ -94,12 +94,12 @@ class hu_fire_station(DataProvider):
     def process(self):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype, None, self.verify_link)
+                                        self.filetype, False, None, self.verify_link)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 try:
                     # Extract JSON from scripts
-                    pois_script = soup.findAll('script')[-17].text
+                    pois_script = soup.findAll('script')[-19].text
                     pois_variable = re.search('(\[.*\]);', pois_script)
                     pois = json.loads(pois_variable[1])
                 except Exception as e:

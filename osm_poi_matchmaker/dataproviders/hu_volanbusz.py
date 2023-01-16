@@ -54,7 +54,7 @@ class hu_volanbusz(DataProvider):
     def process(self):
         try:
             file = os.path.join(self.download_cache, self.filename)
-            save_downloaded_soup('{}'.format(self.link), file, self.filetype, None, self.verify_link)
+            save_downloaded_soup('{}'.format(self.link), file, self.filetype, False, None, self.verify_link)
 
             import gtfs_kit as gk
             feed = (gk.read_feed(file, dist_units='m'))

@@ -78,7 +78,7 @@ class hu_mol(DataProvider):
     def process(self):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype, post_data=POST_DATA, headers=self.headers)
+                                        self.filetype, False, post_data=POST_DATA, headers=self.headers)
             if soup is not None:
                 text = json.loads(soup)
                 for poi_data in text:

@@ -52,7 +52,7 @@ class hu_yves_rocher(DataProvider):
     def process(self):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
+                                        self.filetype, True)
             if soup is not None:
                 text = json.loads(str(soup))
                 for poi_data in text.get('list'):

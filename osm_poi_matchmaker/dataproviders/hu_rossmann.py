@@ -53,7 +53,7 @@ class hu_rossmann(DataProvider):
     def process(self):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype, None, self.verify_link)
+                                        self.filetype, False, None, self.verify_link)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 try:

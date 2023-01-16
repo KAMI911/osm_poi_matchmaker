@@ -21,7 +21,7 @@ except ImportError as err:
 class hu_mol(DataProvider):
 
     def contains(self):
-        self.link = 'hhttp://trafikok.nemzetidohany.hu/mind.jsonp'
+        self.link = 'http://trafikok.nemzetidohany.hu/mind.jsonp'
         self.tags = {'shop': 'tobacco'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(
@@ -39,7 +39,7 @@ class hu_mol(DataProvider):
 
     def process(self):
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                    self.filetype, POST_DATA)
+                                    self.filetype, False)
         if soup is not None:
             text = json.loads(soup)
             for poi_data in text:
