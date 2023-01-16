@@ -59,11 +59,11 @@ def is_downloaded(link: str, verify_link=config.get_download_verify_link(), head
     return False
 
 
-def save_downloaded_soup(link, file, filetype, post_data=None, verify=config.get_download_verify_link(),
+def save_downloaded_soup(link, file, filetype, skip_download = False, post_data=None, verify=config.get_download_verify_link(),
                          headers=None):
     logging.debug('save_downloaded_soup link={} file={} filetype={}'.format(link, file, filetype))
 
-    if config.get_download_use_cached_data() is True and os.path.isfile(file):
+    if skip_download is True or (config.get_download_use_cached_data() is True and os.path.isfile(file)):
         # return true as a success marker, skip reading zip file to variable
         if filetype == FileType.zip:
             return True

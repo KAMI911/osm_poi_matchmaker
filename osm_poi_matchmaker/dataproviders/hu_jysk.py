@@ -62,13 +62,13 @@ class hu_jysk(DataProvider):
                         shop_soup = save_downloaded_soup('{}?storeId={}'.format(self.link, internal_id),
                                                         os.path.join(self.download_cache,
                                                         '{}.{}.json'.format(self.filename, internal_id)), FileType.json)
-
-                        self.data.city = clean_city(shop_soup.get('city'))
-                        self.data.postcode = clean_postcode(shop_soup.get('zip'))
-                        self.data.street = clean_street(shop_soup.get('street'))
-                        self.data.phone = clean_phone_to_str(shop_soup.get('tel'))
-                        self.data.housenumber = clean_string(shop_soup.get('house'))
-                        self.data.branch = clean_branch(shop_soup.get('shop_name'))
+                        json_shop_data = json.loads(shop_soup, strict=False)
+                        self.data.city = clean_city(json_shop_data.get('city'))
+                        self.data.postcode = clean_postcode(json_shop_data.get('zip'))
+                        self.data.street = clean_street(json_shop_data.get('street'))
+                        self.data.phone = clean_phone_to_str(json_shop_data.get('tel'))
+                        self.data.housenumber = clean_string(json_shop_data.get('house'))
+                        self.data.branch = clean_branch(json_shop_data.get('shop_name'))
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
