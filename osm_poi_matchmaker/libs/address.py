@@ -8,6 +8,10 @@ try:
     import json
     import traceback
     import math
+    import osm_poi_matchmaker.libs.waxeye
+    import osm_poi_matchmaker.libs.hu.hu_address_parser as hu_address_parser
+    from osm_poi_matchmaker.libs.waxeye_process import waxeye_process
+
     from functools import reduce
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -133,11 +137,32 @@ def extract_all_address(clearable):
         if len(clearable.split(',')) > 1:
             street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
                 clearable.split(',')[-1].strip())
-            return (postcode, city, street, housenumber, conscriptionnumber)
+            return postcode, city, street, housenumber, conscriptionnumber
         else:
             space_separated = ' '.join(clearable.split(' ')[2:]).strip()
             street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(space_separated)
-            return (postcode, city, street, housenumber, conscriptionnumber)
+            return postcode, city, street, housenumber, conscriptionnumber
+    else:
+        return None, None, None, None, None
+
+def extract_all_address_waxeye(clearable):
+    clearable = clean_string(clearable)
+    if clearable is not None and clearable != '':
+        parsed_address = hu_address_parser.Parser().parse(clearable)
+        address_dict = waxeye_process(parsed_address)
+        postcode = address_dict.get('postcode')
+        city = address_dict.get('cTown')
+        housenumber = address_dict.get('houseNumber')
+        street_name = address_dict.get('cStreet')
+        street_type = address_dict.get('type')
+        if street_name is not None and street_type is not None:
+            street = f'{street_name} {street_type}'
+        elif address_dict.get('cStreet') is not None:
+            street = f'{street_name}'
+        else:
+            street = None
+        conscriptionnumber = address_dict.get('conscriptionHrsz')
+        return postcode, city, street, housenumber, conscriptionnumber
     else:
         return None, None, None, None, None
 
