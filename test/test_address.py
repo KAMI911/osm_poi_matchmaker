@@ -6,7 +6,7 @@ try:
     import sys
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address, \
         clean_opening_hours, clean_opening_hours_2, clean_phone, clean_phone_to_str, clean_string, clean_url, \
-        clean_city, replace_html_newlines, extract_phone_number, clean_postcode
+        clean_city, replace_html_newlines, extract_phone_number, clean_postcode, extract_all_address_waxeye
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -87,6 +87,8 @@ class TestFullAddressResolver(unittest.TestCase):
              'street': 'Vasvári Pál utca', 'housenumber': None, 'conscriptionnumber': '2794/16'},
             {'original': '1213 Budapest, XXI, 21 Juharos utca 34.', 'postcode': '1213', 'city': 'Budapest',
              'street': '21 Juharos utca', 'housenumber': '34', 'conscriptionnumber': None},
+            {'original': '1011 Budapest, I, 01 Batthyány tér 5.', 'postcode': '1011', 'city': 'Budapest',
+             'street': 'Batthyány tér', 'housenumber': '5', 'conscriptionnumber': None},
         ]
 
     def test_extract_all_address(self):
@@ -96,6 +98,24 @@ class TestFullAddressResolver(unittest.TestCase):
                                                                                 i['housenumber'], \
                                                                                 i['conscriptionnumber']
             a, b, c, d, e = extract_all_address(original)
+            with self.subTest():
+                self.assertEqual(postcode, a)
+            with self.subTest():
+                self.assertEqual(city, b)
+            with self.subTest():
+                self.assertEqual(street, c)
+            with self.subTest():
+                self.assertEqual(housenumber, d)
+            with self.subTest():
+                self.assertEqual(conscriptionnumber, e)
+
+    def test_extract_all_address_waxeye(self):
+        for i in self.addresses:
+            original, postcode, city, street, housenumber, conscriptionnumber = i['original'], i['postcode'], \
+                                                                                i['city'], i['street'], \
+                                                                                i['housenumber'], \
+                                                                                i['conscriptionnumber']
+            a, b, c, d, e = extract_all_address_waxeye(original)
             with self.subTest():
                 self.assertEqual(postcode, a)
             with self.subTest():
