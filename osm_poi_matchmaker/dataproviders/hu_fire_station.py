@@ -8,7 +8,7 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_string, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_all_address_waxeye, clean_string, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.enums import WeekDaysLong
@@ -143,7 +143,7 @@ class hu_fire_station(DataProvider):
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'),
                                                                          poi_data.get('longitude'))
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
-                            self.data.conscriptionnumber = extract_all_address(poi_data.get('address'))
+                            self.data.conscriptionnumber = extract_all_address_waxeye(poi_data.get('address'))
                         self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                         self.data.email = clean_string(poi_data.get('email'))
                         self.data.original = clean_string(poi_data.get('address'))

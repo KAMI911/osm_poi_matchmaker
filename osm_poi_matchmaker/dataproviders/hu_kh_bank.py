@@ -6,7 +6,7 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_phone_to_str, clean_string
+    from osm_poi_matchmaker.libs.address import extract_all_address_waxeye, clean_phone_to_str, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRaw
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -74,7 +74,7 @@ class hu_kh_bank(DataProvider):
                                                                poi_data.get(first_element)['longitude'])
                         if clean_string(poi_data.get(first_element)['address']) is not None:
                             data.postcode, data.city, data.street, data.housenumber, data.conscriptionnumber = \
-                                extract_all_address(
+                                extract_all_address_waxeye(
                                     poi_data.get(first_element)['address'])
                             data.original = clean_string(poi_data.get(first_element)['address'])
                         data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))

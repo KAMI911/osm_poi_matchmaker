@@ -8,7 +8,7 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_javascript_variable, clean_phone_to_str, \
+    from osm_poi_matchmaker.libs.address import clean_javascript_variable, clean_phone_to_str, \
         clean_email, clean_string, clean_city, clean_street, clean_postcode, clean_branch
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH

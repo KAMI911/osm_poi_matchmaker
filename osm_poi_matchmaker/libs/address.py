@@ -146,22 +146,36 @@ def extract_all_address(clearable):
         return None, None, None, None, None
 
 def extract_all_address_waxeye(clearable):
+    postcode, city, street, housenumber, conscriptionnumber = None, None, None, None, None
     clearable = clean_string(clearable)
     if clearable is not None and clearable != '':
         parsed_address = hu_address_parser.Parser().parse(clearable)
         address_dict = waxeye_process(parsed_address)
-        postcode = address_dict.get('postcode')
-        city = address_dict.get('cTown')
-        housenumber = address_dict.get('houseNumber')
-        street_name = address_dict.get('cStreet')
-        street_type = address_dict.get('type')
-        if street_name is not None and street_type is not None:
-            street = f'{street_name} {street_type}'
-        elif address_dict.get('cStreet') is not None:
-            street = f'{street_name}'
-        else:
-            street = None
-        conscriptionnumber = address_dict.get('conscriptionHrsz')
+        if address_dict is not None:
+            print(address_dict)
+            postcode = address_dict.get('postcode')
+            city = address_dict.get('cTown')
+            housenumber_only = address_dict.get('houseNumber')
+            subletter = address_dict.get('subLetter')
+            if subletter is not None:
+                subletter.upper()
+            if housenumber_only is not None and subletter is not None:
+                housenumber = f'{housenumber_only}/{subletter}'
+            elif housenumber_only is not None:
+                housenumber = f'{housenumber_only}'
+            else:
+                housenumber = None
+            street_name = address_dict.get('cStreet')
+            street_type = address_dict.get('type')
+            if street_type is not None:
+                street_type = street_type.replace('u.', 'utca')
+            if street_name is not None and street_type is not None:
+                street = f'{street_name} {street_type}'
+            elif street_name is not None:
+                street = f'{street_name}'
+            else:
+                street = None
+            conscriptionnumber = address_dict.get('conscriptionHrsz')
         return postcode, city, street, housenumber, conscriptionnumber
     else:
         return None, None, None, None, None
