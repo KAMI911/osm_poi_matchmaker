@@ -7,7 +7,7 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_city, clean_string, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_all_address_waxeye, clean_city, clean_string, clean_phone_to_str
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -69,7 +69,7 @@ class hu_kulcs_patika(DataProvider):
                                 check_hu_boundary(poi_data_poi.get('latitude'),
                                                   poi_data_poi.get('longitude'))
                             self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
-                                self.data.conscriptionnumber = extract_all_address(
+                                self.data.conscriptionnumber = extract_all_address_waxeye(
                                     poi_data_poi.get('address'))
                             self.data.public_holiday_open = False
                             self.data.add()

@@ -7,7 +7,7 @@ try:
     import os
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_all_address, clean_string, clean_email
+    from osm_poi_matchmaker.libs.address import extract_all_address_waxeye, clean_string, clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -72,7 +72,7 @@ class hu_magnet_bank(DataProvider):
                                     logging.info('Unknow type! ({})'.format(
                                         poi_data.get('type')))
                                 self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
-                                    self.data.conscriptionnumber = extract_all_address(
+                                    self.data.conscriptionnumber = extract_all_address_waxeye(
                                         poi_data.get('address'))
                                 self.data.lat, self.data.lon = check_hu_boundary(
                                     poi_data.get('lat'), poi_data.get('lon'))

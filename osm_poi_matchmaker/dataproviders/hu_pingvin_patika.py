@@ -10,7 +10,7 @@ try:
     import traceback
     from bs4 import BeautifulSoup
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import clean_city, extract_city_street_housenumber_address, extract_all_address, clean_phone_to_str, \
+    from osm_poi_matchmaker.libs.address import clean_city, extract_city_street_housenumber_address, clean_phone_to_str, \
         extract_javascript_variable, clean_string, clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH

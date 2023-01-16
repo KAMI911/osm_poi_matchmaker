@@ -14,13 +14,9 @@ except ImportError as err:
 
 def waxeye_process(ast_items):
     try:
-        print('start')
         processed = dict()
         for index, ast_item in enumerate(ast_items.children):
-            print('main')
-            print(ast_item)
             if hasattr(ast_item, 'children'):
-                print(ast_item.children)
                 try:
                     stri = 0
                     if isinstance(ast_item.children[0], AST) and ast_item.children[0] != []:
@@ -30,28 +26,23 @@ def waxeye_process(ast_items):
                         else:
                             processed = sub_processed
                     else:
+                        string_value = ''
+                        string_type = ast_item.type
                         for stri in range(len(ast_item.children)):
                             check_string = ast_item.children[stri]
                             if isinstance(check_string, str):
-                                continue
-                            else:
-                                print(stri, check_string)
-                                sub_processed = waxeye_process(check_string)
-                                processed.update(sub_processed)
-                                print(key, value)
-                        value = ''.join(ast_item.children[0:stri+1])
-                        key = ast_item.type
-                        processed[key] = value
-                        print(key, value)
+                                string_value += ast_item.children[stri]
+                            if isinstance(check_string, AST):
+                                key = check_string.type
+                                value = ''.join(check_string.children)
+                                processed[key] = value
+                        processed[string_type] = string_value
                 except IndexError:
                     continue
             else:
-                print(ast_item)
                 value = ''.join(ast_item)
                 key = ast_item.type
                 processed[key] = value
-                print(key, value)
-        print(processed)
         return processed
     except Exception as err_waxeye:
         logging.exception('Exception occurred: {}'.format(err_waxeye))
