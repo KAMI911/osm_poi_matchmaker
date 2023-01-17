@@ -210,7 +210,7 @@ def extract_street_housenumber_better_2(clearable: str) -> str:
     clearable = str(clearable)
     if clearable is not None and clearable.strip() != '':
         clearable = clean_string(str(clearable))
-        # Remove bulding names
+        # Remove building names
         if clearable is None:
             return None, None, None
         clearable = clearable.replace(' - Savoya Park', '')
