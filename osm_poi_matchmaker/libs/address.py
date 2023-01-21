@@ -183,7 +183,7 @@ def extract_all_address_waxeye(clearable):
             logging.exception(traceback.print_exc())
         else:
             try:
-                logging('Try fallback to extract_all_address function')
+                logging.debug('Try fallback to extract_all_address function')
                 postcode, city, street, housenumber, conscriptionnumber = extract_all_address(clearable)
             except Exception as err_ext_addr:
                 logging.debug(f'Exception occurred: {err_ext_addr} ...')
