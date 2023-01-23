@@ -481,6 +481,8 @@ def clean_string(clearable: str):
 
 def clean_postcode(clearable: str):
     clearable = clean_string(clearable)
+    if clearable is None:
+        return None
     if clearable is not None and (clearable == '' or clearable == '0'):
         return None
     return clearable

@@ -56,12 +56,12 @@ class hu_shell(DataProvider):
             csv = save_downloaded_pd('{}'.format(self.link), os.path.join(
                 self.download_cache, self.filename))
             if csv is not None:
-                csv[['Post code']] = csv[['Post code']].fillna('0000')
-                csv[['Post code']] = csv[['Post code']].astype('int32')
-                csv[['Telephone']] = csv[['Telephone']].fillna('0')
-                csv[['Telephone']] = csv[['Telephone']].astype('int32')
-                csv[['City']] = csv[['City']].fillna('')
-                csv[['Name']] = csv[['Name']].fillna('')
+                csv[['Post code']] = csv[['Post code']].astype('str')
+                csv[['Post code']] = csv[['Post code']].fillna(value='')
+                csv[['Telephone']] = csv[['Telephone']].astype('str')
+                csv[['Telephone']] = csv[['Telephone']].fillna(value='')
+                csv[['City']] = csv[['City']].fillna(value='')
+                csv[['Name']] = csv[['Name']].fillna(value='')
                 poi_dict = csv.to_dict('records')
                 for poi_data in poi_dict:
                     if poi_data['Brand'] == 'Shell':

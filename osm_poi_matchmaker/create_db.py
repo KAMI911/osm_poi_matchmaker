@@ -77,7 +77,9 @@ def load_poi_data(database, table='poi_address_raw', raw=True):
         addr_data.columns = POI_COLS_RAW
     else:
         addr_data.columns = POI_COLS
-    addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype('int32')
+    addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].astype('str').\
+        fillna(np.nan).replace([np.nan], [None])
+
     return addr_data
 
 
@@ -101,7 +103,7 @@ class WorkflowManager(object):
             self.queue.put(m)
         try:
             # Start multiprocessing in case multiple cores
-            process_count = self.NUMBER_OF_PROCESSES
+            process_count = self.NUMBER_OF_PROCESSES//2
             logging.info('Starting processing on %s cores.', process_count)
             self.results = []
             self.pool = multiprocessing.Pool(processes=process_count)
@@ -118,7 +120,7 @@ class WorkflowManager(object):
                     'poi_address'] for c in poi_codes]
         try:
             # Start multiprocessing in case multiple cores
-            process_count = self.NUMBER_OF_PROCESSES
+            process_count = self.NUMBER_OF_PROCESSES//2
             logging.info('Starting processing on %s cores.', process_count)
             self.results = []
             self.pool = multiprocessing.Pool(processes=process_count)
@@ -131,7 +133,7 @@ class WorkflowManager(object):
     def start_matcher(self, data, comm_data):
         try:
             workers = self.NUMBER_OF_PROCESSES
-            self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES//2)
+            self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES//4)
             self.results = self.pool.map_async(online_poi_matching,
                                                [(d, comm_data) for d in np.array_split(data, workers)])
             self.pool.close()

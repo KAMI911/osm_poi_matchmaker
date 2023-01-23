@@ -75,7 +75,7 @@ class hu_pingvin_patika(DataProvider):
                         self.data.conscriptionnumber = extract_city_street_housenumber_address(poi_data.get('address'))
 
                         # TODO: Process opening_hours
-                        soup = BeautifulSoup(poi_data.get('content'))
+                        soup = BeautifulSoup(poi_data.get('content', 'lxml'))
                         try:
                             self.data.description = soup.find_all('p')[-1].text
                         except Exception as e:
