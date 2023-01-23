@@ -87,8 +87,9 @@ def online_poi_matching(args):
                                 # Current OSM postcode based on lat,long query.
                                 postcode = None
                                 try:
-                                    postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), session_object(), lon, lat,
-                                                                       row.get('poi_postcode'))
+                                    postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(),
+                                                                           session_object(), lon, lat,
+                                                                           row.get('poi_postcode'))
                                 except Exception as err:
                                     logging.exception('Exception occurred during postcode query (1): {}'.format(err))
                                     logging.error(traceback.print_exc())
@@ -402,7 +403,7 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
     else:
         logging.debug('Address has not changed via data provider so use its postcode if possible.')
     postcode = ordered_postcode_check([osm_query_postcode, osm_db_postcode, current_postcode])
-    if postcode is None or postcode == '0':
+    if postcode is None or postcode == '0' or postcode == 0:
         return None
     if postcode == osm_db_postcode:
         logging.info('The postcode is %s.', postcode)

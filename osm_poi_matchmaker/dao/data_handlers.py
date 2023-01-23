@@ -5,6 +5,7 @@ try:
     import sys
     import hashlib
     import traceback
+    import numpy as np
     from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, POI_address_raw, POI_patch, Street_type, Country
     from osm_poi_matchmaker.libs import address
     from osm_poi_matchmaker.dao import poi_array_structure
@@ -209,14 +210,20 @@ def insert_patch_data_dataframe(session, patch_df):
         session.close()
         return
 
-    patch_df.columns = ['poi_code', 'orig_postcode', 'orig_city', 'orig_street', 'orig_housenumber', 'orig_conscriptionnumber', 'orig_name', 'new_postcode', 'new_city', 'new_street',
+    patch_df.columns = ['poi_code', 'orig_postcode', 'orig_city', 'orig_street', 'orig_housenumber',
+                        'orig_conscriptionnumber', 'orig_name', 'new_postcode', 'new_city', 'new_street',
                         'new_housenumber', 'new_conscriptionnumber', 'new_name']
     try:
         for index, patch_data in patch_df.iterrows():
-            get_or_create(session, POI_patch, poi_code=patch_data['poi_code'], orig_postcode=patch_data['orig_postcode'], orig_city=patch_data['orig_city'],
-                          orig_street=patch_data['orig_street'], orig_housenumber=patch_data['orig_housenumber'], orig_conscriptionnumber=patch_data['orig_conscriptionnumber'],
-                          orig_name=patch_data['orig_name'], new_postcode=patch_data['new_postcode'], new_city=patch_data['new_city'],
-                          new_street=patch_data['new_street'], new_housenumber=patch_data['new_housenumber'], new_conscriptionnumber=patch_data['new_conscriptionnumber'],
+            get_or_create(session, POI_patch, poi_code=patch_data['poi_code'],
+                          orig_postcode=patch_data['orig_postcode'],
+                          orig_city=patch_data['orig_city'], orig_street=patch_data['orig_street'],
+                          orig_housenumber=patch_data['orig_housenumber'],
+                          orig_conscriptionnumber=patch_data['orig_conscriptionnumber'],
+                          orig_name=patch_data['orig_name'], new_postcode=patch_data['new_postcode'],
+                          new_city=patch_data['new_city'],
+                          new_street=patch_data['new_street'], new_housenumber=patch_data['new_housenumber'],
+                          new_conscriptionnumber=patch_data['new_conscriptionnumber'],
                           new_name=patch_data['new_name'])
     except Exception as e:
         logging.error('Rolled back: %s.', e)
@@ -280,7 +287,9 @@ def insert_common_dataframe(session, common_df):
 def search_for_postcode(session, city_name):
     city_col = session.query(City.city_post_code).filter(City.city_name == city_name).all()
     if len(city_col) == 1:
-        return city_col
+        if city_col is not None and city_col != 0 and city_col != '0':
+            return city_col
+        return None
     else:
         logging.info('Cannot determine the post code from city name (%s).', city_name)
         return None
@@ -289,8 +298,7 @@ def search_for_postcode(session, city_name):
 def insert_poi_dataframe(session, poi_df, raw=True):
     if raw is True:
         poi_df.columns = POI_COLS_RAW
-    poi_df[['poi_postcode']] = poi_df[['poi_postcode']].fillna('0000')
-    poi_df[['poi_postcode']] = poi_df[['poi_postcode']].astype('int32')
+    poi_df[['poi_postcode']] = poi_df[['poi_postcode']].astype('str').fillna(np.nan).replace([np.nan], [None])
     poi_dict = poi_df.to_dict('records')
 
     df_count = len(poi_df)
@@ -332,7 +340,7 @@ def insert_poi_dataframe(session, poi_df, raw=True):
             session.commit()
             logging.info('Successfully added %s POI items to the dataset.', len(poi_dict))
         except Exception as e:
-            logging.exception('Exception occurred: {} unsuccessfull commit: {}'.format(e, traceback.print_exc()))
+            logging.exception('Exception occurred: {} unsuccessfully commit: {}'.format(e, traceback.print_exc()))
             session.rollback()
         finally:
             session.close()
