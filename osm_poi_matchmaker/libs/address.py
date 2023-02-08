@@ -680,7 +680,7 @@ def clean_street_type(clearable):
     '''
 
     street = clean_string(clearable)
-    if street is None or clearable != '':
+    if street is None or clearable == '':
         return None
     street = street.replace('fkl. út', 'főközlekedési út')
     street = street.replace('főút', 'főközlekedési út')
@@ -703,8 +703,19 @@ def clean_branch(clearable):
     '''
     if clearable is not None and clearable != '':
         branch = clean_string(str(clearable))
+        branch = branch.title()
         if branch is not None:
-            branch = branch.replace('sz.', 'számú')
+            branch = branch.replace('Sz.', 'számú')
+            branch = branch.replace('Számú', 'számú')
+            branch = branch.replace('Fiók', 'fiók')
+            branch = branch.replace('Központi', 'központi')
+            branch = branch.replace('Ügyfélszolgálat', 'ügyfélszolgálat')
+            branch = branch.replace('Atm', 'ATM')
+            branch = branch.replace('U.', 'utca')
+            branch = branch.replace('Üzletház', 'üzletház')
+            branch = branch.replace('Porta', 'porta')
+            branch = branch.replace('Zaeg', 'Zalaegerszeg')
+            branch = branch.replace('Bevásárlóközpont', 'bevásárlóközpont')
         branch = clean_string(branch)
         return branch
     else:

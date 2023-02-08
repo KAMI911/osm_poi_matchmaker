@@ -102,6 +102,7 @@ class hu_street_types_from_xml():
         df.columns = POI_COLS_STREET_TYPE
         insert_street_type_dataframe(self.session, df)
 
+
 class poi_patch_from_csv():
     """Insert CVS patch data into database poi_patch table
     """

@@ -17,6 +17,7 @@ try:
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.libs.poi_qc import POIQC
     from osm_poi_matchmaker.utils.cache import get_cached, set_cached
+    from osm_poi_matchmaker.dao.data_handlers import query_city_name_external
 except ImportError as err:
     logging.error('Error %s import module: %s', err, __name__)
     logging.exception('Exception occurred')
@@ -172,9 +173,8 @@ class POIDatasetRaw:
 
     @postcode.setter
     def postcode(self, data: str):
-        logging.debug('Original postcode is: {}'.format(data))
         self.__postcode = clean_postcode(data)
-        logging.debug('Stored postcode is: {}'.format(self.__postcode))
+        logging.debug(f'Stored postcode is: {self.__postcode}, original postcode was: {data}')
 
     @property
     def city(self) -> str:
@@ -183,6 +183,8 @@ class POIDatasetRaw:
     @city.setter
     def city(self, data: str):
         self.__city = clean_string(data)
+        logging.debug(f'Stored city name is: {self.__city}, original city name was: {data}')
+
 
     @property
     def name(self) -> str:
@@ -893,7 +895,7 @@ class POIDatasetRaw:
                         return
                     query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
                     if query is None or query.empty:
-                        query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'metaphone')
+                        query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'all')
                         if query is None or query.empty:
                             logging.warning('(1) There is no street around named or metaphone named: %s', data)
                             self.__street = data
@@ -913,15 +915,26 @@ class POIDatasetRaw:
                 logging.exception('Exception occurred')
 
     def process_postcode(self):
-        '''Try to find postcode if it was not specified
-        '''
+        """Try to find postcode if it was not specified
+        """
         data = clean_string(self.__postcode)
         if data is None or data == 0 or data == '':
             osm_postcode = query_postcode_osm_external(True, self.__session_object(), self.__lon, self.__lat, None)
-            if osm_postcode is None or data == 0:
+            if osm_postcode is not None or osm_postcode != 0:
                 self.__postcode = osm_postcode
             else:
                 self.__postcode = None
+
+    def process_city(self):
+        """
+        Try to find city based on its name and postcode
+        :return:
+        """
+        logging.debug(f'City value is: {self.__city}')
+        data = clean_string(self.__city)
+        city = query_city_name_external(self.__session_object(), data, self.__postcode)
+        self.__city = city
+
 
     def add(self):
         try:
@@ -929,6 +942,7 @@ class POIDatasetRaw:
             self.process_geom()
             self.process_street()
             self.process_postcode()
+            self.process_city()
             self.insert_data.append(
                 [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website,
                  self.__description, self.__fuel_adblue, self.__fuel_octane_100, self.__fuel_octane_98,
@@ -1032,7 +1046,7 @@ class POIDataset(POIDatasetRaw):
 
                     query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
                     if query is None or query.empty:
-                        query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'metaphone')
+                        query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'all')
                         if query is None or query.empty:
                             logging.warning('There is no street around named or metaphone named: %s', data)
                             self.__street = data
