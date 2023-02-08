@@ -782,7 +782,8 @@ class POIBase:
             logging.error(err)
             logging.exception('Exception occurred')
 
-    def query_name_road_around(self, lon, lat, name='', with_metadata=True, mode='both'):
+    def query_name_road_around(self, lon, lat, name='', with_metadata=True, mode='all',
+                               similarity_threshold: float = 0.7, levenshtein_threshold: int = 3):
         '''
         Search for road with name specified around the lon, lat point location in OpenStreetMap database based on
         within preconfigured distance
@@ -800,14 +801,21 @@ class POIBase:
             else:
                 metadata_fields = ''
             # Looking for way (road)
+            if mode == 'all':
+                name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name) OR similarity(name, :name) > :similarity_threshold OR levenshtein(name, :name) < :levenshtein_threshold)'
             if mode == 'both':
                 name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name))'
             elif mode == 'name':
                 name_query = '("name" = :name)'
             elif mode == 'metaphone':
                 name_query = 'dmetaphone(name) = dmetaphone(:name)'
+            elif mode == 'similarity':
+                name_query = 'similarity(name, :name) > :similarity_threshold'
+            elif mode == 'levenshtein':
+                name_query = 'levenshtein(name, :name) < :levenshtein_threshold'
             else:
-                name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name))'
+                name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name)) OR similarity(name, :name) > :similarity_threshold OR levenshtein(name, :name) < :levenshtein_threshold'
+
             query = sqlalchemy.text('''
                 SELECT * FROM
                   (SELECT name, osm_id, highway, {metadata_fields}
@@ -818,9 +826,10 @@ class POIBase:
                   ORDER BY distance ASC LIMIT 1) AS geo
                 WHERE geo.distance < :distance
                 '''.format(metadata_fields=metadata_fields, name_query=name_query))
-            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params={'lon': lon, 'lat': lat,
-                                                                                             'distance': distance,
-                                                                                             'name': '{}'.format(name)})
+            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way',
+                                                 params={'lon': lon, 'lat': lat, 'distance': distance,
+                                                 'name': name, 'similarity_threshold': similarity_threshold,
+                                                 'levenshtein_threshold': levenshtein_threshold})
             data.sort_values(by=['distance'])
             return data
         except Exception as err:

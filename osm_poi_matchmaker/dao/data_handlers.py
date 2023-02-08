@@ -9,6 +9,7 @@ try:
     from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, POI_address_raw, POI_patch, Street_type, Country
     from osm_poi_matchmaker.libs import address
     from osm_poi_matchmaker.dao import poi_array_structure
+    from sqlalchemy import func
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -83,11 +84,11 @@ def get_or_create_poi(session, model, **kwargs):
 
 def search_poi_patch(session, model, **kwargs):
     if kwargs.get('poi_common_id') == "*":
-        kwargs['valami'] == "%"
+        kwargs['valami'] = "%"
     if kwargs.get('poi_common_id') == "*":
-        kwargs['valami'] == "%"
+        kwargs['valami'] = "%"
     if kwargs.get('poi_common_id') == "*":
-        kwargs['valami'] == "%"
+        kwargs['valami'] = "%"
 
     instance = session.query(model) \
         .filter_by(poi_common_id=kwargs['poi_common_id'])\
@@ -173,6 +174,30 @@ def insert_city_dataframe(session, city_df):
         session.commit()
     finally:
         session.close()
+
+
+def query_city_name_external(session, city_name: str, zip_code: str, similarity_threshold: float = 0.7,
+                             levenshtein_threshold: int = 3):
+
+    result = session.query(City) \
+        .filter(func.soundex(City.city_name) == func.soundex(city_name)) \
+        .filter(func.similarity(City.city_name, city_name) > similarity_threshold) \
+        .filter(func.levenshtein(City.city_name, city_name) < levenshtein_threshold) \
+        .filter(City.city_post_code == zip_code) \
+        .first()
+    if result is not None:
+        city = result.city_name
+        logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
+        return city
+    if zip_code is not None:
+        result = session.query(City) \
+            .filter(City.city_post_code == zip_code) \
+            .first()
+    if result is not None:
+        city = result.city_name
+        logging.debug(f'Not found {city_name}, but found {city} where postcode is: {zip_code} ')
+        return city
+    return None
 
 
 def insert_street_type_dataframe(session, street_df):
