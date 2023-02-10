@@ -201,6 +201,7 @@ ORDER BY priority ASC, distance ASC;
 ## Additional indexes
 
 ```
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE INDEX IF NOT EXISTS i_street_type ON street_type(street_type);
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_way ON planet_osm_point(way);
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_addr ON planet_osm_point("addr:postcode","addr:city","addr:street","addr:housenumber");
