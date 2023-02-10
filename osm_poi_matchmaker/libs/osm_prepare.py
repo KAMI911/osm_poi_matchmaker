@@ -12,6 +12,7 @@ except ImportError as err:
 
 def index_osm_data(session):
     query = sqlalchemy.text('''
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE INDEX IF NOT EXISTS i_street_type ON street_type(street_type);
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_way ON planet_osm_point(way);
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_amenity_addr_lower ON planet_osm_polygon(LOWER("amenity"),"osm_id",LOWER("name"),LOWER("brand"),LOWER("addr:street"));
