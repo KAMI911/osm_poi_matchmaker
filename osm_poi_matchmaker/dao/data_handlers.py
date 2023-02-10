@@ -240,16 +240,16 @@ def insert_patch_data_dataframe(session, patch_df):
                         'new_housenumber', 'new_conscriptionnumber', 'new_name']
     try:
         for index, patch_data in patch_df.iterrows():
-            get_or_create(session, POI_patch, poi_code=patch_data['poi_code'],
-                          orig_postcode=patch_data['orig_postcode'],
-                          orig_city=patch_data['orig_city'], orig_street=patch_data['orig_street'],
-                          orig_housenumber=patch_data['orig_housenumber'],
-                          orig_conscriptionnumber=patch_data['orig_conscriptionnumber'],
-                          orig_name=patch_data['orig_name'], new_postcode=patch_data['new_postcode'],
-                          new_city=patch_data['new_city'],
-                          new_street=patch_data['new_street'], new_housenumber=patch_data['new_housenumber'],
-                          new_conscriptionnumber=patch_data['new_conscriptionnumber'],
-                          new_name=patch_data['new_name'])
+            get_or_create(session, POI_patch, poi_code=str(patch_data['poi_code']),
+                          orig_postcode=str(patch_data['orig_postcode']),
+                          orig_city=str(patch_data['orig_city']), orig_street=str(patch_data['orig_street']),
+                          orig_housenumber=str(patch_data['orig_housenumber']),
+                          orig_conscriptionnumber=str(patch_data['orig_conscriptionnumber']),
+                          orig_name=str(patch_data['orig_name']), new_postcode=str(patch_data['new_postcode']),
+                          new_city=str(patch_data['new_city']),
+                          new_street=str(patch_data['new_street']), new_housenumber=str(patch_data['new_housenumber']),
+                          new_conscriptionnumber=str(patch_data['new_conscriptionnumber']),
+                          new_name=str(patch_data['new_name']))
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(patch_data)
