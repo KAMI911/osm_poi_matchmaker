@@ -156,7 +156,7 @@ node,way   contact:email  text         linear
 node,way   contact:phone  text         linear
 node,way   contact:fax    text         linear
 node,way   contact:youtube text        linear
-node,way   contact:instagram text      linears
+node,way   contact:instagram text      linear
 node,way   place        text         polygon
 node       poi          text         linear
 node,way   population   text         linear
