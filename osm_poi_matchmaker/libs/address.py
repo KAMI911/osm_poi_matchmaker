@@ -301,9 +301,10 @@ def replace_html_newlines(clearable: str) -> str:
 
 
 def extract_phone_number(data: str) -> str:
-    '''Try to extract phone number
+    '''
+    Try to extract phone number
 
-    :param a string contains not just phone number
+    :data a string contains not just phone number
     return: international format phone number string
     '''
     try:
@@ -314,7 +315,11 @@ def extract_phone_number(data: str) -> str:
                 if 'Telefonszám' in f:
                     pn = f.split(':')[1]
                     try:
-                        if '+36' not in pn:
+                        if '(' in pn:
+                            pn = pn.replace('(', '')
+                        if ')' in pn:
+                            pn = pn.replace(')', '')
+                        if '+36' in pn:
                             pn = phonenumbers.parse(pn, 'HU')
                         else:
                             pn = phonenumbers.parse('+36 '.format(pn), 'HU')
