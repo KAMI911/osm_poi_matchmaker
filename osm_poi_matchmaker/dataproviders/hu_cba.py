@@ -87,9 +87,9 @@ class hu_cba(DataProvider):
                                     i + 1)) is not None else None)
                         self.data.original = poi_data.get('A_CIM')
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('PS_GPS_COORDS_LAT'),
-                                                                        poi_data.get('PS_GPS_COORDS_LNG'))
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                            poi_data.get('A_CIM'))
+                                                                         poi_data.get('PS_GPS_COORDS_LNG'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_street_housenumber_better_2(poi_data.get('A_CIM'))
                         self.data.phone = clean_phone_to_str(poi_data.get('PS_PUBLIC_TEL'))
                         self.data.email = clean_email(poi_data.get('PS_PUBLIC_EMAIL'))
                         self.data.public_holiday_open = False
