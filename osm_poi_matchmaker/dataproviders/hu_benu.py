@@ -76,8 +76,8 @@ class hu_benu(DataProvider):
                             self.data.city = clean_city(poi_data.get('city'))
                             self.data.postcode = clean_string(poi_data.get('postal_code'))
                             self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
-                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                                poi_data.get(('street')))
+                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                                extract_street_housenumber_better_2(poi_data.get('street'))
                             self.data.original = poi_data.get('street')
                             self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                             self.data.public_holiday_open = False
