@@ -6,7 +6,7 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str, clean_email, clean_string
+    from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str, clean_email, clean_string, clean_street
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRaw
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -70,11 +70,11 @@ class hu_cib_bank(DataProvider):
                                     data.code = 'hucibatm'
                                     data.public_holiday_open = True
                                 data.lat, data.lon = check_hu_boundary(poi_data['location']['lat'],
-                                                                    poi_data['location']['lon'])
+                                                                       poi_data['location']['lon'])
                                 data.city = clean_city(poi_data.get('city'))
                                 data.postcode = clean_string(poi_data.get('zip'))
                                 data.housenumber = clean_string(poi_data.get('streetNo'))
-                                data.street = clean_string(poi_data.get('streetName'))
+                                data.street = clean_street(poi_data.get('streetName'))
                                 data.branch = clean_string(poi_data.get('name'))
                                 data.phone = clean_phone_to_str(poi_data.get('phone'))
                                 data.email = clean_email(poi_data.get('email'))
@@ -85,7 +85,7 @@ class hu_cib_bank(DataProvider):
                             logging.exception(traceback.print_exc())
                             logging.exception(poi_data)
                 if data is None or data.length() < 1:
-                    logging.warning('Resultset is empty. Skipping ...')
+                    logging.warning('Result set is empty. Skipping ...')
                 else:
                     insert_poi_dataframe(self.session, data.process())
         except Exception as e:
