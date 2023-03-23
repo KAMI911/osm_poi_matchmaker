@@ -99,7 +99,7 @@ class hu_fire_station(DataProvider):
                 # parse the html using beautiful soap and store in variable `soup`
                 try:
                     # Extract JSON from scripts
-                    pois_script = soup.findAll('script')[-19].text
+                    pois_script = soup.findAll('script')[-16].text
                     pois_variable = re.search('(\[.*\]);', pois_script)
                     pois = json.loads(pois_variable[1])
                 except Exception as e:
