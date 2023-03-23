@@ -30,7 +30,7 @@ class hu_gls(DataProvider):
                      'ref:HU:vatin': '12369410-2-44', 'ref:HU:company': '13-09-111755',
                      'contact:facebook': 'https://www.facebook.com/GLSHungaryKft/',
                      'contact:youtube': 'https://www.youtube.com/channel/UC-Lv4AkW50HM80ZZQEq8Sqw/',
-                     'contact:email': ' info@gls-hungary.com', 'contact:phone': '+36 29 886 700', 'contact:mobile': '+36 20 890 0660',
+                     'contact:email': 'info@gls-hungary.com', 'contact:phone': '+36 29 886 700', 'contact:mobile': '+36 20 890 0660',
                      'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes',
                      'payment:cash': 'no', }
         self.filetype = FileType.json
