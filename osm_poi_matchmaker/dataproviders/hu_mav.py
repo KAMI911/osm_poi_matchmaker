@@ -45,8 +45,8 @@ class hu_mav(DataProvider):
         self.__types = [
             {'poi_code': 'humavstart', 'poi_common_name': 'MÁV_START', 'poi_type': 'train_stop',
              'poi_tags': humavstart, 'poi_url_base': 'https://www.mavcsoport.hu', 'poi_search_name': 'mav-start',
-             'osm_search_distance_perfect': 20, 'osm_search_distance_safe': 20,
-             'osm_search_distance_unsafe': 5, 'preserve_original_name': True, 'additional_ref_name': 'mav'},
+             'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
+             'osm_search_distance_unsafe': 10, 'preserve_original_name': True, 'additional_ref_name': 'mav'},
         ]
         return self.__types
 
