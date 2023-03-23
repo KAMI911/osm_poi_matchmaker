@@ -45,8 +45,8 @@ class hu_volanbusz(DataProvider):
         self.__types = [
             {'poi_code': 'huvolantra', 'poi_common_name': 'Volánbusz', 'poi_type': 'bus_stop',
              'poi_tags': huvolantra, 'poi_url_base': 'https://www.volanbusz.hu', 'poi_search_name': 'volanbusz',
-             'osm_search_distance_perfect': 20, 'osm_search_distance_safe': 20,
-             'osm_search_distance_unsafe': 5, 'preserve_original_name': True, 'additional_ref_name': 'volan',
+             'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
+             'osm_search_distance_unsafe': 10, 'preserve_original_name': True, 'additional_ref_name': 'volan',
              'do_not_export_addr_tags': True},
         ]
         return self.__types
