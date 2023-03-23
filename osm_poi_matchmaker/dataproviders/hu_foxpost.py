@@ -9,7 +9,7 @@ try:
     import re
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
-        clean_string
+        clean_string, extract_all_address_waxeye
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHUUnAccented
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN
@@ -61,10 +61,10 @@ class hu_foxpost(DataProvider):
                     try:
                         self.data.code = 'hufoxpocso'
                         self.data.lat, self.data.lon = check_hu_boundary(
-                            poi_data['geolat'], poi_data['geolng'])
+                            poi_data.get('geolat'), poi_data.get('geolng'))
                         self.data.postcode = clean_string(poi_data.get('zip'))
-                        self.data.city = clean_city(poi_data['city'])
-                        self.data.branch = poi_data['name']
+                        self.data.city = clean_city(poi_data.get('city'))
+                        self.data.branch = poi_data.get('name')
                         self.data.description = clean_string(poi_data.get('findme'))
                         if 'kültéri' in self.data.description:
                             self.data.nonstop = True
@@ -77,12 +77,13 @@ class hu_foxpost(DataProvider):
                                     self.data.day_close(i, closing)
                                 else:
                                     self.data.day_open_close(i, None, None)
-                        self.data.original = poi_data['address']
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                            poi_data['street'])
+                        self.data.original = poi_data.get('address')
+                        self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
+                            self.data.conscriptionnumber = extract_all_address_waxeye(poi_data.get('address'))
                         self.data.public_holiday_open = False
                         ref_match = PATTERN_REF.search(self.data.description)
                         if ref_match is not None:
+                            logging.debug('Foxpost ref is: {}'.format(ref_match.group(1)))
                             self.data.ref = ref_match.group(1)
                         self.data.add()
                     except Exception as e:
