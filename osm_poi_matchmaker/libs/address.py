@@ -323,8 +323,9 @@ def extract_phone_number(data: str) -> str:
                             pn = phonenumbers.parse(pn, 'HU')
                         else:
                             pn = phonenumbers.parse('+36 '.format(pn), 'HU')
-                    except phonenumbers.phonenumberutil.NumberParseException:
+                    except phonenumbers.phonenumberutil.NumberParseException as e:
                         logging.debug('This is string is cannot converted to phone number: %s ...', pn)
+                        logging.exception(e)
                         return None
                     return phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
 
@@ -386,6 +387,7 @@ def clean_opening_hours_2(oh):
 
 def clean_phone(phone):
     phone = clean_string(str(phone))
+    pn = []
     if phone is None or phone == '':
         return None
     # Remove all whitespaces
@@ -395,18 +397,29 @@ def clean_phone(phone):
     phone = phone.replace('-', ' ')
     if ',' in phone:
         phone = phone.replace(',', ';')
+
     if ';' in phone:
         phone = phone.split(';')
-    try:
         if type(phone) is list:
             for i in phone:
-                pn = [phonenumbers.parse(i, 'HU') for i in phone]
-        else:
-            pn = []
+                one_phone = i
+                one_phone = one_phone.replace('(', '')
+                one_phone = one_phone.replace(')', '')
+                try:
+                    pn.append(phonenumbers.parse(one_phone, 'HU'))
+                except phonenumbers.phonenumberutil.NumberParseException as e:
+                    logging.debug('This cleared number is cannot converted to phone number: %s ...', one_phone)
+                    logging.exception(e)
+    else:
+        logging.debug(phone)
+        phone = phone.replace('(', '')
+        phone = phone.replace(')', '')
+        logging.debug(phone)
+        try:
             pn.append(phonenumbers.parse(phone, 'HU'))
-    except phonenumbers.phonenumberutil.NumberParseException:
-        logging.debug('This is string is cannot converted to phone number: %s ...', original)
-        return None
+        except phonenumbers.phonenumberutil.NumberParseException as e:
+            logging.debug('This one cleared number is cannot converted to phone number: %s ...', phone)
+            logging.exception(e)
     if pn is not None:
         return [phonenumbers.format_number(i, phonenumbers.PhoneNumberFormat.INTERNATIONAL) for i in pn]
     else:
