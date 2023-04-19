@@ -179,19 +179,56 @@ def insert_city_dataframe(session, city_df):
 def query_city_name_external(session, city_name: str, zip_code: str, similarity_threshold: float = 0.7,
                              levenshtein_threshold: int = 3):
 
-    result = session.query(City) \
-        .filter(func.soundex(City.city_name) == func.soundex(city_name)) \
-        .filter(func.similarity(City.city_name, city_name) > similarity_threshold) \
-        .filter(func.levenshtein(City.city_name, city_name) < levenshtein_threshold) \
-        .filter(City.city_post_code == zip_code) \
+    logging.debug(f'Name and post code based search ...')
+    result = session.query(City)\
+        .filter(City.city_name == city_name)\
+        .filter(City.city_post_code == zip_code)\
         .first()
     if result is not None:
         city = result.city_name
         logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
         return city
+
+    logging.debug(f'Soundex, similarity, levenshtein, post code based search ...')
+    result = session.query(City)\
+        .filter(func.soundex(City.city_name) == func.soundex(city_name))\
+        .filter(func.similarity(City.city_name, city_name) > similarity_threshold)\
+        .filter(func.levenshtein(City.city_name, city_name) < levenshtein_threshold)\
+        .filter(City.city_post_code == zip_code)\
+        .order_by(func.similarity(City.city_name, city_name).desc())\
+        .first()
+    if result is not None:
+        city = result.city_name
+        logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
+        return city
+
+    logging.debug(f'Similarity, levenshtein, post code based search ...')
+    result = session.query(City)\
+        .filter(func.similarity(City.city_name, city_name) > similarity_threshold)\
+        .filter(func.levenshtein(City.city_name, city_name) < levenshtein_threshold)\
+        .filter(City.city_post_code == zip_code)\
+        .order_by(func.similarity(City.city_name, city_name).desc())\
+        .first()
+    if result is not None:
+        city = result.city_name
+        logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
+        return city
+
+    logging.debug(f'Similarity, levenshtein based search ...')
+    result = session.query(City)\
+        .filter(func.similarity(City.city_name, city_name) > similarity_threshold)\
+        .filter(func.levenshtein(City.city_name, city_name) < levenshtein_threshold)\
+        .order_by(func.similarity(City.city_name, city_name).desc())\
+        .first()
+    if result is not None:
+        city = result.city_name
+        logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
+        return city
+
+    logging.debug(f'Post code based search ...')
     if zip_code is not None:
-        result = session.query(City) \
-            .filter(City.city_post_code == zip_code) \
+        result = session.query(City)\
+            .filter(City.city_post_code == zip_code)\
             .first()
     if result is not None:
         city = result.city_name
