@@ -408,8 +408,7 @@ def clean_phone(phone):
                 try:
                     pn.append(phonenumbers.parse(one_phone, 'HU'))
                 except phonenumbers.phonenumberutil.NumberParseException as e:
-                    logging.debug('This cleared number is cannot converted to phone number: %s ...', one_phone)
-                    logging.exception(e)
+                    logging.debug('This cleared number is cannot converted to phone number: "%s" ...', one_phone)
     else:
         logging.debug(phone)
         phone = phone.replace('(', '')
@@ -418,8 +417,7 @@ def clean_phone(phone):
         try:
             pn.append(phonenumbers.parse(phone, 'HU'))
         except phonenumbers.phonenumberutil.NumberParseException as e:
-            logging.debug('This one cleared number is cannot converted to phone number: %s ...', phone)
-            logging.exception(e)
+            logging.debug('This one cleared number is cannot converted to phone number: "%s" ...', phone)
     if pn is not None:
         return [phonenumbers.format_number(i, phonenumbers.PhoneNumberFormat.INTERNATIONAL) for i in pn]
     else:
