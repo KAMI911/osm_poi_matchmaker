@@ -25,7 +25,7 @@ class hu_posta(DataProvider):
 
     def contains(self):
         self.link = 'https://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
-        self.tags = {'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.',
+        self.tags = {'operator': 'Magyar Posta Zrt.',
                      'operator:addr': '1138 Budapest, Dunavirág utca 2-6.', 'ref:HU:vatin': '10901232-2-44',
                      'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614',
                      'contact:email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200',
@@ -38,19 +38,19 @@ class hu_posta(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hupostapo = {'amenity': 'post_office'}
+        hupostapo = {'amenity': 'post_office', 'brand': 'Magyar Posta'}
         hupostapo.update(self.tags)
-        hupostacse = {'amenity': 'vending_machine', 'vending': 'cheques'}
+        hupostacse = {'amenity': 'vending_machine', 'vending': 'cheques', 'brand': 'Magyar Posta'}
         hupostacse.update(self.tags)
-        hupostacso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes'}
+        hupostacso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'brand': 'MPL'}
         hupostacso.update(self.tags)
-        hupostapp = {'amenity': 'post_office'}
+        hupostapp = {'amenity': 'post_office', 'brand': 'Posta Partner'}
         hupostapp.update(self.tags)
-        hupostamp = {'amenity': 'post_office'}
+        hupostamp = {'amenity': 'post_office', 'brand': 'Mobil Posta'}
         hupostamp.update(self.tags)
         self.__types = [
             {'poi_code': 'hupostapo', 'poi_common_name': 'Posta', 'poi_type': 'post_office',
-             'poi_tags': hupostapo, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
+             'poi_tags': hupostapo, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta', 'export_poi_name': False,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 350, 'osm_search_distance_unsafe': 220,
              'preserve_original_post_code': True},
             {'poi_code': 'hupostacse', 'poi_common_name': 'Posta csekkbefizető automata',
@@ -59,13 +59,13 @@ class hu_posta(DataProvider):
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 220},
             {'poi_code': 'hupostacso', 'poi_common_name': 'Posta csomagautomata',
              'poi_type': 'vending_machine_parcel_locker',
-             'poi_tags': hupostacso, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(mpl|posta)',
+             'poi_tags': hupostacso, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(mpl|posta)', 'export_poi_name': False,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
             {'poi_code': 'hupostapp', 'poi_common_name': 'PostaPont', 'poi_type': 'post_office',
              'poi_tags': hupostapp, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(postapont|posta)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
              'osm_search_distance_unsafe': 220, 'preserve_original_post_code': True},
-            {'poi_code': 'hupostamp', 'poi_common_name': 'Mobilposta', 'poi_type': 'post_office',
+            {'poi_code': 'hupostamp', 'poi_common_name': 'Mobilposta', 'poi_type': 'post_office', 'export_poi_name': False,
              'poi_tags': hupostamp, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300}]
         return self.__types
