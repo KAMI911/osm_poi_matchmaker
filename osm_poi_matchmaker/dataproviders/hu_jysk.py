@@ -61,8 +61,9 @@ class hu_jysk(DataProvider):
                         self.data.ref = internal_id
                         shop_soup = save_downloaded_soup('{}?storeId={}'.format(self.link, internal_id),
                                                         os.path.join(self.download_cache,
-                                                        '{}.{}.json'.format(self.filename, internal_id)), FileType.json)
-                        json_shop_data = json.loads(shop_soup, strict=False)
+                                                        '{}.{}.json'.format(self.filename, internal_id)), FileType.html)
+                        shop_soup_data = shop_soup.find('div', {'data-jysk-react-component': 'SecondaryNavigation'})['data-jysk-react-properties']
+                        json_shop_data = json.loads(shop_soup_data, strict=False)
                         self.data.city = clean_city(json_shop_data.get('city'))
                         self.data.postcode = clean_postcode(json_shop_data.get('zip'))
                         self.data.street = clean_street(json_shop_data.get('street'))
@@ -74,6 +75,7 @@ class hu_jysk(DataProvider):
                         logging.exception('Exception occurred: {}'.format(e))
                         logging.exception(traceback.print_exc())
                         logging.exception(shop)
+                        logging.exception(shop_soup)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
             logging.exception(traceback.print_exc())
