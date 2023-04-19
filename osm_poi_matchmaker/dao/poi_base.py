@@ -62,6 +62,7 @@ class POIBase:
     def pool(self):
         return self.engine
 
+    @property
     def session(self):
         return self.session_object()
 
@@ -272,14 +273,23 @@ class POIBase:
             logging.debug(str(query))
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
-                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
+                try:
+                    perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
                                                       metadata_fields=metadata_fields,
                                                       additional_ref_name=additional_ref_name,
                                                       query_unique_ref=query_unique_ref))
-                perf = self.one_session.execute(perf_query, query_params)
-                perf_rows = [row.values()[0] for row in perf]
+                    perf = self.session.execute(perf_query, query_params)
+                except Exception as err:
+                    logging.warning('Exception occurred')
+                    logging.exception(err)
+                #logging.critical(perf.mappings().all())
+                perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
-            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+            try:
+                data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
             if not data.empty:
                 logging.info('Found item with simple additional ref search.')
                 logging.debug(data.to_string())
@@ -314,19 +324,32 @@ class POIBase:
             FROM planet_osm_polygon
             WHERE ({query_type}) AND osm_id < 0 {query_unique_name}
             '''
-            query = sqlalchemy.text(query_text.format(query_type=query_type,
+            try:
+                query = sqlalchemy.text(query_text.format(query_type=query_type,
                                                       metadata_fields=metadata_fields,
                                                       query_unique_name=query_unique_name))
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
             logging.debug(str(query))
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
-                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
+                try:
+                    perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
                                                       metadata_fields=metadata_fields,
                                                       query_unique_name=query_unique_name))
-                perf = self.one_session.execute(perf_query, query_params)
-                perf_rows = [row.values()[0] for row in perf]
+                    perf = self.session.execute(perf_query, query_params)
+                except Exception as err:
+                    logging.warning('Exception occurred')
+                    logging.exception(err)
+                #logging.critical(perf.mappings().all())
+                perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
-            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+            try:
+                data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
             if not data.empty:
                 if len(data) > 1:
                     logging.info('Multiple items found with simple unique name search. Skipping this method ...')
@@ -368,22 +391,35 @@ class POIBase:
             FROM planet_osm_polygon
             WHERE ({query_type}) AND osm_id < 0 {query_name} {conscriptionnumber_query} {city_query}
             '''
-            query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
+            try:
+                query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
                                                       metadata_fields=metadata_fields,
                                                       conscriptionnumber_query=conscriptionnumber_query,
                                                       city_query=city_query))
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
             logging.debug(str(query))
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
-                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
+                try:
+                    perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
                                                                                     query_name=query_name,
                                                                                     metadata_fields=metadata_fields,
                                                                                     conscriptionnumber_query=conscriptionnumber_query,
                                                                                     city_query=city_query))
-                perf = self.one_session.execute(perf_query, query_params)
-                perf_rows = [row.values()[0] for row in perf]
+                    perf = self.session.execute(perf_query, query_params)
+                except Exception as err:
+                    logging.warning('Exception occurred')
+                    logging.exception(err)
+                #logging.critical(perf.mappings().all())
+                perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
-            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+            try:
+                data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
             if not data.empty:
                 logging.info('Found item with simple conscription number search.')
                 logging.debug(data.to_string())
@@ -423,25 +459,38 @@ class POIBase:
             FROM planet_osm_polygon
             WHERE ({query_type}) AND osm_id < 0 {query_name} {city_query} {street_query} {housenumber_query}
             '''
-            query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
+            try:
+                query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
                                                       metadata_fields=metadata_fields,
                                                       street_query=street_query,
                                                       city_query=city_query,
                                                       housenumber_query=housenumber_query))
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
             logging.debug(str(query))
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
-                perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
+                try:
+                    perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + query_text.format(query_type=query_type,
                                                                                     query_name=query_name,
                                                                                     query_avoid_name=query_avoid_name,
                                                                                     metadata_fields=metadata_fields,
                                                                                     street_query=street_query,
                                                                                     city_query=city_query,
                                                                                     housenumber_query=housenumber_query))
-                perf = self.one_session.execute(perf_query, query_params)
-                perf_rows = [row.values()[0] for row in perf]
+                    perf = self.session.execute(perf_query, query_params)
+                except Exception as err:
+                    logging.warning('Exception occurred')
+                    logging.exception(err)
+                logging.critical(perf.mappings().all())
+                perf_rows = [str(row.values()) for row in perf]
                 logging.debug('\n'.join(perf_rows))
-            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+            try:
+                data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
             if not data.empty:
                 logging.info('Found item with simple address search.')
                 logging.debug(data.to_string())
@@ -682,22 +731,35 @@ class POIBase:
         stage = 0
         for q in query_text:
             stage += 1
-            query = sqlalchemy.text(q.format(query_type=query_type, query_name=query_name,
+            try:
+                query = sqlalchemy.text(q.format(query_type=query_type, query_name=query_name,
                                              query_avoid_name=query_avoid_name, metadata_fields=metadata_fields,
                                              street_query=street_query, city_query=city_query,
                                              housenumber_query=housenumber_query))
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
-                p_query = sqlalchemy.text('EXPLAIN ANALYZE ' + q.format(query_type=query_type, query_name=query_name,
+                try:
+                    p_query = sqlalchemy.text('EXPLAIN ANALYZE ' + q.format(query_type=query_type, query_name=query_name,
                                                                         query_avoid_name=query_avoid_name,
                                                                         metadata_fields=metadata_fields,
                                                                         street_query=street_query,
                                                                         city_query=city_query,
                                                                         housenumber_query=housenumber_query))
-                perf = self.one_session.execute(p_query, query_params)
-                perf_rows = [row.values()[0] for row in perf]
+                    perf = self.session.execute(perf_query, query_params)
+                except Exception as err:
+                    logging.warning('Exception occurred')
+                    logging.exception(err)
+                #logging.critical(perf.mappings().all())
+                perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
-            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+            try:
+                data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
             logging.debug(str(query))
             if not data.empty:
                 logging.info('Found item in {} stage without precise geometry search.'.format(stage))
@@ -707,7 +769,11 @@ class POIBase:
             else:
                 logging.info('Item not found in {} stage.'.format(stage))
         logging.info('Item not found at all.')
-        self.one_session.close()
+        try:
+            self.session.close()
+        except Exception as err:
+            logging.warning('Exception occurred')
+            logging.exception(err)
         return None
 
     def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='',
@@ -779,11 +845,11 @@ class POIBase:
                                                                                              'distance': distance})
             return data
         except Exception as err:
-            logging.error(err)
-            logging.exception('Exception occurred')
+            logging.warning('Exception occurred')
+            logging.exception(err)
 
     def query_name_road_around(self, lon, lat, name='', with_metadata=True, mode='all',
-                               similarity_threshold: float = 0.7, levenshtein_threshold: int = 3):
+                               similarity_threshold: float = 0.49, levenshtein_threshold: int = 5):
         '''
         Search for road with name specified around the lon, lat point location in OpenStreetMap database based on
         within preconfigured distance
@@ -794,6 +860,7 @@ class POIBase:
         :param mode: Looking for name, metaphone or both
         :return: GeoDataFrame of distance ordered result.
         '''
+        logging.debug(f'Looing for streets around with same name, using method: {mode} ...')
         try:
             distance = config.get_geo_default_poi_road_distance()
             if with_metadata is True:
@@ -802,7 +869,7 @@ class POIBase:
                 metadata_fields = ''
             # Looking for way (road)
             if mode == 'all':
-                name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name) OR similarity(name, :name) > :similarity_threshold OR levenshtein(name, :name) < :levenshtein_threshold)'
+                name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name) OR similarity(name, :name) >= :similarity_threshold OR levenshtein(name, :name) < :levenshtein_threshold)'
             if mode == 'both':
                 name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name))'
             elif mode == 'name':
@@ -810,28 +877,38 @@ class POIBase:
             elif mode == 'metaphone':
                 name_query = 'dmetaphone(name) = dmetaphone(:name)'
             elif mode == 'similarity':
-                name_query = 'similarity(name, :name) > :similarity_threshold'
+                name_query = 'similarity(name, :name) >= :similarity_threshold'
             elif mode == 'levenshtein':
                 name_query = 'levenshtein(name, :name) < :levenshtein_threshold'
             else:
-                name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name)) OR similarity(name, :name) > :similarity_threshold OR levenshtein(name, :name) < :levenshtein_threshold'
-
+                name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name) OR similarity(name, :name) >= :similarity_threshold OR levenshtein(name, :name) < :levenshtein_threshold)'
+        except Exception as err:
+            logging.warning('Exception occurred')
+            logging.exception(err)
+        try:
             query = sqlalchemy.text('''
-                SELECT * FROM
-                  (SELECT name, osm_id, highway, {metadata_fields}
-                    ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
-                      FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-                  WHERE "highway" is not NULL
-                    AND {name_query}
-                  ORDER BY distance ASC LIMIT 1) AS geo
-                WHERE geo.distance < :distance
-                '''.format(metadata_fields=metadata_fields, name_query=name_query))
+              SELECT * FROM
+                (SELECT name, osm_id, highway, similarity(name, :name), dmetaphone(name) as dmp_found, dmetaphone(:name) as dmp_original, levenshtein(name, :name), {metadata_fields}
+                  ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
+                    FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+                WHERE "highway" is not NULL
+                  AND {name_query}
+                ORDER BY similarity DESC, distance ASC) AS geo
+              WHERE geo.distance < :distance
+              LIMIT 5
+              '''.format(metadata_fields=metadata_fields, name_query=name_query))
             data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way',
                                                  params={'lon': lon, 'lat': lat, 'distance': distance,
                                                  'name': name, 'similarity_threshold': similarity_threshold,
                                                  'levenshtein_threshold': levenshtein_threshold})
-            data.sort_values(by=['distance'])
-            return data
         except Exception as err:
-            logging.error(err)
-            logging.exception('Exception occurred')
+            logging.warning('Exception occurred')
+            logging.exception(err)
+        try:
+            data.sort_values(by=['levenshtein'])
+        except Exception as err:
+            logging.warning('Exception occurred')
+            logging.exception(err)
+        logging.debug({'lon': lon, 'lat': lat, 'distance': distance, 'name': name, 'similarity_threshold': similarity_threshold, 'levenshtein_threshold': levenshtein_threshold})
+        logging.debug(f'Returned data: {data.to_string()}')
+        return data
