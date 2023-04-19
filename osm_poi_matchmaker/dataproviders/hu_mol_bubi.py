@@ -33,7 +33,7 @@ class hu_mol_bubi(DataProvider):
                      'contact:instagram': 'https://www.instagram.com/molbubi/',
                      'contact:facebook': 'https://www.facebook.com/molbubi',
                      'contact:youtube': 'https://www.youtube.com/user/bkkweb', 'twitter': 'molbubi',
-                     'fee': 'yes', 'payment:credit_cards': 'yes', 'payment:app': 'yes', 'charge': '20 HUF/minute'}
+                     'fee': 'yes', 'payment:credit_cards': 'yes', 'payment:app': 'yes', 'charge': '40 HUF/minute'}
 
 
         self.filetype = FileType.json
@@ -43,8 +43,8 @@ class hu_mol_bubi(DataProvider):
         hububibir = self.tags.copy()
         self.__types = [
             {'poi_code': 'hububibir', 'poi_common_name': 'MOL Bubi', 'poi_type': 'bicycle_rental',
-             'poi_tags': hububibir, 'poi_url_base': 'https://molbubi.bkk.hu', 'poi_search_name': '(mol bubi|bubi)',
-             'export_poi_name': False, 'do_not_export_addr_tags': True},
+             'poi_tags': hububibir, 'poi_url_base': 'https://molbubi.bkk.hu', 'poi_search_name': '(mol bubi|mol-bubi|bubi)',
+             'export_poi_name': False, 'do_not_export_addr_tags': True, 'osm_search_distance_perfect': 300},
         ]
         return self.__types
 
