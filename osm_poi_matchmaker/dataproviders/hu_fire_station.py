@@ -98,8 +98,11 @@ class hu_fire_station(DataProvider):
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 try:
-                    # Extract JSON from scripts
-                    pois_script = soup.findAll('script')[-16].text
+                    # Extract JSON from scripts, search 'office_Map_data' among script sections
+                    for section in range(len(soup.findAll('script'))):
+                          if 'office_Map_data' in soup.findAll('script')[section].text:
+                                pois_script = soup.findAll('script')[section].text
+                                break
                     pois_variable = re.search('(\[.*\]);', pois_script)
                     pois = json.loads(pois_variable[1])
                 except Exception as e:
