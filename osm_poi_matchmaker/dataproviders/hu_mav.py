@@ -29,7 +29,7 @@ class hu_mav(DataProvider):
 
     def contains(self):
         self.link = 'https://www.mavcsoport.hu/gtfs/gtfsMavMenetrend.zip'
-        self.tags = {'railway': 'train_stop', 'public_transport': 'stop_position', 'operator': 'MÁV-START Zrt.',
+        self.tags = {'railway': 'station', 'public_transport': 'station', 'operator': 'MÁV-START Zrt.',
                      'operator:addr': '1087 Budapest, Könyves Kálmán körút 54-60.', 'ref:HU:vatin': '13834492-2-44',
                      'ref:vatin': 'HU13834492', 'brand': 'MÁV-START', 'brand:wikidata': 'Q1180332',
                      'brand:wikipedia': 'hu:MÁV-START_Zrt.', 'contact:email': 'eszrevetel@mav-start.hu',
@@ -43,10 +43,11 @@ class hu_mav(DataProvider):
     def types(self):
         humavstart = self.tags.copy()
         self.__types = [
-            {'poi_code': 'humavstart', 'poi_common_name': 'MÁV_START', 'poi_type': 'train_stop',
-             'poi_tags': humavstart, 'poi_url_base': 'https://www.mavcsoport.hu', 'poi_search_name': 'mav-start',
+            {'poi_code': 'humavstart', 'poi_common_name': 'MÁV START', 'poi_type': 'railway_station',
+             'poi_tags': humavstart, 'poi_url_base': 'https://www.mavcsoport.hu',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
-             'osm_search_distance_unsafe': 10, 'preserve_original_name': True, 'additional_ref_name': 'mav'},
+             'osm_search_distance_unsafe': 10, 'preserve_original_name': True, 'additional_ref_name': 'mav',
+             'do_not_export_addr_tags': True },
         ]
         return self.__types
 
