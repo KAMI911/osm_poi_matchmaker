@@ -15,10 +15,10 @@ services:
     ports:
       - "15432:5432"
     shm_size: 1G
-    # volumes:
+    volumes:
       #- ../container/dbdata-9.6-2.5:/var/lib/postgresql/data/
       # - ../container/dbdata-9.6:/var/lib/postgresql/data/
-      # - ../container/dbdata-fresh:/var/lib/postgresql/data/
+      - ../container/dbdata-fresh:/var/lib/postgresql/data/
       # - ${PWD}/osm2pgsql/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
     restart: on-failure
     oom_score_adj: -100
