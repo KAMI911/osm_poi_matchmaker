@@ -42,7 +42,7 @@ class hu_mol_plugee_ev(DataProvider):
         self.__types = [
             {'poi_code': 'humolplchs', 'poi_common_name': 'MOL Plugee', 'poi_type': 'charging_station',
              'poi_tags': humolplchs, 'poi_url_base': 'https://molplugee.hu', 'poi_search_name': '(mol plugee|plugee)',
-             'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
+             'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10},
         ]
         return self.__types
