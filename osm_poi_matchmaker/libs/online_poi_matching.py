@@ -93,17 +93,19 @@ def online_poi_matching(args):
                                 except Exception as err:
                                     logging.exception('Exception occurred during postcode query (1): {}'.format(err))
                                     logging.error(traceback.print_exc())
+                                logging.debug(f'(row, osm_query, postcode)')
                                 force_postcode_change = False  # TODO: Has to be a setting in app.conf
                                 if force_postcode_change is True:
                                     # Force to use datasource postcode
                                     if postcode != row.get('poi_postcode'):
-                                        logging.info('Changing postcode from %s to %s.', row.get('poi_postcode'), postcode)
+                                        logging.info('Changing postcode from {}  to {}. (OSM data: {}, POI in OSM: {}, POI datasource: {})'.format(row.get('poi_postcode'), postcode, postcode, osm_data.columns.get_loc('addr:postcode'), row.get('poi_postcode')))
                                         data.at[i, 'poi_postcode'] = postcode
                                 else:
                                     # Try to use smart method for postcode check
                                     ch_postcode = smart_postcode_check(row, osm_query, postcode)
                                     if ch_postcode is not None:
                                         data.at[i, 'poi_postcode'] = ch_postcode
+                                        logging.info('Changing postcode from {} to {}. (OSM data: {}, POI in OSM: {}, POI datasource: {})'.format(row.get('poi_postcode'), ch_postcode,postcode,osm_data.columns.get_loc('addr:postcode'),row.get('poi_postcode')))
                             else:
                                 logging.info('Preserving original postcode %s', row.get('poi_postcode'))
                         except Exception as err_row:
@@ -409,9 +411,9 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
     if postcode is None or postcode == '0' or postcode == 0:
         return None
     if postcode == osm_db_postcode:
-        logging.info('The postcode is %s.', postcode)
+        logging.info(f'The postcode is {postcode}. (OSM data: {osm_query_postcode}, POI in OSM: {osm_db_postcode}, POI datasource: {current_postcode})')
     else:
-        logging.info('Changing postcode from %s to %s.', osm_db_postcode, postcode)
+        logging.info(f'Changing postcode from {osm_db_postcode} to {postcode}. (OSM data: {osm_query_postcode}, POI in OSM: {osm_db_postcode}, POI datasource: {current_postcode})')
     return postcode
 
 
