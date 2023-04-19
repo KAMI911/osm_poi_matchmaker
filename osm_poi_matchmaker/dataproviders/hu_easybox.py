@@ -42,7 +42,7 @@ class hu_easybox(DataProvider):
         self.__types = [
             {'poi_code': 'hueasybcso', 'poi_common_name': 'Easybox', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': hueasybcso, 'poi_url_base': 'https://sameday.hu', 'poi_search_name': 'easybox',
-             'poi_search_avoid_name': '(alzabox|alza|dpd|gls|pick pack|postapont|foxpost)',
+             'poi_search_avoid_name': '(alzabox|alza|dpd|gls|pick pack|postapont|foxpost)', 'export_poi_name': False,
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
         ]
         return self.__types
