@@ -44,7 +44,7 @@ class hu_gls(DataProvider):
         self.__types = [
             {'poi_code': 'huglscso', 'poi_common_name': 'GLS CsomagPont', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': huglscso, 'poi_url_base': 'https://gls-group.com', 'poi_search_name': 'gls',
-             'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost)',
+             'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost)', 'export_poi_name': False,
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
         ]
         return self.__types
