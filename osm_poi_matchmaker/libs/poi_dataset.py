@@ -882,33 +882,39 @@ class POIDatasetRaw:
         print(self.__opening_hours)
 
     def process_street(self):
+        cache_key = None
         data = clean_string(self.__street)
         if data is not None and data != 'None' and data != '':
             cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
             # Try to find street name around
             try:
-                logging.debug('Checking street name ...')
+                logging.debug(f'Checking street name: {data} ...')
                 if self.__lat is not None and self.__lon is not None:
-                    cached = get_cached(cache_key)
-                    if cached is not None:
-                        self.__street = cached
-                        return
+                    #cached = get_cached(cache_key)
+                    #if cached is not None:
+                    #    self.__street = cached
+                    #    return
                     query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
                     if query is None or query.empty:
+                        logging.warning('There is no street around with same name, tring metaphone name ...')
                         query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'all')
                         if query is None or query.empty:
                             logging.warning('(1) There is no street around named or metaphone named: %s', data)
                             self.__street = data
+                            cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
                         else:
                             new_data = query.at[0, 'name']
                             logging.info('(1) There is a metaphone street around named: %s, original was: %s.', new_data, data)
                             self.__street = new_data
+                            cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, new_data)
                     else:
                         logging.info('(1) There is a street around named: %s.', data)
                         self.__street = data
+                        cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
                 else:
                     logging.debug('There are not coordinates. Is this a bug or missing data?')
                     self.__street = data
+                    cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
                 set_cached(cache_key, self.__street)
             except Exception as e:
                 logging.error(e)
