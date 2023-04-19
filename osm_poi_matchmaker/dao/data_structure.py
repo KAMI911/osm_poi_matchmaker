@@ -51,7 +51,7 @@ class POI_type(enum.Enum):
     shoes = 22
     optician = 23
     bus_stop = 24
-    train_stop = 25
+    railway_station = 25
     fire_station = 26
 
 

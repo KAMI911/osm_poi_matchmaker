@@ -81,8 +81,8 @@ def getPOITypes(ptype):
         query_type = "shop='optician'"
     elif ptype == 'bus_stop':
         query_type = "highway='bus_stop'"  # OR public_transport='stop_area'"
-    elif ptype == 'train_stop':
-        query_type = "railway='train_stop'"
+    elif ptype == 'railway_station':
+        query_type = "railway='station' OR railway='halt'"
     elif ptype == 'fire_station':
         query_type = "amenity='fire_station'"
     else:
