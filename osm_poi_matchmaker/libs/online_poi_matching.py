@@ -105,7 +105,10 @@ def online_poi_matching(args):
                                     ch_postcode = smart_postcode_check(row, osm_query, postcode)
                                     if ch_postcode is not None:
                                         data.at[i, 'poi_postcode'] = ch_postcode
-                                        logging.info('Changing postcode from {} to {}. (OSM data: {}, POI in OSM: {}, POI datasource: {})'.format(row.get('poi_postcode'), ch_postcode,postcode,osm_data.columns.get_loc('addr:postcode'),row.get('poi_postcode')))
+                                        if 'osm_data' in locals():
+                                            logging.info('Changing postcode from {} to {}. (OSM data: {}, POI in OSM: {}, POI datasource: {})'.format(row.get('poi_postcode'), ch_postcode, postcode, osm_data.columns.get_loc('addr:postcode'), row.get('poi_postcode')))
+                                        else:
+                                            logging.info('Changing postcode from {} to {}. (OSM data: {}, POI datasource: {})'.format(row.get('poi_postcode'), ch_postcode,postcode, row.get('poi_postcode')))
                             else:
                                 logging.info('Preserving original postcode %s', row.get('poi_postcode'))
                         except Exception as err_row:
