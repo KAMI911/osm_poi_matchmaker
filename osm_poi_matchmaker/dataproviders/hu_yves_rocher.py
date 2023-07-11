@@ -23,7 +23,7 @@ except ImportError as err:
 class hu_yves_rocher(DataProvider):
 
     def contains(self):
-        self.link = '' # 'https://storelocator.yves-rocher.eu/api/v1/map/stores'
+        self.link = 'https://api.esl.tauceti.tech/api/map/stores?key=u7wpXk0gYzIPKBooe%2B2jHv6k3Jpiu8i2W%2BbsqY5ZkWQ%3D' # 'https://storelocator.yves-rocher.eu/api/v1/map/stores'
         self.tags = {'shop': 'cosmetics', 'operator': 'Yves Rocher Hungary Kft. ',
                      'brand': 'Yves Rocher', 'brand:wikidata': 'Q28496595',
                      'brand:wikipedia': 'en:Yves Rocher (company)', 'contact:email': 'vevoszolgalat@yrnet.com',
