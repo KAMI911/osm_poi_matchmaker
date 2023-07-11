@@ -133,7 +133,7 @@ class WorkflowManager(object):
     def start_matcher(self, data, comm_data):
         try:
             workers = self.NUMBER_OF_PROCESSES
-            self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES//4)
+            self.pool = multiprocessing.Pool(processes=workers//4)
             self.results = self.pool.map_async(online_poi_matching,
                                                [(d, comm_data) for d in np.array_split(data, workers)])
             self.pool.close()
