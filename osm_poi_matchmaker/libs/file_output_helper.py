@@ -17,7 +17,7 @@ def url_tag_generator(poi_url_base: str, poi_website: str) -> str:
                 # The POI website contains the base URL use the POI website field only
                 return clean_url('{}'.format(poi_website))
             else:
-                # The POI website does not contain the base URL, but POI wesite contains an another URL use that
+                # The POI website does not contain the base URL, but POI website contains an another URL use that
                 if '://' in poi_website:
                     return clean_url('{}'.format(poi_website))
                 else:
