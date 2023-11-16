@@ -29,7 +29,7 @@ class hu_deichmann(DataProvider):
                      'operator:addr': '1134 Budapest, Kassák Lajos utca 19-25. 6. emelet', 'ref:HU:vatin': '12583083-2-44',
                      'ref:vatin': 'HU12583083', 'ref:HU:company': '01-09-693582', 'brand': 'Deichmann', 'brand:wikidata': 'Q11788344',
                      'brand:wikipedia': 'hu:Deichmann', 'contact:email': 'ugyfelszolgalat@deichmann.com',
-                     'phone': '+36 80 840 840',
+                     'contact:phone': '+36 80 840 840',
                      'contact:facebook': 'https://www.facebook.com/Deichmann.HU/',
                      'contact:youtube': 'https://www.youtube.com/user/Deichmann/',
                      'contact:instagram': 'https://www.instagram.com/deichmannhu/',
