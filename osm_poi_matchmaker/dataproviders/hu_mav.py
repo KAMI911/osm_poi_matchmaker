@@ -33,7 +33,7 @@ class hu_mav(DataProvider):
                      'operator:addr': '1087 Budapest, Könyves Kálmán körút 54-60.', 'ref:HU:vatin': '13834492-2-44',
                      'ref:vatin': 'HU13834492', 'brand': 'MÁV-START', 'brand:wikidata': 'Q1180332',
                      'brand:wikipedia': 'hu:MÁV-START_Zrt.', 'contact:email': 'eszrevetel@mav-start.hu',
-                     'phone': '+36 1 349 4949',
+                     'contact:phone': '+36 1 349 4949',
                      'contact:facebook': 'https://www.facebook.com/mavstarthungary',
                      'contact:youtube': 'https://www.youtube.com/channel/UCcc8H-ND98GVF5OM5jJphWw',
                      'contact:instagram': 'https://www.instagram.com/mavstart'}
