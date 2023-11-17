@@ -37,6 +37,7 @@ RETRY = 3
 POI_COLS = poi_array_structure.POI_DB
 POI_COLS_RAW = poi_array_structure.POI_DB_RAW
 
+PROCESS_DIVIDER = 4
 
 def init_log():
     logging.config.fileConfig('log.conf')
@@ -103,12 +104,14 @@ class WorkflowManager(object):
             self.queue.put(m)
         try:
             # Start multiprocessing in case multiple cores
-            process_count = self.NUMBER_OF_PROCESSES//2
-            logging.info('Starting processing on %s cores.', process_count)
+            process_count = self.NUMBER_OF_PROCESSES
+            logging.info('Starting processing POI harvest on %s cores.', process_count)
             self.results = []
             self.pool = multiprocessing.Pool(processes=process_count)
             self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable())
+            logging.info('Finished processing POI harvest.')
             self.pool.close()
+            logging.debug('Pool is closed.')
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
             logging.error(traceback.print_exc())
@@ -120,23 +123,31 @@ class WorkflowManager(object):
                     'poi_address'] for c in poi_codes]
         try:
             # Start multiprocessing in case multiple cores
-            process_count = self.NUMBER_OF_PROCESSES//2
-            logging.info('Starting processing on %s cores.', process_count)
+            process_count = self.NUMBER_OF_PROCESSES
+            logging.info('Starting processing export on %s cores.', process_count)
             self.results = []
             self.pool = multiprocessing.Pool(processes=process_count)
             self.results = self.pool.map_async(to_do, modules)
+            logging.info('Finished processing export.')
             self.pool.close()
+            logging.debug('Pool is closed.')
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
             logging.error(traceback.print_exc())
 
     def start_matcher(self, data, comm_data):
         try:
-            workers = self.NUMBER_OF_PROCESSES
-            self.pool = multiprocessing.Pool(processes=workers//4)
+            # Start multiprocessing in case multiple cores
+            # process_count = self.NUMBER_OF_PROCESSES//PROCESS_DIVIDER
+            process_count = 2
+            logging.info('Starting processing matcher on %s cores.', process_count)
+            self.results = []
+            self.pool = multiprocessing.Pool(processes=process_count)
             self.results = self.pool.map_async(online_poi_matching,
-                                               [(d, comm_data) for d in np.array_split(data, workers)])
+                                               [(d, comm_data) for d in np.array_split(data, process_count)])
+            logging.info('Finished processing export.')
             self.pool.close()
+            logging.debug('Pool is closed.')
             return pd.concat(list(self.results.get()), sort=False)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
