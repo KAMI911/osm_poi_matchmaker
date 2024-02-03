@@ -37,7 +37,8 @@ class hu_easybox(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hueasybcso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes'}
+        hueasybcso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'parcel_pickup': 'yes',
+                      'colour': 'red;white', 'material': 'metal', 'refrigerated': 'no'}
         hueasybcso.update(POS_HU_GEN)
         hueasybcso.update(self.tags)
         self.__types = [

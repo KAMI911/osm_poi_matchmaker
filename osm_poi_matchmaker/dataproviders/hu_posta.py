@@ -42,7 +42,8 @@ class hu_posta(DataProvider):
         hupostapo.update(self.tags)
         hupostacse = {'amenity': 'vending_machine', 'vending': 'cheques', 'brand': 'Magyar Posta'}
         hupostacse.update(self.tags)
-        hupostacso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'brand': 'MPL'}
+        hupostacso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'brand': 'MPL', 'parcel_pickup': 'yes',
+                      'colour': 'green', 'material': 'metal', 'refrigerated': 'no'}
         hupostacso.update(self.tags)
         hupostapp = {'amenity': 'post_office', 'brand': 'Posta Partner'}
         hupostapp.update(self.tags)

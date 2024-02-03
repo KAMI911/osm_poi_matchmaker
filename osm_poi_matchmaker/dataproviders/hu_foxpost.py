@@ -40,7 +40,8 @@ class hu_foxpost(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hufoxpocso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes'}
+        hufoxpocso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'parcel_pickup': 'yes',
+                      'colour': 'red', 'material': 'metal', 'refrigerated': 'no'}
         hufoxpocso.update(POS_HU_GEN)
         hufoxpocso.update(self.tags)
         self.__types = [

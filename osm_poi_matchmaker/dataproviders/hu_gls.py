@@ -38,7 +38,8 @@ class hu_gls(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        huglscso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes'}
+        huglscso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'parcel_pickup': 'yes', 'colour': 'blue;grey',
+                    'material': 'metal', 'refrigerated': 'no'}
         huglscso.update(POS_HU_GEN)
         huglscso.update(self.tags)
         self.__types = [
