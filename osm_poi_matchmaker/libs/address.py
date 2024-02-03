@@ -194,6 +194,8 @@ def extract_all_address_waxeye(clearable):
 
 
 def extract_city_street_housenumber_address(clearable):
+    if clearable is None:
+        return None, None, None, None, None
     if clearable is not None and clearable != '':
         clearable = clean_string(clearable)
         pc_match = PATTERN_CITY_ADDRESS.search(clearable)
@@ -219,12 +221,14 @@ def extract_street_housenumber_better_2(clearable: str) -> str:
     return: Separated street and housenumber
     '''
     # Split and clean up street
+    if clearable is None:
+        return None, None, None
     clearable = str(clearable)
     if clearable is not None and clearable.strip() != '':
         clearable = clean_string(str(clearable))
-        # Remove building names
         if clearable is None:
             return None, None, None
+        # Remove building names
         clearable = clearable.replace(' - Savoya Park', '')
         clearable = clearable.replace('Park Center,', '')
         clearable = clearable.replace('Duna Center', '')
@@ -425,9 +429,9 @@ def clean_phone(phone):
 
 
 def clean_phone_to_json(phone):
-    phone = clean_string(phone)
     if phone is None:
         return None
+    phone = clean_string(phone)
     phone = clean_phone(phone)
     if phone is not None:
         return json.dumps(phone)
@@ -436,9 +440,9 @@ def clean_phone_to_json(phone):
 
 
 def clean_phone_to_str(phone):
-    phone = clean_string(phone)
     if phone is None:
         return None
+    phone = clean_string(phone)
     cleaned = clean_phone(phone)
     if cleaned is not None:
         return ';'.join(cleaned)
@@ -447,9 +451,9 @@ def clean_phone_to_str(phone):
 
 
 def clean_email(email):
-    email = clean_string(email)
     if email is None:
         return None
+    email = clean_string(email)
     email_parts = email.lower().split()
     if len(email_parts) == 0:
         return None
@@ -522,10 +526,10 @@ def clean_street(clearable):
     :param clearable:
     :return:
     '''
-    clearable = str(clearable)
-    street = clean_string(clearable)
     if clearable is None:
         return None
+    clearable = str(clearable)
+    street = clean_string(clearable)
     if clearable == '':
         return ''
     repls = ('Nyúl 82. sz. főút', 'Kossuth Lajos út'), \
