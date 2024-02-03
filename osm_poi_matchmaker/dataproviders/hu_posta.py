@@ -45,8 +45,8 @@ class hu_posta(DataProvider):
         hupostacso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'brand': 'MPL', 'parcel_pickup': 'yes',
                       'colour': 'green', 'material': 'metal', 'refrigerated': 'no'}
         hupostacso.update(self.tags)
-        hupostapp = {'amenity': 'post_office', 'brand': 'Posta Partner'}
-        hupostapp.update(self.tags)
+        hupostapp = {'post_office': 'post_partner', 'post_office:brand': 'PostaPont',
+                     'post_office:brand:wikidata': 'Q145614'}
         hupostamp = {'amenity': 'post_office', 'brand': 'Mobil Posta'}
         hupostamp.update(self.tags)
         self.__types = [
@@ -62,7 +62,7 @@ class hu_posta(DataProvider):
              'poi_type': 'vending_machine_parcel_locker',
              'poi_tags': hupostacso, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(mpl|posta)', 'export_poi_name': False,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
-            {'poi_code': 'hupostapp', 'poi_common_name': 'PostaPont', 'poi_type': 'post_office',
+            {'poi_code': 'hupostapp', 'poi_common_name': 'PostaPont', 'poi_type': 'post_partner',
              'poi_tags': hupostapp, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(postapont|posta)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
              'osm_search_distance_unsafe': 220, 'preserve_original_post_code': True},
