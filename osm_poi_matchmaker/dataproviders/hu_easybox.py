@@ -31,7 +31,7 @@ class hu_easybox(DataProvider):
                      'contact:youtube': 'https://www.youtube.com/channel/UC-lcPt3u8bHUj9hwKRNYTTQ',
                      'contact:email': 'info@sameday.hu', 'contact:phone': '+36 1 374 3890',
                      'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes',
-                     'payment:cash': 'no', ''}
+                     'payment:cash': 'no',}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)
