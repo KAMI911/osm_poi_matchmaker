@@ -33,6 +33,7 @@ def get_or_create(session, model, **kwargs):
         try:
             instance = model(**kwargs)
             session.add(instance)
+            session.commit()
             return instance
         except Exception as e:
             logging.error('Cannot add to the database. (%s)', e)
@@ -69,12 +70,14 @@ def get_or_create_poi(session, model, **kwargs):
                 .filter_by(poi_additional_ref=kwargs.get('poi_additional_ref'))\
                 .first()
     if instance:
+        session.commit()
         logging.debug('Already added: %s', instance)
         return instance
     else:
         try:
             instance = model(**kwargs)
             session.add(instance)
+            session.commit()
             return instance
         except Exception as e:
             logging.error('Cannot add to the database. (%s)', e)
@@ -105,6 +108,7 @@ def search_poi_patch(session, model, **kwargs):
         try:
             instance = model(**kwargs)
             session.add(instance)
+            session.commit()
             return instance
         except Exception as e:
             logging.error('Cannot add to the database. (%s)', e)
@@ -123,6 +127,7 @@ def get_or_create_cache(session, model, **kwargs):
             try:
                 instance = model(**kwargs)
                 session.add(instance)
+                session.commit()
                 return instance
             except Exception as e:
                 logging.error('Cannot add to the database. (%s)', e)
@@ -140,6 +145,7 @@ def get_or_create_common(session, model, **kwargs):
             try:
                 instance = model(**kwargs)
                 session.add(instance)
+                session.commit()
                 return instance
             except Exception as e:
                 logging.error('Cannot add to the database. (%s)', e)
