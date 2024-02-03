@@ -81,7 +81,7 @@ def online_poi_matching(args):
                     data.at[i, 'osm_id'] = osm_id
                     data.at[i, 'osm_node'] = osm_node
                     # Refine postcode
-                    if row.get('do_not_export_addr_tags') is True:
+                    if row.get('do_not_export_addr_tags') is False:
                         try:
                             if row.get('preserve_original_post_code') is not True:
                                 # Current OSM postcode based on lat,long query.
@@ -159,7 +159,7 @@ def online_poi_matching(args):
                             logging.exception('Exception occurred during conscriptionnumber query: {}'.format(err_row))
                             logging.warning(traceback.print_exc())
                     else:
-                        logging.debug('Do not handle addr:*changes for: %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
+                        logging.debug('Do not handle addr:* changes for: %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
                                  data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'],
                                  data.at[i, 'poi_type'], data.at[i, 'poi_distance'],
                                  data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
