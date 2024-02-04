@@ -70,6 +70,8 @@ CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_brand ON planet_osm_polygon(bran
         except Exception as e:
             logging.exception('Exception occurred: {} unsuccessfully commit: {}'.format(e, traceback.print_exc()))
             session.rollback()
+    finally:
+        session.close()
     if data is None:
         return None
     else:
