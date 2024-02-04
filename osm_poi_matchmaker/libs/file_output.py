@@ -504,6 +504,8 @@ def generate_osm_xml(df, session=None):
                 # Remove name tag in export if export_poi_name is false
                 if row.get('export_poi_name') is False:
                     tags.pop('name', None)
+                if tags.get('name') == 'None':
+                    tags.pop('name', None)
             except KeyError as e:
                 logging.debug('No name tag is specified - do not have to remove.')
             try:
