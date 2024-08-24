@@ -24,6 +24,9 @@ def getPOITypes(ptype):
     elif ptype == 'atm':
         query_type = "amenity='atm'"
         distance = config.get_geo_amenity_atm_poi_distance()
+    elif ptype == 'post_partner':
+        query_type = "post_office='post_partner'"
+        distance = config.get_geo_shop_poi_distance()
     elif ptype == 'post_office':
         query_type = "amenity='post_office'"
         distance = config.get_geo_amenity_post_office_poi_distance()
@@ -37,13 +40,25 @@ def getPOITypes(ptype):
         query_type = "amenity='bicycle_rental'"
     elif ptype == 'vending_machine_cheques':
         query_type = "amenity='vending_machine' AND vending='cheques'"
-    elif ptype == 'vending_machine_parcel_pickup':
-        query_type = "amenity='vending_machine' AND vending='parcel_pickup'"
+    elif ptype == 'vending_machine_parcel_locker':
+        # New scheme: https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dparcel_locker
+        # Old (also supported to find) scheme was: https://wiki.openstreetmap.org/wiki/Tag:vending%3Dparcel_pickup
+        query_type = "amenity='parcel_locker' OR vending='parcel_pickup'"
     elif ptype == 'vending_machine_parcel_mail_in':
-        query_type = "amenity='vending_machine' AND vending='parcel_mail_in'"
-    elif ptype == 'vending_machine_parcel_pickup_and_mail_in':
-        query_type = "amenity='vending_machine' AND" \
-                     "(vending='parcel_pickup;parcel_mail_in' OR vending='parcel_mail_in;parcel_pickup' OR " \
+        # New scheme: https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dparcel_locker
+        # New scheme: https://wiki.openstreetmap.org/wiki/Key:parcel_mail_in (yes)
+        # New scheme: https://wiki.openstreetmap.org/wiki/Key:parcel_pickup (no)
+        query_type = "(amenity='parcel_locker' AND parcel_mail_in='yes' AND parcel_pickup='no') OR " \
+                     "(amenity='parcel_locker') OR " \
+                     "vending='parcel_mail_in'"
+    elif ptype == 'vending_machine_parcel_locker_and_mail_in':
+        # New scheme: https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dparcel_locker
+        # New scheme: https://wiki.openstreetmap.org/wiki/Key:parcel_mail_in (yes)
+        # New scheme: https://wiki.openstreetmap.org/wiki/Key:parcel_pickup (no)
+        query_type = "(amenity='parcel_locker' AND parcel_mail_in='yes' AND parcel_pickup='no') OR " \
+                     "(amenity='parcel_locker') OR " \
+                     "(amenity='vending_machine' AND" \
+                     "(vending='parcel_pickup;parcel_mail_in' OR vending='parcel_mail_in;parcel_pickup') OR " \
                      "vending='parcel_pickup')"
     elif ptype == 'vending_machine_parking_tickets':
         query_type = "amenity='vending_machine' AND vending='parking_tickets'"
@@ -54,13 +69,25 @@ def getPOITypes(ptype):
     elif ptype == 'doityourself':
         query_type = "shop='doityourself'"
     elif ptype == 'cosmetics':
-        query_type = "shop='cosmetics'"
+        query_type = "shop='cosmetics' OR shop='beauty'"
     elif ptype == 'furniture':
         query_type = "shop='furniture'"
     elif ptype == 'charging_station':
         query_type = "amenity='charging_station'"
     elif ptype == 'waterway_fuel':
         query_type = "waterway='fuel'"
+    elif ptype == 'fastfood':
+        query_type = "amenity='fastfood'"
+    elif ptype == 'shoes':
+        query_type = "shop='shoes'"
+    elif ptype == 'optician':
+        query_type = "shop='optician'"
+    elif ptype == 'bus_stop':
+        query_type = "highway='bus_stop'"  # OR public_transport='stop_area'"
+    elif ptype == 'railway_station':
+        query_type = "railway='station' OR railway='halt'"
+    elif ptype == 'fire_station':
+        query_type = "amenity='fire_station'"
     else:
         query_type = None
         distance = 0

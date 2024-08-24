@@ -8,6 +8,7 @@ try:
     from OSMPythonTools.overpass import Overpass
     from OSMPythonTools.nominatim import Nominatim
     from OSMPythonTools.overpass import overpassQueryBuilder
+    from osm_poi_matchmaker.libs.address import clean_string, clean_postcode
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -35,7 +36,13 @@ def query_osm_postcode_gpd(session, lon, lat):
         SELECT name
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat),4326) as geom) point
         WHERE boundary='postal_code' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
-    data = session.execute(query, {'lon': lon, 'lat': lat}).first()
+    try:
+        data = session.execute(query, {'lon': lon, 'lat': lat}).first()
+    except Exception as e:
+        logging.error(e)
+        logging.exception('Exception occurred')
+    finally:
+        session.commit()
     if data is None:
         return None
     row = dict(zip(data.keys(), data))
@@ -43,13 +50,13 @@ def query_osm_postcode_gpd(session, lon, lat):
 
 
 def query_postcode_osm_external(prefer_osm, session, lon, lat, postcode_ext):
-    if prefer_osm is False and postcode_ext is not None:
-        return postcode_ext
+    if prefer_osm is False and clean_postcode(postcode_ext) is not None:
+        return clean_postcode(postcode_ext)
     query_postcode = query_osm_postcode_gpd(session, lon, lat)
-    if prefer_osm is True and query_postcode is not None:
-        return query_postcode
-    elif prefer_osm is True and query_postcode is None:
-        return postcode_ext
+    if prefer_osm is True and clean_postcode(query_postcode) is not None:
+        return clean_postcode(query_postcode)
+    elif prefer_osm is True and clean_postcode(query_postcode) is None:
+        return clean_postcode(postcode_ext)
 
 
 def relationer(relation_text):
@@ -85,7 +92,13 @@ def query_osm_city_name_gpd(session, lon, lat):
         SELECT name
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lat,:lon),4326) as geom) point
         WHERE admin_level='8' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
-    data = session.execute(query, {'lon': lon, 'lat': lat}).first()
+    try:
+        data = session.execute(query, {'lon': lon, 'lat': lat}).first()
+    except Exception as e:
+        logging.error(e)
+        logging.exception('Exception occurred')
+    finally:
+        session.commit()
     if data is None:
         return None
     else:
@@ -96,7 +109,13 @@ def query_osm_city_name(session, name):
     query = sqlalchemy.text('''
         SELECT name
         FROM planet_osm_polygon WHERE admin_level='8' and name=:name ORDER BY name LIMIT 1;''')
-    data = session.execute(query, {'name': name}).first()
+    try:
+        data = session.execute(query, {'name': name}).first()
+    except Exception as e:
+        logging.error(e)
+        logging.exception('Exception occurred')
+    finally:
+        session.commit()
     if data is None:
         return None
     else:

@@ -4,7 +4,6 @@ try:
     import logging
     import sys
     import configparser
-    import sys
     import os
     from enum import Enum
 except ImportError as err:
@@ -35,6 +34,7 @@ def set_mode(mode):
 
 
 if not config.has_section(__mode.name):
+    logging.fatal('sections: %s', config.sections())
     logging.fatal('Config section missing for server %s', __mode.name)
     sys.exit(-1)
 
@@ -48,21 +48,27 @@ KEY_DATABASE_WRITE_PORT = 'db.write.port'
 KEY_DATABASE_WRITE_USERNAME = 'db.write.username'
 KEY_DATABASE_WRITE_PASSWORD = 'db.write.password'
 KEY_DATABASE_POI_DATABASE = 'db.poi.database'
+KEY_DATABASE_ENABLE_QUERY_LOG = 'db.enable.query_log'
+KEY_DATABASE_ENABLE_ANALYZE = 'db.enable.analyze'
+KEY_DATABASE_ENABLE_HUGE_QUERY = 'db.enable.huge_query'
 KEY_GEO_DEFAULT_PROJECTION = 'geo.default.projection'
 KEY_GEO_DEFAULT_POI_DISTANCE = 'geo.default.poi.distance'
 KEY_GEO_DEFAULT_POI_UNSAFE_DISTANCE = 'geo.default.poi.unsafe.distance'
 KEY_GEO_DEFAULT_POI_PERFECT_DISTANCE = 'geo.default.poi.perfect.distance'
 KEY_GEO_DEFAULT_POI_ROAD_DISTANCE = 'geo.default.poi.road.distance'
 KEY_GEO_AMENITY_ATM_POI_DISTANCE = 'geo.amenity.atm.poi.distance'
-KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE = 'geo.shop.conveience.poi.distance'
+KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE = 'geo.shop.convenience.poi.distance'
 KEY_GEO_AMENITY_POST_OFFICE_POI_DISTANCE = 'geo.amenity.post.office.poi.distance'
 KEY_GEO_PREFER_OSM_POSTCODE = 'geo.prefer.osm.postcode'
 KEY_GEO_ALTERNATIVE_OPENING_HOURS = 'geo.alternative.opening.hours'
 KEY_GEO_ALTERNATIVE_OPENING_HOURS_TAG = 'geo.alternative.opening.hours.tag'
 KEY_DOWNLOAD_VERIFY_LINK = 'download.verify.link'
 KEY_DOWNLOAD_USE_CACHED_DATA = 'download.use.cached.data'
+KEY_USE_GENERAL_SOURCE_WEBSITE_DATE = 'use.general.source.website.date'
+KEY_USE_GENERAL_SOURCE_WEBSITE_DATE_TAG = 'use.general.source.website.date.tag'
 KEY_DATAPROVIDERS_MODULES_AVAILABLE = 'dataproviders.modules.available'
 KEY_DATAPROVIDERS_MODULES_ENABLE = 'dataproviders.modules.enable'
+KEY_DATAPROVIDERS_LIMIT_ELEMENTS = 'dataproviders.limit.elements'
 
 
 def get_config(key):
@@ -157,7 +163,7 @@ def get_database_writer_username():
     if setting == 'poi':
         logging.warning(
             'Using default username. For security concerns please change default username in the config file and the database.')
-        if None != setting:
+        if setting is not None:
             return setting
     else:
         return 'poi'
@@ -186,6 +192,30 @@ def get_database_poi_database():
         return setting
     else:
         return 'poi'
+
+
+def get_database_enable_query_log():
+    setting = get_config_bool(KEY_DATABASE_ENABLE_QUERY_LOG)
+    if setting is not None:
+        return setting
+    else:
+        return False
+
+
+def get_database_enable_analyze():
+    setting = get_config_bool(KEY_DATABASE_ENABLE_ANALYZE)
+    if setting is not None:
+        return setting
+    else:
+        return False
+
+
+def get_database_enable_huge_query():
+    setting = get_config_bool(KEY_DATABASE_ENABLE_HUGE_QUERY)
+    if setting is not None:
+        return setting
+    else:
+        return False
 
 
 def get_geo_default_projection():
@@ -292,6 +322,25 @@ def get_download_use_cached_data():
         return True
 
 
+def get_use_general_source_website_date():
+    setting = get_config_bool(KEY_USE_GENERAL_SOURCE_WEBSITE_DATE)
+    env_setting = os.environ.get('USE_GENERAL_SOURCE_WEBSITE_DATE')
+    if env_setting is not None:
+        return env_setting
+    if setting is not None:
+        return setting
+    else:
+        return True
+
+
+def get_use_general_source_website_date_tag():
+    setting = get_config_string(KEY_USE_GENERAL_SOURCE_WEBSITE_DATE_TAG)
+    if setting is not None:
+        return setting
+    else:
+        return 'source:date'
+
+
 def get_dataproviders_modules_available():
     setting = get_config_list(KEY_DATAPROVIDERS_MODULES_AVAILABLE)
     env_setting = os.environ.get('OPM_DATAPROVIDERS_MODULES_AVAILABLE')
@@ -312,3 +361,17 @@ def get_dataproviders_modules_enable():
         return setting
     else:
         return True
+
+def get_dataproviders_limit_elemets():
+    try:
+        setting = get_config_int(KEY_DATAPROVIDERS_LIMIT_ELEMENTS)
+    except Exception as err:
+        setting = None
+    env_setting = os.environ.get('OPM_DATAPROVIDERS_LIMIT_ELEMENTS')
+    if env_setting is not None:
+        setting = env_setting
+    if setting is not None:
+        logging.info('Setting is not None: {}'.format(setting))
+        return setting
+    else:
+        return None

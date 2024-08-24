@@ -6,6 +6,12 @@ try:
     import re
     import phonenumbers
     import json
+    import traceback
+    import math
+    import osm_poi_matchmaker.libs.waxeye
+    import osm_poi_matchmaker.libs.hu.hu_address_parser as hu_address_parser
+    from osm_poi_matchmaker.libs.waxeye_process import waxeye_process
+
     from functools import reduce
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -22,7 +28,7 @@ PATTERN_HOUSENUMBER = re.compile('[0-9]{1,3}(\/[A-z]{1}|\-[0-9]{1,3}|)', re.IGNO
 PATTERN_CONSCRIPTIONNUMBER = re.compile(
     '(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}|\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})',
     re.IGNORECASE)
-PATTERN_CONSCRIPTIONNUMBER_1 = re.compile('(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1})', re.IGNORECASE)
+PATTERN_CONSCRIPTIONNUMBER_1 = re.compile('((?:belterület\s*)?hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1})', re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER_2 = re.compile('(\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})', re.IGNORECASE)
 PATTERN_OPENING_HOURS = re.compile('0*[0-9]{1,2}\:0*[0-9]{1,2}\s*-\s*0*[0-9]{1,2}:0*[0-9]{1,2}')
 PATTERN_PHONE = re.compile('[\/\\\(\)\-\+]')
@@ -32,6 +38,19 @@ PATTERN_STREET_RICH = re.compile(
     re.UNICODE | re.IGNORECASE)
 PATTERN_URL_SLASH = re.compile('(?<!:)(//{1,})')
 PATTERN_FULL_URL = re.compile('((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)')
+
+SZFKL = '. számú főközlekedési út'
+
+
+def remove_whitespace(wsp: str, rpl: str = '') -> str:
+    """
+    Remove whitespaces or replace to the selected sequence
+    :param wsp: Text string to be cleared or replace.
+    :param rpl: String replaced to.
+    :return: Whitespaces cleaned text string.
+    """
+    pattern = re.compile(r'\s+')
+    return re.sub(pattern, rpl, wsp)
 
 
 def clean_javascript_variable(clearable, removable):
@@ -68,7 +87,7 @@ def extract_javascript_variable(input_soup, removable, use_replace=False):
             else:
                 return None
         except AttributeError as e:
-            logging.warning('An exception has occured during JavaScript variable extraction.')
+            logging.warning('An exception has occurred during JavaScript variable extraction.')
     except Exception as e:
         logging.error(e)
         logging.exception('Exception occurred')
@@ -86,22 +105,26 @@ def extract_street_housenumber(clearable):
     '''
     # Split and clean up house number
     housenumber = clearable.split('(')[0]
-    housenumber = housenumber.split(' ')[-1]
-    housenumber = housenumber.replace('.', '')
-    housenumber = housenumber.replace('–', '-')
-    housenumber = housenumber.upper()
+    housenumber = clean_string(housenumber)
+    if housenumber is not None:
+        housenumber = housenumber.split(' ')[-1]
+        housenumber = housenumber.replace('.', '')
+        housenumber = housenumber.replace('–', '-')
+        housenumber = housenumber.upper()
     # Split and clean up street
     street = clearable.split('(')[0]
-    street = street.rsplit(' ', 1)[0]
-    street = street.replace(' u.', ' utca')
-    street = street.replace(' u ', ' utca')
-    street = street.replace(' krt.', ' körút')
+    street = clean_string(street)
+    if street is not None:
+        street = street.rsplit(' ', 1)[0]
+        street = street.replace(' u.', ' utca')
+        street = street.replace(' u ', ' utca')
+        street = street.replace(' krt.', ' körút')
     return street, housenumber
 
 
 def extract_all_address(clearable):
     if clearable is not None and clearable != '':
-        clearable = clearable.strip()
+        clearable = clean_string(clearable)
         pc_match = PATTERN_POSTCODE_CITY.search(clearable)
         if pc_match is not None:
             postcode = pc_match.group(1)
@@ -113,44 +136,99 @@ def extract_all_address(clearable):
             city = None
         if len(clearable.split(',')) > 1:
             street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
-                clearable.split(',')[1].strip())
-            return (postcode, city, street, housenumber, conscriptionnumber)
+                clearable.split(',')[-1].strip())
+            return postcode, city, street, housenumber, conscriptionnumber
         else:
             space_separated = ' '.join(clearable.split(' ')[2:]).strip()
             street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(space_separated)
-            return (postcode, city, street, housenumber, conscriptionnumber)
+            return postcode, city, street, housenumber, conscriptionnumber
+    else:
+        return None, None, None, None, None
+
+
+def extract_all_address_waxeye(clearable):
+    postcode, city, street, housenumber, conscriptionnumber = None, None, None, None, None
+    clearable = clean_string(clearable)
+    if clearable is not None and clearable != '':
+        try:
+            parsed_address = hu_address_parser.Parser().parse(clearable)
+            address_dict = waxeye_process(parsed_address)
+            if address_dict is not None:
+                print(address_dict)
+                postcode = address_dict.get('postcode')
+                city = address_dict.get('cTown')
+                housenumber_only = address_dict.get('houseNumber')
+                subletter = address_dict.get('subLetter')
+                if subletter is not None:
+                    subletter.upper()
+                if housenumber_only is not None and subletter is not None:
+                    housenumber = f'{housenumber_only}/{subletter}'
+                elif housenumber_only is not None:
+                    housenumber = f'{housenumber_only}'
+                else:
+                    housenumber = None
+                street_name = address_dict.get('cStreet')
+                street_type = address_dict.get('type')
+                if street_type is not None:
+                    street_type = street_type.replace('u.', 'utca')
+                if street_name is not None and street_type is not None:
+                    street = f'{street_name} {street_type}'
+                elif street_name is not None:
+                    street = f'{street_name}'
+                else:
+                    street = None
+                conscriptionnumber = address_dict.get('conscriptionHrsz')
+        except Exception as err_ext_waxeye:
+            logging.debug(f'Exception occurred: {err_ext_waxeye} ... Waxeye parsing has failed: {clearable}')
+            logging.exception(traceback.print_exc())
+        else:
+            try:
+                logging.debug('Try fallback to extract_all_address function')
+                postcode, city, street, housenumber, conscriptionnumber = extract_all_address(clearable)
+            except Exception as err_ext_addr:
+                logging.debug(f'Exception occurred: {err_ext_addr} ...')
+                logging.exception(traceback.print_exc())
+        return postcode, city, street, housenumber, conscriptionnumber
     else:
         return None, None, None, None, None
 
 
 def extract_city_street_housenumber_address(clearable):
+    if clearable is None:
+        return None, None, None, None, None
     if clearable is not None and clearable != '':
-        clearable = clearable.strip()
+        clearable = clean_string(clearable)
         pc_match = PATTERN_CITY_ADDRESS.search(clearable)
         if pc_match is not None:
             city = pc_match.group(1)
+            city = clean_string(city)
         else:
             city = None
         if len(clearable.split(',')) > 1:
             street, housenumber, conscriptionnumber = extract_street_housenumber_better_2(
                 clearable.split(',')[1].strip())
-            return (city, street, housenumber, conscriptionnumber)
+            return city, street, housenumber, conscriptionnumber
         else:
             return city, None, None, None
     else:
         return None, None, None, None, None
 
 
-def extract_street_housenumber_better_2(clearable):
+def extract_street_housenumber_better_2(clearable: str) -> str:
     '''Try to separate street and house number from a Hungarian style address string
 
     :param clearable: An input string with Hungarian style address string
     return: Separated street and housenumber
     '''
     # Split and clean up street
+    if clearable is None:
+        return None, None, None
+    clearable = str(clearable)
     if clearable is not None and clearable.strip() != '':
-        clearable = clearable.strip()
-        # Remove bulding names
+        clearable = clean_string(str(clearable))
+        if clearable is None:
+            return None, None, None
+        # Remove building names
         clearable = clearable.replace(' - Savoya Park', '')
         clearable = clearable.replace('Park Center,', '')
         clearable = clearable.replace('Duna Center', '')
@@ -182,7 +260,7 @@ def extract_street_housenumber_better_2(clearable):
             # Normalize street
             street = street_match.group(1)
             street_type = street_match.group(2)
-            # Usually street_type is lower but we got few exceptions
+            # Usually street_type is lower, but we got few exceptions
             if street_type not in ['Vám']:
                 street_type = street_type.lower()
             street_length = len(street) + len(street_type)
@@ -199,33 +277,89 @@ def extract_street_housenumber_better_2(clearable):
                 housenumber = housenumber.upper()
             else:
                 housenumber = None
+        street = clean_string(street)
+        housenumber = clean_string(housenumber)
+        conscriptionnumber = clean_string(conscriptionnumber)
         if 'street_type' in locals():
-            return '{} {}'.format(street, street_type).strip(), housenumber, conscriptionnumber
+            street_type = clean_string(street_type)
+            return '{} {}'.format(street, street_type), housenumber, conscriptionnumber
         else:
             return street, housenumber, conscriptionnumber
     else:
         return None, None, None
 
 
-def clean_city(clearable):
+def replace_html_newlines(clearable: str) -> str:
+    repls = ('<br>', '; '), \
+            ('</br>', '; '), \
+            ('< br />', '; '), \
+            ('<br />', '; '), \
+            (' ;', ';')
+    clearable = str(clearable)
+    text = clean_string(clearable)
+    if clearable is None:
+        return None
+    text = reduce(lambda a, kv: a.replace(*kv), repls, text)
+    text = clean_string(text)
+    return text
+
+
+def extract_phone_number(data: str) -> str:
+    '''
+    Try to extract phone number
+
+    :data a string contains not just phone number
+    return: international format phone number string
+    '''
+    try:
+        data = str(replace_html_newlines(data))
+        if data is not None:
+            fields = data.split(';')
+            for f in fields:
+                if 'Telefonszám' in f:
+                    pn = f.split(':')[1]
+                    try:
+                        if '(' in pn:
+                            pn = pn.replace('(', '')
+                        if ')' in pn:
+                            pn = pn.replace(')', '')
+                        if '+36' in pn:
+                            pn = phonenumbers.parse(pn, 'HU')
+                        else:
+                            pn = phonenumbers.parse('+36 '.format(pn), 'HU')
+                    except phonenumbers.phonenumberutil.NumberParseException as e:
+                        logging.debug('This is string is cannot converted to phone number: %s ...', pn)
+                        logging.exception(e)
+                        return None
+                    return phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+
+    except Exception as e:
+        logging.exception('Extracting phone number failed: {}'.format(e))
+        logging.exception(traceback.print_exc())
+
+
+def clean_city(clearable: str) -> str:
     '''Remove additional things from cityname
 
     :param clearable: Not clear cityname
     :return: Clear cityname
     '''
-    if clearable is not None:
-        city = re.sub(PATTERN_CITY, '', clearable)
-        repls = ('Mikolc', 'Miskolc'), ('Iinárcs', 'Inárcs')
-        city = reduce(lambda a, kv: a.replace(*kv), repls, city)
-        city = city.split('-')[0]
-        city = city.split(',')[0]
-        city = city.split('/')[0]
-        city = city.split('/')[0]
-        city = city.split('(')[0]
-        city = city.split(' ')[0]
-        return city.title().strip()
-    else:
+    clearable = clean_string(clearable)
+    if clearable is None:
         return None
+
+    city = clean_string(clearable)
+    city = re.sub(PATTERN_CITY, '', city)
+    repls = ('Mikolc', 'Miskolc'), ('Iinárcs', 'Inárcs')
+    city = reduce(lambda a, kv: a.replace(*kv), repls, city)
+    city = city.split('-')[0]
+    city = city.split(',')[0]
+    city = city.split('/')[0]
+    city = city.split('/')[0]
+    city = city.split('(')[0]
+    city = city.split(' ')[0]
+    city = clean_string(city)
+    return city.title()
 
 
 def clean_opening_hours(oh_from_to):
@@ -256,6 +390,10 @@ def clean_opening_hours_2(oh):
 
 
 def clean_phone(phone):
+    phone = clean_string(str(phone))
+    pn = []
+    if phone is None or phone == '':
+        return None
     # Remove all whitespaces
     original = phone
     if '(' in phone:
@@ -263,18 +401,27 @@ def clean_phone(phone):
     phone = phone.replace('-', ' ')
     if ',' in phone:
         phone = phone.replace(',', ';')
+
     if ';' in phone:
         phone = phone.split(';')
-    try:
         if type(phone) is list:
             for i in phone:
-                pn = [phonenumbers.parse(i, 'HU') for i in phone]
-        else:
-            pn = []
+                one_phone = i
+                one_phone = one_phone.replace('(', '')
+                one_phone = one_phone.replace(')', '')
+                try:
+                    pn.append(phonenumbers.parse(one_phone, 'HU'))
+                except phonenumbers.phonenumberutil.NumberParseException as e:
+                    logging.debug('This cleared number is cannot converted to phone number: "%s" ...', one_phone)
+    else:
+        logging.debug(phone)
+        phone = phone.replace('(', '')
+        phone = phone.replace(')', '')
+        logging.debug(phone)
+        try:
             pn.append(phonenumbers.parse(phone, 'HU'))
-    except phonenumbers.phonenumberutil.NumberParseException:
-        logging.debug('This is string is cannot converted to phone number: %s', phone)
-        return None
+        except phonenumbers.phonenumberutil.NumberParseException as e:
+            logging.debug('This one cleared number is cannot converted to phone number: "%s" ...', phone)
     if pn is not None:
         return [phonenumbers.format_number(i, phonenumbers.PhoneNumberFormat.INTERNATIONAL) for i in pn]
     else:
@@ -282,14 +429,20 @@ def clean_phone(phone):
 
 
 def clean_phone_to_json(phone):
-    cleaned = clean_phone(phone)
-    if cleaned is not None:
-        return json.dumps(cleaned)
+    if phone is None:
+        return None
+    phone = clean_string(phone)
+    phone = clean_phone(phone)
+    if phone is not None:
+        return json.dumps(phone)
     else:
         return None
 
 
 def clean_phone_to_str(phone):
+    if phone is None:
+        return None
+    phone = clean_string(phone)
     cleaned = clean_phone(phone)
     if cleaned is not None:
         return ';'.join(cleaned)
@@ -298,24 +451,61 @@ def clean_phone_to_str(phone):
 
 
 def clean_email(email):
-    # Remove all whitespaces
+    if email is None:
+        return None
+    email = clean_string(email)
+    email_parts = email.lower().split()
+    if len(email_parts) == 0:
+        return None
+    email = ';'.join(email_parts)
     if ',' in email:
-        email = email.split(',')[0]
+        email_list = email.split(',')
+        email = ';'.join(email_list)
     if ';' in email:
-        email = email.split(';')[0]
+        email_list = email.split(';')
+        email = ';'.join(email_list)
     return email
 
 
-def clean_string(clearable):
+def clean_string(clearable: str):
     '''
-    Remove extra spaces from strings and surrounding whitespace characters
+    Remove whitespaces, extra spaces from strings and surrounding whitespace characters
     :param clearable: String that has to clean
     :return: Cleaned string
+    Returns None if the string is empty or contains only whitespace characters
     '''
-    if clearable is not None:
-        clearable = clearable.replace('  ', ' ').strip()
-    return clearable
+    if clearable is None:
+        return None
+    if not isinstance(clearable, str):
+        try:
+            # logging.debug('Non string input (%s) trying to convert to string ...', clearable)
+            clearable = str(clearable)
+        except Exception as e:
+            logging.error(e)
+            logging.exception('Exception occurred')
+            return None
+    # Remove all whitespaces
+    clearable = remove_whitespace(clearable, ' ')
+    if clearable == '' or clearable.upper() in ['NONE', 'NAN', 'NULL', 'NULLNONE']:
+        return None
+    # Make list from words and join them with one space, removing double/multiple spaces
+    clearable_parts = clearable.split()
+    if len(clearable_parts) == 0:
+        return None
+    clearable = ' '.join(clearable_parts)
+    clearable = clearable.strip()
+    if clearable is not None and clearable != '' and clearable != ' ' and clearable.upper() not in ['NONE', 'NAN', 'NULL', 'NULLNONE']:
+        return clearable
+    else:
+        return None
 
+def clean_postcode(clearable: str):
+    clearable = clean_string(clearable)
+    if clearable is None:
+        return None
+    if clearable is not None and (clearable == '' or clearable == '0'):
+        return None
+    return clearable
 
 def clean_url(clearable):
     '''
@@ -323,11 +513,11 @@ def clean_url(clearable):
     :param clearable: String that has to clean
     :return: Cleaned string
     '''
-    if clearable is not None:
-        url_match = PATTERN_URL_SLASH.sub('/', clearable)
-        return url_match.strip()
-    else:
+    clearable = clean_string(clearable)
+    if clearable is None:
         return None
+    url_match = PATTERN_URL_SLASH.sub('/', str(clearable))
+    return url_match.lower().strip()
 
 
 def clean_street(clearable):
@@ -336,39 +526,43 @@ def clean_street(clearable):
     :param clearable:
     :return:
     '''
-
-    street = clearable.strip()
+    if clearable is None:
+        return None
+    clearable = str(clearable)
+    street = clean_string(clearable)
+    if clearable == '':
+        return ''
     repls = ('Nyúl 82. sz. főút', 'Kossuth Lajos út'), \
-            ('Nyúl  82. sz. főút', '82. számú főközlekedési út'), \
-            ('Budafoki út, 6-os sz. főút', '6. számú főközlekedési út'), \
-            ('. Sz. Főút felső', '. számú főközlekedési út'), \
-            ('. számú - Némedi út sarok', '. számú főközlekedési út'), \
-            ('076/15. hrsz 86. számú főút mellett', '86. számú főközlekedési út'), \
-            ('50.sz.út jobb oldal', '50. számú főközlekedési út'), \
-            ('. sz. fkl.út', '. számú főközlekedési út'), \
-            ('.sz. fkl. út', '. számú főközlekedési út'), \
-            ('-es sz. főút', '. számú főközlekedési út'), \
-            ('. sz. főút', '. számú főközlekedési út'), \
+            ('Nyúl  82. sz. főút', '82' + SZFKL), \
+            ('Budafoki út, 6-os sz. főút', '6' + SZFKL), \
+            ('. Sz. Főút felső', SZFKL), \
+            ('. számú - Némedi út sarok', SZFKL), \
+            ('076/15. hrsz 86. számú főút mellett', '86' + SZFKL), \
+            ('50.sz.út jobb oldal', '50' + SZFKL), \
+            ('. sz. fkl.út', SZFKL), \
+            ('.sz. fkl. út', SZFKL), \
+            ('-es sz. főút', SZFKL), \
+            ('. sz. főút', SZFKL), \
             ('.sz.fkl.', '. számú főközlekedési'), \
             ('. sz. fkl.', '. számú főközlekedési'), \
-            ('. számú fkl. út', '. számú főközlekedési út'), \
-            ('. Sz. főút', '. számú főközlekedési út'), \
-            ('. számú főút', '. számú főközlekedési út'), \
-            ('. főút', '. számú főközlekedési út'), \
-            ('. sz út', '. számú főközlekedési út'), \
-            (' sz. főút', '. számú főközlekedési út'), \
-            ('-es fő út', '. számú főközlekedési út'), \
-            ('-es főút', '. számú főközlekedési út'), \
-            (' - es út', '. számú főközlekedési út'), \
-            ('-es út', '. számú főközlekedési út'), \
-            ('-as fő út', '. számú főközlekedési út'), \
-            ('-as főút', '. számú főközlekedési út'), \
-            (' - as út', '. számú főközlekedési út'), \
-            ('-as út', '. számú főközlekedési út'), \
-            ('-ös fő út', '. számú főközlekedési út'), \
-            ('-ös főút', '. számú főközlekedési út'), \
-            (' - ös út', '. számú főközlekedési út'), \
-            ('-ös út', '. számú főközlekedési út'), \
+            ('. számú fkl. út', SZFKL), \
+            ('. Sz. főút', SZFKL), \
+            ('. számú főút', SZFKL), \
+            ('. főút', SZFKL), \
+            ('. sz út', SZFKL), \
+            (' sz. főút', SZFKL), \
+            ('-es fő út', SZFKL), \
+            ('-es főút', SZFKL), \
+            (' - es út', SZFKL), \
+            ('-es út', SZFKL), \
+            ('-as fő út', SZFKL), \
+            ('-as főút', SZFKL), \
+            (' - as út', SZFKL), \
+            ('-as út', SZFKL), \
+            ('-ös fő út', SZFKL), \
+            ('-ös főút', SZFKL), \
+            (' - ös út', SZFKL), \
+            ('-ös út', SZFKL), \
             ('Omsz park', 'Omszk park'), \
             ('01.máj.', 'Május 1.'), \
             ('15.márc.', 'Március 15.'), \
@@ -494,6 +688,7 @@ def clean_street(clearable):
             (' sgt.', ' sugárút'), \
             ('^4. sz$', '4. számú főközlekedési')
     street = reduce(lambda a, kv: a.replace(*kv), repls, street)
+    street = clean_string(street)
     return street
 
 
@@ -504,7 +699,10 @@ def clean_street_type(clearable):
     :return:
     '''
 
-    street = clearable.replace('fkl. út', 'főközlekedési út')
+    street = clean_string(clearable)
+    if street is None or clearable == '':
+        return None
+    street = street.replace('fkl. út', 'főközlekedési út')
     street = street.replace('főút', 'főközlekedési út')
     street = street.replace('ltp.', ' lakótelep')
     street = street.replace('LTP.', ' lakótelep')
@@ -513,6 +711,7 @@ def clean_street_type(clearable):
     street = street.replace('u.', 'utca')
     street = street.replace('(nincs)', '')
     street = street.replace('.', '')
+    street = clean_string(street)
     return street
 
 
@@ -523,8 +722,21 @@ def clean_branch(clearable):
     :return:
     '''
     if clearable is not None and clearable != '':
-        clearable = clearable.strip()
-        branch = clearable.replace('sz.', 'számú')
+        branch = clean_string(str(clearable))
+        branch = branch.title()
+        if branch is not None:
+            branch = branch.replace('Sz.', 'számú')
+            branch = branch.replace('Számú', 'számú')
+            branch = branch.replace('Fiók', 'fiók')
+            branch = branch.replace('Központi', 'központi')
+            branch = branch.replace('Ügyfélszolgálat', 'ügyfélszolgálat')
+            branch = branch.replace('Atm', 'ATM')
+            branch = branch.replace('U.', 'utca')
+            branch = branch.replace('Üzletház', 'üzletház')
+            branch = branch.replace('Porta', 'porta')
+            branch = branch.replace('Zaeg', 'Zalaegerszeg')
+            branch = branch.replace('Bevásárlóközpont', 'bevásárlóközpont')
+        branch = clean_string(branch)
         return branch
     else:
         return None

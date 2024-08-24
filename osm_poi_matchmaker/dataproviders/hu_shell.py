@@ -4,8 +4,11 @@ try:
     import logging
     import sys
     import os
-    from osm_poi_matchmaker.libs.pandas import save_downloaded_pd
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
+    import json
+    import traceback
+    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+        clean_string, clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -19,12 +22,13 @@ except ImportError as err:
 
 class hu_shell(DataProvider):
 
-    def constains(self):
-        self.link = 'https://locator.shell.hu/deliver_country_csv.csv?footprint=HU&site=cf&launch_country=HU&networks=ALL'
+    def contains(self):
+        self.link = 'https://shellgsllocator.geoapp.me/api/v1/locations/within_bounds?sw[]=45.48&sw[]=16.05&ne[]=48.35&ne[]=22.58&autoload=true&travel_mode=driving&avoid_tolls=false&avoid_highways=false&avoid_ferries=false&corridor_radius=5&driving_distances=false&format=json'
         self.tags = {'amenity': 'fuel', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes'}
         self.tags.update(POS_HU_GEN)
+        self.tags.update({'loyalty_card': 'yes'})
         self.tags.update(PAY_CASH)
-        self.filetype = FileType.csv
+        self.filetype = FileType.json
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)
 
@@ -35,94 +39,75 @@ class hu_shell(DataProvider):
                           'contact:facebook': 'https://www.facebook.com/ShellMagyarorszag/', 'contact:twitter': 'shell',
                           'brand:wikidata': 'Q154950', 'brand:wikipedia': 'hu:Royal Dutch Shell',
                           'air_conditioning': 'yes'})
-        humobpefu = self.tags.copy()
-        humobpefu.update({'brand': 'Mobil Petrol', 'contact:email': 'info@mpetrol.hu',
-                          'contact:facebook': 'https://www.facebook.com/mpetrolofficial/', 'name': 'Mobil Petrol',
-                          'operator:addr': '1095 Budapest, Ipar utca 2.', 'operator': 'MPH Power Zrt.'})
         self.__types = [
-            {'poi_code': 'hushellfu', 'poi_name': 'Shell', 'poi_type': 'fuel', 'poi_tags': hushellfu,
+            {'poi_code': 'hushellfu', 'poi_common_name': 'Shell', 'poi_type': 'fuel', 'poi_tags': hushellfu,
              'poi_url_base': 'https://shell.hu', 'poi_search_name': 'shell',
-             'poi_search_avoid_name': 'hunoil',
+             'poi_search_avoid_name': '(mol|m. petrol|avia|lukoil|hunoil)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
-            # {'poi_code': 'humobpefu', 'poi_name': 'Mobil Petrol', 'poi_type': 'fuel', 'poi_tags': humobpefu,
-            #  'poi_url_base': 'http://mpetrol.hu/', 'poi_search_name': '(m petrol|m. petrol|mobil metrol|shell)',
-            #  'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
         ]
         return self.__types
 
     def process(self):
-        try:
-            csv = save_downloaded_pd('{}'.format(self.link), os.path.join(
-                self.download_cache, self.filename))
-            if csv is not None:
-                csv[['Post code']] = csv[['Post code']].fillna('0000')
-                csv[['Post code']] = csv[['Post code']].astype(int)
-                csv[['Telephone']] = csv[['Telephone']].fillna('0')
-                csv[['Telephone']] = csv[['Telephone']].astype(int)
-                csv[['City']] = csv[['City']].fillna('')
-                csv[['Name']] = csv[['Name']].fillna('')
-                poi_dict = csv.to_dict('records')
-                for poi_data in poi_dict:
-                    if poi_data['Brand'] == 'Shell':
-                        self.data.name = 'Shell'
-                        self.data.code = 'hushellfu'
-                        self.data.website = 'https://shell.hu/'
-                    elif poi_data['Brand'] == 'Mobilpetrol':
-                        # It seems Mobil Petrol data is outdated so do not process here
-                        continue
-                        """
-                        self.data.name = 'M. Petrol'
-                        self.data.code = 'humobpefu'
-                        self.data.website = 'http://mpetrol.hu/'
-                        """
-                    self.data.postcode = poi_data.get(
-                        'Post code') if poi_data.get('Post code') != '' else None
-                    street_tmp = poi_data['Address'].lower().split()
-                    for i in range(0, len(street_tmp) - 2):
-                        street_tmp[i] = street_tmp[i].capitalize()
-                    street_tmp = ' '.join(street_tmp)
-                    if poi_data['City'] != '':
-                        self.data.city = clean_city(poi_data['City'].title())
-                    else:
-                        if poi_data['Name'] != '':
-                            self.data.city = clean_city(
-                                poi_data['Name'].title())
-                        else:
-                            self.data.city = None
-                    self.data.branch = poi_data['Name'].strip()
-                    if poi_data['24 Hour'] == True:
-                        self.data.nonstop = True
-                        self.data.public_holiday_open = True
-                    else:
-                        self.data.nonstop = False
-                        self.data.mo_o = '06:00'
-                        self.data.tu_o = '06:00'
-                        self.data.we_o = '06:00'
-                        self.data.th_o = '06:00'
-                        self.data.fr_o = '06:00'
-                        self.data.sa_o = '06:00'
-                        self.data.su_o = '06:00'
-                        self.data.mo_c = '22:00'
-                        self.data.tu_c = '22:00'
-                        self.data.we_c = '22:00'
-                        self.data.th_c = '22:00'
-                        self.data.fr_c = '22:00'
-                        self.data.sa_c = '22:00'
-                        self.data.su_c = '22:00'
-                        self.data.public_holiday_open = False
-                    self.data.original = poi_data['Address']
-                    self.data.lat, self.data.lon = check_hu_boundary(poi_data['GPS Latitude'],
-                                                                     poi_data['GPS Longitude'])
-                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                        street_tmp)
-                    if 'Telephone' in poi_data and poi_data['Telephone'] != '':
-                        self.data.phone = clean_phone_to_str(
-                            str(poi_data['Telephone']))
-                    else:
-                        self.data.phone = None
-                    self.data.email = None
-                    self.data.add()
-        except Exception as e:
-            logging.exception('Exception occurred')
 
-            logging.error(e)
+        try:
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
+            if soup is not None:
+                text = json.loads(soup)
+                for poi_data in text:
+                    try:
+                        if poi_data.get('country_code') == 'HU':
+                            logging.debug('Shell fuel station in Hungary')
+                        else:
+                            logging.info('Shell fuel station NOT in Hungary')
+                            continue
+                        self.data.code = 'hushellfu'
+                        self.data.website = clean_url(poi_data.get('website_url')) if ('website_url' in poi_data and poi_data.get('website_url') != '') else 'https://shell.hu/'
+                        self.data.postcode = clean_string(poi_data.get('postcode')) if ('postcode' in poi_data and poi_data.get('postcode') != '') else None
+                        street_tmp = poi_data.get('address').lower().split()
+                        for i in range(0, len(street_tmp) - 2):
+                            street_tmp[i] = street_tmp[i].capitalize()
+                        street_tmp = ' '.join(street_tmp)
+                        if 'city' in poi_data and poi_data.get('city') != '':
+                            self.data.city = clean_city(poi_data.get('city').title())
+                        else:
+                            if 'name' in poi_data and poi_data.get('name') != '':
+                                self.data.city = clean_city(
+                                    poi_data.get('name').title())
+                            else:
+                                self.data.city = None
+                        if 'name' in poi_data and poi_data.get('name') != '':
+                            self.data.branch = poi_data.get('name').strip()
+                        if 'twenty_four_hour' in poi_data.get('amenities'):
+                            self.data.nonstop = True
+                            self.data.public_holiday_open = True
+                        self.data.original = poi_data.get('address') if ('address' in poi_data and poi_data.get('address') != '') else None
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'),
+                                                                        poi_data.get('lng'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                            street_tmp)
+                        self.data.phone = clean_phone_to_str(str(poi_data.get('telephone'))) if ('telephone' in poi_data and poi_data.get('telephone') != '') else None
+                        self.data.email = None
+                        self.data.fuel_octane_95 = True
+                        self.data.fuel_diesel = True
+                        self.data.fuel_octane_100 = True
+                        self.data.fuel_diesel_gtl = True
+                        if 'air_and_water' in poi_data.get('amenities'):
+                            self.data.compressed_air = True
+                        # TODO: Separete adblue_pack, adblue_car and adblue_truck
+                        if 'adblue_pack' in poi_data.get('amenities') or 'adblue_car' in poi_data.get('amenities') or 'adblue_truck' in poi_data.get('amenities'):
+                            self.data.fuel_adblue = True
+                        if 'hot_food' in poi_data.get('amenities'):
+                            self.data.restaurant = True
+                        if 'bakery_shop' in poi_data.get('amenities') or 'food_offerings' in poi_data.get('amenities'):
+                            self.data.food = True
+                        if 'hgv_lane' in poi_data.get('amenities'):
+                            self.data.truck = True
+                        self.data.add()
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
+        except Exception as e:
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

@@ -1,4 +1,4 @@
-FROM buildpack-deps:stretch
+FROM python:3.11-slim-bullseye
 
 LABEL maintainer Kálmán Szalai (KAMI) <kami911@gmail.com>
 
@@ -10,18 +10,17 @@ ENV PATH /usr/local/bin:$PATH
 ENV LANG C.UTF-8
 # extra dependencies (over what buildpack-deps already includes)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  python3 \
-  python3-pip \
-  build-essential \
-  python3-dev \
-  python3-setuptools \
-  python3-wheel \
-  apt-utils \
-    && rm -rf /var/lib/apt/lists/*
+   build-essential \
+   apt-utils \
+   libgdal-dev \
+   libxml2-dev \
+   libxslt-dev \
+ && python -m pip install --upgrade pip \
+ && rm -rf /var/lib/apt/lists/*
 
 COPY ./requirements.txt /opm/requirements.txt
 
-RUN pip3 install -r /opm/requirements.txt
+RUN python3.11 --version && python3.11 -m pip --version && python3.11 -m pip install -r /opm/requirements.txt
 
 COPY ./osm_poi_matchmaker /opm/osm_poi_matchmaker
 ENV PYTHONPATH /opm/

@@ -4,33 +4,41 @@ __author__ = 'kami911'
 try:
     import logging
     import sys
+    import numpy as np
     import pandas as pd
+    from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
-    from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch
+    from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch, clean_phone_to_str, clean_email, clean_postcode
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.libs.poi_qc import POIQC
+    from osm_poi_matchmaker.utils.cache import get_cached, set_cached
+    from osm_poi_matchmaker.dao.data_handlers import query_city_name_external
 except ImportError as err:
-    logging.error('Error %s import module: %s', module=__name__, error=err)
+    logging.error('Error %s import module: %s', err, __name__)
     logging.exception('Exception occurred')
 
     sys.exit(128)
 
 __program__ = 'poi_dataset'
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 POI_COLS = poi_array_structure.POI_COLS
+POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
+INTEGER_GEO = 100000
 
 
-class POIDataset:
+class POIDatasetRaw:
     """Contains all handled OSM tags
-    """    
+    """
+
     def __init__(self):
         """
-        """        
+        """
         self.insert_data = []
         self.__db = POIBase(
             '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
@@ -38,6 +46,10 @@ class POIDataset:
                                          config.get_database_writer_host(),
                                          config.get_database_writer_port(),
                                          config.get_database_poi_database()))
+        self.__pgsql_pool = self.__db.pool
+        self.__session_factory = sessionmaker(self.__pgsql_pool)
+        self.__session_object = scoped_session(self.__session_factory)
+        self.__session = self.__session_object()
         self.__code = None
         self.__postcode = None
         self.__city = None
@@ -79,6 +91,7 @@ class POIDataset:
         self.__housenumber = None
         self.__conscriptionnumber = None
         self.__ref = None
+        self.__poi_additional_ref = None
         self.__phone = None
         self.__email = None
         self.__geom = None
@@ -90,8 +103,6 @@ class POIDataset:
         self.__lunch_break_stop = None
         self.__opening_hours = None
         self.__public_holiday_open = None
-        self.__good = []
-        self.__bad = []
 
     def clear_all(self):
         self.__code = None
@@ -135,6 +146,7 @@ class POIDataset:
         self.__housenumber = None
         self.__conscriptionnumber = None
         self.__ref = None
+        self.__poi_additional_ref = None
         self.__phone = None
         self.__email = None
         self.__geom = None
@@ -146,8 +158,6 @@ class POIDataset:
         self.__lunch_break_stop = None
         self.__opening_hours = None
         self.__public_holiday_open = None
-        self.__good = []
-        self.__bad = []
 
     @property
     def code(self) -> str:
@@ -155,15 +165,16 @@ class POIDataset:
 
     @code.setter
     def code(self, data: str):
-        self.__code = data
+        self.__code = clean_string(data)
 
     @property
-    def postcode(self) -> int:
+    def postcode(self) -> str:
         return self.__postcode
 
     @postcode.setter
-    def postcode(self, data: int):
-        self.__postcode = data
+    def postcode(self, data: str):
+        self.__postcode = clean_postcode(data)
+        logging.debug(f'Stored postcode is: {self.__postcode}, original postcode was: {data}')
 
     @property
     def city(self) -> str:
@@ -171,7 +182,9 @@ class POIDataset:
 
     @city.setter
     def city(self, data: str):
-        self.__city = data
+        self.__city = clean_string(data)
+        logging.debug(f'Stored city name is: {self.__city}, original city name was: {data}')
+
 
     @property
     def name(self) -> str:
@@ -179,7 +192,7 @@ class POIDataset:
 
     @name.setter
     def name(self, data: str):
-        self.__name = data
+        self.__name = clean_string(data)
 
     @property
     def branch(self) -> str:
@@ -203,7 +216,7 @@ class POIDataset:
 
     @description.setter
     def description(self, data: str):
-        self.__description = data
+        self.__description = clean_string(data)
 
     @property
     def fuel_adblue(self) -> bool:
@@ -331,7 +344,8 @@ class POIDataset:
 
     @capacity.setter
     def capacity(self, data: int):
-        self.__capacity = data
+        if clean_string(data) is not None:
+            self.__capacity = int(float(clean_string(data)))
 
     @property
     def fee(self) -> bool:
@@ -359,11 +373,12 @@ class POIDataset:
 
     @property
     def socket_chademo(self) -> int:
-        return self.__socket_chademo
+        return int(self.__socket_chademo)
 
     @socket_chademo.setter
     def socket_chademo(self, data: int):
-        self.__socket_chademo = data
+        if clean_string(data) is not None:
+            self.__socket_chademo = int(float(clean_string(data)))
 
     @property
     def socket_chademo_output(self) -> str:
@@ -371,15 +386,16 @@ class POIDataset:
 
     @socket_chademo_output.setter
     def socket_chademo_output(self, data: str):
-        self.__socket_chademo_output = data
+        self.__socket_chademo_output = clean_string(data)
 
     @property
     def socket_type2_combo(self) -> int:
-        return self.__socket_type2_combo
+        return int(self.__socket_type2_combo)
 
     @socket_type2_combo.setter
     def socket_type2_combo(self, data: int):
-        self.__socket_type2_combo = data
+        if clean_string(data) is not None:
+            self.__socket_type2_combo = int(float(clean_string(data)))
 
     @property
     def socket_type2_combo_output(self) -> str:
@@ -387,15 +403,16 @@ class POIDataset:
 
     @socket_type2_combo_output.setter
     def socket_type2_combo_output(self, data: str):
-        self.__socket_type2_combo_output = data
+        self.__socket_type2_combo_output = clean_string(data)
 
     @property
     def socket_type2_cable(self) -> int:
-        return self.__socket_type2_cable
+        return int(self.__socket_type2_cable)
 
     @socket_type2_cable.setter
     def socket_type2_cable(self, data: int):
-        self.__socket_type2_cable = data
+        if clean_string(data) is not None:
+            self.__socket_type2_cable = int(float(clean_string(data)))
 
     @property
     def socket_type2_cable_output(self) -> str:
@@ -403,15 +420,16 @@ class POIDataset:
 
     @socket_type2_cable_output.setter
     def socket_type2_cable_output(self, data: str):
-        self.__socket_type2_cable_output = data
+        self.__socket_type2_cable_output = clean_string(data)
 
     @property
     def socket_type2(self) -> int:
-        return self.__socket_type2
+        return int(self.__socket_type2)
 
     @socket_type2.setter
     def socket_type2(self, data: int):
-        self.__socket_type2 = data
+        if clean_string(data) is not None:
+            self.__socket_type2 = int(float(clean_string(data)))
 
     @property
     def socket_type2_output(self) -> str:
@@ -419,7 +437,7 @@ class POIDataset:
 
     @socket_type2_output.setter
     def socket_type2_output(self, data: str):
-        self.__socket_type2_output = data
+        self.__socket_type2_output = clean_string(data)
 
     @property
     def manufacturer(self) -> str:
@@ -427,7 +445,7 @@ class POIDataset:
 
     @manufacturer.setter
     def manufacturer(self, data: str):
-        self.__manufacturer = data
+        self.__manufacturer = clean_string(data)
 
     @property
     def model(self) -> str:
@@ -435,7 +453,7 @@ class POIDataset:
 
     @model.setter
     def model(self, data: str):
-        self.__model = data
+        self.__model = clean_string(data)
 
     @property
     def original(self) -> str:
@@ -443,35 +461,21 @@ class POIDataset:
 
     @original.setter
     def original(self, data: str):
-        self.__original = data
+        self.__original = clean_string(data)
 
     @property
     def street(self) -> str:
         return self.__street
 
+    '''@street.setter
+    def street(self, data: str):
+        self.__street = clean_string(data)
+    '''
+
+    # Temporary street locator for final check TODO: remove when two phase save is active
     @street.setter
     def street(self, data: str):
-        # Try to find street name around
-        try:
-            if self.lat is not None and self.lon is not None:
-                query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'name')
-                if query is None or query.empty:
-                    query = self.__db.query_name_road_around(self.lon, self.lat, data, True, 'metaphone')
-                    if query is None or query.empty:
-                        logging.warning('There is no street around named or metaphone named: %s', data)
-                        self.__street = data
-                    else:
-                        new_data = query.at[0, 'name']
-                        logging.info('There is a metaphone street around named: %s, original was: %s.', new_data, data)
-                        self.__street = new_data
-                else:
-                    logging.info('There is a street around named: %s.', data)
-                    self.__street = data
-            else:
-                self.__street = data
-        except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+        self.__street = clean_string(data)
 
     @property
     def housenumber(self) -> str:
@@ -479,7 +483,7 @@ class POIDataset:
 
     @housenumber.setter
     def housenumber(self, data: str):
-        self.__housenumber = data
+        self.__housenumber = clean_string(data)
 
     @property
     def conscriptionnumber(self) -> str:
@@ -487,7 +491,7 @@ class POIDataset:
 
     @conscriptionnumber.setter
     def conscriptionnumber(self, data: str):
-        self.__conscriptionnumber = data
+        self.__conscriptionnumber = clean_string(data)
 
     @property
     def ref(self) -> str:
@@ -495,7 +499,15 @@ class POIDataset:
 
     @ref.setter
     def ref(self, data: str):
-        self.__ref = data
+        self.__ref = clean_string(data)
+
+    @property
+    def poi_additional_ref(self) -> str:
+        return self.__poi_additional_ref
+
+    @poi_additional_ref.setter
+    def poi_additional_ref(self, data: str):
+        self.__poi_additional_ref = clean_string(data)
 
     @property
     def phone(self) -> str:
@@ -503,10 +515,7 @@ class POIDataset:
 
     @phone.setter
     def phone(self, data: str):
-        if data == 'NULL':
-            self.__phone = None
-        else:
-            self.__phone = data
+        self.__phone = clean_phone_to_str(data)
 
     @property
     def email(self) -> str:
@@ -514,10 +523,7 @@ class POIDataset:
 
     @email.setter
     def email(self, data: str):
-        if data == 'NULL':
-            self.__email = None
-        else:
-            self.__email = data
+        self.__email = clean_email(data)
 
     @property
     def geom(self) -> str:
@@ -875,12 +881,74 @@ class POIDataset:
     def dump_opening_hours(self):
         print(self.__opening_hours)
 
+    def process_street(self):
+        cache_key = None
+        data = clean_string(self.__street)
+        if data is not None and data != 'None' and data != '':
+            cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
+            # Try to find street name around
+            try:
+                logging.debug(f'Checking street name: {data} ...')
+                if self.__lat is not None and self.__lon is not None:
+                    #cached = get_cached(cache_key)
+                    #if cached is not None:
+                    #    self.__street = cached
+                    #    return
+                    query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
+                    if query is None or query.empty:
+                        logging.warning('There is no street around with same name, tring metaphone name ...')
+                        query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'all')
+                        if query is None or query.empty:
+                            logging.warning('(1) There is no street around named or metaphone named: %s', data)
+                            self.__street = data
+                            cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
+                        else:
+                            new_data = query.at[0, 'name']
+                            logging.info('(1) There is a metaphone street around named: %s, original was: %s.', new_data, data)
+                            self.__street = new_data
+                            cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, new_data)
+                    else:
+                        logging.info('(1) There is a street around named: %s.', data)
+                        self.__street = data
+                        cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
+                else:
+                    logging.debug('There are not coordinates. Is this a bug or missing data?')
+                    self.__street = data
+                    cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
+                set_cached(cache_key, self.__street)
+            except Exception as e:
+                logging.error(e)
+                logging.exception('Exception occurred')
+
+    def process_postcode(self):
+        """Try to find postcode if it was not specified
+        """
+        data = clean_string(self.__postcode)
+        if data is None or data == 0 or data == '':
+            osm_postcode = query_postcode_osm_external(True, self.__session_object(), self.__lon, self.__lat, None)
+            if osm_postcode is not None or osm_postcode != 0:
+                self.__postcode = osm_postcode
+            else:
+                self.__postcode = None
+
+    def process_city(self):
+        """
+        Try to find city based on its name and postcode
+        :return:
+        """
+        logging.debug(f'City value is: {self.__city}')
+        data = clean_string(self.__city)
+        city = query_city_name_external(self.__session_object(), data, self.__postcode)
+        self.__city = city
+
+
     def add(self):
         try:
             self.process_opening_hours()
             self.process_geom()
-            pqc = POIQC(self.__db, self.__lon, self.__lat, self.__opening_hours, self.__street)
-            self.__good, self.__bad = pqc.process()
+            self.process_street()
+            self.process_postcode()
+            self.process_city()
             self.insert_data.append(
                 [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website,
                  self.__description, self.__fuel_adblue, self.__fuel_octane_100, self.__fuel_octane_98,
@@ -893,7 +961,7 @@ class POIDataset:
                  self.__socket_type2_cable, self.__socket_type2_cable_output,
                  self.__socket_type2, self.__socket_type2_output, self.__manufacturer, self.__model,
                  self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
-                 self.__ref, self.__phone, self.__email, self.__geom, self.__nonstop,
+                 self.__ref, self.__poi_additional_ref, self.__phone, self.__email, self.__geom, self.__nonstop,
                  self.__oh.at[WeekDaysShort.mo, OpenClose.open],
                  self.__oh.at[WeekDaysShort.tu, OpenClose.open],
                  self.__oh.at[WeekDaysShort.we, OpenClose.open],
@@ -923,7 +991,135 @@ class POIDataset:
                  self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
                  self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break_start,
                  self.__lunch_break_stop,
-                 self.__public_holiday_open, self.__opening_hours, self.__good, self.__bad])
+                 self.__public_holiday_open, self.__opening_hours, self.__lat, self.__lon])
+            self.clear_all()
+        except Exception as e:
+            logging.error(e)
+            logging.exception('Exception occurred')
+
+    def process(self):
+        df = pd.DataFrame(self.insert_data)
+        df.columns = POI_COLS_RAW
+        return df.replace({np.nan: None})
+
+    def length(self):
+        return len(self.insert_data)
+
+
+class POIDataset(POIDatasetRaw):
+    """Contains all handled OSM tags
+    """
+
+    def __init__(self):
+        """
+        """
+        POIDatasetRaw.__init__(self)
+        self.__db = POIBase(
+            '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
+                                         config.get_database_writer_password(),
+                                         config.get_database_writer_host(),
+                                         config.get_database_writer_port(),
+                                         config.get_database_poi_database()))
+        self.__pgsql_pool = self.__db.pool
+        self.__session_factory = sessionmaker(self.__pgsql_pool)
+        self.__session_object = scoped_session(self.__session_factory)
+        self.__session = self.__session_object()
+        self.__good = []
+        self.__bad = []
+
+    def clear_all(self):
+        POIDatasetRaw.clear_all(self)
+        self.__good = []
+        self.__bad = []
+
+    @property
+    def street(self) -> str:
+        return self.__street
+
+    @street.setter
+    def street(self, data: str):
+        data = clean_string(data)
+        if data is not None and data != '':
+            # Try to find street name around
+            try:
+                logging.debug('Checking street name ...')
+                cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
+                if self.__lat is not None and self.__lon is not None:
+                    cached = get_cached(cache_key)
+                    if cached is not None:
+                        self.__street = cached
+                        return
+
+                    query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
+                    if query is None or query.empty:
+                        query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'all')
+                        if query is None or query.empty:
+                            logging.warning('There is no street around named or metaphone named: %s', data)
+                            self.__street = data
+                        else:
+                            new_data = query.at[0, 'name']
+                            logging.info('There is a metaphone street around named: %s, original was: %s.', new_data, data)
+                            self.__street = new_data
+                    else:
+                        logging.info('There is a street around named: %s.', data)
+                        self.__street = data
+                else:
+                    logging.debug('There are not coordinates. Is this a bug or missing data?')
+                    self.__street = data
+                set_cached(cache_key, self.__street)
+            except Exception as e:
+                logging.error(e)
+                logging.exception('Exception occurred')
+
+    def add(self):
+        try:
+            self.process_opening_hours()
+            self.process_geom()
+            pqc = POIQC(self.__db, self.__lon, self.__lat, self.__opening_hours, self.__street)
+            self.__good, self.__bad = pqc.process()
+            self.insert_data.append(
+                [self.__code, self.__postcode, self.__city, self.__name, clean_string(self.__branch), self.__website,
+                 self.__description, self.__fuel_adblue, self.__fuel_octane_100, self.__fuel_octane_98,
+                 self.__fuel_octane_95, self.__fuel_diesel_gtl, self.__fuel_diesel, self.__fuel_lpg,
+                 self.__fuel_e85, self.__rent_lpg_bottles, self.__compressed_air, self.__restaurant, self.__food,
+                 self.__truck,
+                 self.__authentication_app, self.__authentication_membership_card, self.__capacity, self.__fee,
+                 self.__parking_fee, self.__motorcar, self.__socket_chademo, self.__socket_chademo_output,
+                 self.__socket_type2_combo, self.__socket_type2_combo_output,
+                 self.__socket_type2_cable, self.__socket_type2_cable_output,
+                 self.__socket_type2, self.__socket_type2_output, self.__manufacturer, self.__model,
+                 self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
+                 self.__ref, self.__poi_additional_ref, self.__phone, self.__email, self.__geom, self.__nonstop,
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.open],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.close],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_open],
+                 self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.we, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.th, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close],
+                 self.__oh.at[WeekDaysShort.su, OpenClose.summer_close], self.__lunch_break_start,
+                 self.__lunch_break_stop,
+                 self.__public_holiday_open, self.__opening_hours, self.__lat, self.__lon, self.__good, self.__bad])
             self.clear_all()
         except Exception as e:
             logging.error(e)
@@ -933,6 +1129,3 @@ class POIDataset:
         df = pd.DataFrame(self.insert_data)
         df.columns = POI_COLS
         return df.where((pd.notnull(df)), None)
-
-    def lenght(self):
-        return len(self.insert_data)

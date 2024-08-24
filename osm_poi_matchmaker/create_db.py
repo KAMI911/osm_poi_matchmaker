@@ -14,35 +14,51 @@ try:
     import pandas as pd
     import multiprocessing
     import datetime
+    import traceback
     from osm_poi_matchmaker.utils import config, timing
     from osm_poi_matchmaker.libs.osm import timestamp_now
+    from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
     from osm_poi_matchmaker.libs.export import export_raw_poi_data, export_raw_poi_data_xml, export_grouped_poi_data, \
         export_grouped_poi_data_with_postcode_groups
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
+    from osm_poi_matchmaker.dao import poi_array_structure
+    from osm_poi_matchmaker.libs.osm_prepare import index_osm_data
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
 
     sys.exit(128)
 
-POI_COLS = ['poi_code', 'poi_postcode', 'poi_city', 'poi_name', 'poi_branch', 'poi_website', 'original',
-            'poi_addr_street',
-            'poi_addr_housenumber', 'poi_conscriptionnumber', 'poi_ref', 'poi_geom']
 RETRY = 3
 
+POI_COLS = poi_array_structure.POI_DB
+POI_COLS_RAW = poi_array_structure.POI_DB_RAW
+
+PROCESS_DIVIDER = 4
 
 def init_log():
     logging.config.fileConfig('log.conf')
 
 
 def import_basic_data(session):
+    logging.info('Importing patch table ...')
+    from osm_poi_matchmaker.dataproviders.hu_generic import poi_patch_from_csv
+    work = poi_patch_from_csv(session, 'poi_patch.csv')
+    work.process()
+
+    logging.info('Importing countries ...')
+    from osm_poi_matchmaker.dataproviders.hu_generic import poi_country_from_csv
+    work = poi_country_from_csv(session, 'country.csv')
+    work.process()
+
     logging.info('Importing cities ...')
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',
                                      config.get_directory_cache_url())
+    logging.info('Processing cities ...')
     work.process()
 
     logging.info('Importing street types ...')
@@ -52,13 +68,19 @@ def import_basic_data(session):
     work.process()
 
 
-def load_poi_data(database):
-    logging.info('Loading POI_data from database ...')
+def load_poi_data(database, table='poi_address_raw', raw=True):
+    logging.info('Loading {} table from database ...'.format(table))
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
     # Build Dataframe from our POI database
-    addr_data = database.query_all_gpd_in_order('poi_address')
-    addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].fillna('0').astype(int)
+    addr_data = database.query_all_gpd_in_order(table)
+    if raw is True:
+        addr_data.columns = POI_COLS_RAW
+    else:
+        addr_data.columns = POI_COLS
+    addr_data[['poi_addr_city', 'poi_postcode']] = addr_data[['poi_addr_city', 'poi_postcode']].astype('str').\
+        fillna(np.nan).replace([np.nan], [None])
+
     return addr_data
 
 
@@ -82,41 +104,54 @@ class WorkflowManager(object):
             self.queue.put(m)
         try:
             # Start multiprocessing in case multiple cores
-            logging.info('Starting processing on %s cores.', self.NUMBER_OF_PROCESSES)
+            process_count = self.NUMBER_OF_PROCESSES
+            logging.info('Starting processing POI harvest on %s cores.', process_count)
             self.results = []
-            self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES)
+            self.pool = multiprocessing.Pool(processes=process_count)
             self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable())
+            logging.info('Finished processing POI harvest.')
             self.pool.close()
+            logging.debug('Pool is closed.')
         except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.error(traceback.print_exc())
 
     def start_exporter(self, data: list, postfix: str = '', to_do=export_grouped_poi_data):
+        logging.debug(data.to_string())
         poi_codes = data['poi_code'].unique()
         modules = [[config.get_directory_output(), 'poi_address_{}{}'.format(postfix, c), data[data.poi_code == c],
                     'poi_address'] for c in poi_codes]
         try:
             # Start multiprocessing in case multiple cores
-            logging.info('Starting processing on %s cores.', self.NUMBER_OF_PROCESSES)
+            process_count = self.NUMBER_OF_PROCESSES
+            logging.info('Starting processing export on %s cores.', process_count)
             self.results = []
-            self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES)
+            self.pool = multiprocessing.Pool(processes=process_count)
             self.results = self.pool.map_async(to_do, modules)
+            logging.info('Finished processing export.')
             self.pool.close()
+            logging.debug('Pool is closed.')
         except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.error(traceback.print_exc())
 
     def start_matcher(self, data, comm_data):
         try:
-            workers = self.NUMBER_OF_PROCESSES
-            self.pool = multiprocessing.Pool(processes=self.NUMBER_OF_PROCESSES)
+            # Start multiprocessing in case multiple cores
+            # process_count = self.NUMBER_OF_PROCESSES//PROCESS_DIVIDER
+            process_count = 2
+            logging.info('Starting processing matcher on %s cores.', process_count)
+            self.results = []
+            self.pool = multiprocessing.Pool(processes=process_count)
             self.results = self.pool.map_async(online_poi_matching,
-                                               [(d, comm_data) for d in np.array_split(data, workers)])
+                                               [(d, comm_data) for d in np.array_split(data, process_count)])
+            logging.info('Finished processing export.')
             self.pool.close()
+            logging.debug('Pool is closed.')
             return pd.concat(list(self.results.get()), sort=False)
         except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.error(traceback.print_exc())
 
     def join(self):
         self.pool.join()
@@ -131,20 +166,32 @@ def main():
                                               config.get_database_poi_database()))
     pgsql_pool = db.pool
     session_factory = sessionmaker(pgsql_pool)
-    Session = scoped_session(session_factory)
-    session = Session()
+    session_object = scoped_session(session_factory)
     try:
-        import_basic_data(db.session)
+        logging.info('Starting STAGE 0 ...')
+        import_basic_data(session_object())
+        logging.info('Starting STAGE 1 ...')
+        index_osm_data(session_object())
+        logging.info('Starting STAGE 2 ...')
         manager = WorkflowManager()
         manager.start_poi_harvest()
         manager.join()
+        logging.info('Starting STAGE 3 ...')
         # Load basic dataset from database
-        poi_addr_data = load_poi_data(db)
+        poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
         # Download and load POI dataset to database
+        logging.info('Starting STAGE 4 ...')
         poi_common_data = load_common_data(db)
         logging.info('Merging dataframes ...')
         poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
         # Add additional empty fields
+        logging.info('Starting STAGE 5 ...')
+        del poi_addr_data
+
+        logging.info('Starting STAGE 6 ...')
+        poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
+        logging.info('Merging dataframes ...')
+        poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
         poi_addr_data['osm_id'] = None
         poi_addr_data['osm_node'] = None
         poi_addr_data['osm_version'] = None
@@ -153,7 +200,7 @@ def main():
         poi_addr_data['osm_live_tags'] = None
         # Export non-transformed data
         export_raw_poi_data(poi_addr_data, poi_common_data)
-        # export_raw_poi_data_xml(poi_addr_data)
+        export_raw_poi_data_xml(poi_addr_data)
         logging.info('Saving poi_code grouped filesets...')
         # Export non-transformed filesets
         manager.start_exporter(poi_addr_data)
@@ -161,21 +208,30 @@ def main():
         logging.info('Merging with OSM datasets ...')
         poi_addr_data['osm_nodes'] = None
         poi_addr_data['poi_distance'] = None
+        logging.info('Starting STAGE 7 ...')
         # Enrich POI datasets from online OpenStreetMap database
         logging.info('Starting online POI matching part...')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
+        '''
+        poi_addr_data['geometry_wkb'] = poi_addr_data['poi_geom'].apply(lambda poi_geom: poi_geom.wkb)
+        insert_poi_dataframe(session, poi_addr_data, False)
+        '''
         # Export filesets
-        export_raw_poi_data(poi_addr_data, poi_common_data, '_merge')
-        manager.start_exporter(poi_addr_data, 'merge_')
-        manager.start_exporter(poi_addr_data, 'merge_', export_grouped_poi_data_with_postcode_groups)
+        prefix = 'merge_'
+        export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
+        logging.info('Starting matched POI ...')
+        manager.start_exporter(poi_addr_data, prefix)
         manager.join()
-
+        logging.info('Starting grouped matched POI ...')
+        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
+        manager.join()
     except (KeyboardInterrupt, SystemExit):
         logging.info('Interrupt signal received')
         sys.exit(1)
-    except Exception as err:
-        raise err
+    except Exception as e:
+        logging.exception('Exception occurred: {}'.format(e))
+        logging.exception(traceback.print_exc())
 
 
 if __name__ == '__main__':

@@ -6,6 +6,9 @@ db.write.port=5432
 db.write.username=poi
 db.write.password=poitest
 db.poi.database=poi
+db.enable.analyze=False
+db.enable.query_log=False
+db.enable.huge_query=False
 
 # Directory settings
 dir.output=output
@@ -17,7 +20,7 @@ geo.default.poi.unsafe.distance=5
 geo.default.poi.perfect.distance=300
 geo.default.poi.road.distance=600
 geo.amenity.atm.poi.distance=20
-geo.shop.conveience.poi.distance=50
+geo.shop.convenience.poi.distance=50
 geo.amenity.post.office.poi.distance=200
 geo.prefer.osm.postcode=True
 geo.alternative.opening.hours=False
@@ -26,5 +29,9 @@ geo.alternative.opening.hours.tag=opening_hours:covid19
 download.verify.link=True
 download.use.cached.data=False
 
-dataproviders.modules.available = hu_aldi, hu_avia, hu_benu, hu_budapest_bank, hu_cba, hu_cib_bank, hu_dm, hu_emobi_ev, hu_foxpost, hu_jysk, hu_kh_bank, hu_kulcs_patika, hu_magnet_bank, hu_mobiliti_ev, hu_mobil_petrol,hu_mol_bubi, hu_mol_plugee_ev, hu_mol, hu_oil, hu_omv, hu_penny_market, hu_pepco, hu_posta_json, hu_posta, hu_rossmann, hu_sber_bank, hu_shell, hu_spar, hu_tesco, hu_tom_market, hu_yves_rocher
-dataproviders.modules.enable = hu_posta, hu_aldi, hu_avia, hu_benu, hu_budapest_bank, hu_cba, hu_cib_bank, hu_dm, hu_emobi_ev, hu_foxpost, hu_jysk, hu_kh_bank, hu_kulcs_patika, hu_magnet_bank, hu_mobiliti_ev, hu_mobil_petrol, hu_mol_bubi, hu_mol_plugee_ev, hu_mol, hu_oil, hu_omv, hu_penny_market, hu_pepco, hu_posta_json, hu_rossmann, hu_sber_bank, hu_shell, hu_spar, hu_tesco, hu_tom_market, hu_yves_rocher
+use.general.source.website.date=True
+use.general.source.website.date.tag=source:date
+
+dataproviders.limit.elements=None
+dataproviders.modules.available = hu_aldi, hu_avia, hu_benu, hu_cba, hu_ccc, hu_cib_bank, hu_deichmann, hu_dm, hu_easybox, hu_fire_station, hu_foxpost, hu_gls, hu_jysk, hu_kh_bank, hu_kulcs_patika, hu_magnet_bank, hu_mobiliti_ev, hu_mobil_petrol,hu_mol_bubi, hu_mol_plugee_ev, hu_mol, hu_obi, hu_ofotert, hu_oil, hu_omv, hu_penny_market, hu_pepco, hu_pingvin_patika, hu_posta_json, hu_posta, hu_rossmann, hu_sber_bank, hu_shell, hu_spar, hu_tesco, hu_tom_market, hu_yves_rocher, hu_volanbusz
+dataproviders.modules.enable = hu_posta, hu_aldi, hu_avia, hu_benu, hu_cba, hu_ccc, hu_cib_bank, hu_deichmann, hu_dm, hu_easybox, hu_fire_station, hu_foxpost, hu_gls, hu_jysk, hu_kh_bank, hu_kulcs_patika, hu_magnet_bank, hu_mobiliti_ev, hu_mobil_petrol, hu_mol_bubi, hu_mol_plugee_ev, hu_mol, hu_obi, hu_ofotert, hu_oil, hu_omv, hu_penny_market, hu_pepco, hu_pingvin_patika, hu_posta_json, hu_rossmann, hu_sber_bank, hu_shell, hu_spar, hu_tesco, hu_tom_market, hu_yves_rocher, hu_volanbusz

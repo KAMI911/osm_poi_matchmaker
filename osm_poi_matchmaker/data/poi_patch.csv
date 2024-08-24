@@ -1,0 +1,2039 @@
+poi_code	orig_postcode	orig_city	orig_street	orig_housenumber	orig_conscriptionnumber	orig_name	new_postcode	new_city	new_street	new_housenumber	new_conscriptionnumber	new_name
+*	1011	Budapest	Battyhány tér	*			1011	Budapest	Batthyány tér	*		
+*	1011	Budapest	Batthyány tér HÉV megálló				1011	Budapest	Batthyány tér			
+*	1013	Budapest	Alkotás utca	20-24			1012	Budapest	Alkotás utca	20-24		
+*	1012	Budapest	Attila utca	109			1012	Budapest	Attila út	109		
+hupostacso	1870	Budapest	Krisztina körút	37/a			1013	Budapest	Krisztina körút	37/a		
+*	1021	Budapest	Hüvösvölgyi utca	135			1021	Budapest	Hűvösvölgyi út	135		
+hupostacso	1870	Budapest	Hűvösvölgyi út	138			1021	Budapest	Hűvösvölgyi út	138		
+*	1023	Budapest	Frankel Leó utca	27			1023	Budapest	Frankel Leó út	27		
+*	1023	Budapest	Frankel Leó utca	45			1023	Budapest	Frankel Leó út	45		
+*	1023	Budapest	Frankel Leó utca	53			1023	Budapest	Frankel Leó út	53		
+*	1024	Budapest	Lövőház u.	*			1024	Budapest	Lövőház utca	*		
+*	1024	Budapest	Petrezselyem u.	*			1024	Budapest	Petrezselyem utca	*		
+*	1025	Budapest	Csatárka utca	49			1025	Budapest	Csatárka út	49		
+*	1025	Budapest	Csatárka utca	51			1025	Budapest	Csatárka út	51		
+*	1026	Budapest	Gábor Áron u. ; Rózsakert Üzletház	*			1026	Budapest	Gábor Áron utca	*		
+*	1027	Budapest	Gábor Áron u.; Rózsakert Üzletház	*			1026	Budapest	Gábor Áron utca	*		
+*	1026	Budapest	Rózsakert Üzletház, Gábor Áron u.	*			1026	Budapest	Gábor Áron utca	*		
+*	1015	Budapest	Csalogány utca	23			1027	Budapest	Csalogány utca	23		
+*	1018	Budapest	Csalogány utca	55			1027	Budapest	Csalogány utca	55		
+*	1027	Budapest	Horváth utca	*			1027	Budapest	Horvát utca	*		
+*	1024	Budapest	Margit körút	50-52			1027	Budapest	Margit körút	50-52		
+*	1027	Budapest	Medve u.	*			1027	Budapest	Medve utca	*		
+*	1028	Budapest	Szabadság-Közsgégház utca				1028	Budapest	Szabadság utca			
+*	1034	Budapest	Bécsi út	136			1032	Budapest	Bécsi út	136		
+*	1037	Budapest	Bécsi út	136			1032	Budapest	Bécsi út	136		
+*	1036	Budapest	Bécsi út	136			1032	Budapest	Bécsi út	136		
+*	1033	Budapest	Flórián tér.; Flórián Üzletközpont  / fiók előtti	*			1033	Budapest	Flórián tér	*		
+*	1033	Budapest	Flórián tér; Flórián Üzletközpont / bejáratnál	*			1033	Budapest	Flórián tér	*		
+*	1033	Budapest	Flórián Üzletközpont, Flórián tér	*			1033	Budapest	Flórián tér	*		
+*	1033	Budapest	Flórián téri aluljáró	*			1033	Budapest	Flórián tér	*		
+*	1033	Budapest	Kórház utca piac	17			1033	Budapest	Kórház utca	17		
+*	1032	Budapest	Bécsi út	92			1034	Budapest	Bécsi út	92		
+*	1036	Budapest	Árpád fejedelem út	103			1036	Budapest	Árpád fejedelem útja	103		
+hupostacso	1836	Budapest	Bécsi út	258			1037	Budapest	Bécsi út	258		
+*	1032	Budapest	Bécsi út	258			1037	Budapest	Bécsi út	258		
+*	1031	Budapest	Gémeskút utca	*			1037	Budapest	Gémeskút utca	*		
+*	1039	Budapest	Batthyány út	*			1039	Budapest	Batthyány utca	*		
+*	1038	Budapest	Csobánka tér	*			1039	Budapest	Csobánka tér	*		
+*	1039	Budapest	Pünkösfürdő út	*			1039	Budapest	Pünkösdfürdő utca	*		
+*	1039	Budapest	Rákóczi út	*			1039	Budapest	Rákóczi utca	*		
+*	1039	Budapest	Szentendrei utca				1039	Budapest	Szentendrei út			
+*	1039	Budapest	Szentendrei- Czetz János utca  sarok				1039	Budapest	Szentendrei út			
+*	1039	Budapest	Viziorgona utca	*			1039	Budapest	Víziorgona utca	*		
+*	1039	Budapest	Zsirai Miklós  utca	*			1039	Budapest	Zsirai Miklós utca	*		
+*	1038	Budapest	Zsirai Miklós  utca	*			1039	Budapest	Zsirai Miklós utca	*		
+*	1042	Budapest	István út	10			1041	Budapest	István út	10		
+*	1046	Budapest	Görgey Artút út	22			1042	Budapest	Görgey Artúr út	22		
+*	1044	Budapest	Király utca	*			1042	Budapest	Király utca	*		
+*	1041	Budapest	Nyár utca	24			1042	Budapest	Nyár utca	24		
+*	1045	Budapest	Rózsa utca	18			1042	Budapest	Rózsa utca	18		
+*	1043	Budapest	István u.	8			1043	Budapest	István út	8		
+*	1046	Budapest	Külső Váci út	77			1044	Budapest	Váci út	77		
+*	1042	Budapest	Árpád út	183			1045	Budapest	Árpád út	183		
+*	1045	Budapest	IV, 04 Árpád út	183-185			1045	Budapest	Árpád út	183-185		
+*	1043	Budapest	Pozsonyi út	1			1045	Budapest	Pozsonyi utca	1		
+*	1046	Budapest	Kiss utca	*			1046	Budapest	Kiss Ernő utca	*		
+*	1048	Budapest	Külső-Szilágyi út	*			1048	Budapest	Külső Szilágyi út	*		
+*	1052	Budapest	Apáczai Csere János  utca	*			1051	Budapest	Apáczai Csere János utca	*		
+*	1052	Budapest	Apáczai Csere János utca	*			1051	Budapest	Apáczai Csere János utca	*		
+*	1051	Budapest	Nádor u.	*			1051	Budapest	Nádor utca	*		
+*	1052	Budapest	Budapest Károly körút	20			1052	Budapest	Károly körút	20		
+*	1052	Budapest	Károly krt	20			1052	Budapest	Károly körút	20		
+*	1054	Budapest	Kossuth Lajos tér	*			1055	Budapest	Kossuth Lajos tér	*		
+*	1055	Budapest	Kossuth tér	*			1055	Budapest	Kossuth Lajos tér	*		
+*	1055	Budapest	Szent István krt.	15			1055	Budapest	Szent István körút	15		
+*	1062	Budapest	Andrássy utca	86			1062	Budapest	Andrássy út	86		
+*	1062	Budapest	Westend City Center (Lechner Ödön krt. 29/a.), Váci út	1-3			1062	Budapest	Váci út	1-3		
+*	1065	Budapest	Bajcsy Zsilinszky út	5			1065	Budapest	Bajcsy-Zsilinszky út	5		
+*	1065	Budapest	Bajcsy-Zsilinszky Endre út	5-7			1065	Budapest	Bajcsy-Zsilinszky út	5-7		
+*	1061	Budapest	Bajcsy- Zsilinszky út	5-7			1065	Budapest	Bajcsy-Zsilinszky út	5-7		
+*	1066	Budapest	Nagymező utca	*			1065	Budapest	Nagymező utca	*		
+hupostacso	1857	Budapest	Nyugati tér	aluljáró			1066	Budapest	Nyugati tér			
+*	1066	Budapest	Teréz krt.	42-44			1066	Budapest	Teréz körút	42-44		
+*	1073	Budapest	Erzsébet krt.	*			1073	Budapest	Erzsébet körút	*		
+*	1075	Budapest	Károly krt.	3/b			1075	Budapest	Károly körút	3/b		
+*	1071	Budapest	Király utca	35-37			1077	Budapest	Király utca	35-37		
+*	1071	Budapest	István utca	*			1078	Budapest	István utca	*		
+*	1084	Budapest	Népszínház utca	*			1081	Budapest	Népszínház utca	*		
+*	1083	Budapest	Futó utca	*			1082	Budapest	Futó utca	*		
+hupostacso	1870	Budapest	Futó utca	37-45			1082	Budapest	Futó utca	37-45		
+*	1082	Budapest	Futó utca	.			1082	Budapest	Futó utca			
+*	1089	Budapest	Baross utca	111			1083	Budapest	Baross utca	111		
+*	1088	Budapest	Blaha Lujza tér	*			1085	Budapest	Blaha Lujza tér	*		
+*	1087	Budapest	József körút	50			1085	Budapest	József körút	50		
+*	1086	Budapest	Teleki tér				1086	Budapest	Teleki László tér			
+*	1148	Budapest	Kerepesi út	8			1087	Budapest	Kerepesi út	8		
+*	1087	Budapest	Kerepesi utca	9-11			1087	Budapest	Kerepesi út	9-11		
+*	1085	Budapest	József körút	5			1088	Budapest	József körút	5		
+*	1089	Budapest	Golgota tér	.			1089	Budapest	Golgota tér			
+*	1089	Budapest	kálvária tér				1089	Budapest	Kálvária tér			
+*	1089	Budapest	Orczy utca	*			1089	Budapest	Orczy út	*		
+*	1098	Budapest	Üllői út	137			1091	Budapest	Üllői út	137		
+*	1094	Budapest	Ferenc krt.	15			1094	Budapest	Ferenc körút	15		
+*	1094	Budapest	Ferenc krt. 15.	15			1094	Budapest	Ferenc körút	15		
+*	1092	Budapest	Mester utca	1			1095	Budapest	Mester utca	1		
+*	1095	Budapest	IX, 09 Mester utca	87			1095	Budapest	Mester utca	87		
+*	1097	Budapest	Soroksári út				1095	Budapest	Soroksári út			
+*	1094	Budapest	Thaly Kálmán út	*			1096	Budapest	Thaly Kálmán utca	*		
+*	1097	Budapest	ECSERI út	9			1097	Budapest	Ecseri út	9		
+*	1097	Budapest	Határ utca				1097	Budapest	Határ út			
+*	1097	Budapest	Koppány u. (Tesco áruház)	*			1097	Budapest	Koppány utca	*		
+*	1097	Budapest	Könyves Kálmán körút 12-14., Lurdy ház				1097	Budapest	Könyves Kálmán körút	12-14		
+*	1095	Budapest	Ecseri út	2			1098	Budapest	Ecseri út	2		
+*	1098	Budapest	IX, 09 Lobogó utca	*			1098	Budapest	Lobogó utca	*		
+*	1107	Budapest	Kőbányai út	57/A			1101	Budapest	Kőbányai út	57/a		
+*	1107	Budapest	Kőbányai út				1101	Budapest	Kőbányai út			
+*	1101	Budapest	Üllői utca	110			1101	Budapest	Üllői út	110		
+*	1102	Budapest	Körősi Csoma sétány	*			1102	Budapest	Kőrösi Csoma sétány	*		
+*	1102	Budapest	Kőrösi Cs. sétány	*			1102	Budapest	Kőrösi Csoma sétány	*		
+*	1108	Budapest	Sibrik Miklós út	30			1103	Budapest	Sibrik Miklós út	30		
+*	1103	Budapest	Sibrik Miklós utca	30			1103	Budapest	Sibrik Miklós út	30		
+*	0	Budapest	Sibrik - Gyömrői sarok				1103	Budapest	Sibrik Miklós út			
+*	1102	Budapest	Kőrösi Csoma Sándor utca	35-37			1105	Budapest	Kőrösi Csoma Sándor út	35-37		
+*	1102	Budapest	Maláta utca	*			1105	Budapest	Maláta utca	*		
+*	1106	Budapest	Fehér utca	*			1106	Budapest	Fehér út	*		
+*	0	Budapest	Jászberényi út	*			1106	Budapest	Jászberényi út	*		
+*	1106	Budapest	Keresztúri utca	108/A			1106	Budapest	Keresztúri út	108/a		
+hupostacso	1870	Budapest	Örs Vezér tere	23			1106	Budapest	Örs vezér tere	23		
+hupostacso	1870	Budapest	Örs vezér tere	23			1106	Budapest	Örs vezér tere	23		
+*	1106	Budapest	Örs Vezér tere	25/A			1106	Budapest	Örs vezér tere	25/a		
+*	1107	Budapest	Bihari út	*			1107	Budapest	Bihari utca	*		
+*	1107	Budapest	FOGADÓ u	1/A			1107	Budapest	Fogadó utca	1/a		
+*	1103	Budapest	Sibrik Miklós út	32			1108	Budapest	Sibrik Miklós út	32		
+*	1111	Budapest	Bartók Béla  út	14			1111	Budapest	Bartók Béla út	14		
+*	1117	Budapest	Irinyi József utca	45			1111	Budapest	Irinyi József utca	45		
+*	1117	Budapest	Irinyi József utca	47			1111	Budapest	Irinyi József utca	47		
+*	1112	Budapest	balatoni út				1112	Budapest	Balatoni út			
+*	1112	Budapest	Budaörsi utca	112			1112	Budapest	Budaörsi út	112		
+*	1112	Budapest	Budaőrsi út	112			1112	Budapest	Budaörsi út	112		
+*	1118	Budapest	Budaörsi út	126			1112	Budapest	Budaörsi út	126		
+*	1115	Budapest	Hetényi utca	*			1112	Budapest	Hetény utca	*		
+*	1116	Budapest	Péterhegyi út	*			1112	Budapest	Péterhegyi út	*		
+*	1114	Budapest	Szabolcska utca	*			1114	Budapest	Szabolcska Mihály utca	*		
+*	1115	Budapest	Bartók Béla utca	105-113			1115	Budapest	Bartók Béla út	105-113		
+*	1115	Budapest	Bartók Béla utca	127-129			1115	Budapest	Bartók Béla út	127-129		
+hupostacso	1871	Budapest	Etele tér	aluljáró			1115	Budapest	Etele tér			
+*	1119	Budapest	Fegyvernek utca				1116	Budapest	Fegyvernek utca			
+*	1116	Budapest	XI, 11 Fehérvári út	192			1116	Budapest	Fehérvári út	192		
+*	1119	Budapest	Fehérvári út	192			1116	Budapest	Fehérvári út	192		
+*	1116	Budapest	XI, 11 Kondorosi út	6			1116	Budapest	Kondorosi út	6		
+*	1117	Budapest	Bogdánfy utca	*			1117	Budapest	Bogdánfy Ödön utca	*		
+*	1117	Budapest	Budafoki utca	111-113			1117	Budapest	Budafoki út	111-113		
+*	1117	Budapest	Hengermalom utca	19-21			1117	Budapest	Hengermalom út	19-21		
+*	1116	Budapest	Hunyadi János út	*			1117	Budapest	Hunyadi János út	*		
+*	1117	Budapest	Hunyadi János utca	*			1117	Budapest	Hunyadi János út	*		
+*	1117	Budapest	Hunyadi János út 19., Savoya park				1117	Budapest	Hunyadi János út	19		
+*	1117	Budapest	Irinyi utca	34-36			1117	Budapest	Irinyi József utca	34-36		
+*	1117	Budapest	Körösi József utca	*			1117	Budapest	Kőrösy József utca	*		
+*	1117	Budapest	Magyar Tudósok körút	*			1117	Budapest	Magyar tudósok körútja	*		
+*	1117	Budapest	Október 23. utca	*			1117	Budapest	Október huszonharmadika utca	*		
+*	1117	Budapest	Allee Bevásárlóközpont, Október 23. u.	*			1117	Budapest	Október huszonharmadika utca	*		
+hupostacso	1871	Budapest	Október huszonharmadika utca	8-10			1117	Budapest	Október huszonharmadika utca	8-10		
+*	1116	Budapest	Budaörsi út	115			1118	Budapest	Budaörsi út	115		
+*	1118	Budapest	budaörsi út				1118	Budapest	Budaörsi út			
+*	1115	Budapest	Andor utca	*			1119	Budapest	Andor utca	*		
+humolfu	1119	Budapest	Szeghalom utca				1119	Budapest	Borszéki utca			
+hupostacso	1871	Budapest	Fehérvári út	161			1119	Budapest	Fehérvári út	161		
+*	1116	Budapest	Fehérvári út	45-47			1119	Budapest	Fehérvári út	45-47		
+*	1194	Budapest	Puskás F. utca	*			1119	Budapest	Puskás Tivadar utca	*		
+*	1117	Budapest	Tétényi út	63			1119	Budapest	Tétényi út	63		
+*	1124	Budapest	Rácz Aladár út	*			1121	Budapest	Rácz Aladár út	*		
+*	1122	Budapest	Kékgolyó u.	1			1122	Budapest	Kék Golyó utca	1		
+*	1122	Budapest	Magyar Jakobinusok tere	*			1122	Budapest	Magyar jakobinusok tere	*		
+*	1123	Budapest	Alkotás u.	53			1123	Budapest	Alkotás utca	53		
+*	1123	Budapest	Alkotás u. (MOM park)	53			1123	Budapest	Alkotás utca	53		
+*	1123	Budapest	Csőrsz utca	23-25			1123	Budapest	Csörsz utca	23-25		
+*	1122	Budapest	Nagyenyed utca	*			1123	Budapest	Nagyenyed utca	*		
+*	1123	Budapest	Jagelló út	20			1124	Budapest	Jagelló út	20		
+*	1125	Budapest	Istenhegyi utca	55			1125	Budapest	Istenhegyi út	55		
+*	1125	Budapest	Zalai utca	*			1125	Budapest	Zalai út	*		
+*	1126	Budapest	Nagy Jenő u.	*			1126	Budapest	Nagy Jenő utca	*		
+*	1125	Budapest	Szendrő utca	*			1126	Budapest	Szendrő utca	*		
+*	1131	Budapest	Béke út	73			1131	Budapest	Béke utca	73		
+*	1139	Budapest	Bessenyei utca				1133	Budapest	Bessenyei utca			
+hupostacso	1870	Budapest	Árpád híd	aluljáró			1133	Budapest	Göncz Árpád városközpont			
+*	1135	Budapest	Váci út	9-15			1134	Budapest	Váci út	9-15		
+*	1135	Budapest	Béke út	13-19			1135	Budapest	Béke utca	13-19		
+*	1135	Budapest	Béke út	58			1135	Budapest	Béke utca	58		
+*	1139	Budapest	Országbíró utca	54			1135	Budapest	Országbíró utca	54		
+*	1131	Budapest	Reitter Ferenc utca	99			1135	Budapest	Reitter Ferenc utca	99		
+*	1135	Budapest	Szent László utca	25			1135	Budapest	Szent László út	25		
+*	1131	Budapest	Dunavirág utca	*			1138	Budapest	Dunavirág utca	*		
+hupostacso	1870	Budapest	Gács utca	3			1138	Budapest	Gács utca	3		
+*	1131	Budapest	Gyöngyösi sétány	*			1138	Budapest	Gyöngyösi sétány	*		
+*	1138	Budapest	népfürdő utca				1138	Budapest	Népfürdő utca			
+*	1139		Országbíró út	38-42			1139	Budapest	Országbíró utca	38-42		
+*	1138	Budapest	Pap Károly utca				1139	Budapest	Pap Károly utca			
+*	1144	Budapest	Fogarasi út	183			1141	Budapest	Fogarasi út	183		
+*	1142	Budapest	Kacsóh Pongrácz út	131			1142	Budapest	Kacsóh Pongrác út	131		
+*	1146	Budapest	Vágány utca	21			1142	Budapest	Vágány utca	21		
+*	1141	Budapest	Hungária  körút	116			1143	Budapest	Hungária körút	116		
+*	1141	Budapest	Hungária körút	116-118			1143	Budapest	Hungária körút	116-118		
+*	1146	Budapest	Stefánia út	75			1143	Budapest	Stefánia út	75		
+*	1149	Budapest	SZOBRÁNC utca	*			1143	Budapest	Szobránc utca	*		
+*	1141	Budapest	Csertő park	3/A			1144	Budapest	Csertő park	3/a		
+*	1144	Budapest	füredi út				1144	Budapest	Füredi utca			
+*	1144	Budapest	Gvadányi út	*			1144	Budapest	Gvadányi utca	*		
+*	1144	Budapest	Szentmihályi utca	*			1144	Budapest	Szentmihályi út	*		
+*	1069	Budapest	Dózsa györgy út				1146	Budapest	Dózsa György út			
+*	1145	Budapest	Thököly út	122			1146	Budapest	Thököly út	122		
+*	1149	Budapest	Fogarasi út	56/A			1148	Budapest	Fogarasi út	56/a		
+*	1148	Budapest	Örs vezér tér	*			1148	Budapest	Örs vezér tere	*		
+*	1146	Budapest	Egressy út	178/C			1149	Budapest	Egressy út	178/c		
+*	1149	Budapest	MOGYORÓDI út	22-32			1149	Budapest	Mogyoródi út	22-32		
+*	1149	Budapest	Nagy Lajos király utca	146			1149	Budapest	Nagy Lajos király útja	146		
+*	1149	Budapest	Nagy Lajos király út	146			1149	Budapest	Nagy Lajos király útja	146		
+*	1141	Budapest	Nagy Lajos király útja	212-214			1149	Budapest	Nagy Lajos király útja	212-214		
+hupostacso	1870	Budapest	Pillangó utca	15			1149	Budapest	Pillangó utca	15		
+huemobichs	1152	Budapest	Szilas pihenő	3			1152	Budapest	M3 autópálya			
+*	1153	Budapest	Széchenyi tér	*			1152	Budapest	Széchenyi tér	*		
+*	1154	Budapest	Szentmihályi út	131			1152	Budapest	Szentmihályi út	131		
+hupostacso	1836	Budapest	Szentmihályi út	167-169			1152	Budapest	Szentmihályi út	167-169		
+*	1152	Budapest	Szentmihályi utca	167-169			1152	Budapest	Szentmihályi út	167-169		
+*	1156	Budapest	szentmihályi út				1152	Budapest	Szentmihályi út			
+*	1156	Budapest	Szentmihályi út	148			1154	Budapest	Szentmihályi út	148		
+*	1152	Budapest	Szent Korona útja	25/B			1155	Budapest	Szent Korona útja	25/b		
+*	1153	Budapest	Nyírpalota utca	2			1156	Budapest	Nyírpalota út	2		
+*	1156	Budapest	Nyírpalota utca	2-4			1156	Budapest	Nyírpalota út	2-4		
+*	1156	Budapest	Páskomliget u.	*			1156	Budapest	Páskomliget utca	*		
+*	1152	Budapest	Szilas park	*			1156	Budapest	Szilas park	*		
+*	1162	Budapest	Köztársaság útja	*			1161	Budapest	Köztársaság útja	*		
+*	1162	Budapest	Csömöri és Szlovák utca sarok				1162	Budapest	Csömöri út			
+*	1162	Budapest	Rákosi utca	142-146			1162	Budapest	Rákosi út	142-146		
+*	1162	Budapest	Szlovák út sarok				1162	Budapest	Szlovák út			
+*	1163	Budapest	Veres Péter utca	47			1163	Budapest	Veres Péter út	47		
+*	1165	Budapest	BÖKÉNYFÖLDI út	*			1165	Budapest	Bökényföldi út	*		
+*	1165	Budapest	Centenárium sétány	*			1165	Budapest	Centenáriumi sétány	*		
+*	1163	Budapest	Veres Péter út	105-107			1165	Budapest	Veres Péter út	105-107		
+*	1173	Budapest	Pesti út	273/C			1171	Budapest	Pesti út	273/c		
+*	1172	Budapest	XVII, 17 Naplás út	*			1172	Budapest	Naplás út	*		
+*	1172	Budapest	Szent Imre utca	*			1172	Budapest	Szent Imre herceg út	*		
+*	1172	Budapest	Pesti út	22			1173	Budapest	Pesti út	22		
+*	1171	Budapest	Pesti út	237/P			1173	Budapest	Pesti út	237/p		
+*	1173	Budapest	XVII, 17 Pesti út	5			1173	Budapest	Pesti út	5		
+hupostacso	1826	Budapest	Pesti út	5-7			1173	Budapest	Pesti út	5-7		
+*	1172	Budapest	525. tér				1173	Budapest	525. tér			
+*	1174	Budapest	Bányapart utca	*			1174	Budapest	Bánya part	*		
+*	1174	Budapest	Szabad Május tér	*			1174	Budapest	Szabad május tér	*		
+*	1181	Budapest	XVII, 18 Baross utca	*			1181	Budapest	Baross utca	*		
+hupostacso	1826	Budapest	Üllői út	661			1182	Budapest	Üllői út	661		
+*	1186	Budapest	Üllői út	661			1182	Budapest	Üllői út	661		
+*	1185	Budapest	Üllői út	661			1182	Budapest	Üllői út	661		
+*	1183	Budapest	gyömrői út				1183	Budapest	Gyömrői út			
+*	1184	Budapest	Lakatos utca	*			1184	Budapest	Lakatos út	*		
+*	1185	Budapest	Üllői utca	738			1185	Budapest	Üllői út	738		
+*	1182	Budapest	Cziffra György utca	15/B			1186	Budapest	Cziffra György utca	15/b		
+*	1180	Budapest	Margó Tivadar u.	83			1186	Budapest	Margó Tivadar utca	83		
+*	1188	Budapest	Alacskai utca	1			1188	Budapest	Alacskai út	1		
+*	1182	Budapest	Alacskai út	3			1188	Budapest	Alacskai út	3		
+*	1195	Budapest	Ady Endre utca	42-44			1191	Budapest	Ady Endre út	42-44		
+*	1191	Budapest	Üllői utca	201			1191	Budapest	Üllői út	201		
+hupostacso	1826	Budapest	Üllői út	201			1191	Budapest	Üllői út	201		
+*	1195	Budapest	Üllői út	233			1191	Budapest	Üllői út	233		
+hupostacso	1826	Budapest	Vak Bottyán utca	75 a-c			1191	Budapest	Vak Bottyán utca	75/a-c		
+*	1191	Budapest	Vak Bottyán u.	75. A-C			1191	Budapest	Vak Bottyán utca	75/a-c		
+*	1192	Budapest	Pannónia utca	*			1192	Budapest	Pannónia út	*		
+*	1195	Budapest	Üllői út	280			1193	Budapest	Üllői út	280		
+*	0	Budapest	Citroen utca	*			1194	Budapest	Citroën utca	*		
+*	1195	Budapest	Méta utca				1194	Budapest	Méta utca			
+*	1191	Budapest	Batthyány utca	42			1195	Budapest	Batthyány utca	42		
+*	1193	Budapest	Üllői út	303			1195	Budapest	Üllői út	303		
+*	1191	Budapest	Templom tér	21			1196	Budapest	Templom tér	21		
+*	1201	Budapest	Vörösmarty út				1201	Budapest	Vörösmarty utca			
+*	1204	Budapest	Mártírok útja	281			1202	Budapest	Mártírok útja	281		
+*	1204	Budapest	Nagykőrösi út	185			1202	Budapest	Nagykőrösi út	185		
+*	1204	Budapest	Ady Endre út	67			1203	Budapest	Ady Endre utca	67		
+*	1203	Budapest	Kossuth L. u.	21-29			1203	Budapest	Kossuth Lajos utca	21-29		
+*	1201	Budapest	Kossuth Lajos utca	37/B			1203	Budapest	Kossuth Lajos utca	37/b		
+*	1201	Budapest	Széchenyi utca	*			1203	Budapest	Széchenyi utca	*		
+hupostacso	1871	Budapest	Széchenyi utca	1			1203	Budapest	Széchenyi utca	1		
+*	1203	Budapest	Topánka utca - Baross utca sarok				1203	Budapest	Topánka utca			
+*	1211	Budapest	II. Rákóczi Ferenc utca	69			1211	Budapest	II. Rákóczi Ferenc út	69		
+*	1212	Budapest	Kossuth Lajos utca	103			1211	Budapest	Kossuth Lajos utca	103		
+*	1211	Budapest	Kossuth L. u.	82			1211	Budapest	Kossuth Lajos utca	82		
+*	1211	Budapest	Kossuth utca	93			1211	Budapest	Kossuth Lajos utca	93		
+*	1214	Budapest	Salak út	*			1211	Budapest	Salak utca	*		
+*	1214	Budapest	Dunadűlő út	*			1212	Budapest	Dunadűlő út	*		
+*	1212	Budapest	II Rákóczi Ferenc út	154-170			1212	Budapest	II. Rákóczi Ferenc út	154-170		
+*	1211	Budapest	Rákóczi Ferenc utca	154-170			1212	Budapest	II. Rákóczi Ferenc út	154-170		
+hupostacso	1871	Budapest	II. Rákóczi Ferenc út	154-170			1212	Budapest	II. Rákóczi Ferenc út	154-170		
+*	1214	Budapest	Rákóczi F. út	174			1212	Budapest	II. Rákóczi Ferenc út	174		
+*	1214	Budapest	Szent László út	115			1213	Budapest	Szent László utca	115		
+*	1212	Budapest	Akácfa utca	*			1214	Budapest	Akácfa utca	*		
+*	1214	Budapest	Rákóczi Ferenc utca	189			1214	Budapest	II. Rákóczi Ferenc út	189		
+*	1214	Budapest	Rákóczi Ferenc út	191			1214	Budapest	II. Rákóczi Ferenc út	191		
+*	1214	Budapest	II. Rákóczi Ferenc utca	191			1214	Budapest	II. Rákóczi Ferenc út	191		
+*	1221	Budafok	Ady Endre utca	*			1221	Budapest	Ady Endre út	*		
+*	1221	Budapest	Ártér utca	*			1222	Budapest	Ártér utca	*		
+*	1225	Budapest	Nagytétényi út	31-33			1222	Budapest	Nagytétényi út	31-33		
+hupostacso	1871	Budapest	Nagytétényi út	35			1222	Budapest	Nagytétényi út	35		
+*	1221	Budapest	Nagytétényi út	37-43			1222	Budapest	Nagytétényi út	37-43		
+*	1223	Budapest	Nagytétényi út	37-43			1222	Budapest	Nagytétényi út	37-43		
+*	1223	Budapest	Nagytétényi út	76			1222	Budapest	Nagytétényi út	76		
+*	1238	Budapest	Grassalkovich utca	145			1238	Budapest	Grassalkovich út	145		
+*	1238	Budapest	Helsinki utca	108-112			1238	Budapest	Helsinki út	108-112		
+*	1239	Budapest	Hősök tere	21-27			1238	Budapest	Hősök tere	21-27		
+*	1239	Budapest	Bevásárló út	*			1239	Budapest	Bevásárló utca	*		
+*	1239	Budapest	Nagykörösi út	349			1239	Budapest	Nagykőrösi út	349		
+*	1239	Budapest	Nagykőrösi  út	351			1239	Budapest	Nagykőrösi út	351		
+*	1239	Budapest	ócsai út				1239	Budapest	Ócsai út			
+hupostapo	1251	Budapest	Fő utca	4			1251	Budapest	Fő út	4		
+hupostapo	1252	Budapest	Déli pu. 				1252	Budapest	Déli pályaudvar			
+hupostapo	1290	Budapest	Lövőház utca	2-6			1290	Budapest	Lövőház utca	1-5		
+hupostapo	1301	Budapest	Kolossy tér	5-6			1301	Budapest	Kolosy tér	5-6		
+hupostapo	1454	Budapest	Üllői út	89/a fsz-3			1454	Budapest	Üllői út	89/a		
+hupostapo	1455	Budapest	Gönczy Pál utca	2. Fszt. 4			1455	Budapest	Gönczy Pál utca	2		
+hupostapo	1676	Budapest	Királyhágó utca	5			1676	Budapest	Királyhágó út	5		
+hupostapo	1686	Budapest	BUD Nemzetközi Repülőtér 				1686	Budapest	Liszt Ferenc Nemzetközi repülőtér			
+hupostapo	1708	Budapest	Vak Bottyán utca	75. A-C			1708	Budapest	Vak Bottyán utca	75/a-c		
+hupostapo	1734	Budapest	Grassalkovich utca	153			1734	Budapest	Grassalkovich út	153		
+*	2000	Szentendre	Ady Endre utca	*			2000	Szentendre	Ady Endre út	*		
+*	2000	Szentendre	Dobogókői utca	*			2000	Szentendre	Dobogókői út	*		
+*	2000	Szentendre	Dunakorzó utca	*			2000	Szentendre	Duna korzó	*		
+*	2000	Szentendre	Vasúti villa	*			2000	Szentendre	Vasúti villasor	*		
+*	2045	Budakalász	Omszk park	*			2011	Budakalász	Omszk park	*		
+*	2013	Pomáz	Árpád Fejedelem útja	*			2013	Pomáz	Árpád fejedelem útja	*		
+*	2013	Pomáz	Árpád fejedelem utca				2013	Pomáz	Árpád fejedelem útja			
+*	2023	Dunabogdány	Kossuth Lajos utca	*			2023	Dunabogdány	Kossuth Lajos út	*		
+*	2023	Dunabogdány	11. sz főút		0160/1		2023	Dunabogdány	11. számú főközlekedési út		0160/1	
+*	2028	Pilismarót	Bajcsy-Zsillinszky utca	1/B			2028	Pilismarót	Bajcsy-Zsilinszky utca	1/b		
+*	2028	Pilismarót	Esztergomi utca	*			2028	Pilismarót	Esztergomi út	*		
+*	2030	Érd	Bajcsy-Zsilinszky utca	*			2030	Érd	Bajcsy-Zsilinszky út	*		
+*	2030	Érd	Budai utca	*			2030	Érd	Budai út	*		
+*	2030	Érd	Diósdi utca	*			2030	Érd	Diósdi út	*		
+*	0	Érd	Erika utca	*			2030	Érd	Erika utca	*		
+*	2030	Érd	Iparos út	*			2030	Érd	Iparos utca	*		
+hupostapo	2033	Érd	Fő út	69			2033	Érd	Fő utca	69		
+*	2030	Budaörs	Kandó Kálmán utca	*			2040	Budaörs	Kandó Kálmán utca	*		
+*	2040	Budaörs	Kinizsi út	*			2040	Budaörs	Kinizsi utca	*		
+*	2040	Budaörs	Rubik utca	*			2040	Budaörs	Rubik Ernő utca	*		
+hupostacso	1838	Budaörs	Sport utca	2-4			2040	Budaörs	Sport utca	2-4		
+*	2040	Budaörs	Szabadság utca	*			2040	Budaörs	Szabadság út	*		
+*	2045	Törökbálint	Bajcsy-Zs. u.	*			2045	Törökbálint	Bajcsy-Zsilinszky utca	*		
+*	2045	Törökbálint	Baross utca	*			2045	Törökbálint	Baross Gábor utca	*		
+*	2045	Törökbálint	BAROSS u	*			2045	Törökbálint	Baross Gábor utca	*		
+*	2040	Törökbálint	M0 Annahegyi pihenő				2045	Törökbálint	M0 autóút			
+*	2045	Törökbálint	Raktárvárosi utca	*			2045	Törökbálint	Raktárvárosi út	*		
+*	2045	Törökbálint	Park utca	*			2045	Törökbálint	Tópark utca	*		
+hupostapo	2046	Törökbálint	Depo raktár 				2046	Törökbálint	Depo			
+*	2049	Diósd	Kossuth Lajos út	*			2049	Diósd	Kossuth Lajos utca	*		
+*	2049	Diósd	Sashegyi utca	22/A			2049	Diósd	Sashegyi út	22/a		
+*	2051	Biatorbágy	Baross Gábor út	*			2051	Biatorbágy	Baross Gábor utca	*		
+*	2060	Bicske	Csabdi út	*			2060	Bicske	Csabdi utca	*		
+*	2071	Páty	Rákóczi utca	*			2071	Páty	Rákóczi Ferenc utca	*		
+*	2072	Zsámbék	M1 28 KM észak				2072	Zsámbék	M1 autópálya			
+*	2072	Zsámbék	Pihenő M1 autópálya				2072	Zsámbék	M1 autópálya			
+*	2080	Pilisjászfalu	Kápolna út	*			2080	Pilisjászfalu	Kápolna utca	*		
+*	2081	Piliscsaba	Bajcsy-Zsilinszky út	*			2081	Piliscsaba	Bajcsy-Zsilinszky utca	*		
+*	2081	Piliscsaba	Egyetem u.	*			2081	Piliscsaba	Egyetem utca	*		
+*	2081	Piliscsaba	Kinizsi u.	*			2081	Piliscsaba	Kinizsi Pál utca	*		
+*	2083	Solymár	Mátyás Király utca	*			2083	Solymár	Mátyás király utca	*		
+*	2082	Solymár	Szent Flórián utca	*			2083	Solymár	Szent Flórián utca	*		
+*	2083	Solymár	Tersztyánszky Ödön utca	*			2083	Solymár	Terstyánszky utca	*		
+*	2083	Solymár	Tersztyánszky út	*			2083	Solymár	Terstyánszky utca	*		
+*	2084	Pilisszentiván	Szabadság utca	*			2084	Pilisszentiván	Szabadság út	*		
+*	2085	Pilisvörösvár	Fő út	*			2085	Pilisvörösvár	Fő utca	*		
+*	2086	Tinnye	Bajcsy-Zsilinszky utca	*			2086	Tinnye	Bajcsy-Zsilinszky Endre utca	*		
+hupostapo	2087	Piliscsaba	Klotildliget, Egyetem utca	1			2087	Piliscsaba	Egyetem utca	1		
+*	2089	Telki	Napsugár utca	*			2089	Telki	Napsugár út	*		
+*	2092	Budakeszi	Budaörsi utca	2749/8 HRSZ			2092	Budakeszi	Budaörsi út		2749/8	
+*	2092	Budakeszi	Fő u.	*			2092	Budakeszi	Fő utca	*		
+*	2092	Budakeszi	Fő út	*			2092	Budakeszi	Fő utca	*		
+*	2092	Budakeszi	Szőlőskert út	*			2092	Budakeszi	Szőlőskert utca	*		
+*	2094	Nagykovácsi	Kossuth utca	*			2094	Nagykovácsi	Kossuth Lajos utca	*		
+*	2094	Nagykovácsi	Nagykovácsi utca	6/E			2094	Nagykovácsi	Nagykovácsi út	6/e		
+*	2095	Pilisszántó	Kossuth utca	*			2095	Pilisszántó	Kossuth Lajos utca	*		
+*	2096	Üröm	Bécsi utca	*			2096	Üröm	Bécsi út	*		
+*	2100	Gödöllo	Dózsa György út	*			2100	Gödöllő	Dózsa György út	*		
+*	2100	Gödöllő	Dózsa gy. út	*			2100	Gödöllő	Dózsa György út	*		
+*	2100	Gödöllő	Kossuth út	*			2100	Gödöllő	Kossuth Lajos utca	*		
+*	2100	Gödöllő	Kossuth utca	*			2100	Gödöllő	Kossuth Lajos utca	*		
+hupostapo	2102	Gödöllő	Szabadság utca	179			2102	Gödöllő	Szabadság út	179		
+*	2111	Szada	Dózsa György utca	*			2111	Szada	Dózsa György út	*		
+*	2112	Veresegyház	Budapesti utca	*			2112	Veresegyház	Budapesti út	*		
+*	2112	Veresegyház	Fő utca	*			2112	Veresegyház	Fő út	*		
+*	2112	Veresegyház	Fő utca				2112	Veresegyház	Fő út			
+*	2112	Veresegyház	Gödöllői út	2/A			2112	Veresegyház	Gödöllői utca	2/a		
+*	2117	Isaszeg	Ady Endre út	35/B			2117	Isaszeg	Ady Endre utca	35/b		
+*	2117	Isaszeg	Rákóczi utca		455		2117	Isaszeg	Rákóczi út		455	
+*	2118	Dány	Szabadság utca	*			2118	Dány	Szabadság út	*		
+*	2120	Dunakeszi	Béke út	3/A			2120	Dunakeszi	Béke utca	3/a		
+*	2120	Dunakeszi	Fő utca	*			2120	Dunakeszi	Fő út	*		
+*	2120	Dunakeszi	Madách utca	*			2120	Dunakeszi	Madách Imre utca	*		
+*	2120	Dunakeszi	2/a főút				2120	Dunakeszi	M2 autóút			
+*	2120	Dunakeszi	Toldi M. u.	*			2120	Dunakeszi	Toldi utca	*		
+hupostapo	2122	Dunakeszi	Barátság út	27			2122	Dunakeszi	Barátság útja	27		
+*	2131	Göd	Pesti út	176			2132	Göd	Pesti út	176		
+*	2133	Sződliget	Somogyi Béla utca	*			2133	Sződliget	Somogyi Bacsó Béla utca	*		
+*	2135	Csörög	Kisfaludy út	*			2135	Csörög	Kisfaludy utca	*		
+*	2141	Csömör	Laki sarok		3521		2141	Csömör	Laki utca		3521	
+*	2142	Nagytarcsa	Zrínyi utca	*			2142	Nagytarcsa	Zrínyi Miklós utca	*		
+*	2144	Kistarcsa	Szabadság utca	*			2143	Kistarcsa	Szabadság út	*		
+*	2151	Fót	Fehérkő út	*			2151	Fót	Fehérkő utca	*		
+*	2151	Fót	Szabadság út	*			2151	Fót	Károlyi István utca	*		
+*	2151	Fót	Szabó Dezső utca	2/B			2151	Fót	Szabó Dezső út	2/b		
+hupostapo	2152	Fót	Németh Kálmán út	40			2152	Fót	Németh Kálmán utca	40		
+*	2161	Csomád	Kossuth Lajos utca	*			2161	Csomád	Kossuth Lajos út	*		
+*	2163	Vácrátót	Kossuth utca				2163	Vácrátót	Kossuth Lajos utca			
+*	2163	Vácrátót	Petőfi tér	*			2163	Vácrátót	Petőfi Sándor tér	*		
+*	2166	Püspökszilágy	Kossuth utca	*			2166	Püspökszilágy	Kossuth Lajos utca	*		
+*	2170	Aszód	Kossuth Lajos út	*			2170	Aszód	Kossuth Lajos utca	*		
+*	2174	Verseg	Fő út	*			2174	Verseg	Fő utca	*		
+*	2176	Erdőkürt	Tanács út	*			2176	Erdőkürt	2949280	*		
+*	2177	Erdőtarcsa	Iskola út	*			2177	Erdőtarcsa	Iskola utca	*		
+*	2182	Domony	Fő út	*			2182	Domony	Fő utca	*		
+*	2183	Galgamácsa	Petőfi út	*			2183	Galgamácsa	Petőfi utca	*		
+*	2191	Bag	Dózsa György utca	*			2191	Bag	Dózsa György út	*		
+*	0	Bag	M3 autópálya	*			2191	Bag	M3 autópálya	*		
+*	2194	Tura	Rákóczi Ferenc út	*			2194	Tura	Rákóczi Ferenc utca	*		
+*	2194	Tura	Táncsics Mihály utca	*			2194	Tura	Táncsics Mihály út	*		
+*	2200	Monor	Ady Endre utca	*			2200	Monor	Ady Endre út	*		
+*	2200	Monor	Kossuth Lajos utca	*			2200	Monor	Kossuth Lajos út	*		
+*	2200	Monor	Kossuth Lajos utca	71/A			2200	Monor	Kossuth Lajos út	71/a		
+*	2200	Monor	Vasadi utca	*			2200	Monor	Vasadi út	*		
+*	2214	Pánd	Fő utca	*			2214	Pánd	Fő út	*		
+*	2220	Vecsés	Leiningen Károly utca	*			2220	Vecsés	Gróf Leiningen Károly utca	*		
+*	2220	Vecsés	Széchenyi utca	*			2220	Vecsés	Széchenyi út	*		
+*	2225	Üllő	PESTI út				2225	Üllő	Pesti út			
+*	2230	Gyömrő	Mendei utca	*			2230	Gyömrő	Mendei út	*		
+*	2234	Maglód	Eszterházy J. utca	*			2234	Maglód	Eszterházy János utca	*		
+*	2234	Maglód	Fő utca	*			2234	Maglód	Fő út	*		
+*	2234	Maglód	Jászberényi utca				2234	Maglód	Jászberényi út			
+*	2235	Mende	Fő utca	*			2235	Mende	Fő út	*		
+*	2243	Kóka	Dózsa György utca	*			2243	Kóka	Dózsa György út	*		
+*	2244	Úri	Rákóczi utca	*			2244	Úri	Rákóczi út	*		
+*	2253	Tápióság	Rákóczi utca	*			2253	Tápióság	Rákóczi Ferenc utca	*		
+*	2310	Szigetszentmiklós	Bajcsy Zs. u.	1/A			2310	Szigetszentmiklós	Bajcsy-Zsilinszky utca	1/a		
+*	2310	Szigetszentmiklós	Ifjúság utca	*			2310	Szigetszentmiklós	Ifjúság útja	*		
+*	2310	Szigetszentmiklós	Ipartelep Leshegy út	1/A			2310	Szigetszentmiklós	Leshegy utca	1/a		
+*	2310	Szigetszentmiklós	Rákóczi ferenc út				2310	Szigetszentmiklós	Rákóczi utca			
+*	2310	Szigetszentmiklós	Szentmiklósi út	*			2310	Szigetszentmiklós	Szent Miklós útja	*		
+*	2314	Halásztelek	II. Rákóczi Ferenc utca	*			2314	Halásztelek	II. Rákóczi Ferenc út	*		
+*	2316	Tököl	Fő út	*			2316	Tököl	Fő utca	*		
+*	2316	Tököl	Hermina utca 1-3., sziget				2316	Tököl	Hermina utca	1-3		
+hupostapo	2320	Tököl	Duna út	2			2320	Tököl	Duna utca	2		
+*	2330	Dunaharaszti	Fő utca	*			2330	Dunaharaszti	Fő út	*		
+hupostapo	2333	Dunaharaszti	Fő utca	106-108			2333	Dunaharaszti	Fő út	106-108		
+*	2335	Taksony	Széchenyi utca	*			2335	Taksony	Széchenyi István út	*		
+*	2339	Majosháza	Rákóczi út	*			2339	Majosháza	Rákóczi utca	*		
+*	2340	Kiskunlacháza	DÓZSA GYÖRGY út	*			2340	Kiskunlacháza	Dózsa György út	*		
+*	2340	Kiskunlacháza	Dózsa György utca	1/A			2340	Kiskunlacháza	Dózsa György út	1/a		
+*	2340	Kiskunlacháza	Rákóczi Ferenc utca	*			2340	Kiskunlacháza	Rákóczi út	*		
+*	2340	Kiskunlacháza	Rákóczi utca	*			2340	Kiskunlacháza	Rákóczi út	*		
+*	2347	Bugyi	Templom út	*			2347	Bugyi	Templom utca	*		
+*	2351	Alsónémedi	Fő utca	*			2351	Alsónémedi	Fő út	*		
+*	2360	Gyál	Körösi út	*			2360	Gyál	Kőrösi út	*		
+*	2363	Felsőpakony	Eötvös utca	*			2363	Felsőpakony	Eötvös József utca	*		
+*	2365	Inárcs	Széchenyi utca	*			2365	Inárcs	Széchenyi István út	*		
+*	2366	Kakucs	Sas telep	*			2366	Kakucs	Sastelep	*		
+*	2372	Dabas	Falu Tamás utca	4			2370	Dabas	Falu Tamás utca	4		
+*	2370	Dabas	Pesti út	*			2370	Dabas	2949292	*		
+*	2370	Dabas	50. számú főközlekedési út				2370	Dabas	5. számú főközlekedési út			
+*	2371	Dabas	Szent János utca	*			2371	Dabas	Szent János út	*		
+hupostapo	2372	Dabas	Szent István utca	22			2372	Dabas	Szent István út	22		
+*	2377	Örkény	Piac tér	*			2377	Örkény	2571613	*		
+*	2381	Táborfalva	Körösi út	*			2381	Táborfalva	Kőrösi utca	*		
+*	2400	Dunaújváros	Aranyvölgyi utca				2400	Dunaújváros	Aranyvölgyi út			
+hupostacso	2401	Dunaújváros	Béke körút	3			2400	Dunaújváros	Béke körút	3		
+*	2400	Dunaújváros	Bercsényi utca	*			2400	Dunaújváros	Bercsényi Miklós utca	*		
+*	2400	Dunaújváros	Dózsa György utca	*			2400	Dunaújváros	Dózsa György út	*		
+*	2400	Dunaújváros	Dózsa Gy. u.	*			2400	Dunaújváros	Dózsa György út	*		
+*	2400	Dunaújváros	Dózsa György utca	4/B			2400	Dunaújváros	Dózsa György út	4/b		
+*	2400	Dunaújváros	Esze Tamás út	*			2400	Dunaújváros	Esze Tamás utca	*		
+*	2400	Dunaújváros	Lánczos Kornél utca	*			2400	Dunaújváros	Láncos Kornél utca	*		
+*	2400	Dunaújváros	Magyar út 11., park				2400	Dunaújváros	Magyar út	11		
+*	2400	Dunaújváros	Martinovics Ignác út				2400	Dunaújváros	Martinovics Ignác utca			
+*	2400	Dunaújváros	TS M6 autópálya	*			2400	Dunaújváros	M6 autópálya	*		
+*	2400	Dunaújváros	Táncsics utca	*			2400	Dunaújváros	Táncsics Mihály utca	*		
+*	2422	Mezőfalva	Fehérvári út	*			2422	Mezőfalva	Fehérvári utca	*		
+*	2422	Mezőfalva	József Nándor utca	*			2422	Mezőfalva	József nádor utca	*		
+*	2422	Mezőfalva	Semmelweis utca	*			2422	Mezőfalva	Semmelweis Ignác utca	*		
+*	2425	Nagykarácsony	Rákóczi utca	*			2425	Nagykarácsony	Rákóczi Ferenc utca	*		
+*	2432	Szabadegyháza	István utca	*			2432	Szabadegyháza	István út	*		
+*	2435	Nagylók	Hunyadi János utca	*			2435	Nagylók	Hunyadi út	*		
+*	2435	Nagylók	Hunyadi utca	2/A			2435	Nagylók	Hunyadi út	2/a		
+*	2440	Szazhalombatta	Damjanich utca	*			2440	Százhalombatta	Damjanich utca	*		
+*	2443	Százhalombatta	DUFI Olajmunkás út	2			2440	Százhalombatta	Olajmunkás utca	2		
+*	2440	Százhalombatta	Vörösmarty Mihály utca	2/A			2440	Százhalombatta	Vörösmarty utca	2/a		
+hupostapo	2444	Százhalombatta	Szent László út	17			2444	Százhalombatta	Szent László utca	17		
+*	2451	Ercsi	Dózsa György  út	*			2451	Ercsi	Dózsa György út	*		
+*	2455	Beloiannisz	Elektra utca	*			2455	Beloiannisz	Ilektrá utca	*		
+*	2456	Besnyő	Petőfi út	*			2456	Besnyő	Petőfi Sándor utca	*		
+*	2457	Adony	Rákóczi utca	*			2457	Adony	Rákóczi Ferenc utca	*		
+*	2458	Kulcs	Rákóczi Ferenc utca	*			2458	Kulcs	Rákóczi utca	*		
+*	2461	Tárnok	M7 autópálya 26 km észak				2461	Tárnok	M7 autópálya			
+*	2461	Tárnok	Rákóczi utca	*			2461	Tárnok	Rákóczi Ferenc út	*		
+*	2462	Martonvásár	Bajcsy Zsilinszky út	*			2462	Martonvásár	Bajcsy-Zsilinszky Endre utca	*		
+*	2462	Martonvásár	Bajcsy-ZsilinszkyE utca	*			2462	Martonvásár	Bajcsy-Zsilinszky Endre utca	*		
+*	2462	Martonvásár	Fehérvár utca	1/A			2462	Martonvásár	Fehérvári út	1/a		
+*	2462	Martonvásár	Szent László utca	*			2462	Martonvásár	Szent László út	*		
+*	2463	Tordas	Köztársaság utca	*			2463	Tordas	Köztársaság út	*		
+*	2464	Gyúró	Rákóczi út	*			2464	Gyúró	Rákóczi Ferenc utca	*		
+*	2473	Kajászó	M7 autópálya	*			2472	Kajászó	M7 autópálya	*		
+*	2475	Kápolnásnyék	7-es főközlekedési út	43 km			2475	Kápolnásnyék	7. számú főközlekedési út	43		
+*	2475	Kápolnásnyék	7 főút				2475	Kápolnásnyék	7. számú főközlekedési út			
+*	2481	Velence	M 7. autópálya				2481	Velence	M7 autópálya			
+*	2481	Velence	Velence Tópart utca				2481	Velence	Tópart utca			
+*	2483	Gárdony	BALATONI út		70/10		2483	Gárdony	Balatoni út		70/10	
+*	2483	Gárdony	Szabadság utca	5			2483	Gárdony	Szabadság út	5		
+*	2483	Gárdony	Szabadság utca				2483	Gárdony	Szabadság út			
+*	2483	Gárdony	Fürdő tér	*			2484	Gárdony	Fürdő tér	*		
+*	2083	Gárdony	Szabadság utca	239			2484	Gárdony	Szabadság út	239		
+*	2490	Pusztaszabolcs	SZABOLCS liget	*			2490	Pusztaszabolcs	Szabolcs liget	*		
+*	2509	Esztergom	Dobogókői út				2500	Esztergom	Dobogókői út			
+*	2500	Esztergom	Mátyás Király út	*			2500	Esztergom	Mátyás király utca	*		
+*	2500	Esztergom	Mátyás Király utca	*			2500	Esztergom	Mátyás király utca	*		
+*	2500	Esztergom	Rudnay S. tér	*			2500	Esztergom	Rudnay Sándor tér	*		
+*	2508	Esztergom	Hunyadi utca	*			2508	Esztergom	Hunyadi János utca	*		
+*	2509	Esztergom	Damjanich utca	*			2509	Esztergom	Damjanich János út	*		
+*	2500	Esztergom	Damjanich János út	*			2509	Esztergom	Damjanich János út	*		
+*	2510	Dorog	Bécsi utca	*			2510	Dorog	Bécsi út	*		
+hupostapo	2511	Dorog	Mária út	31/d			2511	Dorog	Mária utca	31/d		
+*	2522	Dág	Széchenyi tér	*			2522	Dág	Széchenyi István tér	*		
+hupostapo	2524	Nagysáp	Köztársaság tér	1./a			2524	Nagysáp	Köztársaság tér	1/a		
+*	2526	Epöl	Kossuth utca	*			2526	Epöl	Kossuth Lajos utca	*		
+*	2527	Máriahalom	Széchenyi Ferenc utca	*			2527	Máriahalom	Széchényi Ferenc utca	*		
+*	2535	Mogyorósbánya	Szőlő sor	*			2535	Mogyorósbánya	Szőlősor utca	*		
+*	2536	Nyergesújfalu	Kossuth utca	*			2536	Nyergesújfalu	Kossuth Lajos utca	*		
+hupostapo	2542	Lábatlan	Rákóczi Ferenc utca	85			2542	Lábatlan	Rákóczi Ferenc út	85		
+*	2543	Süttő	Rákóczi Ferenc út	*			2543	Süttő	Rákóczi Ferenc utca	*		
+*	2544	Neszmély	Fő út	*			2544	Neszmély	Fő utca	*		
+*	2600	Vác	Földváry Károly tér	*			2600	Vác	Földváry tér	*		
+*	2600	Vác	Kőhídpart dülő	*			2600	Vác	Kőhíd-parti utca	*		
+*	2600	Vác	Köztársaság utca	*			2600	Vác	Köztársaság út	*		
+*	2600	Vác	Radnóti Miklós út	*			2600	Vác	Radnóti Miklós utca	*		
+*	2600	Vác	Széchenyi u.	*			2600	Vác	Széchenyi utca	*		
+*	0	Vác	Vác, Szent László út	*			2600	Vác	Szent László út	*		
+*	2610	Nőtincs	Kossuth Lajos út	*			2610	Nőtincs	Kossuth utca	*		
+*	2614	Penc	Rákóczi utca	*			2614	Penc	Rákóczi út	*		
+*	2615	Csővár	Mikszáth utca	*			2615	Csővár	Mikszáth út	*		
+*	2617	Alsópetény	Petőfi utca	*			2617	Alsópetény	Petőfi út	*		
+*	2618	Nézsa	Szondi út	*			2618	Nézsa	Szondy út	*		
+*	2621	Verőce	Rákóczi utca	*			2621	Verőce	Rákóczi út	*		
+*	2623	Kismaros	Szokolyai utca	*			2623	Kismaros	Szokolyai út	*		
+*	2625	Kóspallag	Szent István utca	*			2625	Kóspallag	Szent István út	*		
+*	2628	Szob	Árpád út	*			2628	Szob	Árpád utca	*		
+*	2638	Kemence	Fő út	*			2638	Kemence	Fő utca	*		
+*	2639	Bernecebaráti	Széchenyi utca	*			2639	Bernecebaráti	Széchenyi út	*		
+*	2644	Borsosberény	Rákóczi út	*			2644	Borsosberény	Rákóczi Ferenc utca	*		
+*	2647	Hont	Ipoly út	*			2647	Hont	Ipoly utca	*		
+*	2648	Patak	Kossuth Lajos utca	*			2648	Patak	Kossuth utca	*		
+*	2651	Rétság	Pusztaszántói út	*			2651	Rétság	Pusztaszántói utca	*		
+*	2652	Tereske	Kossuth Lajos út	*			2652	Tereske	Kossuth út	*		
+hupostapo	2654	Romhány	Zrinyi út	10. C			2654	Romhány	Zrínyi Miklós út	10/c		
+*	2660	Balassagyarmat	Mikszáth Kálmán utca	*			2660	Balassagyarmat	Mikszáth Kálmán út	*		
+*	2660	Balassagyarmat	Rákóczi utca	*			2660	Balassagyarmat	Rákóczi fejedelem útja	*		
+*	2660	Balassagyarmat	Rákóczi fejedelem út	*			2660	Balassagyarmat	Rákóczi fejedelem útja	*		
+hupostapo	2661	Balassagyarmat	Rákóczi Fejedelem út	24			2661	Balassagyarmat	Rákóczi fejedelem útja	24		
+hupostapo	2662	Balassagyarmat	Leiningen Károly út	29			2662	Balassagyarmat	Leiningen Károly utca	29		
+*	2668	Patvarc	Gyarmati út	*			2668	Patvarc	Gyarmati utca	*		
+*	2669	Ipolyvece	Dózsa György út	*			2669	Ipolyvece	Dózsa György utca	*		
+*	2671	Őrhalom	Rákóczi utca	*			2671	Őrhalom	Rákóczi fejedelem útja	*		
+*	2672	Hugyag	Kossuth Lajos utca	*			2672	Hugyag	Kossuth Lajos út	*		
+*	2677	Herencsény	Kossuth Lajos utca	*			2677	Herencsény	Kossuth utca	*		
+*	2681	Galgagyörk	Mácsai utca	*			2681	Galgagyörk	Mácsai út	*		
+*	2682	Püspökhatvan	Szabadság út	*			2682	Püspökhatvan	Szabadság utca	*		
+*	2686	Galgaguta	Kossuth utca	*			2686	Galgaguta	Kossuth Lajos út	*		
+*	2687	Bercel	Baross Gábor út	*			2687	Bercel	Baross út	*		
+*	2687	Bercel	Baross Gábor utca	*			2687	Bercel	Baross út	*		
+*	2688	Vanyarc	Veres Pálné út	*			2688	Vanyarc	Veres Pálné utca	*		
+*	2691	Nógrádkövesd	Madách Imre út	*			2691	Nógrádkövesd	Madách Imre utca	*		
+*	2698	Mohora	Rákóczi út	*			2698	Mohora	Rákóczi utca	*		
+*	2698	Mohora	Rákóczi út	47/C			2698	Mohora	Rákóczi utca	47/c		
+*	2700	Cegléd	Kőrösi utca	*			2700	Cegléd	Kőrösi út	*		
+humolfu	2700	Cegléd	Nagykőrösi út				2700	Cegléd	Külső Kőrösi út			
+*	2700	Cegléd	Malomtószél utca	*			2700	Cegléd	Malomtó szél	*		
+hupostapo	2703	Cegléd	Várkonyi utca	49			2703	Cegléd	Várkonyi István utca	49		
+hupostapo	2704	Cegléd	Jászberényi utca	7			2704	Cegléd	Jászberényi út	7		
+*	2711	Tápiószentmárton	Kossuth Lajos út	*			2711	Tápiószentmárton	Kossuth Lajos utca	*		
+*	2721	Pilis	Kossuth Lajos utca	2/H			2721	Pilis	Kossuth Lajos út	2/h		
+*	2723	Nyáregyháza	Nyáry Pál út	*			2723	Nyáregyháza	Nyári Pál út	*		
+*	2723	Nyáregyháza	NYÁRY PÁL u	*			2723	Nyáregyháza	Nyári Pál út	*		
+*	2740	Abony	Radák Katalin utca	.			2740	Abony	Radák Katalin utca			
+*	2740	Abony	Vasút utca	*			2740	Abony	Vasút út	*		
+*	2746	Jászkarajenő	Rákóczi utca	*			2746	Jászkarajenő	Rákóczi Ferenc utca	*		
+*	2747	Törtel	Ceglédi utca	*			2747	Törtel	Ceglédi út	*		
+*	2747	Törtel	Dózsa György utca	*			2747	Törtel	Dózsa György út	*		
+*	2750	Nagykőrös	Ceglédi utca	*			2750	Nagykőrös	Ceglédi út	*		
+*	0	Nagykőrös	Kecskeméti út	*			2750	Nagykőrös	Kecskeméti út	*		
+*	2750	Nagykőrös	Kossuth Lajos utca	*			2750	Nagykőrös	Kossuth Lajos út	*		
+hupostapo	2752	Nagykőrös	Örkény utca	13			2752	Nagykőrös	Örkényi út	13		
+*	2760	Nagykáta	Dózsa György út	*			2760	Nagykáta	Dózsa György utca	*		
+*	2765	Farmos	Jászberényi utca	*			2765	Farmos	Jászberényi út	*		
+*	2800	Tatabánya	Dózsa utca	*			2800	Tatabánya	Dózsa György út	*		
+hupostacso	2801	Tatabánya	Fő tér	30			2800	Tatabánya	Fő tér	30		
+*	2800	Tatabánya	Gál lakótelep	*			2800	Tatabánya	Gál István lakótelep	*		
+*	2800	Tatabánya	Győri utca	*			2800	Tatabánya	Győri út	*		
+*	2800	Tatabánya	Jedlik Ányos út				2800	Tatabánya	Jedlik Ányos utca			
+*	2800	Tatabánya	Károlyi út, Ságvári út	*			2800	Tatabánya	Károlyi Mihály utca	*		
+*	2800	Tatabánya	köztársaság út				2800	Tatabánya	Köztársaság útja			
+*	2800	Tatabánya	Vadász út	*			2800	Tatabánya	Vadász utca	*		
+*	2800	Tatabánya	100. Sz. főút	*			2800	Tatabánya	1. számú főközlekedési út	*		
+hupostapo	2801	Tatabánya	Bláthy Ottó út	1			2801	Tatabánya	Bláthy Ottó utca	1		
+hupostapo	2803	Tatabánya	Bárdos László utca	2			2803	Tatabánya	2949284	2		
+hupostapo	2805	Tatabánya	Szent István utca	21			2805	Tatabánya	Szent István út	21		
+*	2821	Gyermely	Petőfi tér	*			2821	Gyermely	Petőfi Sándor tér	*		
+*	2831	Tarján	Vadász utca	*			2831	Tarján	Vadász út	*		
+*	2837	Vértesszőlős	Határ utca	*			2837	Vértesszőlős	Határ út	*		
+*	2837	Vértesszőlős	Határ utca	43468			2837	Vértesszőlős	Határ út		43468	
+*	2840	Oroszlány	Rákóczi út	*			2840	Oroszlány	Rákóczi Ferenc út	*		
+*	2840	Oroszlány	Táncsics Mihály utca	1/A			2840	Oroszlány	Táncsics Mihály út	1/a		
+*	2854	Dad	Dózsa utca	*			2854	Dad	Dózsa György út	*		
+*	2859	Vérteskethely	Kossuth Lajos út	*			2859	Vérteskethely	Kossuth Lajos utca	*		
+*	2870	Kisbér	Kossuth utca	*			2870	Kisbér	Kossuth Lajos utca	*		
+*	2881	Ászár	GYŐRI út	*			2881	Ászár	Győri út	*		
+*	0	Ászár	Győri út	*			2881	Ászár	Győri út	*		
+*	2881	Ászár	Köztársaság utca	*			2881	Ászár	2949324	*		
+*	2890	Tata	Fekete utca 1. - Gottwald hotel				2890	Tata	Fekete út	1		
+*	2890	Tata	Május 1 út	*			2890	Tata	Május 1. út	*		
+*	2890	Tata	Május 1 út				2890	Tata	Május 1. út			
+*	2900	Komárom	Bajcsy-Zsilinszky Endre utca	*			2900	Komárom	Bajcsy-Zsilinszky utca	*		
+*	2900	Komárom	Klapka György utca	*			2900	Komárom	Klapka György út	*		
+hupostapo	2901	Komárom	Czibor Zoltán utca	3			2901	Komárom	Czibor utca	3		
+*	2900	Komárom	Bánki Donát utca	*			2903	Komárom	Bánki Donát utca	*		
+*	2911	Mocsa	M1 autópálya Igmándi pihenő				2911	Mocsa	M1 autópálya			
+hupostapo	2911	Mocsa	Szőlő utca	46./a			2911	Mocsa	Szőlő utca	46/a		
+*	2931	Almásfüzitő	Petőfi tér	*			2931	Almásfüzitő	Petőfi Sándor tér	*		
+*	2941	Ács	Fő út	*			2941	Ács	Fő utca	*		
+*	2943	Bábolna	Mészáros út	7/B			2943	Bábolna	Mészáros utca	7/b		
+*	2944	Bana	Mártírok út	*			2944	Bana	Mártírok útja	*		
+*	2949	Csém	13 AS főút				2949	Csém	13. számú főközlekedési út			
+*	3000	Hatvan	Bibó István út	*			3000	Hatvan	Bibó István utca	*		
+*	3000	Hatvan	Grassalkovich utca	*			3000	Hatvan	Grassalkovich út	*		
+*	3011	Heréd	Arany János út	*			3011	Heréd	Arany János utca	*		
+*	3013	Ecséd	Szabadság út	*			3013	Ecséd	Szabadság utca	*		
+*	3014	Hort	Kossuth út	*			3014	Hort	Kossuth Lajos út	*		
+*	3015	Csány	Petőfi út	*			3015	Csány	Petőfi Sándor utca	*		
+*	3016	Boldog	Hunyadi út	*			3016	Boldog	Hunyadi János út	*		
+*	3023	Petőfibánya	Bánya utca	*			3023	Petőfibánya	Bánya út	*		
+*	3023	Petőfibánya	Mária út	*			3023	Petőfibánya	Mária utca	*		
+*	3024	Lőrinci	Cukorgyár út	*			3024	Lőrinci	Cukorgyári út	*		
+*	3032	Apc	Petőfi út	*			3032	Apc	Petőfi Sándor utca	*		
+*	3033	Rózsaszentmárton	Deák Ferenc út	*			3033	Rózsaszentmárton	Deák Ferenc utca	*		
+*	3034	Szűcsi	Petőfi út	*			3034	Szűcsi	Petőfi Sándor utca	*		
+*	3036	Gyöngyöstarján	Dobó út	*			3036	Gyöngyöstarján	Dobó István utca	*		
+*	3042	Palotás	Bajcsy-Zsilinszky út	*			3042	Palotás	Bajcsy-Zsilinszky utca	*		
+*	3047	Buják	Kossuth út	*			3047	Buják	Petőfi Sándor utca	*		
+*	3052	Csécse	Rákóczi út	*			3052	Csécse	Rákóczi Ferenc út	*		
+*	3060	Pásztó	Fő út	*			3060	Pásztó	Fő utca	*		
+*	3060	Pásztó	Kölcsey út	*			3060	Pásztó	Kölcsey utca	*		
+hupostapo	3061	Pásztó	Fő út	54/3			3061	Pásztó	Fő utca	54/3		
+*	3068	Mátraszőlős	Felszabadulás út	*			3068	Mátraszőlős	Fő út	*		
+*	3073	Tar	Szondi György út	*			3073	Tar	Szondy György utca	*		
+*	3075	Nagybárkány	Petőfi út	*			3075	Nagybárkány	Petőfi utca	*		
+*	3077	Mátraverebély	Lenin út	*			3077	Mátraverebély	Rét út	*		
+*	3078	Bátonyterenye	Madách utca	*			3078	Bátonyterenye	Madách út	*		
+*	3078	Bátonyterenye	Szent István utca	*			3078	Bátonyterenye	Szent István út	*		
+*	3100	Salgótarján	Bem utca	*			3100	Salgótarján	Bem József utca	*		
+*	3100	Salgótarján	Fő tér	*			3100	Salgótarján	Főtér	*		
+*	3100	Salgótarján	Fürdő utca	*			3100	Salgótarján	Fürdő út	*		
+*	3100	Salgótarján	Losonczi utca	*			3100	Salgótarján	Losonci út	*		
+*	3100	Salgótarján	Pécskő utca	*			3100	Salgótarján	Pécskő út	*		
+*	3100	Salgótarján	Rákóczi u.	*			3100	Salgótarján	Rákóczi út	*		
+*	3100	Salgótarján	Rákóczi utca	*			3100	Salgótarján	Rákóczi út	*		
+hupostapo	3101	Salgótarján	Fő tér	3			3101	Salgótarján	Főtér	3		
+*	3100	Salgótarján	Budapesti út	*			3104	Salgótarján	Budapesti út	*		
+*	3100	Salgótarján	Budapesti út				3104	Salgótarján	Budapesti út			
+*	3126	Bárna	Petőfi utca	*			3126	Bárna	Petőfi út	*		
+*	3127	Kazár	Damjanich út	*			3127	Kazár	Damjanich utca	*		
+*	3131	Sóshartyán	Dózsa út	*			3131	Sóshartyán	Dózsa György utca	*		
+*	3132	Nógrádmegyer	Petőfi út	*			3132	Nógrádmegyer	Petőfi utca	*		
+*	3133	Magyargéc	Rákóczi út	*			3133	Magyargéc	Rákóczi utca	*		
+*	3142	Mátraszele	Szabadság utca	*			3142	Mátraszele	Szabadság út	*		
+hupostapo	3145	Mátraterenye	Kossuth Lajos út	177			3145	Mátraterenye	Kossuth út	177		
+*	3151	Rákóczibánya	Fő tér	*			3151	Rákóczibánya	2595426	*		
+*	3152	Nemti	Kossuth Lajos út	*			3152	Nemti	Kossuth utca	*		
+*	3153	Dorogháza	Szent István út	*			3153	Dorogháza	Szent István utca	*		
+*	3154	Szuha	Kossuth Lajos út	*			3154	Szuha	Kossuth Lajos utca	*		
+*	3162	Ságújfalu	Dózsa György út	*			3162	Ságújfalu	Dózsa György utca	*		
+*	3163	Karancsság	Kossuth Lajos út	*			3163	Karancsság	Kossuth Lajos utca	*		
+*	3176	Hollókő	Kossuth Lajos út	*			3176	Hollókő	Kossuth út	*		
+*	3177	Rimóc	Petőfi Sándor utca	*			3177	Rimóc	Petőfi Sándor út	*		
+*	3179	Nógrádsipek	József Attila út	*			3179	Nógrádsipek	József Attila utca	*		
+*	3182	Karancslapujtő	Kossuth Lajos út	*			3182	Karancslapujtő	Kossuth út	*		
+*	3183	Karancskeszi	Béke út	*			3183	Karancskeszi	Béke utca	*		
+*	3186	Litke	Kossuth Lajos út	*			3186	Litke	Kossuth Lajos utca	*		
+*	3187	Nógrádszakál	Madách út	*			3187	Nógrádszakál	Madách Imre utca	*		
+*	3188	Ludányhalászi	Kossuth Lajos út	*			3188	Ludányhalászi	Kossuth Lajos utca	*		
+*	3200	Gyöngyös	Kenyérgyár út	*			3200	Gyöngyös	Kenyérgyár utca	*		
+*	3200	Gyöngyös	Páter Kis Szaléz út	*			3200	Gyöngyös	Páter Kiss Szaléz utca	*		
+*	3200	Gyöngyös	Pesti utca	*			3200	Gyöngyös	Pesti út	*		
+*	3200	Gyöngyös	Róbert Károly utca				3200	Gyöngyös	Róbert Károly út			
+*	3200	Gyöngyös	Szent Bertalan u.	*			3200	Gyöngyös	Szent Bertalan utca	*		
+*	3200	Gyöngyös	Vásár út	*			3200	Gyöngyös	Vásár utca	*		
+*	3200	Gyöngyös	Vértanú út	*			3200	Gyöngyös	Vértanú utca	*		
+hupostapo	3201	Gyöngyös	Páter Kis Szaléz út	9-11			3201	Gyöngyös	Páter Kiss Szaléz utca	9-11		
+hupostapo	3202	Gyöngyös	Szövetkezeti út	2			3202	Gyöngyös	Szövetkezet utca	2		
+*	3212	Gyöngyöshalász	Árpád utca	*			3212	Gyöngyöshalász	Árpád út	*		
+*	3231	Gyöngyössolymos	Bartók út	*			3231	Gyöngyössolymos	Bartók Béla út	*		
+hupostapo	3233	Gyöngyös	Fő út				3233	Gyöngyös	Fő tér			
+hupostapo	3240	Parád	Kossuth út	140			3240	Parád	Kossuth Lajos út	140		
+*	3242	Parádsasvár	Kossuth út	*			3242	Parádsasvár	Kossuth Lajos utca	*		
+*	3243	Bodony	Kossuth út	*			3243	Bodony	Kossuth Lajos utca	*		
+*	3245	Recsk	Várbükki út	*			3245	Recsk	Várbükki utca	*		
+*	3247	Mátraballa	Iskola út	*			3247	Mátraballa	Iskola utca	*		
+*	3250	Pétervására	Kossuth út	*			3250	Pétervására	Kossuth Lajos út	*		
+*	3252	Erdőkövesd	Hunyadi utca	*			3252	Erdőkövesd	Hunyadi János út	*		
+hupostapo	3253	Istenmezeje	Ady Endre utca	3/A			3253	Istenmezeje	Ady Endre út	3/a		
+*	3254	Váraszó	Szabadság út	*			3254	Váraszó	Szabadság utca	*		
+*	3262	Markaz	Fő út	*			3262	Markaz	Fő utca	*		
+*	3263	Domoszló	Deák tér	*			3263	Domoszló	Deák Ferenc tér	*		
+*	3264	Kisnána	Béke út	*			3264	Kisnána	Béke utca	*		
+*	3271	Visonta	Táncsics út	*			3271	Visonta	Táncsics Mihály utca	*		
+*	3273	Halmajugra	Kossuth út	*			3273	Halmajugra	Kossuth Lajos utca	*		
+*	3275	Detk	Rákóczi út	*			3275	Detk	Rákóczi Ferenc utca	*		
+*	3200	Karácsond	M3 autópálya	*			3281	Karácsond	M3 autópálya	*		
+*	3282	Nagyfüged	Kossuth út	*			3282	Nagyfüged	Kossuth Lajos út	*		
+*	3283	Tarnazsadány	Kossuth út	*			3283	Tarnazsadány	Kossuth Lajos út	*		
+*	3291	Vámosgyörk	István Király út	*			3291	Vámosgyörk	István király út	*		
+*	3291	Vámosgyörk	Petőfi út	*			3291	Vámosgyörk	Petőfi Sándor utca	*		
+*	3292	Adács	Kossuth út	*			3292	Adács	Kossuth Lajos utca	*		
+*	3294	Tarnaörs	Petőfi út	*			3294	Tarnaörs	Petőfi Sándor út	*		
+*	3300	Eger	Almagyar út	*			3300	Eger	Almagyar utca	*		
+*	3300	Eger	Érsek u.	*			3300	Eger	Érsek utca	*		
+*	3300	Eger	II. Rákóczi Ferenc utca	*			3300	Eger	II. Rákóczi Ferenc út	*		
+*	3300	Eger	Rákóczi út	*			3300	Eger	II. Rákóczi Ferenc út	*		
+*	3300	Eger	Rákóczi út				3300	Eger	II. Rákóczi Ferenc út			
+*	3300	Eger	II. Rákóczi Ferenc utca				3300	Eger	II. Rákóczi Ferenc út			
+*	3300	Eger	KISTÁLYAI út	*			3300	Eger	Kistályai út	*		
+*	3300	Eger	Mátyás Király út	*			3300	Eger	Mátyás király út	*		
+*	3300	Eger	Napsugár út	*			3300	Eger	Napsugár utca	*		
+*	3300	Eger	Széchenyi utca	*			3300	Eger	Széchenyi István utca	*		
+*	3300	Eger	Törvényház utca	*			3300	Eger	Törvényház út	*		
+*	3300	Eger	Törvényház utca 4., Agria park				3300	Eger	Törvényház út	4		
+*	3300	Eger	Mindszenty Gedeon utca	*			3300	Eger	2803169	*		
+hupostapo	3301	Eger	Rákóczi út	100			3301	Eger	II. Rákóczi Ferenc út	100		
+hupostapo	3301	Eger	Széchenyi út	22			3301	Eger	Széchenyi István utca	22		
+hupostapo	3304	Eger	Kovács Jakab út	98			3304	Eger	Kovács Jakab utca	98		
+hupostapo	3305	Eger	Vallon út	6			3305	Eger	Vallon utca	6		
+*	3321	Egerbakta	Szalóki út	*			3321	Egerbakta	Szalóki utca	*		
+*	3322	Hevesaranyos	Szabadság út	*			3322	Hevesaranyos	Szabadság utca	*		
+*	3324	Felsőtárkány	FŐ út	*			3324	Felsőtárkány	Fő út	*		
+*	3326	Ostoros	Széchenyi út	*			3326	Ostoros	Széchenyi István út	*		
+*	3328	Egerszólát	Fő út	*			3328	Egerszólát	Fő utca	*		
+*	3332	Sirok	Borics Pál út	*			3332	Sirok	Borics Pál utca	*		
+*	3344	Mikófalva	Rákóczi út	*			3344	Mikófalva	II. Rákóczi Ferenc utca	*		
+*	3347	Balaton	Kossuth út	*			3347	Balaton	Kossuth Lajos út	*		
+*	3349	Nagyvisnyó	Ifjuság út	*			3349	Nagyvisnyó	Ifjúság utca	*		
+*	3350	Kál	Rekettyés pihenő	*			3350	Kál	Rekettyés pihenőhely	*		
+*	3350	Kál	Rózsa Ferenc út	*			3350	Kál	Rózsa utca	*		
+*	3351	Verpelét	Kossuth út	*			3351	Verpelét	Kossuth Lajos út	*		
+*	3353	Aldebrő	Grassalkovich út	*			3353	Aldebrő	Grassalkovich Antal út	*		
+*	3354	Tófalu	Kossuth út	*			3354	Tófalu	Kossuth Lajos utca	*		
+*	3355	Kápolna	3.sz. fkl. út				3355	Kápolna	3. számú főközlekedési út			
+*	3356	Kompolt	Széchenyi út	*			3356	Kompolt	Széchenyi utca	*		
+*	3358	Erdőtelek	Fő út	*			3358	Erdőtelek	Fő utca	*		
+*	3360	Heves	Deák Ferenc út	*			3360	Heves	Deák Ferenc utca	*		
+*	3368	Boconád	Kossuth út	*			3368	Boconád	Kossuth Lajos út	*		
+*	3369	Tarnabod	Kossuth tér	*			3369	Tarnabod	Kossuth Lajos tér	*		
+*	3371	Átány	Rákóczi út	*			3371	Átány	II. Rákóczi Ferenc út	*		
+*	3374	Dormánd	Dózsa György út	*			3374	Dormánd	Dózsa út	*		
+*	3377	Szihalom	Temető út	*			3377	Szihalom	Temető utca	*		
+*	3381	Pély	Fő út	*			3381	Pély	Fő utca	*		
+*	3384	Kisköre	Kossuth út	*			3384	Kisköre	Kossuth Lajos út	*		
+*	3385	Tiszanána	Martinovics út	*			3385	Tiszanána	Martinovics Ignác út	*		
+*	3388	Poroszló	33. számú főközlekedési út, Fő út	*			3388	Poroszló	Fő út	*		
+*	3388	Poroszló	Kossuth Lajos utca	*			3388	Poroszló	Kossuth út	*		
+*	3390	Füzesabony	Maklári út	.			3390	Füzesabony	Maklári út			
+*	3390	Füzesabony	Rákóczi út	*			3390	Füzesabony	Rákóczi Ferenc út	*		
+hupostapo	3391	Füzesabony	Rákóczi út	56			3391	Füzesabony	Rákóczi Ferenc út	56		
+*	3394	Egerszalók	Kossuth út	*			3394	Egerszalók	Kossuth Lajos út	*		
+*	3397	Maklár	József Attila út	*			3397	Maklár	József Attila utca	*		
+*	3399	Andornaktálya	Rákóczi út	*			3399	Andornaktálya	II. Rákóczi Ferenc út	*		
+*	3400	Mezőkövesd	Egri utca	*			3400	Mezőkövesd	Egri út	*		
+*	3400	Mezőkövesd	Mátyás Király út	*			3400	Mezőkövesd	Mátyás király út	*		
+*	3400	Mezőkövesd	Mátyás király utca	*			3400	Mezőkövesd	Mátyás király út	*		
+*	3400	Mezőkövesd	Mátyás kiráy utca	*			3400	Mezőkövesd	Mátyás király út	*		
+hupostapo	3401	Mezőkövesd	Alkotmány utca	1			3401	Mezőkövesd	Alkotmány út	1		
+*	3412	Bogács	Alkotmány út	*			3412	Bogács	Alkotmány utca	*		
+*	3413	Cserépfalu	Kossuth út	*			3413	Cserépfalu	Kossuth Lajos utca	*		
+*	3413	Cserépfalu	Noszvaji út	*			3413	Cserépfalu	Noszvaji utca	*		
+*	3414	Bükkzsérc	Kossuth út	*			3414	Bükkzsérc	Kossuth Lajos utca	*		
+*	3418	Szentistván	Széchenyi út	*			3418	Szentistván	Széchenyi utca	*		
+*	3421	Mezőnyárád	Szent István király utca	*			3421	Mezőnyárád	Szent István király út	*		
+*	3423	Tibolddaróc	Tompa út	*			3423	Tibolddaróc	Tompa utca	*		
+*	3425	Sály	Kossuth út	*			3425	Sály	Kossuth Lajos utca	*		
+*	3432	Emőd	Vörösmarty utca	*			3432	Emőd	Vörösmarty út	*		
+*	3433	Nyékládháza	Kossuth út	*			3433	Nyékládháza	Kossuth Lajos utca	*		
+*	3434	Mályi	Fő út	*			3434	Mályi	Fő utca	*		
+*	3441	Mezőkeresztes	Ady Endre út	*			3441	Mezőkeresztes	Ady Endre utca	*		
+*	3441	Mezőkeresztes	Dózsa György utca	*			3441	Mezőkeresztes	Dózsa György út	*		
+*	3443	Mezőnagymihály	Kossuth út	*			3443	Mezőnagymihály	Kossuth utca	*		
+*	3444	Gelej	Kossuth út	*			3444	Gelej	Kossuth Lajos utca	*		
+*	3444	Gelej	M3 jobb pihenő	*			3444	Gelej	M3 autópálya	*		
+*	3450	Mezőcsát	Kiss József út	*			3450	Mezőcsát	Kiss József utca	*		
+*	3458	Tiszakeszi	Községháza út	*			3458	Tiszakeszi	Községháza utca	*		
+*	3459	Igrici	Kossuth út	*			3459	Igrici	Kossuth utca	*		
+*	3467	Ároktő	Széchenyi út	*			3467	Ároktő	Széchenyi utca	*		
+*	3501	Miskolc	Kazinczy út	*			3501	Miskolc	Kazinczy Ferenc utca	*		
+hupostapo	3503	Miskolc	Bajcsy Zsilinszky Endre út	2-4			3503	Miskolc	Bajcsy-Zsilinszky út	2-4		
+hupostapo	3505	Miskolc	Győri kapu kapu	51/A			3505	Miskolc	Győri kapu	51/a		
+hupostapo	3506	Miskolc	Kassai út	94			3506	Miskolc	Kassai utca	94		
+hupostapo	3507	Miskolc	Bornemissza út	8			3507	Miskolc	Bornemissza Gergely utca	8		
+hupostacso	3550	Miskolc	Mésztelep utca	1/a			3508	Miskolc	Mésztelep utca	1/a		
+*	3508	Miskolc	Templom út	*			3508	Miskolc	Templom utca	*		
+hupostapo	3509	Miskolc	Andrássy út	43			3509	Miskolc	Andrássy utca	43		
+hupostapo	3510	Miskolc	Kiss tábornok út	30			3510	Miskolc	Kiss tábornok utca	30		
+hupostapo	3515	Miskolc	Egyetem 				3515	Miskolc	Egyetem út			
+*	3508	Miskolc	Pesti út 19., park				3516	Miskolc	Pesti út	19		
+*	3524	Miskolc	Testvérvárosok út	*			3524	Miskolc	Testvérvárosok útja	*		
+*	3500	Miskolc	Dayka Gábor utca	2			3525	Miskolc	Dayka Gábor utca	2		
+*	3525	Miskolc	Déryné u.	*			3525	Miskolc	Déryné utca	*		
+*	3525	Miskolc	Kazinczy utca	*			3525	Miskolc	Kazinczy Ferenc utca	*		
+*	3500	Miskolc	Palóczy László utca	7			3525	Miskolc	Palóczy László utca	7		
+*	3500	Miskolc	Régiposta utca	22			3525	Miskolc	Régiposta utca	22		
+*	3525	Miskolc	Széchenyi István út	111			3525	Miskolc	Széchenyi István utca	111		
+*	3530	Miskolc	Széchenyi utca	29			3525	Miskolc	Széchenyi István utca	29		
+*	3525	Miskolc	Széchenyi István út	3-9			3525	Miskolc	Széchenyi István utca	3-9		
+*	3525	Miskolc	Széchenyi István út	7			3525	Miskolc	Széchenyi István utca	7		
+*	3530	Miskolc	Városház tér	9			3525	Miskolc	Városház tér	9		
+*	3527	Miskolc	vologda út				3525	Miskolc	Vologda utca			
+*	3526	Miskolc	Szeles út				3526	Miskolc	Szeles utca			
+*	3527	Miskolc	Szentpéteri kapu	*			3526	Miskolc	Szentpéteri kapu	*		
+*	3531	Miskolc	Szentpéteri kapu	*			3526	Miskolc	Szentpéteri kapu	*		
+*	3527	Miskolc	szentpéteri kapu				3526	Miskolc	Szentpéteri kapu			
+*	3526	Miskolc	Boldva utca	*			3527	Miskolc	Boldva utca	*		
+*	3527	Miskolc	József Attila utca	*			3527	Miskolc	József Attila út	*		
+*	3501	Miskolc	József Attila út	*			3527	Miskolc	József Attila út	*		
+*	0	Miskolc	József Attila út	*			3527	Miskolc	József Attila út	*		
+*	3527	Miskolc	Bajcsy-Zsilinszky utca	2-4			3530	Miskolc	Bajcsy-Zsilinszky út	2-4		
+*	3527	Miskolc	Bajcsy-Zsilinszky út	2-4			3530	Miskolc	Bajcsy-Zsilinszky út	2-4		
+*	3500	Miskolc	Kandia utca				3530	Miskolc	Kandia utca			
+*	3533	Miskolc	Király utca	1/A			3530	Miskolc	Király utca	1/a		
+*	3531	Miskolc	Nagyváthy János utca	1			3530	Miskolc	Nagyváthy János utca	1		
+*	3530	Miskolc	Széchenyi utca	46			3530	Miskolc	Széchenyi István utca	46		
+*	3530	Miskolc	Széchenyi István út	70			3530	Miskolc	Széchenyi István utca	70		
+*	3530	Miskolc	Széchenyi István út	88			3530	Miskolc	Széchenyi István utca	88		
+*	3530	Miskolc	Vörösmarty utca	*			3530	Miskolc	Vörösmarty Mihály utca	*		
+*	0	Miskolc	Győri kapu - Vologda utca  sarok				3531	Miskolc	Győri kapu			
+hupostacso	3550	Miskolc	Andrássy utca	43			3533	Miskolc	Andrássy utca	43		
+*	3532	Miskolc	Újgyőri főtér	*			3533	Miskolc	Újgyőri főtér	*		
+*	3534	Miskolc	Árpád út út	62/A			3534	Miskolc	Árpád út	62/a		
+*	3534	Miskolc	Kiss tábornok út - Kandó Kálmán utca	*			3534	Miskolc	Kiss tábornok utca	*		
+*	3534	Miskolc	Kiss Tábornok út	*			3534	Miskolc	Kiss tábornok utca	*		
+*	3534	Miskolc	Kiss Tábornok utca				3534	Miskolc	Kiss tábornok utca			
+*	3551	Ónod	Rákóczi út	*			3551	Ónod	Rákóczi utca	*		
+*	3553	Kistokaj	Széchenyi István utca	*			3553	Kistokaj	Széchenyi utca	*		
+*	3554	Bükkaranyos	Petőfi út	*			3554	Bükkaranyos	Petőfi Sándor utca	*		
+*	3555	Harsány	Kossuth út	*			3555	Harsány	Kossuth Lajos utca	*		
+*	3556	Kisgyőr	Kossuth Lajos utca	*			3556	Kisgyőr	Kossuth Lajos út	*		
+*	3557	Bükkszentkereszt	Kossuth út	*			3557	Bükkszentkereszt	Kossuth Lajos utca	*		
+*	3561	Felsőzsolca	Bólyai János utca	*			3561	Felsőzsolca	Bolyai János utca	*		
+*	3561	Felsőzsolca	Kassai út	*			3561	Felsőzsolca	Kassai utca	*		
+*	3562	Onga	Rózsa út	*			3562	Onga	Rózsa utca	*		
+*	3563	Hernádkak	Petőfi Sándor utca	*			3563	Hernádkak	Petőfi utca	*		
+*	3563	Hernádkak	Széchenyi utca	1/A			3563	Hernádkak	Széchenyi István utca	1/a		
+*	3564	Hernádnémeti	Dózsa György út	*			3564	Hernádnémeti	Dózsa György utca	*		
+*	3565	Tiszalúc	Jókai út	*			3565	Tiszalúc	Jókai utca	*		
+*	3571	Alsózsolca	Kossuth út	*			3571	Alsózsolca	Kossuth Lajos utca	*		
+*	3571	Alsózsolca	Kossuth Lajos út	*			3571	Alsózsolca	Kossuth Lajos utca	*		
+*	3573	Sajópetri	Téglás út	*			3573	Sajópetri	Téglás utca	*		
+*	3574	Bőcs	Rákóczi út	*			3574	Bőcs	Rákóczi Ferenc utca	*		
+*	3575	Berzék	Rákóczi út	*			3575	Berzék	Rákóczi Ferenc utca	*		
+*	3576	Sajóhídvég	Táncsics út	*			3576	Sajóhídvég	Táncsics Mihály utca	*		
+*	3578	Girincs	Rákóczi út	*			3578	Girincs	Rákóczi Ferenc utca	*		
+*	3579	Kesznyéten	Szabadság út	*			3579	Kesznyéten	Szabadság utca	*		
+*	3580	Tiszaújváros	Kazinczy utca	*			3580	Tiszaújváros	Kazinczy út	*		
+*	3580	Tiszaújváros	Lévai József utca	*			3580	Tiszaújváros	Lévay József út	*		
+*	3580	Tiszaújváros	Szent István utca	4/B			3580	Tiszaújváros	Szent István út	4/b		
+hupostapo	3585	Tiszaújváros	Bocskai út	29			3585	Tiszaújváros	Bocskai István út	29		
+*	3587	Tiszapalkonya	Bem út	*			3587	Tiszapalkonya	Bem utca	*		
+*	3589	Tiszatarján	Árpád út	*			3589	Tiszatarján	Árpád utca	*		
+*	3592	Nemesbikk	Petőfi út	*			3592	Nemesbikk	Petőfi utca	*		
+*	3593	Hejőbába	Fő út	*			3593	Hejőbába	Fő utca	*		
+*	3594	Hejőpapi	Posta út	*			3594	Hejőpapi	Posta utca	*		
+*	3597	Hejőkeresztúr	Petőfi Sándor út	*			3597	Hejőkeresztúr	Petőfi Sándor utca	*		
+*	3600	Ózd	Árpád Vezér út	*			3600	Ózd	Árpád vezér út	*		
+*	3600	Ózd	Bolyki főközlekedési út	*			3600	Ózd	Bolyki főút	*		
+*	3600	Ózd	Brassói utca	*			3600	Ózd	Brassói út	*		
+*	3600	Ózd	Sárli utca	*			3600	Ózd	Sárli út	*		
+*	3600	Ózd	Vasvár utca	*			3600	Ózd	Vasvár út	*		
+hupostapo	3601	Ózd	Munkás utca	14			3601	Ózd	Munkás út	14		
+*	3603	Ózd	Mekcsey út	*			3603	Ózd	Mekcsey István út	*		
+*	3621	Ózd	Uraji út	*			3621	Ózd	Uraj út	*		
+hupostapo	3623	Borsodszentgyörgy	Szentgyörgy út	120/A			3623	Borsodszentgyörgy	Szent György utca	120/a		
+hupostapo	3626	Hangony	Rákóczi út	169/A			3626	Hangony	Rákóczi Ferenc út	169/a		
+*	3627	Domaháza	Dózsa út	*			3627	Domaháza	Dózsa György utca	*		
+*	3641	Nagybarca	Kossuth út	*			3641	Nagybarca	Kossuth utca	*		
+*	3642	Bánhorváti	Ifjúság út	*			3642	Bánhorváti	Ifjúság utca	*		
+*	3644	Tardona	Kossuth út	*			3644	Tardona	Kossuth Lajos utca	*		
+*	3645	Mályinka	Kossuth út	*			3645	Mályinka	Kossuth Lajos utca	*		
+hupostapo	3645	Mályinka	Kossuth út	12			3645	Mályinka	Kossuth Lajos utca	18		
+*	3646	Nekézseny	Kossuth út	*			3646	Nekézseny	Kossuth Lajos utca	*		
+*	3647	Csokvaomány	Kossuth út	*			3647	Csokvaomány	Kossuth utca	*		
+*	3648	Csernely	Táncsics út	*			3648	Csernely	Táncsics Mihály út	*		
+*	3651	Ózd	Centeri út	*			3651	Ózd	Center út	*		
+*	3652	Sajónémeti	Szabadság út	*			3652	Sajónémeti	Szabadság utca	*		
+*	3654	Bánréve	Petőfi út	*			3654	Bánréve	Petőfi Sándor utca	*		
+*	3656	Sajóvelezd	Rákóczi út	*			3656	Sajóvelezd	Rákóczi Ferenc utca	*		
+*	3657	Királd	Alsótelep út	*			3657	Királd	Alsótelep utca	*		
+*	3658	Borsodbóta	Széchenyi út	*			3658	Borsodbóta	Széchenyi utca	*		
+*	3659	Sáta	Kossuth út	*			3659	Sáta	Kossuth utca	*		
+*	3662	Ózd	Vörösmarty út	*			3662	Ózd	Vörösmarty utca	*		
+*	3664	Járdánháza	Iv. Béla út	*			3664	Járdánháza	IV. Béla utca	*		
+*	3671	Borsodnádasd	Rákóczi út	*			3671	Borsodnádasd	Rákóczi Ferenc utca	*		
+*	3700	Kazincbarcika	Attila út	10/B			3700	Kazincbarcika	Attila utca	10/b		
+*	3700	Kazincbarcika	Bercsényi út	*			3700	Kazincbarcika	Bercsényi utca	*		
+*	3700	Kazincbarcika	Egressy Béni utca	*			3700	Kazincbarcika	Egressy Béni út	*		
+*	3700	Kazincbarcika	Jószerencsét út	*			3700	Kazincbarcika	Jó szerencsét út	*		
+*	3700	Kazincbarcika	Múcsonyi út				3700	Kazincbarcika	Mucsonyi út			
+hupostapo	3703	Kazincbarcika	Babits út	1			3703	Kazincbarcika	Babits Mihály utca	1		
+*	3704	Berente	Kandó Kálmán út	*			3704	Berente	Kandó Kálmán utca	*		
+hupostapo	3705	Kazincbarcika	Akácfa út	4			3705	Kazincbarcika	Akácfa utca	4		
+*	3711	Szirmabesenyő	Kossuth út	*			3711	Szirmabesenyő	Kossuth utca	*		
+*	3712	Sajóvámos	Dózsa György út	*			3712	Sajóvámos	Dózsa utca	*		
+*	3713	Arnót	Petőfi út	*			3713	Arnót	Petőfi Sándor utca	*		
+*	3714	Sajópálfala	Szabadság út	*			3714	Sajópálfala	Szabadság utca	*		
+*	3715	Gesztely	Damjanich út	*			3715	Gesztely	Damjanich utca	*		
+*	3716	Újcsanálos	Rákóczi út	*			3716	Újcsanálos	Rákóczi utca	*		
+*	3718	Megyaszó	Alkotmány út	*			3718	Megyaszó	Alkotmány utca	*		
+*	3720	Sajókaza	Kossuth út	*			3720	Sajókaza	Kossuth Lajos utca	*		
+*	3721	Felsőnyárád	Alkotmány út	*			3721	Felsőnyárád	Alkotmány utca	*		
+*	3723	Zubogy	Petőfi út	*			3723	Zubogy	Petőfi Sándor út	*		
+hupostapo	3724	Ragály	Dózsa György út	2/A			3724	Ragály	Dózsa György utca	2/a		
+*	3733	Rudabánya	Petőfi út	*			3733	Rudabánya	Petőfi Sándor út	*		
+*	3733	Rudabánya	Petőfi Sándor utca	*			3733	Rudabánya	Petőfi Sándor út	*		
+*	3734	Szuhogy	József Attila út	*			3734	Szuhogy	József Attila utca	*		
+*	3735	Felsőtelekes	Szabadság út	*			3735	Felsőtelekes	Szabadság utca	*		
+*	3741	Izsófalva	Izsó út	*			3741	Izsófalva	Izsó Miklós út	*		
+*	3742	Rudolftelep	Népkert út	*			3742	Rudolftelep	Népkert utca	*		
+*	3743	Ormosbánya	Fő út	*			3743	Ormosbánya	Fő utca	*		
+*	3744	Múcsony	Fő út	*			3744	Múcsony	Fő utca	*		
+*	3744	Múcsony	Kossuth út	*			3744	Múcsony	Kossuth Lajos út	*		
+*	3756	Perkupa	Kossuth út	*			3756	Perkupa	Kossuth Lajos út	*		
+*	3758	Jósvafő	Ady Endre út	*			3758	Jósvafő	Ady Endre utca	*		
+*	3759	Aggtelek	Kossuth út	*			3759	Aggtelek	Kossuth Lajos út	*		
+*	3761	Szin	Szabadság út	*			3761	Szin	Szabadság utca	*		
+*	3763	Bódvaszilas	Kossuth út	*			3763	Bódvaszilas	Kossuth Lajos út	*		
+*	3767	Tornanádaska	Kossuth út	*			3767	Tornanádaska	Kossuth Lajos út	*		
+*	3770	Sajószentpéter	Kossuth út	*			3770	Sajószentpéter	Kossuth Lajos út	*		
+*	3775	Kondó	Szabadság út	*			3775	Kondó	Szabadság utca	*		
+*	3776	Radostyán	Ady Endre út	*			3776	Radostyán	Ady Endre utca	*		
+*	3777	Parasznya	Rákóczi út	*			3777	Parasznya	Rákóczi Ferenc utca	*		
+*	3778	Varbó	Rákóczi út	*			3778	Varbó	Rákóczi Ferenc utca	*		
+*	3779	Alacska	Kossuth út	*			3779	Alacska	Kossuth utca	*		
+*	3786	Lak	Kossuth út	*			3786	Lak	Kossuth Lajos út	*		
+*	3791	Sajókeresztúr	Rákóczi út	*			3791	Sajókeresztúr	Rákóczi utca	*		
+*	3792	Sajóbábony	Erkel Ferenc út	*			3792	Sajóbábony	Erkel Ferenc utca	*		
+*	3793	Sajóecseg	Széchenyi út	*			3793	Sajóecseg	Széchenyi utca	*		
+*	3795	Hangács	Rákóczi út	*			3795	Hangács	Rákóczi Ferenc utca	*		
+hupostapo	3796	Borsodszirák	Állomás út	2/A			3796	Borsodszirák	Állomás utca	2/a		
+*	3800	Szikszó	Bolt út	*			3800	Szikszó	Bolt utca	*		
+*	3811	Alsóvadász	Fő út	*			3811	Alsóvadász	Fő utca	*		
+*	3812	Homrogd	Kossuth út	*			3812	Homrogd	Kossuth utca	*		
+*	3825	Rakaca	Petőfi út	*			3825	Rakaca	Petőfi Sándor utca	*		
+*	3831	Kázsmárk	Fő út	*			3831	Kázsmárk	Fő utca	*		
+*	3841	Aszaló	Kossuth út	*			3841	Aszaló	Kossuth utca	*		
+*	3842	Halmaj	Fő út	*			3842	Halmaj	Fő utca	*		
+*	3847	Felsődobsza	Petőfi út	*			3847	Felsődobsza	Petőfi utca	*		
+*	3848	Csobád	Petőfi út	*			3848	Csobád	Petőfi Sándor utca	*		
+*	3849	Forró	Fő út	*			3849	Forró	Fő utca	*		
+*	3849	Forró	Széchenyi utca	*			3849	Forró	Széchenyi István utca	*		
+*	3851	Ináncs	Rákóczi út	*			3851	Ináncs	Rákóczi utca	*		
+*	3860	Encs	Petőfi Sándor út	*			3860	Encs	Petőfi út	*		
+*	3863	Szalaszend	Jókai út	*			3863	Szalaszend	Jókai Mór utca	*		
+*	3866	Szemere	Fő út	*			3866	Szemere	Fő utca	*		
+*	3871	Méra	Vasút út	*			3871	Méra	Vasút utca	*		
+*	3872	Novajidrány	József Attila út	*			3872	Novajidrány	József Attila utca	*		
+*	3874	Hernádvécse	Rákóczi út	*			3874	Hernádvécse	Rákóczi utca	*		
+*	3881	Abaújszántó	Jászai tér	*			3881	Abaújszántó	Jászay Pál tér	*		
+*	3885	Boldogkőváralja	Kossuth út	*			3885	Boldogkőváralja	Kossuth utca	*		
+*	3888	Vizsoly	Szent János út	*			3888	Vizsoly	Szent János utca	*		
+*	3891	Vilmány	Fő út	*			3891	Vilmány	Fő utca	*		
+*	3894	Göncruszka	Fő út	*			3894	Göncruszka	Fő utca	*		
+*	3895	Gönc	Károli Gáspár utca	*			3895	Gönc	Károlyi Gáspár utca	*		
+*	3895	Gönc	Kossuth út	*			3895	Gönc	Kossuth Lajos utca	*		
+*	3896	Telkibánya	Petőfi út	*			3896	Telkibánya	Petőfi utca	*		
+*	3900	Szerencs	Gyár út	*			3900	Szerencs	Gyár utca	*		
+*	3900	Szerencs	Kossuth tér	*			3900	Szerencs	Kossuth Lajos tér	*		
+*	3903	Bekecs	Honvéd út	*			3903	Bekecs	Honvéd utca	*		
+*	3906	Golop	Jókai út	*			3906	Golop	Jókai Mór utca	*		
+*	3907	Tállya	Rákóczi út	*			3907	Tállya	Rákóczi utca	*		
+*	3908	Rátka	Kossuth út	*			3908	Rátka	2602378	*		
+*	3909	Mád	Rákóczi út	*			3909	Mád	Rákóczi utca	*		
+*	3910	Tokaj	Csokonai út				3910	Tokaj	Csokonai utca			
+hupostapo	3911	Tokaj	Rákóczi út	24			3911	Tokaj	Rákóczi utca	24		
+*	3915	Tarcal	Fő út	*			3915	Tarcal	Fő utca	*		
+*	3916	Bodrogkeresztúr	Kossuth út	*			3916	Bodrogkeresztúr	Kossuth utca	*		
+*	3917	Bodrogkisfalud	Kossuth út	*			3917	Bodrogkisfalud	Kossuth Lajos utca	*		
+*	3922	Taktaharkány	Deák út	*			3922	Taktaharkány	Deák utca	*		
+*	3923	Gesztely	Petőfi út	*			3923	Gesztely	Petőfi Sándor utca	*		
+*	3925	Prügy	Szabadság út	*			3925	Prügy	Szabadság utca	*		
+*	3926	Taktabáj	Alkotmány út	*			3926	Taktabáj	Alkotmány utca	*		
+hupostapo	3927	Csobaj	Rákóczi út	2/A			3927	Csobaj	Rákóczi utca	2/a		
+*	3929	Tiszaladány	Kossuth út	*			3929	Tiszaladány	Kossuth Lajos utca	*		
+*	3931	Mezőzombor	Rákóczi út	*			3931	Mezőzombor	Rákóczi utca	*		
+*	3932	Erdőbénye	Hunyadi út	*			3932	Erdőbénye	Hunyadi János utca	*		
+*	3935	Erdőhorváti	Kassai út	*			3935	Erdőhorváti	Kassai utca	*		
+*	3941	Vámosújfalu	Csécsi Nagy Pál út	*			3941	Vámosújfalu	Csécsi Nagy Pál utca	*		
+*	3943	Bodrogolaszi	Vasút út	*			3943	Bodrogolaszi	Vasút utca	*		
+*	3950	Sárospatak	Rákóczi Ferenc utca	*			3950	Sárospatak	Rákóczi út	*		
+*	3954	Györgytarló	Széchenyi út	*			3954	Györgytarló	Széchenyi utca	*		
+*	3955	Kenézlő	Kárpát út	*			3955	Kenézlő	Kárpát utca	*		
+*	3958	Hercegkút	Petőfi út	*			3958	Hercegkút	Petőfi Sándor utca	*		
+*	3961	Vajdácska	Fő út	*			3961	Vajdácska	Fő utca	*		
+*	3963	Karcsa	Szabadság út	*			3963	Karcsa	Szabadság utca	*		
+*	3971	Tiszakarád	Engels út	*			3971	Tiszakarád	Engels Frigyes utca	*		
+*	3973	Cigánd	Petőfi út	*			3973	Cigánd	Petőfi Sándor utca	*		
+*	3974	Ricse	Kossuth út	*			3974	Ricse	Kossuth Lajos utca	*		
+hupostapo	3974	Semjén	Kossuth utca	33/A			3974	Semjén	Kossuth Lajos utca	33/a		
+*	3977	Zemplénagárd	Fő út	*			3977	Zemplénagárd	Fő utca	*		
+*	3980	Sátoraljaújhely	Kazinczy utca	105			3980	Sátoraljaújhely	Kazinczy Ferenc utca	105		
+*	3980	Sátoraljaújhely	Kazinczy utca		7602		3980	Sátoraljaújhely	Kazinczy Ferenc utca		7602	
+*	3980	Sátoraljaújhely	Petőfi utca	*			3980	Sátoraljaújhely	Petőfi Sándor utca	*		
+*	3980	Sátoraljaújhely	Vár hegy	*			3980	Sátoraljaújhely	2949652	*		
+*	3980	Sátoraljaújhely	Várhegy utca				3980	Sátoraljaújhely	2949652			
+hupostapo	3981	Sátoraljaújhely	Fasor út	19			3981	Sátoraljaújhely	Fasor utca	19		
+hupostapo	3981	Sátoraljaújhely	Kazinczy út	10			3981	Sátoraljaújhely	Kazinczy Ferenc utca	10		
+*	3987	Bodroghalom	Szabadság út	*			3987	Bodroghalom	Szabadság utca	*		
+hupostapo	3988	Sátoraljaújhely	Kazinczy út	202			3988	Sátoraljaújhely	Kazinczy Ferenc utca	202		
+*	3989	Mikóháza	Szabadság út	*			3989	Mikóháza	Szabadság utca	*		
+*	3992	Kovácsvágás	Fő út	*			3992	Kovácsvágás	Fő utca	*		
+*	4002	Debrecen	Elek út	*			4002	Debrecen	Elek utca	*		
+*	4031	Debrecen	Külső Balmazújváosi út	*			4002	Debrecen	Külső Balmazújvárosi út	*		
+*	4030	Debrecen	Mikepércsi út	73			4002	Debrecen	Mikepércsi út	73		
+*	4030	Debrecen	Mikepércsi út	73/A			4002	Debrecen	Mikepércsi út	73/a		
+hupostapo	4003	Debrecen	Ifjuság utca	1			4003	Debrecen	Ifjúság utca	1		
+*	4014	Debrecen	Mezőgazdász út	*			4014	Debrecen	Mezőgazdász utca	*		
+*	4024	Debrecen	Petőfi tér	12			4025	Debrecen	Petőfi tér	12		
+*	4025	Debrecen	Piac u.	1-3			4025	Debrecen	Piac utca	1-3		
+*	4025	Debrecen	Segner János tér	*			4025	Debrecen	Segner tér	*		
+*	4031	Debrecen	Péterfia utca	*			4026	Debrecen	Péterfia utca	*		
+*	4000	Debrecen	Böszörményi út	1			4027	Debrecen	Böszörményi út	1		
+hupostacso	4050	Debrecen	Füredi út	27			4027	Debrecen	Füredi út	27		
+*	4032	Debrecen	Füredi út	27			4027	Debrecen	Füredi út	27		
+*	4028	Debrecen	Kassai utca	*			4028	Debrecen	Kassai út	*		
+*	4029	Debrecen	Benedek tér				4029	Debrecen	Benedek Elek tér			
+*	4024	Debrecen	Csapó út	30			4029	Debrecen	Csapó utca	30		
+*	4024	Debrecen	Csapó utca	30			4029	Debrecen	Csapó utca	30		
+*	4030	Debrecen	Mikepércsi út	I.			4030	Debrecen	Mikepércsi út	/i		
+*	4002	Debrecen	Balmazújvárosi út	11			4031	Debrecen	Balmazújvárosi út	11		
+*	4032	Debrecen	Balmazújvárosi út	5			4031	Debrecen	Balmazújvárosi út	5		
+*	4033	Debrecen	Derék utca	68/B			4031	Debrecen	Derék utca	68/b		
+*	4031	Debrecen	István utca	*			4031	Debrecen	István út	*		
+*	4031	Debrecen	Kishatár út	*			4031	Debrecen	Kishatár utca	*		
+*	4031	Debrecen	Kishatár út	34/B			4031	Debrecen	Kishatár utca	34/b		
+*	4032	Debrecen	Poroszlay utca	*			4032	Debrecen	Poroszlay út	*		
+*	4080	Hajdúnánás	Bocskai út	*			4080	Hajdúnánás	Bocskai utca	*		
+hupostapo	4081	Hajdúnánás	Kossuth utca	1			4081	Hajdúnánás	Kossuth Lajos utca	1		
+*	0	Polgár	M3 autópálya				4090	Polgár	M3 autópálya			
+*	4090	Polgár	Tiszaiúti tanya	7/A			4090	Polgár	Tiszaúti tanya	7/a		
+*	4096	Újtikos	Fő út	*			4096	Újtikos	Fő utca	*		
+*	4100	Berettyóújfalu	Dózsa György út	*			4100	Berettyóújfalu	Dózsa György utca	*		
+*	4100	Berettyóújfalu	Földesi utca	*			4100	Berettyóújfalu	Földesi út	*		
+hupostapo	4101	Berettyóújfalu	Millennium út	12			4101	Berettyóújfalu	Millennium utca	12		
+*	4135	Körösszegapáti	Kossuth utca	*			4135	Körösszegapáti	Kossuth Lajos utca	*		
+*	4141	Furta	Szabadság utca	*			4141	Furta	Szabadság út	*		
+*	4145	Csökmő	Kossuth utca	*			4145	Csökmő	Kossuth Lajos utca	*		
+*	4150	Püspökladány	Kossuth utca	*			4150	Püspökladány	Kossuth Lajos utca	*		
+*	4150	Püspökladány	Petőfi utca	*			4150	Püspökladány	Petőfi Sándor utca	*		
+hupostapo	4151	Püspökladány	Kossuth utca	9			4151	Püspökladány	Kossuth Lajos utca	9		
+*	4172	Biharnagybajom	Kossuth utca	*			4172	Biharnagybajom	Kossuth út	*		
+hupostapo	4174	Bihartorda	Kossuth Lajos utca	41/D			4174	Bihartorda	Kossuth Lajos út	41/d		
+*	4175	Bihardancsháza	Kossuth Lajos út	*			4175	Bihardancsháza	Kossuth Lajos utca	*		
+*	4200	Hajdúszoboszló	Kabai útfél		0228/2		4200	Hajdúszoboszló	Kabai út		0228/2	
+*	4200	Hajdúszoboszló	kabai útfél				4200	Hajdúszoboszló	Kabai út			
+*	4200	Hajdúszoboszló	Kabai útfél	22			4200	Hajdúszoboszló	Kabai út		22	
+*	4200	Hajdúszoboszló	Szilfákalja utca	*			4200	Hajdúszoboszló	Szilfákalja	*		
+hupostapo	4202	Hajdúszoboszló	Szilfákalja utca	44			4202	Hajdúszoboszló	Szilfákalja	44		
+*	4211	Ebes	Kossuth utca	*			4211	Ebes	Kossuth Lajos utca	*		
+*	4220	Hajdúböszörmény	Baltazár Dezső utca	*			4220	Hajdúböszörmény	Balthazár Dezső utca	*		
+*	4220	Hajduböszörmény	bánság tér				4220	Hajdúböszörmény	Bánság tér			
+*	0	Józsa	M35 autópálya 31. km szelvény JOBB oldal				4225	Debrecen	M35 autópálya			
+*	0	Józsa	M35 autópálya 31. km szelvény BAL oldal				4225	Debrecen	M35 autópálya			
+*	4225	Debrecen	Szentgyörgyfalvi utca	*			4225	Debrecen	Szentgyörgyfalvi út	*		
+*	4242	Hajdúhadház	Földi János utca	55/A			4242	Hajdúhadház	Dr. Földi János utca	55/a		
+*	4244	Újfehértó	Bartók Béla út	*			4244	Újfehértó	Bartók Béla utca	*		
+*	4244	Újfehértó	Nyíregyházi utca	*			4244	Újfehértó	Nyíregyházi út	*		
+*	4251	Hajdúsámson	Petőfi utca	*			4251	Hajdúsámson	Petőfi út	*		
+*	4251	Hajdúsámson	Kiscsere utca	*			4251	Hajdúsámson	2949588	*		
+*	4274	Hosszúpályi	Petőfi utca	*			4274	Hosszúpályi	Petőfi Sándor utca	*		
+*	4287	Vámospércs	Debreceni út				4287	Vámospércs	Debreceni utca			
+*	4300	Nyírbátor	Debrecen út	*			4300	Nyírbátor	Debreceni utca	*		
+*	4300	Nyírbátor	Zrínyi Ilona út	*			4300	Nyírbátor	Zrínyi Ilona utca	*		
+*	4320	Nagykálló	Korányi Frigyes út	*			4320	Nagykálló	Korányi Frigyes utca	*		
+*	4320	Nagykálló	Korányi Frigyes út				4320	Nagykálló	Korányi Frigyes utca			
+*	4324	Kállósemjén	Kossuth út	*			4324	Kállósemjén	Kossuth utca	*		
+*	4326	Máriapócs	Petri utca	*			4326	Máriapócs	Petri út	*		
+*	4331	Nyírcsászári	Kossuth út	*			4331	Nyírcsászári	Kossuth Lajos utca	*		
+*	4334	Hodász	Széchenyi István út	*			4334	Hodász	Széchenyi István utca	*		
+*	4335	Kántorjánosi	Kossuth utca	16/A			4335	Kántorjánosi	Kossuth Lajos út	16/a		
+*	4337	Jármi	Petőfi Sándor utca	*			4337	Jármi	Petőfi utca	*		
+*	4338	Papos	Petőfi Sándor utca	*			4338	Papos	Petőfi utca	*		
+*	4352	Mérk	Béke út	*			4352	Mérk	Béke utca	*		
+*	4352	Mérk	Hunyadi utca	*			4352	Mérk	Hunyadi János utca	*		
+*	4375	Piricse	Kossuth utca	*			4375	Piricse	Kossuth Lajos utca	*		
+hupostacso	4420	Nyíregyháza	Állomás tér	2			4400	Nyíregyháza	Állomás tér	2		
+*	4401	Nyíregyháza	Kert utca	47			4400	Nyíregyháza	Kert utca	47		
+*	4400	Nyíregyháza	Kossuth Lajos tér	*			4400	Nyíregyháza	Kossuth tér	*		
+*	4400	Nyíregyháza	Nagy Imre ter 1., korzó				4400	Nyíregyháza	Nagy Imre tér	1		
+*	4400	Nyiregyháza	Orosi út	22			4400	Nyíregyháza	Orosi út	22		
+*	4400	Nyíregyháza	Debreceni út	99			4405	Nyíregyháza	Debreceni út	99		
+*	4405	Nyíregyháza	Margaréta utca	*			4405	Nyíregyháza	Margaretta utca	*		
+hupostapo	4435	Nyíregyháza	Fenyő út	1			4435	Nyíregyháza	Fenyő utca	1		
+*	4450	Tiszalök	Táncsics Mihály utca	*			4450	Tiszalök	Táncsics utca	*		
+*	4461	Nyírtelek	Petőfi utca	*			4461	Nyírtelek	Petőfi Sándor utca	*		
+*	4463	Tiszanagyfalu	Kossuth út	*			4463	Tiszanagyfalu	Kossuth utca	*		
+*	4464	Tiszaeszlár	Rákóczi utca	*			4464	Tiszaeszlár	Rákóczi Ferenc utca	*		
+*	4465	Rakamaz	tokaji út				4465	Rakamaz	Tokaji utca			
+*	4466	Timár	Szabadság út	*			4466	Timár	Szabadság utca	*		
+*	4468	Balsa	Szabolcs vezér utca	*			4468	Balsa	Szabolcsvezér utca	*		
+*	4471	Gávavencsello	Petőfi utca	*			4471	Gávavencsellő	Petőfi utca	*		
+*	4491	Újdombrád	Templom utca	*			4491	Újdombrád	Templom út	*		
+*	4496	Szabolcsveresmart	Petőfi út	*			4496	Szabolcsveresmart	Petőfi utca	*		
+*	4515	Kék	Petőfi utca	*			4515	Kék	Petőfi Sándor utca	*		
+*	4521	Berkesz	Rákóczi út	*			4521	Berkesz	Rákóczi utca	*		
+*	4522	Nyírtass	Árpád út	*			4522	Nyírtass	Árpád utca	*		
+*	4523	Pátroha	Szabadság út	*			4523	Pátroha	Szabadság utca	*		
+*	4525	Rétközberencs	Fő út	*			4525	Rétközberencs	Fő utca	*		
+*	4534	Székely	Radnóti utca	*			4534	Székely	Radnóti Miklós utca	*		
+*	4535	Nyíribrony	Fő út	*			4535	Nyíribrony	Fő utca	*		
+*	4536	Ramocsaháza	Görgey utca	*			4536	Ramocsaháza	Görgey Artúr utca	*		
+*	4541	Nyírjákó	Petőfi utca	*			4541	Nyírjákó	Petőfi Sándor utca	*		
+hupostapo	4544	Nyírkarász	Kossuth utca	1/A			4544	Nyírkarász	Kossuth út	1/a		
+*	4546	Anarcs	Táncsics utca	*			4546	Anarcs	Táncsics Mihály utca	*		
+*	4547	Szabolcsbáka	Petőfi utca	*			4547	Szabolcsbáka	2602168	*		
+*	4554	Nyírtét	Petőfi Sándor út	*			4554	Nyírtét	Petőfi Sándor utca	*		
+hupostapo	4554	Nyírtét	Petőfi Sándor út	9			4554	Nyírtét	Petőfi Sándor utca	1		
+*	4556	Magy	Kossuth utca	*			4556	Magy	Kossuth Lajos utca	*		
+*	4557	Besenyőd	Fő út	*			4557	Besenyőd	Fő utca	*		
+*	4562	Vaja	Rohodi út	*			4562	Vaja	Rohodi utca	*		
+*	4564	Nyírmada	Ady Endre utca	*			4564	Nyírmada	Ady Endre út	*		
+*	4565	Pusztadobos	Kossuth utca	*			4565	Pusztadobos	Kossuth Lajos utca	*		
+*	4567	Gemzse	Kossuth út	*			4567	Gemzse	Kossuth utca	*		
+*	4600	Kisvárda	Attila utca	*			4600	Kisvárda	Attila út	*		
+*	4600	Kisvarda	Csillag utca	*			4600	Kisvárda	Csillag utca	*		
+*	4600	Kisvárda	Városmajor út	*			4600	Kisvárda	Városmajor utca	*		
+*	4628	Tiszaszentmárton	Táncsics utca	*			4628	Tiszaszentmárton	Táncsics út	*		
+*	4631	Pap	Kossuth út	*			4631	Pap	Kossuth Lajos utca	*		
+*	4700	Mátészalka	Alkotmány utca	*			4700	Mátészalka	Alkotmány út	*		
+*	4700	Mátészalka	Eötvös utca	*			4700	Mátészalka	Eötvös József utca	*		
+*	4700	Mátészalka	Jármi utca	*			4700	Mátészalka	Jármi út	*		
+*	4700	Mátészalka	Kazinczy u.	*			4700	Mátészalka	Kazinczy Ferenc utca	*		
+*	4700	Mátészalka	Kölcsey utca	*			4700	Mátészalka	Kölcsey Ferenc utca	*		
+*	4700	Mátészalka	Szalkai László utca	*			4700	Mátészalka	Szalkay László utca	*		
+*	4732	Cégénydányád	Dózsa út	*			4732	Cégénydányád	Dózsa György utca	*		
+*	4735	Szamossályi	Kossuth Lajos utca	*			4735	Szamossályi	Kossuth Lajos út	*		
+*	4741	Jánkmajtis	Kossuth Lajos út	*			4741	Jánkmajtis	Kossuth Lajos utca	*		
+*	4743	Csengersima	Kossuth Lajos utca	*			4743	Csengersima	Kossuth utca	*		
+*	4752	Győrtelek	Kossuth utca	*			4752	Győrtelek	Kossuth Lajos utca	*		
+*	4762	Tyukod	Árpád út	*			4762	Tyukod	Árpád utca	*		
+*	4763	Ura	Kossuth utca	*			4763	Ura	Kossuth Lajos utca	*		
+*	4765	Csenger	Ady Endre utca				4765	Csenger	Ady Endre út			
+*	4765	Csenger	Rákóczi utca	*			4765	Csenger	Rákóczi út	*		
+*	4766	Pátyod	Kossuth utca	*			4766	Pátyod	Kossuth Lajos utca	*		
+*	4767	Szamosangyalos	Rákóczi utca	*			4767	Szamosangyalos	Rákóczi Ferenc utca	*		
+*	4811	Kisvarsány	Dózsa György út	*			4811	Kisvarsány	Dózsa György utca	*		
+*	4822	Nyírparasznya	Rákóczi út	*			4822	Nyírparasznya	Rákóczi Ferenc utca	*		
+*	4836	Lónya	Árpád vezér utca	*			4836	Lónya	Árpád utca	*		
+*	4841	Jánd	Rákóczi út	*			4841	Jánd	Rákóczi Ferenc utca	*		
+*	4900	Fehérgyarmat	Alkotmány út	*			4900	Fehérgyarmat	Alkotmány utca	*		
+*	4931	Tarpa	Kossuth utca	*			4931	Tarpa	Kossuth Lajos utca	*		
+*	4931	Tarpa	Kossuth utca	51/B			4931	Tarpa	Kossuth Lajos utca	51/b		
+*	4933	Beregsurány	Árpád út	*			4933	Beregsurány	Árpád utca	*		
+*	4934	Beregdaróc	Szabadság út	*			4934	Beregdaróc	Szabadság utca	*		
+*	4936	Vámosatya	Szabadság út	*			4936	Vámosatya	Szabadság utca	*		
+*	4943	Kömörő	Kossuth utca	*			4943	Kömörő	2653780	*		
+*	4948	Milota	Kossuth utca	*			4948	Milota	Kossuth Lajos utca	*		
+*	4951	Tiszabecs	Rákóczi utca	*			4951	Tiszabecs	Rákóczi Ferenc utca	*		
+*	4954	Sonkád	Rákóczi utca	*			4954	Sonkád	Rákóczi Ferenc utca	*		
+*	5000	Szolnok	Abonyi út	.			5000	Szolnok	Abonyi út			
+*	5000	Szolnok	Ady Endre út	*			5000	Szolnok	Ady Endre utca	*		
+*	5000	Szolnok	Ady Endre út	28/A			5000	Szolnok	Ady Endre utca	28/a		
+*	5000	Szolnok	Délibáb u.	*			5000	Szolnok	Délibáb utca	*		
+*	5000	Szolnok	Hősök tér	*			5000	Szolnok	Hősök tere	*		
+*	5000	Szolnok	Hunyadi út	*			5000	Szolnok	Hunyadi János utca	*		
+*	5000	Szolnok	József Attila út	*			5000	Szolnok	József Attila utca	*		
+*	5000	Szolnok	Jubileumi tér	*			5000	Szolnok	Jubileum tér	*		
+*	5000	Szolnok	Mártírok út				5000	Szolnok	Mártírok útja			
+*	5000	Szolnok	Mátyás Király út	*			5000	Szolnok	Mátyás király út	*		
+*	5000	Szolnok	Szapáry u.	*			5000	Szolnok	Szapáry utca	*		
+*	5000	Szolnok	Városmajor út	*			5000	Szolnok	Városmajor utca	*		
+hupostapo	5005	Szolnok	Széchenyi körút	121			5005	Szolnok	Széchenyi István körút	121		
+hupostapo	5006	Szolnok	Városmajor út	55			5006	Szolnok	Városmajor utca	55		
+*	5000	Szolnok	Karinthy Frigyes út	*			5008	Szolnok	Karinthy Frigyes út	*		
+*	5000	Szolnok	Simon Ferenc utca	55/A			5008	Szolnok	Simon Ferenc utca	55/a		
+*	5061	Tiszasüly	Kiséri utca	*			5061	Tiszasüly	Kiséri út	*		
+*	5065	Nagykörű	Szabadság utca	*			5065	Nagykörű	Szabadság út	*		
+*	5081	Szajol	Táncsics Mihály utca	*			5081	Szajol	Táncsics út	*		
+*	5081	Szajol	4-es főút	*			5081	Szajol	4. számú főközlekedési út	*		
+*	5082	Tiszatenyő	Béke út	*			5082	Tiszatenyő	Béke utca	*		
+*	5282	Tiszatenyő	Béke út	*			5082	Tiszatenyő	Béke utca	*		
+*	5083	Kengyel	Kossuth út	*			5083	Kengyel	Kossuth Lajos út	*		
+*	5084	Rákócziújfalu	Fő utca	*			5084	Rákócziújfalu	Fő út	*		
+*	0	Tószeg	Várkonyi utca	*			5091	Tószeg	Várkonyi út	*		
+humolfu	5100	Jászberény	Szolnoki utca				5100	Jászberény	Jásztelki út			
+hupostapo	5101	Jászberény	Lehel Vezér tér	7-8			5101	Jászberény	Lehel vezér tér	7-8		
+hupostapo	5102	Jászberény	Kossuth utca	109			5102	Jászberény	Kossuth Lajos utca	109		
+*	5125	Pusztamonostor	32 ES főút		0102/45		5125	Pusztamonostor	32. számú főközlekedési út		0102/45	
+*	5126	Jászfényszaru	Samsung tér	*			5126	Jászfényszaru	2949342	*		
+*	5126	Jászfényszaru	Trianon tér	*			5126	Jászfényszaru	2949346	*		
+*	5130	Jászapáti	Kisjárási utca	*			5130	Jászapáti	Kisjárási út	*		
+*	5135	Jászivány	Turul út	*			5135	Jászivány	Turul utca	*		
+*	5200	Törökszentmiklós	Kossuth Lajos út	*			5200	Törökszentmiklós	Kossuth Lajos utca	*		
+hupostapo	5201	Törökszentmiklós	Kossuth utca	127			5201	Törökszentmiklós	Kossuth Lajos utca	127		
+hupostapo	5203	Törökszentmiklós	Vörösmarty út	53			5203	Törökszentmiklós	Vörösmarty utca	53		
+*	5211	Tiszapüspöki	Fő út	*			5211	Tiszapüspöki	Fő utca	*		
+*	5222	Örményes	MÁV Állomás dűlő	*			5222	Örményes	Máv Állomás dűlő	*		
+*	5232	Tiszabő	Fő utca	*			5232	Tiszabő	Fő út	*		
+*	5234	Tiszaroff	Szabadság utca	*			5234	Tiszaroff	Szabadság út	*		
+*	5241	Abádszalók	Deák Ferenc út	*			5241	Abádszalók	Deák Ferenc utca	*		
+*	5244	Tiszaszőlős	Fő utca	*			5244	Tiszaszőlős	Fő út	*		
+*	5300	Karcag	Bajcsy Zsilinszky utca				5300	Karcag	Bajcsy-Zsilinszky utca			
+*	5300	Karcag	Gyarmati utca				5300	Karcag	Gyarmati út			
+*	5300	Karcag	HORVÁTH F út	*			5300	Karcag	Horváth Ferenc utca	*		
+*	5300	Karcag	Horváth utca	*			5300	Karcag	Horváth Ferenc utca	*		
+*	5300	Karcag	Kisújszállási utca	*			5300	Karcag	Kisújszállási út	*		
+hupostapo	5302	Karcag	Móricz Zsigmond út	1			5302	Karcag	Móricz Zsigmond utca	1		
+hupostapo	5311	Kisújszállás	Szabadság tér	6			5311	Kisújszállás	Szabadság téri lakótelep	6		
+hupostapo	5324	Tomajmonostora	Széchenyi utca	63/A			5324	Tomajmonostora	Széchenyi út	63/a		
+*	5340	Kunhegyes	KOSSUTH LAJOS u	*			5340	Kunhegyes	Kossuth Lajos utca	*		
+*	5350	Tiszafüred	Húszöles utca	2/B			5350	Tiszafüred	Húszöles út	2/b		
+*	5400	Mezőtúr	Balassi Bálint utca				5400	Mezőtúr	Balassa Bálint utca			
+*	5400	Mezőtúr	Dózsa György utca	*			5400	Mezőtúr	Dózsa György út	*		
+hupostapo	5401	Mezőtúr	Kossuth tér	10			5401	Mezőtúr	Kossuth Lajos tér	10		
+*	5411	Kétpó	Ond Vezér út	*			5411	Kétpó	Ond vezér út	*		
+*	5420	Túrkeve	Kabai út	*			5420	Túrkeve	Kabai utca	*		
+*	5420	Túrkeve	Kenyérmezei út	*			5420	Túrkeve	Kenyérmezei utca	*		
+*	5440	Kunszentmárton	Szent István Király utca	*			5440	Kunszentmárton	Szent István király utca	*		
+*	5451	Öcsöd	Bem út	*			5451	Öcsöd	Bem József út	*		
+*	5476	Szelevény	Kossuth Lajos út	*			5476	Szelevény	Kossuth Lajos utca	*		
+*	5500	Gyomaendrőd	KOSSUTH LAJOS u	*			5500	Gyomaendrőd	Kossuth Lajos utca	*		
+hupostapo	5501	Gyomaendrőd	Kossuth Lajos út	28			5501	Gyomaendrőd	Kossuth Lajos utca	28		
+*	5510	Dévaványa	Kőrösladányi út	*			5510	Dévaványa	Körösladányi utca	*		
+*	5516	Körösladány	Türöry utca	*			5516	Körösladány	Tüköry Lajos utca	*		
+*	5520	Szeghalom	Ady Endre út	*			5520	Szeghalom	Ady Endre utca	*		
+*	5520	Szeghalom	Kinizsi utca	*			5520	Szeghalom	Kinizsi Pál utca	*		
+*	5527	Bucsa	Kossuth tér	*			5527	Bucsa	Kossuth Lajos tér	*		
+*	5527	Bucsa	Kossuth utca	*			5527	Bucsa	Kossuth Lajos utca	*		
+*	5540	Szarvas	Szabadság utca	*			5540	Szarvas	Szabadság út	*		
+*	5553	Kondoros	Hősök utca	*			5553	Kondoros	Hősök útja	*		
+*	5600	Békéscsaba	Békéscsaba, Andrássy út	*			5600	Békéscsaba	Andrássy út	*		
+*	5600	Békéscsaba	Corvin u.	*			5600	Békéscsaba	Corvin utca	*		
+*	5600	Békéscsaba	Corvin J. utca	*			5600	Békéscsaba	Corvin utca	*		
+*	0	Békéscsaba	Gyár utca	*			5600	Békéscsaba	Gyár utca	*		
+*	5600	Békéscsaba	Gyulai utca	*			5600	Békéscsaba	Gyulai út	*		
+*	5600	Békéscsaba	GYULAI út	*			5600	Békéscsaba	Gyulai út	*		
+hupostacso	5620	Békéscsaba	Szabadság tér	1-3			5600	Békéscsaba	Szabadság tér	1-3		
+hupostapo	5601	Békéscsaba	Munkácsy út	6-8			5601	Békéscsaba	Munkácsy utca	6-8		
+*	5621	Csárdaszállás	Petőfi utca	*			5621	Csárdaszállás	Petőfi Sándor utca	*		
+*	5622	Köröstarcsa	Kossuth utca	*			5622	Köröstarcsa	Kossuth Lajos utca	*		
+*	5624	Doboz	Nagyváradi utca	*			5624	Doboz	Nagyváradi út	*		
+*	5631	Békés	csabai út				5630	Békés	Csabai utca			
+*	5630	Békés	Kossuth Lajos út	*			5630	Békés	Kossuth Lajos utca	*		
+*	5650	Mezőberény	Békési utca	*			5650	Mezőberény	Békési út	*		
+*	5650	Mezőberény	Fő utca	*			5650	Mezőberény	Fő út	*		
+*	5650	Mezőberény	Kossuth Lajos tér	*			5650	Mezőberény	Kossuth tér	*		
+*	5673	Kamut	Petőfi utca	*			5673	Kamut	Petőfi Sándor utca	*		
+*	5700	Gyula	csabai út				5700	Gyula	Csabai út			
+*	5700	Gyula	Karácsony János utca	*			5700	Gyula	Karácsonyi János utca	*		
+*	5700	Gyula	Pósteleki út	22/A			5700	Gyula	Pósteleki utca	22/a		
+*	5700	Gyula	Szent István u.	*			5700	Gyula	Szent István utca	*		
+hupostapo	5702	Gyula	Várkert 				5702	Gyula	Várkert utca			
+*	5711	Gyula	Széchenyi utca	*			5711	Gyula	Széchenyi út	*		
+*	5720	Sarkad	Szalontai utca	*			5720	Sarkad	Szalontai út	*		
+hupostapo	5725	Kötegyán	Vasút utca	2.			5725	Kötegyán	Vasút utca	2		
+*	5731	Sarkadkeresztúr	Vörösmarty utca	*			5731	Sarkadkeresztúr	Vörösmarty út	*		
+*	5742	Elek	Gyulai utca	*			5742	Elek	Gyulai út	*		
+*	5744	Kevermes	Battonyai utca	*			5744	Kevermes	Battonyai út	*		
+*	5746	Kunágota	Rákóczi utca	*			5746	Kunágota	Rákóczi Ferenc utca	*		
+*	5746	Kunágota	Rákóczi utca	28/B			5746	Kunágota	Rákóczi Ferenc utca	28/b		
+*	5800	Mezőkovácsháza	Árpád út	*			5800	Mezőkovácsháza	Árpád utca	*		
+*	5800	Mezőkovácsháza	Mezőhegyesi út				5800	Mezőkovácsháza	Végegyházi út			
+*	5820	Mezőhegyes	Kinizsi tér	*			5820	Mezőhegyes	2654423	*		
+*	5900	Orosháza	Vásárhely utca	23/A			5900	Orosháza	Vásárhelyi út	23/a		
+*	5900	Orosháza	Fasor utca				5904	Orosháza	Fasor utca			
+*	5900	Orosháza	Gyopárosi út				5904	Orosháza	Gyopárosi út			
+*	5919	Pusztaföldvár	Rákóczi utca	*			5919	Pusztaföldvár	Rákóczi út	*		
+*	5931	Nagyszénás	HONVÉD u	*			5931	Nagyszénás	Honvéd utca	*		
+*	5931	Nagyszénás	Petőfi utca	*			5931	Nagyszénás	Petőfi Sándor utca	*		
+*	5931	Nagyszénás	Zrínyi utca	*			5931	Nagyszénás	Zrínyi Miklós utca	*		
+*	5932	Gádoros	Kossuth utca	*			5932	Gádoros	Kossuth Lajos utca	*		
+*	6000	Kecskemét	Békéscsabai út	.			6000	Kecskemét	Békéscsabai út			
+*	6000	Kecskemét	Budai út				6000	Kecskemét	Budai utca			
+*	6000	Kecskemét	Csányi u.	*			6000	Kecskemét	Csányi utca	*		
+*	6000	Kecskemét	Dunaföldvár út	*			6000	Kecskemét	Dunaföldvári út	*		
+*	6000	Kecskemét	Izsáki utca	*			6000	Kecskemét	Izsáki út	*		
+*	6000	Kecskemét	Izsáki út	12 A			6000	Kecskemét	Izsáki út	12/a		
+*	6000	Kecskemét	Kiskunfélegyházi út	*			6000	Kecskemét	Kiskunfélegyházai út	*		
+*	6000	Kecskemét	Március 15.  utca	5/A			6000	Kecskemét	Március 15. utca	5/a		
+*	6000	Kecskemét	Nagykőrösi út	*			6000	Kecskemét	Nagykőrösi utca	*		
+*	6000	Kecskemét	Nagykőrösi út	9/A			6000	Kecskemét	Nagykőrösi utca	9/a		
+*	6000	Kecskemét	Talfája utca	*			6000	Kecskemét	Talfája tanya	*		
+hupostacso	6020	Kecskemét	Talfája tanya	1			6000	Kecskemét	Talfája tanya	1		
+*	0	Kecskemét	44-es számú főút				6000	Kecskemét	44. számú főközlekedési út			
+hupostapo	6001	Kecskemét	Kecskeméti utca	41			6001	Kecskemét	Kecskeméti út	41		
+hupostapo	6001	Kecskemét	Talfája utca	1			6001	Kecskemét	Talfája tanya	1		
+hupostapo	6006	Kecskemét	Széchenyi sétány	5			6006	Kecskemét	Széchenyi István sétány	5		
+*	6031	Szentkirály	Kossuth utca	25/C			6031	Szentkirály	Kossuth Lajos utca	25/c		
+*	6634	Helvécia	Áruház utca	*			6034	Helvécia	Áruház utca	*		
+*	0	Lajosmizse	Dózsa György út	*			6050	Lajosmizse	Dózsa György út	*		
+*	6050	Lajosmizse	DÓZSA GYÖRGY út	*			6050	Lajosmizse	Dózsa György út	*		
+*	6050	Lajosmizse	50.sz. út	jobb oldal			6050	Lajosmizse	5. számú főközlekedési út			
+*	6050	Lajosmizse	50. számú főközlekedési út				6050	Lajosmizse	5. számú főközlekedési út			
+*	6060	Tiszakécske	Szolnoki utca				6060	Tiszakécske	Szolnoki út			
+*	6060	Tiszakécske	Szolnoki út	.			6060	Tiszakécske	Szolnoki út			
+*	6060	Tiszakécske	Béke tér	*			6060	Tiszakécske	2610909	*		
+hupostapo	6061	Tiszakécske	Béke tér	1			6061	Tiszakécske	2610909	1		
+*	6065	Lakitelek	Széchenyi körút	*			6065	Lakitelek	Széchenyi István körút	*		
+*	6065	Lakitelek	Zrínyi utca	*			6065	Lakitelek	Zrínyi Miklós utca	*		
+*	6076	Ágasegyháza	Kossuth utca	*			6076	Ágasegyháza	Kossuth út	*		
+*	6077	Orgovány	Kossuth Lajos út	*			6077	Orgovány	Kossuth Lajos utca	*		
+*	6080	Szabadszállás	Kossuth Lajos út	*			6080	Szabadszállás	Kossuth Lajos utca	*		
+*	6085	Fülöpszállás	Bajcsy-Zsilinszky utca	*			6085	Fülöpszállás	Bajcsy-Zsilinszky Endre utca	*		
+*	6087	Dunavecse	Fő út	*			6087	Dunavecse	Fő utca	*		
+*	0	Dunavecse	Fő út 120. 510 számú fő út				6087	Dunavecse	Fő utca	120		
+*	6090	Kunszentmiklós	Damjanich utca	*			6090	Kunszentmiklós	Damjanich János utca	*		
+*	6090	Kunszentmiklós	Rákóczi Ferenc út	*			6090	Kunszentmiklós	Rákóczi Ferenc utca	*		
+*	6098	Tass	Rácz L. utca	*			6098	Tass	Rácz László utca	*		
+*	6100	Kiskunfélegyháza	Darvas József tér	*			6100	Kiskunfélegyháza	Darvas tér	*		
+*	6100	Kiskunfélegyháza	Kossuth utca	*			6100	Kiskunfélegyháza	Kossuth Lajos utca	*		
+*	6100	Kiskunfélegyháza	Petőfi Sándor u.	*			6100	Kiskunfélegyháza	Petőfi utca	*		
+*	6100	Kiskunfélegyháza	szegedi út				6100	Kiskunfélegyháza	Szegedi út			
+hupostapo	6102	Kiskunfélegyháza	Kossuth utca	16			6102	Kiskunfélegyháza	Kossuth Lajos utca	16		
+*	0	Petőfiszállás	M5 autópálya	*			6113	Petőfiszállás	M5 autópálya	*		
+*	6120	Kiskunmajsa	Félegyházi út	*			6120	Kiskunmajsa	Félegyházi utca	*		
+*	6135	Csólyospálos	Kossuth utca	*			6135	Csólyospálos	Kossuth Lajos utca	*		
+*	6200	Kiskőrös	Dózsa György út	*			6200	Kiskőrös	Dózsa György utca	*		
+*	6200	Kiskőrös	Kossuth Lajos utca	*			6200	Kiskőrös	Kossuth Lajos út	*		
+*	6200	Kiskőrös	Petőfi tér	*			6200	Kiskőrös	Petőfi Sándor tér	*		
+*	6200	Kiskőrös	Petőfi Sándor út	*			6200	Kiskőrös	Petőfi Sándor utca	*		
+*	6224	Tabdi	Kossuth Lajos utca	*			6224	Tabdi	Kossuth utca	*		
+*	6230	Soltvadkert	HALASI út	*			6230	Soltvadkert	2654427	*		
+*	6623	Bócsa	III. körzet	*			6235	Bócsa	III. körzet	*		
+*	6237	Kecel	Császártöltési utca	*			6237	Kecel	Császártöltési út	*		
+*	6300	Kalocsa	Bányai út	*			6300	Kalocsa	Bátyai út	*		
+*	6300	Kalocsa	Negyvennyolcas út				6300	Kalocsa	Negyveni út			
+*	6300	Kalocsa	Széchenyi út	*			6300	Kalocsa	Széchenyi utca	*		
+*	6300	Kalocsa	Szent István király utca	*			6300	Kalocsa	Szent István király út	*		
+*	6300	Kalocsa	Szent István út	*			6300	Kalocsa	Szent István király út	*		
+*	6300	Kalocsa	I.Istvan kiraly utca	57/A			6300	Kalocsa	Szent István király út	57/a		
+*	6300	Kalocsa	Szent István király utca	57/A			6300	Kalocsa	Szent István király út	57/a		
+*	6320	Solt	Vecsei utca	*			6320	Solt	Vecsei út	*		
+*	6325	Dunatetétlen	Rákóczi utca	*			6325	Dunatetétlen	Rákóczi Ferenc utca	*		
+*	6328	Dunapataj	Ordasi út	*			6328	Dunapataj	Ordasi utca	*		
+*	6333	Dunaszentbenedek	Kossuth utca	*			6333	Dunaszentbenedek	Kossuth Lajos utca	*		
+*	6334	Géderlak	Kossuth utca	*			6334	Géderlak	Kossuth Lajos utca	*		
+*	6344	Hajós	Jókai utca	*			6344	Hajós	Jókai Mór utca	*		
+*	6344	Hajós	Szigeti Fő utca	*			6344	Hajós	Szigeti főutca	*		
+*	6346	Sükösd	Dózsa György út	*			6346	Sükösd	Dózsa György utca	*		
+*	6347	Érsekcsanád	Dózsa György utca	*			6347	Érsekcsanád	Dózsa György út	*		
+*	6400	Kiskunhalas	Kossuth Lajos utca	*			6400	Kiskunhalas	Kossuth utca	*		
+*	6423	Kelebia	Bajcsy-Zsilinszky utca	*			6423	Kelebia	Bajcsy-Zsilinszky Endre utca	*		
+*	6424	Csikéria	Kossuth utca	*			6424	Csikéria	Kossuth Lajos utca	*		
+*	6430	Bácsalmás	Gróf Széchenyi utca	*			6430	Bácsalmás	Gróf Széchenyi István utca	*		
+*	6440	Jánoshalma	Rákóczi utca	*			6440	Jánoshalma	Rákóczi Ferenc utca	*		
+*	6440	Jánoshalma	Rákóczi út	*			6440	Jánoshalma	Rákóczi Ferenc utca	*		
+*	6446	Rém	Petőfi utca	*			6446	Rém	Petőfi Sándor utca	*		
+*	6448	Csávoly	Petőfi utca	*			6448	Csávoly	Petőfi Sándor utca	*		
+*	6451	Tataháza	Kossuth utca	*			6451	Tataháza	Kossuth Lajos utca	*		
+*	6453	Bácsbokod	Hunyadi utca	*			6453	Bácsbokod	Hunyadi János utca	*		
+*	6455	Katymár	Szent István utca	*			6455	Katymár	Szent István király utca	*		
+*	6500	Baja	Bajcsy-Zsilinszky utca	*			6500	Baja	Bajcsy-Zsilinszky Endre utca	*		
+hupostacso	6501	Baja	Gránátos utca	11			6500	Baja	Gránátos utca	11		
+*	6500	Baja	Petőfi-sziget. Május 1. sétány				6500	Baja	Május 1. sétány			
+*	6500	Baja	Szabadság út	*			6500	Baja	Szabadság utca	*		
+*	6500	Baja	Vörösmarty utca 5. A épület	1			6500	Baja	Vörösmarty Mihály utca	5/a		
+hupostapo	6502	Baja	Szabadság út	77			6502	Baja	Szabadság utca	77		
+*	6501	Baja	Dózsa György út	126-130			6503	Baja	Dózsa György út	126-130		
+hupostapo	6503	Baja	Dózsa György utca	161			6503	Baja	Dózsa György út	161		
+*	6500	Baja	Dózsa György utca	97			6503	Baja	Dózsa György út	97		
+*	6513	Dunafalva	Kossuth utca	*			6513	Dunafalva	Kossuth Lajos utca	*		
+*	6524	Dávod	Petőfi utca	*			6524	Dávod	Petőfi Sándor utca	*		
+*	6528	Bátmonostor	Kossuth utca	*			6528	Bátmonostor	Kossuth Lajos utca	*		
+*	0	Szentes	Attila út	*			6600	Szentes	Attila út	*		
+*	6600	Szentes	Kolozsvári utca	*			6600	Szentes	Kolozsvár utca	*		
+hupostapo	6601	Szentes	Kossuth utca	3			6601	Szentes	Kossuth Lajos utca	3		
+hupostapo	6602	Szentes	Kolozsvári út	2			6602	Szentes	Kolozsvár utca	2		
+hupostapo	6603	Szentes	Rákóczi utca	107			6603	Szentes	Rákóczi Ferenc utca	107		
+*	6621	Derekegyház	Kossuth utca	*			6621	Derekegyház	Kossuth Lajos utca	*		
+*	6636	Mártély	Fő út	*			6636	Mártély	Fő utca	*		
+*	6646	Tömörkény	Petőfi utca	*			6646	Tömörkény	Petőfi Sándor utca	*		
+*	6710	Szeged	Kapisztrán utca	*			6710	Szeged	Kapisztrán út	*		
+hupostapo	6718	Szeged	Hargita utca	60			6718	Szeged	Hargitai utca	60		
+*	6720	Szeged	Kiss Menyhért u.	*			6720	Szeged	Kiss Menyhért utca	*		
+*	6723	Szeged	Tisza Lajos körút	41			6722	Szeged	Tisza Lajos körút	41		
+*	6723	Szeged	Vízi Sport Egyesület Felső Tisza part				6723	Szeged	Felső Tisza part			
+*	6723	Szeged	Makkosházi krt.	*			6723	Szeged	Makkosházi körút	*		
+*	6727	Szeged	Kossuth Lajos sugárút	68			6724	Szeged	Kossuth Lajos sugárút	68		
+*	6724	Szeged	Londoni krt	3			6724	Szeged	Londoni körút	3		
+hupostacso	6780	Szeged	Rókusi körút	42-64			6724	Szeged	Rókusi körút	42-64		
+*	6725	Szeged	Vásárhelyi Pál út	*			6724	Szeged	Vásárhelyi Pál utca	*		
+*	6724	Szeged	Vásárhelyi Pál út	25444 HRSZ			6724	Szeged	Vásárhelyi Pál utca		25444	
+*	6725	Szeged	SZENT FERENC utca	*			6725	Szeged	Szent Ferenc utca	*		
+*	6729	Szeged	Algyői út	67			6727	Szeged	Algyői út	67		
+*	6701	Szeged	Dorozsmai út	16			6728	Szeged	Dorozsmai út	16		
+*	6728	Szeged	Kereskedő köz 1 A épület				6728	Szeged	Kereskedő köz	1/a		
+*	6728	Szeged	Zápor utca	*			6728	Szeged	Zápor út	*		
+*	6729	Szeged	Napfénypark Szabadkai út	*			6729	Szeged	Szabadkai út	*		
+*	6729	Szeged	Szabadkai utca	*			6729	Szeged	Szabadkai út	*		
+*	6750	Szeged	Egészségház utca	*			6750	Algyő	Egészségház utca	*		
+*	6758	Röszke	Felszabadulás utca	*			6758	Röszke	Fő utca	*		
+*	6760	Kistelek	Kossuth utca	*			6760	Kistelek	Kossuth Lajos utca	*		
+*	6760	Kistelek	5. számú főközlekedési út jobb oldal				6760	Kistelek	5. számú főközlekedési út			
+*	6763	Szatymaz	M5 autópálya 151,5 km bal oldal				6763	Szatymaz	M5 autópálya			
+*	6763	Szatymaz	M5 autópálya 151,5 km jobb oldal				6763	Szatymaz	M5 autópálya			
+*	6764	Balástya	M5 147km - Family hotel				6764	Balástya	M5 autópálya			
+*	6768	Baks	Fő út	*			6768	Baks	Fő utca	*		
+*	6774	Ferencszállás	Szegedi utca	*			6774	Ferencszállás	Szegedi út	*		
+*	6782	Mórahalom	István király utca	10/A			6782	Mórahalom	István király út	10/a		
+*	6782	Mórahalom	Milleniumi sétány	*			6782	Mórahalom	Millenniumi sétány	*		
+*	6782	Mórahalom	Szegedi utca	*			6782	Mórahalom	Szegedi út	*		
+*	6784	Öttömös	Petőfi út	*			6784	Öttömös	Petőfi utca	*		
+*	6792	Zsombó	Gárdonyi Géza utca	*			6792	Zsombó	Gárdonyi utca	*		
+*	6794	Üllés	Dorozsmai utca	*			6794	Üllés	Dorozsmai út	*		
+*	6795	Bordány	Kossuth utca	*			6795	Bordány	Kossuth Lajos utca	*		
+*	6975	Bordány	Park tér	*			6795	Bordány	Park tér	*		
+*	6800	Hódmezővásárhely	Deák F. u.	*			6800	Hódmezővásárhely	Deák Ferenc utca	*		
+*	6800	Hódmezővásárhely	Dózsa György utca	*			6800	Hódmezővásárhely	Dózsa György útja	*		
+*	6800	Hódmezővásárhely	Dr Rapcsák András utca	*			6800	Hódmezővásárhely	Dr. Rapcsák András út	*		
+*	6800	Hódmezovásárhely	Hódtó utca	*			6800	Hódmezővásárhely	Hódtó utca	*		
+*	6800	Hódmezővásárhely	Hódtó út	*			6800	Hódmezővásárhely	Hódtó utca	*		
+*	6800	Hódmezővásárhely	Stadion/Piac park				6800	Hódmezővásárhely	Piac park			
+*	6800	Hódmezővásárhely	Szántó Kovács János út	*			6800	Hódmezővásárhely	Szántó Kovács János utca	*		
+*	0	Hódmezővásárhely	Szántó Kovács János utca	*			6800	Hódmezővásárhely	Szántó Kovács János utca	*		
+*	0	Kopáncs	47-es számú főút				6800	Hódmezővásárhely	47. számú főközlekedési út			
+hupostapo	6804	Hódmezővásárhely	Jókai út	58			6804	Hódmezővásárhely	Jókai utca	58		
+*	6806	Hódmezővásárhely	Fő út	*			6806	Hódmezővásárhely	Fő utca	*		
+*	6900	Makó	Aradi út	*			6900	Makó	Aradi utca	*		
+*	6900	Makó	Ipari park				6900	Makó	Ipari parki út			
+*	6900	Makó	Kossuth Lajos utca				6900	Makó	Kossuth utca			
+*	6915	Csanádalberti	Fő utca	*			6915	Csanádalberti	Fő út	*		
+*	6916	Ambrózfalva	Dózsa utca	*			6916	Ambrózfalva	Dózsa György utca	*		
+*	7000	Sárbogárd	Ady Endre utca	*			7000	Sárbogárd	Ady Endre út	*		
+*	7003	Sárbogárd	Köztársaság út	*			7003	Sárbogárd	Köztársaság utca	*		
+*	7000	Sárbogárd	Köztársaság út	*			7003	Sárbogárd	Köztársaság utca	*		
+*	7000	Sárbogárd	Köztársaság utca	*			7003	Sárbogárd	Köztársaság utca	*		
+*	7013	Cece	Deák Ferenc út	*			7013	Cece	Deák Ferenc utca	*		
+*	7014	Sáregres	Kossuth utca	*			7014	Sáregres	Kossuth Lajos utca	*		
+*	7020	Dunaföldvár	előszállási út				7020	Dunaföldvár	Előszállási út			
+*	7020	Dunaföldvár	Jobbágyősök utca	*			7020	Dunaföldvár	Jobbágyősök útja	*		
+*	7020	Dunaföldvár	Paksi út	125/A			7020	Dunaföldvár	Paksi utca	125/a		
+*	0	Dunaföldvár	Vak Bottyán tér	*			7020	Dunaföldvár	Vak Bottyán tér	*		
+*	7020	Dunaföldvár	6-os út				7020	Dunaföldvár	6. számú főközlekedési út			
+*	7030	Paks	Barátság útja	*			7030	Paks	Barátság utca	*		
+*	7050	Paks	Dózsa György út	*			7030	Paks	Dózsa György út	*		
+*	7030	Paks	Dózsa György utca	*			7030	Paks	Dózsa György út	*		
+*	7030	Paks	Építők utca  1. üzletsor				7030	Paks	Építők útja	1		
+hupostapo	7031	Paks	Dózsa György utca	30-32			7031	Paks	Dózsa György út	30-32		
+*	7042	Pálfa	Kossuth utca	*			7042	Pálfa	Kossuth Lajos utca	*		
+*	7044	Nagydorog	Kossuth Lajos utca	*			7044	Nagydorog	Kossuth utca	*		
+*	7044	Nagydorog	Vasvári P. utca	*			7044	Nagydorog	Vasvári utca	*		
+*	7051	Kajdacs	Kossuth Lajos út	*			7051	Kajdacs	Kossuth Lajos utca	*		
+*	7064	Gyönk	Dózsa György tér	*			7064	Gyönk	Dózsa tér	*		
+*	7084	Pincehely	Kossuth Lajos út	*			7084	Pincehely	Kossuth Lajos utca	*		
+*	7086	Ozora	Mártírok utca	*			7086	Ozora	Mártírok útja	*		
+*	7087	Fürged	Kossuth utca	*			7087	Fürged	Kossuth Lajos utca	*		
+*	7090	Tamási	Garai utca	*			7090	Tamási	Garay utca	*		
+*	7090	Tamási	Kossuth tér	*			7090	Tamási	Kossuth Lajos tér	*		
+*	7090	Tamási	Szabadság utca	*			7090	Tamási	Szabadság út	*		
+*	7090	Tamási	Szabadság utca				7090	Tamási	Szabadság út			
+*	7090	Tamási	Zrínyi utca	3/A			7090	Tamási	Zrínyi Miklós utca	3/a		
+*	7099	Felsőnyék	Kossuth Lajos utca	*			7099	Felsőnyék	Kossuth utca	*		
+*	7110	Szekszárd	Arany János utca	*			7100	Szekszárd	Arany János utca	*		
+*	7110	Szekszárd	Béri Balogh Ádám utca	*			7100	Szekszárd	Béri Balogh Ádám utca	*		
+*	7100	Szekszárd	Béri Balogh Á utca	*			7100	Szekszárd	Béri Balogh Ádám utca	*		
+*	7100	Szekszárd	Csokonay utca	*			7100	Szekszárd	Csokonai utca	*		
+*	7110	Szekszárd	Kölcsey lakótelep	*			7100	Szekszárd	Kölcsey lakótelep	*		
+*	7100	Szekszárd	Kölcsey utca	*			7100	Szekszárd	Kölcsey lakótelep	*		
+*	7056	Szekszárd	M6 I. jobb oldal				7100	Szekszárd	M6 autópálya			
+*	7056	Szekszárd	M6 II. bal oldal				7100	Szekszárd	M6 autópálya			
+*	7100	Szekszard	Palánki utca	*			7100	Szekszárd	Palánki út	*		
+*	7110	Szekszárd	Pollack Mihály utca	*			7100	Szekszárd	Pollack Mihály utca	*		
+*	7100	Szekszárd	Széchenyi út	*			7100	Szekszárd	Széchenyi utca	*		
+*	7100	Szekszárd	dr. Szentgáli Gyula utca	*			7100	Szekszárd	Szentgáli Gyula utca	*		
+*	7100	Szekszárd	Tartsay utca	*			7100	Szekszárd	Tartsay Vilmos utca	*		
+*	7110	Szekszárd	Tartsay Vilmos utca	*			7100	Szekszárd	Tartsay Vilmos utca	*		
+*	7100	Szekszárd	Tartsay út	*			7100	Szekszárd	Tartsay Vilmos utca	*		
+*	7121	Szálka	Táncsics út	*			7121	Szálka	Táncsics Mihály utca	*		
+*	7130	Tolna	Deák utca	*			7130	Tolna	Deák Ferenc utca	*		
+*	7132	Bogyiszló	Kossuth utca	*			7132	Bogyiszló	Kossuth Lajos utca	*		
+*	7132	Bogyiszló	Petőfi utca	*			7132	Bogyiszló	Petőfi Sándor utca	*		
+*	7140	Bátaszék	BAJAI u	*			7140	Bátaszék	Bajai út	*		
+*	7140	Bátaszék	Budai út	*			7140	Bátaszék	Budai utca	*		
+*	7143	Őcsény	Kazinczy utca	*			7143	Őcsény	Kazinczy Ferenc utca	*		
+*	7144	Decs	Ady utca	*			7144	Decs	Ady Endre utca	*		
+*	7144	Decs	Bélyei utca	*			7144	Decs	Bélyei Tamás utca	*		
+*	7144	Decs	Petőfi utca	*			7144	Decs	Petőfi Sándor utca	*		
+*	7150	Bonyhád	Kossuth utca				7150	Bonyhád	Kossuth Lajos utca			
+hupostapo	7153	Bonyhád	Fáy András lakótelep	36			7153	Bonyhád	Fáy lakótelep	36		
+*	7161	Cikó	Iskola út	*			7161	Cikó	Iskola tér	*		
+*	7173	Zomba	Rákóczi utca	*			7173	Zomba	Rákóczi Ferenc utca	*		
+hupostapo	7187	Bonyhád	Majos utca	40			7187	Bonyhád	V. utca	40		
+*	7191	Hőgyész	Zrinyi utca	*			7191	Hőgyész	Zrínyi utca	*		
+*	7192	Szakály	Fő utca	*			7192	Szakály	Fő út	*		
+*	7200	Dombóvár	Hunyadi János tér	*			7200	Dombóvár	Hunyadi tér	*		
+*	7200	Dombóvár	Hunyadi János tér	20/B			7200	Dombóvár	Hunyadi tér	20/b		
+*	7226	Kurd	Rákóczi tér	*			7226	Kurd	Rákóczi Ferenc tér	*		
+*	7300	Komló	Pécsi utca				7300	Komló	Pécsi út			
+*	7332	Magyaregregy	Kossuth Lajos utca	*			7332	Magyaregregy	Kossuth utca	*		
+*	7346	Bikal	Zrínyi utca	*			7346	Bikal	Zrínyi Miklós utca	*		
+*	7349	Szászvár	Május 1 tér	*			7349	Szászvár	Május 1. tér	*		
+*	7349	Szászvár	Vásártér utca	*			7349	Szászvár	2760944	*		
+hupostapo	7355	Nagymányok	Petőfi utca	69/A			7355	Nagymányok	Petőfi Sándor utca	69/a		
+*	7361	Kaposszekcső	Táncsics utca	*			7361	Kaposszekcső	Táncsics Mihály utca	*		
+*	7370	Sásd	Rákóczi utca	*			7370	Sásd	Rákóczi Ferenc út	*		
+humolfu	7370	Sásd	Noszlopy Gáspár utca				7370	Sásd	Szent Imre út			
+*	7391	Mindszentgodisa	Kossuth utca	*			7391	Mindszentgodisa	Kossuth Lajos utca	*		
+*	7394	Magyarhertelend	Petőfi utca	*			7394	Magyarhertelend	Petőfi Sándor utca	*		
+*	7400	Kaposvár	Achim András utca	*			7400	Kaposvár	Áchim András utca	*		
+*	0	Kaposvár	7400 Kaposvár, Árpád út	*			7400	Kaposvár	Árpád utca	*		
+*	7400	Kaposvár	Bereck S. u.	*			7400	Kaposvár	Bereczk Sándor utca	*		
+*	7400	Kaposvár	Berzsenyi utca	*			7400	Kaposvár	Berzsenyi Dániel utca	*		
+*	7400	Kaposvár	Berzsenyi út	*			7400	Kaposvár	Berzsenyi Dániel utca	*		
+*	7400	Kaposvar	Berzsenyi dániel utca				7400	Kaposvár	Berzsenyi Dániel utca			
+*	7400	Kaposvár	Guba Sándor út		3628/28		7400	Kaposvár	Dr. Guba Sándor utca		3628/28	
+*	7400	Kaposvár	Guba Sándor utca	3628/28 HRSZ			7400	Kaposvár	Dr. Guba Sándor utca		3628/28	
+*	7400	Kaposvár	Fő u.	*			7400	Kaposvár	Fő utca	*		
+*	7401	Kaposvár	Fő utca	48			7400	Kaposvár	Fő utca	48		
+*	7400	Kaposvár	Petőfi tér	*			7400	Kaposvár	Petőfi Sándor tér	*		
+hupostacso	7420	Kaposvár	Petőfi utca	56			7400	Kaposvár	Petőfi Sándor utca	56		
+hupostapo	7405	Kaposvár	Frankel Leó út	1			7405	Kaposvár	Frankel Leó utca	1		
+hupostapo	7406	Kaposvár	Petőfi utca	56			7406	Kaposvár	Petőfi Sándor utca	56		
+hupostapo	7407	Kaposvár	Szondi utca	3-5			7407	Kaposvár	Szondi György utca	3-5		
+*	7452	Somogyaszaló	Kosuth Lajos utca	*			7452	Somogyaszaló	Kossuth Lajos utca	*		
+*	7471	Zimány	Kosuth utca	*			7471	Zimány	Kossuth Lajos utca	*		
+*	7478	Bárdudvarnok	Bárd utca	*			7478	Bárdudvarnok	Bárd lakótelep	*		
+*	7500	Nagyatád	Árpád út	*			7500	Nagyatád	Árpád utca	*		
+*	7500	Nagyatád	Bajcsy-Zsilinszky utca	1/A			7500	Nagyatád	Bajcsy-Zsilinszky Endre utca	1/a		
+*	7500	Nagyatád	Szabadság utca	*			7500	Nagyatád	Szabadság út	*		
+*	7500	Nagyatád	Szabadság utca				7500	Nagyatád	Szabadság út			
+*	7500	Nagyatád	Zrínyi utca				7500	Nagyatád	Zrínyi Miklós utca			
+*	7515	Somogyudvarhely	Jókai utca	*			7515	Somogyudvarhely	Jókai Mór utca	*		
+*	7521	Kaposmérő	Hunyadi utca	*			7521	Kaposmérő	Hunyadi János utca	*		
+*	7524	Kiskorpád	Petőfi Sándor utca	*			7524	Kiskorpád	Petőfi utca	*		
+*	7530	Kadarkút	Kaposvári utca				7530	Kadarkút	2949544			
+*	7535	Lad	Petőfi Sándor utca	*			7535	Lad	Petőfi utca	*		
+*	7541	Kutas	Petőfi Sándor utca	*			7541	Kutas	Petőfi utca	*		
+*	7544	Szabás	Fő út	*			7544	Szabás	Fő utca	*		
+*	7561	Nagybajom	JÁKÓI u	*			7561	Nagybajom	Jákói utca	*		
+*	7562	Segesd	Dózsa tér				7562	Segesd	Dózsa utca			
+*	7562	Segesd	Kossuth utca	*			7562	Segesd	Kossuth Lajos utca	*		
+*	7584	Babócsa	Kossuth Lajos utca	*			7584	Babócsa	Kossuth utca	*		
+hupostapo	7607	Pécs	Zsolnay Vilmos út	103			7607	Pécs	Zsolnay Vilmos utca	103		
+hupostapo	7615	Pécs	Szigeti vám 	1			7615	Pécs	2949613	1		
+*	7621	Pécs	Irgalmasok u.	*			7621	Pécs	Irgalmasok utcája	*		
+*	7623	Pécs	Bajcsy-Zsilinszky utca	*			7622	Pécs	Bajcsy-Zsilinszky utca	*		
+*	7626	Pécs	Bajcsy-Zsilinszky utca	*			7622	Pécs	Bajcsy-Zsilinszky utca	*		
+*	7622	Pécs	Bajcsy Zsilinszky utca	*			7622	Pécs	Bajcsy-Zsilinszky utca	*		
+*	7622	Pécs	Bajcsy-Zsilinszky út	*			7622	Pécs	Bajcsy-Zsilinszky utca	*		
+hupostacso	7680	Pécs	Indóház tér	6			7623	Pécs	Indóház tér	6		
+*	7635	Pécs	Bálicsi utca	3			7624	Pécs	Bálicsi út	3		
+*	7626	Pécs	Ifjúság utca	7/A			7624	Pécs	Ifjúság útja	7/a		
+*	7630	Pécs	Felsővámház utca	*			7626	Pécs	Felsővámház utca	*		
+*	7622	Pécs	Király utca	78			7626	Pécs	Király utca	78		
+*	7627	Pécs	Rákóczi utca	69-71			7626	Pécs	Rákóczi út	69-71		
+*	7630	Pécs	Hajnal utca	*			7627	Pécs	Hajnal utca	*		
+*	7630	Pécs	Hársfa utca	120			7627	Pécs	Hársfa út	120		
+*	7628	Pécs	Komlói út	63/C			7629	Pécs	Komlói út	63/c		
+*	7632	Pécs	Zsolnay Vilmos utca	41-43			7629	Pécs	Zsolnay Vilmos utca	41-43		
+*	7630	Pécs	Budai vám	*			7630	Pécs	Budai Vám	*		
+*	7630	Pécs	Mohácsi utca	*			7630	Pécs	Mohácsi út	*		
+*	7630	Pécs	Nagykozári utca	*			7630	Pécs	Nagykozári út	*		
+*	7630	Pécs	Pécsváradi utca	*			7630	Pécs	Pécsváradi út	*		
+*	7632	Pécs	Zsolnay Vilmos utca	4			7630	Pécs	Zsolnay Vilmos utca	4		
+*	7630	Pécs	Zsolnay út	50			7630	Pécs	Zsolnay Vilmos utca	50		
+*	7630	Pécs	Zsolnay utca	8			7630	Pécs	Zsolnay Vilmos utca	8		
+*	7631	Pécs	Kincses utca	*			7631	Pécs	Kincses út	*		
+*	7632	Pécs	Aidinger J utca	*			7632	Pécs	Aidinger János út	*		
+*	7632	Pécs	Árnyas liget utca	*			7632	Pécs	Árnyas liget	*		
+hupostacso	7680	Pécs	Csontváry utca	2			7632	Pécs	Csontváry utca	2		
+*	7632	Pécs	Enyezd utca	*			7632	Pécs	Enyezd út	*		
+*	7632	Pécs	Fülep L utca	*			7632	Pécs	Fülep Lajos utca	*		
+*	7632	Pécs	Lahti út	*			7632	Pécs	Lahti utca	*		
+*	7600	Pécs	Lahti utca				7632	Pécs	Lahti utca			
+*	7632	Pécs	Maléter Pál út	21169 HRSZ			7632	Pécs	Maléter Pál út		21169	
+*	7621	Pécs	Megyeri út	76			7632	Pécs	Megyeri út	76		
+*	7622	Pécs	Siklósi út	45			7632	Pécs	Siklósi út	45		
+*	7628	Pécs	Siklósi út	66			7632	Pécs	Siklósi út	66		
+*	7623	Pécs	Berze Nagy János út				7633	Pécs	Berze Nagy János utca			
+*	7621	Pécs	Esztergár L utca	*			7633	Pécs	Esztergár Lajos utca	*		
+*	7633	Pécs	Pollack M. utca	*			7633	Pécs	Pollack Mihály utca	*		
+*	7634	Pécs	Magyarürögi utca	*			7634	Pécs	Magyarürögi út	*		
+*	7634	Pécs	Makay István utca	*			7634	Pécs	Makay István út	*		
+*	7634	Pécs	MAKAY ISTVÁN út				7634	Pécs	Makay István út			
+*	7632	Pécs	Nyugati Ipari út				7634	Pécs	Nyugati ipari út			
+*	7636	Pécs	Málom-Hegyi utca	*			7636	Pécs	Málomhegyi út	*		
+*	7639	Kökény	Petőfi Sándor út	*			7639	Kökény	Petőfi utca	*		
+*	7668	Keszü	Petőfi Sándor utca	*			7668	Keszü	Petőfi utca	*		
+*	7671	Bicsérd	Rózsa Ferenc utca	*			7671	Bicsérd	Rózsa utca	*		
+*	7691	Pécs	Búzakalász. utca	*			7691	Pécs	Búzakalász utca	*		
+*	7694	Hosszúhetény	Fő út	*			7694	Hosszúhetény	Fő utca	*		
+*	7700	Mohács	Radnódi lakótelep	*			7700	Mohács	Radnóti lakótelep	*		
+*	7717	Kölked	II Lajos utca	*			7717	Kölked	II. Lajos utca	*		
+*	7727	Palotabozsok	Kossuth Lajos utca	*			7727	Palotabozsok	Kossuth utca	*		
+*	7733	Geresdlak	Hunyadi utca	*			7733	Geresdlak	Hunyadi János utca	*		
+*	0	Geresdlak	Hunyadi János utca				7733	Geresdlak	Hunyadi János utca			
+*	7735	Himesháza	Kossuth Lajos utca	*			7735	Himesháza	Kossuth utca	*		
+*	7751	Szederkény	Pécsi utca	*			7751	Szederkény	Pécsi út	*		
+*	7751	Szederkény	Pécsi utca	32/A			7751	Szederkény	Pécsi út	32/a		
+*	7755	Töttös	Hunyadi utca	*			7755	Töttös	Hunyadi János utca	*		
+*	7759	Lánycsók	Kossuth utca	*			7759	Lánycsók	Kossuth Lajos utca	*		
+*	7761	Kozármisleny	Március 15 tér	*			7761	Kozármisleny	Március 15. tér	*		
+*	7763	Egerág	Szabadság utca	*			7763	Egerág	Szabadság tér	*		
+*	7766	Újpetre	Kossuth utca	*			7766	Újpetre	Kossuth Lajos utca	*		
+*	7768	Vokány	Kossuth utca	*			7768	Vokány	Kossuth Lajos utca	*		
+*	7785	Sátorhely	Várudvar utca	*			7785	Sátorhely	Várudvar	*		
+*	7800	Siklós	Harkányi utca	*			7800	Siklós	Harkányi út	*		
+*	7811	Szalánta	Hunyadi utca	*			7811	Szalánta	Hunyadi János utca	*		
+*	7815	Harkány	Bajcsy-Zsilinszky utca	*			7815	Harkány	Bajcsy-Zsilinszky Endre utca	*		
+*	7815	Harkány	Siklósi utca		2365/2		7815	Harkány	Siklósi út		2365/2	
+*	7817	Diósviszló	Petőfi utca	*			7817	Diósviszló	Petőfi Sándor utca	*		
+*	7822	Nagyharsány	Kossuth utca	*			7822	Nagyharsány	Kossuth Lajos utca	*		
+*	7827	Beremend	Petőfi utca	1/D			7827	Beremend	Petőfi Sándor utca	1/d		
+*	7834	Baksa	Hunyadi utca	*			7834	Baksa	Hunyadi János utca	*		
+*	7900	Szigetvár	Széchenyi út	*			7900	Szigetvár	Széchenyi utca	*		
+*	7932	Mozsgó	Batthyány utca	*			7932	Mozsgó	Batthyány Lajos utca	*		
+*	7940	Szentlőrinc	Munkácsy M. utca	*			7940	Szentlőrinc	Munkácsy Mihály utca	*		
+*	7940	Szentlőrinc	Pécsi utca	*			7940	Szentlőrinc	Pécsi út	*		
+*	7940	Szentlőrinc	Pécsi utca	21/A			7940	Szentlőrinc	Pécsi út	21/a		
+hupostapo	7951	Szabadszentkirály	Petőfi Sándor utca	79			7951	Szabadszentkirály	Petőfi Sándor utca	86		
+*	7953	Királyegyháza	Petőfi utca	*			7953	Királyegyháza	Petőfi Sándor utca	*		
+*	7954	Magyarmecske	Petőfi utca	*			7954	Magyarmecske	Petőfi Sándor utca	*		
+*	7960	Sellye	Mátyás Király utca	*			7960	Sellye	Mátyás király utca	*		
+*	7964	Csányoszró	Kossuth utca	*			7964	Csányoszró	Kossuth Lajos utca	*		
+*	8000	Székesfehérvár	Aszalvölgyi utca	*			8000	Székesfehérvár	Aszalvölgyi út	*		
+*	8000	Székesfehérvár	Balatoni u.	*			8000	Székesfehérvár	Balatoni út	*		
+*	8000	Székesfehérvár	balatoni út				8000	Székesfehérvár	Balatoni út			
+*	8000	Székesfehérvár	Deák F utca	*			8000	Székesfehérvár	Deák Ferenc utca	*		
+*	8000	Székesfehérvár	Donáth utca	*			8000	Székesfehérvár	Donát utca	*		
+*	8000	Székesfehérvár	Donáth utca				8000	Székesfehérvár	Donát utca			
+*	8000	Székesfehérvár	Kadocsa út	*			8000	Székesfehérvár	Kadocsa utca	*		
+hupostacso	8050	Székesfehérvár	Kaszap István utca	3			8000	Székesfehérvár	Kaszap István utca	3		
+*	8000	Székesfehérvár	Kelemen B. utca	*			8000	Székesfehérvár	Kelemen Béla utca	*		
+*	8000	Székesfehérvár	Mátyás Király körút				8000	Székesfehérvár	Mátyás király körút			
+*	8000	Székesfehérvár	M7 autópálya 60. km. Fehérvári pihenő				8000	Székesfehérvár	M7 autópálya			
+*	8000	Székesfehérvár	Palotai út (Fehérpalota üzletház)	*			8000	Székesfehérvár	Palotai út	*		
+*	8000	Székesfehérvár	Palotai út út	*			8000	Székesfehérvár	Palotai út	*		
+*	8000	Székesfehérvár	palotai út				8000	Székesfehérvár	Palotai út			
+*	8000	Székesfehérvár	Pozsonyi utca	99/A			8000	Székesfehérvár	Pozsonyi út	99/a		
+*	8000	Székesfehérvár	Széchenyi út	*			8000	Székesfehérvár	Széchenyi utca	*		
+*	8000	Székesfehérvár	Szent Flórian körút	*			8000	Székesfehérvár	Szent Flórián körút	*		
+*	8000	Székesfehérvár	Szent Flórián krt	*			8000	Székesfehérvár	Szent Flórián körút	*		
+*	8000	Székesfehérvár	Távirda u.	*			8000	Székesfehérvár	Távirda utca	*		
+*	8000	Székesfehérvár	Várkörút 	*			8000	Székesfehérvár	Várkörút	*		
+*	8043	Iszkaszentgyörgy	Rákóczi utca	*			8043	Iszkaszentgyörgy	Rákóczi Ferenc utca	*		
+*	8055	Balinka	Gajavölgyi utca	*			8055	Balinka	Gajavölgy utca	*		
+*	8056	Bakonycsernye	Rákóczi utca	*			8056	Bakonycsernye	Rákóczi út	*		
+*	8060	Mór	Dózsa György út	*			8060	Mór	Dózsa György utca	*		
+hupostapo	8065	Nagyveleg	Móri utca	2/a.			8065	Nagyveleg	Móri utca	2/a		
+*	8083	Csákvár	Széchenyi út	*			8083	Csákvár	Széchenyi utca	*		
+*	8087	Alcsútdoboz	Béke út	*			8087	Alcsútdoboz	Béke utca	*		
+*	8088	Tabajd	Dózsa György út	*			8088	Tabajd	Dózsa György utca	*		
+*	8092	Pátka	Gárdonyi utca	*			8092	Pátka	Gárdonyi Géza utca	*		
+hupostapo	8096	Sukoró	Fő utca	44.			8096	Sukoró	Fő utca	44		
+*	8100	Várpalota	Fehérvári utca	*			8100	Várpalota	Fehérvári út	*		
+*	8100	Várpalota	Gárdonyi Géza út	*			8100	Várpalota	Gárdonyi Géza utca	*		
+*	8100	Várpalota	Kossuth utca	*			8100	Várpalota	Kossuth Lajos utca	*		
+*	8100	Várpalota	Szent István utca	*			8100	Várpalota	Szent István útja	*		
+*	8100	Várpalota	Táncsics utca	*			8100	Várpalota	Táncsics Mihály utca	*		
+hupostapo	8101	Várpalota	Szent István utca	5			8101	Várpalota	Szent István útja	5		
+*	8105	Pétfürdő	Berhidai utca	*			8105	Pétfürdő	Berhidai út	*		
+*	8121	Tác	Ady utca	*			8121	Tác	Ady Endre utca	*		
+*	8124	Káloz	Sörház tér	*			8124	Káloz	2602443	*		
+*	8126	Sárszentágota	Szabadság tér	*			8126	Sárszentágota	2602446	*		
+*	8127	Aba	Rákóczi utca	*			8127	Aba	Rákóczi Ferenc utca	*		
+huaviafu	0		Dózsa György út	119			8130	Enying	Dózsa György utca	119		
+*	8135	Dég	Kossuth utca	*			8135	Dég	Kossuth Lajos utca	*		
+*	8137	Mezőkomárom	Jókai Mór utca	*			8137	Mezőkomárom	Jókai utca	*		
+*	8142	Úrhida	Kossuth Lajos utca	*			8142	Úrhida	Kossuth utca	*		
+*	8146	Jenő	Batthyány utca	*			8146	Jenő	Batthyány Lajos utca	*		
+*	8152	Kőszárhegy	Fő utca	*			8152	Kőszárhegy	Fő út	*		
+*	8157	Füle	Széchenyi út	*			8157	Füle	Széchenyi utca	*		
+*	8172	Balatonakarattya	Rákóczi utca	*			8172	Balatonakarattya	Rákóczi út	*		
+*	8174	Balatonkenese	Balaton utca	*			8174	Balatonkenese	Balatoni út	*		
+*	8175	Balatonfűzfő	Árpád út	*			8175	Balatonfűzfő	Árpád utca	*		
+*	8194	Vilonya	Kossuth utca	*			8194	Vilonya	Kossuth Lajos utca	*		
+*	8200	Veszprém	Almádi utca				8200	Veszprém	Almádi út			
+*	8200	Veszprém	Aradi Vértanúk útja	*			8200	Veszprém	Aradi vértanúk útja	*		
+*	8200	Veszprém	Bajcsy- Zsilinszky u.	*			8200	Veszprém	Bajcsy-Zsilinszky Endre utca	*		
+*	8200	Veszprém	Budapesti út	*			8200	Veszprém	Budapest út	*		
+*	8200	Veszprém	Damjanich utca	4/A			8200	Veszprém	Damjanich János utca	4/a		
+*	8200	Veszprém	Jutasi utca	*			8200	Veszprém	Jutasi út	*		
+hupostacso	8210	Veszprém	Kossuth Lajos utca	19			8200	Veszprém	Kossuth Lajos utca	19		
+*	8200	Veszprém	Külsö Kádártai út	*			8200	Veszprém	Külső-Kádártai út	*		
+*	8200	Veszprém	Külső-Kádártai utca	*			8200	Veszprém	Külső-Kádártai út	*		
+*	8200	Veszprém	Külső-kádártai utca	*			8200	Veszprém	Külső-Kádártai út	*		
+*	8200	Veszprém	Külső - Kádártai út	*			8200	Veszprém	Külső-Kádártai út	*		
+*	8200	Veszprém	Március 15. út	*			8200	Veszprém	Március 15. utca	*		
+*	8200	Veszprém	Mártírok utca	*			8200	Veszprém	Mártírok útja	*		
+*	8200	Veszprém	Szeglethy u.	*			8200	Veszprém	Szeglethy György utca	*		
+hupostapo	8202	Veszprém	Jutasi utca	32/2			8202	Veszprém	Jutasi út	32/2		
+*	8220	Balatonalmádi	Balatonfuzfôi út	*			8220	Balatonalmádi	Balatonfűzfői út	*		
+*	8220	Balatonalmádi	Balatonfüzfői út	*			8220	Balatonalmádi	Balatonfűzfői út	*		
+*	8220	Balatonalmádi	Véghelyi Dezső utca				8220	Balatonalmádi	Véghely Dezső utca			
+*	8227	Felsőörs	Szabadság utca	*			8227	Felsőörs	Szabadság tér	*		
+*	0	Balatonfüred	Fűrdő utca	*			8230	Balatonfüred	Fürdő utca	*		
+*	8230	Balatonfüred	Széchenyi út	*			8230	Balatonfüred	Széchenyi utca	*		
+*	8230	Balatonfüred	Széchenyi István utca	*			8230	Balatonfüred	Széchenyi utca	*		
+*	8230	Balatonfüred	széchenyi út				8230	Balatonfüred	Széchenyi utca			
+*	8253	Révfülöp	Villa-Filip tér	*			8253	Révfülöp	Villa Filip tér	*		
+*	8254	Kővágóörs	Jókai Mór utca	*			8254	Kővágóörs	Jókai utca	*		
+*	8291	Nagyvázsony	Templom kert				8291	Nagyvázsony	2949609			
+*	8296	Monostorapáti	Petőfi utca	*			8296	Monostorapáti	Petőfi Sándor utca	*		
+*	8300	Tapolca	Juhász Gyula út		3437/49		8300	Tapolca	Juhász Gyula utca		3437/49	
+hupostapo	8304	Tapolca	Derkovits utca	1			8304	Tapolca	Derkovits Gyula utca	1		
+*	8308	Zalahaláp	Ady Endre utca	*			8308	Zalahaláp	Ady utca	*		
+*	8308	Zalahaláp	Kossuth Lajos utca	*			8308	Zalahaláp	Kossuth utca	*		
+*	8312	Balatonederics	Kossuth utca	*			8312	Balatonederics	Kossuth Lajos utca	*		
+*	8314	Vonyarcvashegy	Kossuth utca	*			8314	Vonyarcvashegy	Kossuth Lajos utca	*		
+*	8316	Várvölgy	Kossuth utca	*			8316	Várvölgy	Kossuth Lajos utca	*		
+*	8319	Lesenceistvánd	Kossuth Lajos utca	*			8319	Lesenceistvánd	Kossuth utca	*		
+*	8342	Óhíd	Petőfi utca	*			8342	Óhíd	Petőfi Sándor utca	*		
+*	8347	Zalagyömörő	Rákóczi utca	*			8349	Zalagyömörő	Rákóczi Ferenc utca	*		
+*	8351	Sümegprága	Rákóczi utca	*			8351	Sümegprága	Rákóczi Ferenc utca	*		
+*	8354	Karmacs	Kisfaludi utca	*			8354	Karmacs	Kisfaludy Sándor utca	*		
+*	8360	Keszthely	Bercsényi út	*			8360	Keszthely	Bercsényi Miklós utca	*		
+*	0	Keszthely	Csapás út	*			8360	Keszthely	Csapás út	*		
+*	8360	Keszthely	Csapás utca	*			8360	Keszthely	Csapás út	*		
+*	8360	Keszthely	Csapás utca		2505/3		8360	Keszthely	Csapás út		2505/3	
+*	0	Keszthely	Hévizi út				8360	Keszthely	Hévízi út			
+*	8360	Keszthely	Kossuth utca	*			8360	Keszthely	Kossuth Lajos utca	*		
+*	8360	Keszthely	Murvás utca	*			8360	Keszthely	Murvás út	*		
+*	8360	Keszthely	Rákóczi Ferenc tér	*			8360	Keszthely	Rákóczi tér	*		
+*	8360	Keszthely	Tapolcai út	.			8360	Keszthely	Tapolcai út			
+hupostapo	8362	Keszthely	Felső Majori út	2/1			8362	Keszthely	Felsőmajori út	2/1		
+*	8371	Nemesbük	Petőfi utca	*			8371	Nemesbük	Petőfi Sándor utca	*		
+*	8380	Hévíz	Zrínyi utca	*			8380	Hévíz	Zrínyi Miklós utca	*		
+hupostapo	8381	Hévíz	Kossuth utca	4			8381	Hévíz	Kossuth Lajos utca	4		
+*	8391	Sármellék	Dózsa György út	*			8391	Sármellék	Dózsa György utca	*		
+*	0	Alsópáhok	Hévízi út	*			8394	Alsópáhok	Hévízi utca	*		
+*	8394	Alsópáhok	Hévíz utca				8394	Alsópáhok	Hévízi utca			
+*	0	Ajka	Fő út				8400	Ajka	Fő út			
+*	8400	Ajka	Pefőfi Sándor utca				8400	Ajka	Petőfi Sándor utca			
+*	8401	Ajka	Szabadság tér	8			8400	Ajka	Szabadság tér	8		
+*	8412	Gyulafirátót	Posta utca	*			8412	Veszprém	Posta utca	*		
+*	8412	Veszprém	Vizi utca	*			8412	Veszprém	Vízi utca	*		
+*	8415	Nagyesztergár	Radnóti utca	*			8415	Nagyesztergár	Radnóti Miklós utca	*		
+*	8419	Csesznek	Vár út	*			8419	Csesznek	Vár utca	*		
+*	8420	Bakonyszentlászlói	Állomás utca	*			8420	Zirc	Állomás utca	*		
+*	8420	Zirc	Kossuth Lajos út				8420	Zirc	Kossuth Lajos utca			
+*	8424	Jásd	Kossuth utca	*			8424	Jásd	Kossuth Lajos utca	*		
+*	8427	Bakonybél	Pápai utca	*			8427	Bakonybél	Pápai út	*		
+*	8431	Bakonyszentlászló	Petőfi utca	*			8431	Bakonyszentlászló	Petőfi Sándor utca	*		
+*	8440	Herend	Vasút út	1/C			8440	Herend	Vasút utca	1/c		
+*	8441	Márkó	Padányi Biró Márton tér	*			8441	Márkó	Padányi Bíró Márton tér	*		
+*	8451	Ajka	Padragi út	*			8451	Ajka	Padragi utca	*		
+*	8460	Devecser	Pápai út	*			8460	Devecser	Pápai utca	*		
+hupostapo	8461	Devecser	Miskei út	10			8461	Devecser	Miskei utca	10		
+*	8471	Káptalanfa	Rákóczi Ferenc utca	*			8471	Káptalanfa	Rákóczi utca	*		
+*	8484	Nagyalásony	Kossuth utca	*			8484	Nagyalásony	Kossuth Lajos utca	*		
+*	8492	Kerta	Kossuth utca	*			8492	Kerta	Kossuth Lajos utca	*		
+*	8500	Papa	Celli utca	*			8500	Pápa	Celli út	*		
+*	8500	Pápa	Jókai utca	*			8500	Pápa	Jókai Mór utca	*		
+*	8500	Pápa	Jókai Mór u.	*			8500	Pápa	Jókai Mór utca	*		
+*	8500	Pápa	Csóka fogadó, Jókai út	*			8500	Pápa	Jókai Mór utca	*		
+*	8500	Pápa	Szentilonay József utca	*			8500	Pápa	Szentilonai József utca	*		
+hupostapo	8503	Pápa	Gróf utca	48			8503	Pápa	Gróf út	48		
+*	8511	Pápa	Borsosgyőri út	*			8511	Pápa	Borsosgyőri utca	*		
+*	8521	Nagyacsád	Zrínyi utca	*			8521	Nagyacsád	Zrínyi Miklós utca	*		
+*	8523	Egyházaskesző	Kossuth utca	*			8523	Egyházaskesző	Kossuth Lajos utca	*		
+*	8541	Takácsi	Petőfi utca	*			8541	Takácsi	Petőfi Sándor utca	*		
+*	8555	Bakonytamási	Petőfi utca	*			8555	Bakonytamási	Petőfi Sándor utca	*		
+*	8563	Homokbödöge	Kossuth utca	*			8563	Homokbödöge	2602445	*		
+*	8581	Bakonyjákó	Rákóczi utca	*			8581	Bakonyjákó	Rákóczi Ferenc utca	*		
+*	8592	Dáka	Dózsa György utca	*			8592	Dáka	2602444	*		
+*	8596	Pápakovácsi	Fő utca	*			8596	Pápakovácsi	2602179	*		
+*	8598	Pápa	Tapolcafői utca	*			8598	Pápa	Tapolcafői út	*		
+hucibatm	8600	Siófok	Szabadság tér	15			8600	Siófok	Fő tér	3		
+*	8600	Siófok	Szabadság tér	*			8600	Siófok	Szabadság utca	*		
+*	8600	Siófok	Vak Bottyán út	*			8600	Siófok	Vak Bottyán utca	*		
+*	8600	Siófok	Wesselényi utca	*			8600	Siófok	Wesselényi Miklós utca	*		
+*	8610	Siófok	Wesselényi utca	*			8600	Siófok	Wesselényi Miklós utca	*		
+*	8621	Zamárdi	Siófoki utca	*			8621	Zamárdi	Siófoki út	*		
+*	8622	Szántód	7. számú főközlekedési út, Siófoki út		4455/4		8622	Szántód	Siófoki út		4455/4	
+*	8623	Balatonföldvár	Budapest utca				8623	Balatonföldvár	Budapesti út			
+*	8630	Balatonboglár	Klapka utca	*			8630	Balatonboglár	Klapka György utca	*		
+*	8646	Balatonfenyves	Kölcsey utca	*			8646	Balatonfenyves	Kölcsey Ferenc utca	*		
+*	8648	Balatonkeresztúr	M7 Autópálya 167 Km. bal oldal				8648	Balatonkeresztúr	M7 autópálya			
+*	8648	Balatonkeresztúr	M7 Autópálya 167 Km. jobb oldal				8648	Balatonkeresztúr	M7 autópálya			
+*	8649	Balatonberény	KOSSUTH LAJOS u	*			8649	Balatonberény	Kossuth Lajos utca	*		
+*	8654	Ságvár	Petőfi utca	*			8654	Ságvár	Petőfi Sándor utca	*		
+*	8660	Tab	Kossuth Lajos út	*			8660	Tab	Kossuth Lajos utca	*		
+*	8660	Tab	Siófoki út				8660	Tab	2949682			
+*	8671	Kapoly	Rákóczi utca	*			8671	Kapoly	Rákóczi Ferenc utca	*		
+*	8675	Andocs	SZENT FERENC tér	*			8675	Andocs	Szent Ferenc tér	*		
+*	8693	Lengyeltóti	Csokonai utca	*			8693	Lengyeltóti	Csokonai Vitéz Mihály utca	*		
+*	8693	Lengyeltóti	Rákóczi Ferenc utca	*			8693	Lengyeltóti	Rákóczi Ferenc út	*		
+*	8693	Lengyeltóti	Zrínyi utca	*			8693	Lengyeltóti	Zrínyi Miklós utca	*		
+*	8700	Marcali	Berzsenyi út	*			8700	Marcali	Berzsenyi utca	*		
+*	8700	Marcali	Noszlopy utca	*			8700	Marcali	Noszlopy Gáspár utca	*		
+*	8700	Marcali	Noszlopy út	*			8700	Marcali	Noszlopy Gáspár utca	*		
+*	8700	Marcali	Rákóczi út	*			8700	Marcali	Rákóczi utca	*		
+*	8716	Mesztegnyő	Vörösmarty Mihály utca	*			8716	Mesztegnyő	Vörösmarty utca	*		
+*	8725	Iharosberény	Mártírok utca	*			8725	Iharosberény	Mártírok útja	*		
+*	8741	Zalaapáti	Jókai utca	*			8741	Zalaapáti	Jókai Mór utca	*		
+*	8742	Esztergályhorváti	Jókai utca	*			8742	Esztergályhorváti	Jókai Mór utca	*		
+hupostapo	8754	Galambok	Ady utca	4/A			8754	Galambok	Ady Endre utca	4/a		
+*	8754	Galambok	7ES főút	*			8754	Galambok	7. számú főközlekedési út	*		
+*	8756	Nagyrécse	Kossuth út	*			8756	Nagyrécse	Kossuth Lajos utca	*		
+*	8761	Pacsa	75 ÖS főút	*			8761	Pacsa	75. számú főközlekedési út	*		
+*	8762	Szentpéterúr	Kossuth utca	*			8762	Szentpéterúr	Kossuth Lajos utca	*		
+*	8767	Felsőrajk	Petőfi utca	*			8767	Felsőrajk	Petőfi Sándor utca	*		
+*	8771	Hahót	Zrinyi utca	*			8771	Hahót	Zrínyi Miklós utca	*		
+*	8772	Zalaszentbalázs	Kossuth utca	*			8772	Zalaszentbalázs	Kossuth Lajos utca	*		
+*	8774	Gelse	Kossuth Lajos út	*			8774	Gelse	Kossuth Lajos utca	*		
+*	8774	Gelse	Kossuth utca	95/B			8774	Gelse	Kossuth Lajos utca	95/b		
+*	8778	Újudvar	Ország utca	*			8778	Újudvar	Ország út	*		
+*	8782	Zalacsány	Zrínyi utca	*			8782	Zalacsány	Zrínyi Miklós utca	*		
+*	8794	Kehidakustány	Kossuth Lajos utca	*			8784	Kehidakustány	Kossuth Lajos utca	*		
+*	8788	Zalaszentlászló	Kossuth utca	*			8788	Zalaszentlászló	Kossuth Lajos utca	*		
+*	8789	Zalaszentgrót	Hévízi utca	*			8789	Zalaszentgrót	Hévízi út	*		
+*	8790	Zalaszentgrót	Batthyány L. utca	*			8790	Zalaszentgrót	Batthyány Lajos utca	*		
+*	8798	Zalabér	Rákóczi utca	*			8798	Zalabér	Rákóczi Ferenc utca	*		
+*	8800	Nagykanizsa	Balatoni út	*			8800	Nagykanizsa	Balaton utca	*		
+*	8800	Nagykanizsa	Balatoni utca				8800	Nagykanizsa	Balaton utca			
+*	8800	Nagykanizsa	Csengery utca	82/A			8800	Nagykanizsa	Csengery út	82/a		
+*	8800	Nagykanizsa	Dózsa György út	*			8800	Nagykanizsa	Dózsa György utca	*		
+*	8800	Nagykanizsa	Fő utca	*			8800	Nagykanizsa	Fő út	*		
+*	8800	Nagykanizsa	Hevesi Sándor  utca	*			8800	Nagykanizsa	Hevesi Sándor utca	*		
+*	8800	Nagykanizsa	Hevesi Sándor út				8800	Nagykanizsa	Hevesi Sándor utca			
+*	8800	Nagykanizsa	Kinizsi út	*			8800	Nagykanizsa	Kinizsi utca	*		
+*	8800	Nagykanizsa	Király u.	*			8800	Nagykanizsa	Király utca	*		
+*	8800	Nagykanizsa	Sabján Gy. utca	*			8800	Nagykanizsa	Sabján Gyula utca	*		
+*	0	Nagykanizsa	7. számú főközlekedési út és 74. sz főút				8800	Nagykanizsa	7. számú főközlekedési út			
+hupostapo	8802	Nagykanizsa	Ady utca	67			8802	Nagykanizsa	Ady Endre utca	67		
+*	8824	Sand	Kanizsa utca	*			8824	Sand	Kanizsai utca	*		
+*	8834	Murakeresztúr	Honvéd út	*			8834	Murakeresztúr	Honvéd utca	*		
+*	8840	Csurgó	Rákóczi utca	*			8840	Csurgó	Rákóczi Ferenc út	*		
+*	8840	Csurgó	Rákóczi út		571/2		8840	Csurgó	Rákóczi Ferenc út		571/2	
+*	8852	Zákány	Zrinyi tér	*			8852	Zákány	Zrínyi tér	*		
+*	8862	Semjénháza	Kossuth Lajos út	*			8862	Semjénháza	Kossuth Lajos utca	*		
+*	8863	Molnári	Kossuth Lajos út	*			8863	Molnári	Kossuth Lajos utca	*		
+*	8868	Letenye	Bajcsy-Zsilinszki Endre utca	*			8868	Letenye	Bajcsy-Zsilinszky utca	*		
+*	8868	Letenye	Bajcsy-Zsilinszky utca	.			8868	Letenye	Bajcsy-Zsilinszky utca			
+*	8872	Muraszemenye	Rákóczi Ferenc út	*			8872	Muraszemenye	II. Rákóczi Ferenc út	*		
+*	8881	Sormás	Külterület 28. - István hotel				8881	Sormás	Külterület	28		
+*	8885	Borsfa	Zrinyi utca	*			8885	Borsfa	Zrínyi út	*		
+*	8891	Bánokszentgyörgy	Kossuth út	*			8891	Bánokszentgyörgy	Kossuth Lajos utca	*		
+hupostapo	8896	Pusztaszentlászló	Kossuth utca	121 hrsz			8896	Pusztaszentlászló	Kossuth Lajos utca		121	
+*	8900	Zalaegerszeg	Balatoni utca	8/A			8900	Zalaegerszeg	Balatoni út	8/a		
+husparsup	8900	Zalaegerszeg	Becsali köz	2-6			8900	Zalaegerszeg	Becsali út	2-6		
+*	8900	Zalaegerszeg	Budai Nagy Antal út				8900	Zalaegerszeg	Budai Nagy Antal utca			
+*	8900	Zalaegerszeg	Göcseji utca	*			8900	Zalaegerszeg	Göcseji út	*		
+*	8900	Zalaegerszeg	Göcseji utca	37/A			8900	Zalaegerszeg	Göcseji út	37/a		
+*	8900	Zalaegerszeg	Kinizsi utca	*			8900	Zalaegerszeg	Kinizsi Pál utca	*		
+*	8900	Zalaegerszeg	Kossuth L. u.	*			8900	Zalaegerszeg	Kossuth Lajos utca	*		
+*	8900	Zalaegerszeg	Kovács K. tér	4/A			8900	Zalaegerszeg	Kovács Károly tér	4/a		
+*	8900	Zalaegerszeg	Landorhegyi u.	*			8900	Zalaegerszeg	Landorhegyi út	*		
+*	8900	Zalaegerszeg	Mártirok út				8900	Zalaegerszeg	Mártírok útja			
+*	9800	Zalaegerszeg	Patkó utca	*			8900	Zalaegerszeg	Patkó utca	*		
+hupostacso	8910	Zalaegerszeg	Stadion utca	5			8900	Zalaegerszeg	Stadion utca	5		
+*	8900	Zalaegerszeg	Zrínyi Miklós út	*			8900	Zalaegerszeg	Zrínyi Miklós utca	*		
+*	8900	Zalaegerszeg	ZalaZone szervíz épület				8900	Zalaegerszeg	2949663			
+*	8900	Zalaegerszeg	ZalaZone fogadó épület				8900	Zalaegerszeg	2949663			
+hupostapo	8906	Zalaegerszeg	Köztársaság utca	65-67			8906	Zalaegerszeg	Köztársaság útja	65-67		
+hupostapo	8907	Zalaegerszeg	Bozsoki út	1			8907	Zalaegerszeg	Bozsoki utca	1		
+*	8921	Zalaszentiván	Hunyadi utca	*			8921	Zalaszentiván	Hunyadi János utca	*		
+*	8924	Alsónemesapáti	Petőfi utca	*			8924	Alsónemesapáti	Petőfi Sándor utca	*		
+*	8935	Nagykapornak	Petőfi utca	*			8935	Nagykapornak	Petőfi Sándor utca	*		
+*	8945	Bak	Kossuth utca	*			8945	Bak	Kossuth Lajos utca	*		
+*	8947	Zalatárnok	Vörösmarty utca	*			8947	Zalatárnok	Vörösmarty Mihály utca	*		
+*	8951	Gutorfölde	Táncsics Mihály utca	*			8951	Gutorfölde	Táncsics utca	*		
+*	8957	Csömödér	Rákóczi utca	*			8957	Csömödér	Rákóczi út	*		
+*	8960	Lenti	Kossuth Lajos utca	*			8960	Lenti	Kossuth út	*		
+*	8960	Lenti	Táncsics utca	*			8960	Lenti	Táncsics Mihály utca	*		
+*	8960	Lenti	Széchenyi tér	*			8960	Lenti	2655927	*		
+hupostapo	8961	Lenti	Zrinyi utca	1			8961	Lenti	Zrínyi Miklós utca	1		
+*	8991	Teskánd	Petőfi utca	*			8991	Teskánd	Petőfi Sándor utca	*		
+*	8992	Bagod	Kossuth utca	*			8992	Bagod	Kossuth Lajos utca	*		
+*	8996	Zalacséb	Rákóczi utca	*			8996	Zalacséb	Rákóczi Ferenc utca	*		
+hupostapo	9001	Győr	Bajcsy-Zsilinszky út	46			9001	Győr	Bajcsy-Zsilinszky utca	46		
+*	9011	Győr	Törökverő utca	*			9011	Győr	Törökverő út	*		
+*	9012	Gyor	Királyszéki út	*			9012	Győr	Királyszék út	*		
+*	9012	Győr	Királyszék utca	*			9012	Győr	Királyszék út	*		
+*	9012	Győr	Új-Élet utca	*			9012	Győr	Új élet út	*		
+*	9021	Győr	Bajcsy-Zsilinszky út	36			9021	Győr	Bajcsy-Zsilinszky utca	36		
+*	9022	Győr	Szent István út	29-31			9021	Győr	Szent István út	29-31		
+*	9024	Győr	Bartók Béla utca	13			9023	Győr	Bartók Béla út	13		
+hupostacso	9041	Győr	Fehérvári út	3			9023	Győr	Fehérvári út	3		
+*	9023	Győr	Fehérvári utca	3			9023	Győr	Fehérvári út	3		
+*	9023	Győr	Ipar út	99			9023	Győr	Ipar utca	99		
+*	9023	Győr	Kodály Zoltán út	*			9023	Győr	Kodály Zoltán utca	*		
+*	9024	Győr	Lajta utca	*			9024	Győr	Lajta út	*		
+*	9012	Győr	Malomszéki út	*			9024	Győr	Malomszéki út	*		
+*	9022	Győr	Mónus Illés utca	24/B			9024	Győr	Mónus Illés utca	24/b		
+*	9024	Győr	Nagy Imre utca	*			9024	Győr	Nagy Imre út	*		
+*	9000	Győr	Szent Imre utca	55			9024	Győr	Szent Imre út	55		
+*	9000	Győr	Szent Imre út	55			9024	Győr	Szent Imre út	55		
+*	0	Győr	Szigethy A-Táncsics M utca sarok				9024	Győr	Szigethy Attila út			
+*	9021	Gyor	Szigethy attila út				9024	Győr	Szigethy Attila út			
+*	9024	Győr	Vasvári Pál út	*			9024	Győr	Vasvári Pál utca	*		
+*	9024	Győr	Vasvári P. út	1/A			9024	Győr	Vasvári Pál utca	1/a		
+hupostacso	9041	Győr	Vasvári Pál utca	1/A			9024	Győr	Vasvári Pál utca	1/a		
+*	0	Győr	Csipkegyári utca	*			9025	Győr	Csipkegyári út	*		
+*	9025	Győr	Csipkegyári utca	*			9025	Győr	Csipkegyári út	*		
+*	9026	Győr	Hédervári utca	*			9026	Győr	Hédervári út	*		
+*	9041	Győr	Audi Hungária út	*			9027	Győr	Audi Hungária út	*		
+*	9027	Gyor	Tompa utca	*			9027	Győr	Tompa utca	*		
+*	9028	Győr	Mohi út	*			9028	Győr	Mohi utca	*		
+*	9028	Győr	SZENT IMRE út	107			9028	Győr	Szent Imre út	107		
+*	9024	Győr	Tatai út				9028	Győr	Tatai út			
+*	9062	Kisbajcs	Kossuth Lajos út	*			9062	Kisbajcs	Kossuth utca	*		
+*	9063	Nagybajcs	Kossuth Lajos utca	*			9063	Nagybajcs	Kossuth Lajos út	*		
+*	9073	Bőny	Rákóczi utca	*			9073	Bőny	Rákóczi Ferenc utca	*		
+huomvfu	9081	Győr	M1 autópálya	119			9081	Győrújbarát	M1 autópálya	119		
+*	0	Nyúl	Kossuth Lajos út				9082	Nyúl	Kossuth Lajos utca			
+*	9086	Töltéstava	Petőfi Sándor utca	*			9086	Töltéstava	Petőfi Sándor út	*		
+*	9090	Pannonhalma	Váralja (Pannonhalmi Főapátság turistafogadó)	*			9090	Pannonhalma	Váralja utca	*		
+*	9099	Pér	FEHÉRVÁRI út	*			9099	Pér	Fehérvári utca	*		
+*	9100	Tét	Debrecen út	*			9100	Tét	Debrecen utca	*		
+*	9100	Tét	Fő út	*			9100	Tét	Fő utca	*		
+*	9143	Enese	RÓZSA utca	*			9143	Enese	Rózsa utca	*		
+*	9143	Enese	85 ÖS főút				9143	Enese	85. számú főközlekedési út			
+*	9151	Abda	BÉCSI út	*			9151	Abda	Bécsi utca	*		
+*	9151	Abda	Hunyadi út	*			9151	Abda	Hunyadi utca	*		
+*	9155	Lébény	Dózsa utca	*			9155	Lébény	Dózsa György utca	*		
+*	9167	Bősárkány	Petőfi utca	*			9167	Bősárkány	Petőfi Sándor utca	*		
+*	9172	Győrzámoly	Ancsali utca		552		9172	Győrzámoly	Ancsali út		552	
+*	9173	Győrladamér	Országút út	*			9173	Győrladamér	Országút utca	*		
+*	9177	Ásványráró	Rákóczi utca	*			9177	Ásványráró	Rákóczi Ferenc utca	*		
+*	0	Hédervár	Fő utca				9178	Hédervár	Fő út			
+*	9154	Mosonszentmiklós	Béke út	*			9183	Mosonszentmiklós	Béke utca	*		
+*	9200	Mosonmagyaróvár	Fő utca	*			9200	Mosonmagyaróvár	Fő út	*		
+*	9200	Mosonmagyaróvár	Kálnoki utca	*			9200	Mosonmagyaróvár	Kálnoki út	*		
+*	9200	Mosonmagyaróvár	Királyhidai utca	*			9200	Mosonmagyaróvár	Királyhidai út	*		
+*	9200	Mosonmagyaróvár	Kossuth utca	*			9200	Mosonmagyaróvár	Kossuth Lajos utca	*		
+*	9200	Mosonmagyaróvár	Régi Vámház tér	*			9200	Mosonmagyaróvár	Régi vámház tér	*		
+*	9200	Mosonmagyaróvár	Széchenyi István utca	*			9200	Mosonmagyaróvár	Széchenyi utca	*		
+*	9200	Mosonmagyaróvár	Szent István Király út	*			9200	Mosonmagyaróvár	Szent István király út	*		
+*	9200	Mosonmagyaróvár	Szent István király utca	*			9200	Mosonmagyaróvár	Szent István király út	*		
+humolfu	9201	Mosonmagyaróvár	M 1 - M 15. autópálya				9221	Levél	M1 autópálya			
+*	9222	Hegyeshalom	Fő út	*			9222	Hegyeshalom	Fő utca	*		
+*	9224	Rajka	Bem Apó utca	.			9224	Rajka	Bem apó utca			
+*	9224	Rajka	rákoczi út	*			9224	Rajka	Rákóczi Ferenc utca	*		
+*	9225	Dunakiliti	Kossuth Lajos út	*			9225	Dunakiliti	Kossuth Lajos utca	*		
+*	9245	Mosonszolnok	Piac tér	*			9245	Mosonszolnok	2949672	*		
+*	9300	Csorna	Bartók Béla utca	3/C			9300	Csorna	Bartók Béla út	3/c		
+*	9300	Csorna	Táncsics Mihály utca	*			9300	Csorna	Táncsics Mihály út	*		
+hupostapo	9301	Csorna	Erzsébet királyné út	31			9301	Csorna	Erzsébet királyné utca	31		
+*	9324	Bogyoszló	Fő út	*			9324	Bogyoszló	Fő utca	*		
+*	9327	Vág	Kossuth utca	*			9327	Vág	Kossuth Lajos utca	*		
+*	9341	Kisfalud	Kossuth utca	*			9341	Kisfalud	Kossuth Lajos utca	*		
+*	9344	Rábakecöl	Petőfi utca	*			9344	Rábakecöl	Petőfi Sándor utca	*		
+*	9346	Magyarkeresztúr	Kossuth utca	*			9346	Magyarkeresztúr	Kossuth Lajos utca	*		
+*	9400	Sopron	Hátsókapu utca	*			9400	Sopron	Hátsókapu	*		
+hupostacso	9401	Sopron	Ipar körút	30			9400	Sopron	Ipar körút	30		
+*	9400	Sopron	Kodály tér	*			9400	Sopron	Kodály Zoltán tér	*		
+*	9400	Sopron	Révai Miklós út				9400	Sopron	Révai Miklós utca			
+*	9400	Sopron	Selmeczi utca	*			9400	Sopron	Selmeci utca	*		
+*	9400	Soproni	Várkerület	*			9400	Sopron	Várkerület	*		
+*	9400	Sopron	Várkerület utca	*			9400	Sopron	Várkerület	*		
+*	9400	Sopron	Végfordulat utca	*			9400	Sopron	Végfordulat	*		
+hupostapo	9403	Sopron	Várkerület 	37			9403	Sopron	Várkerület	37		
+*	9431	Fertőd	Fő utca	*			9431	Fertőd	Fő út	*		
+*	9431	Fertőd	Hydn sétány				9431	Fertőd	Haydn sétány			
+*	9436	Fertőszéplak	Petőfi utca	*			9436	Fertőszéplak	Petőfi Sándor utca	*		
+*	9444	Fertőszentmiklós	Petőfi Sándor utca	*			9444	Fertőszentmiklós	Petőfi utca	*		
+*	9461	Lövő	Kőszegi út		1252		9461	Lövő	2760950		1252	
+*	9472	Újkér	Csikos utca	*			9472	Újkér	Csíkos utca	*		
+*	9500	Celldömölk	Kossuth utca	*			9500	Celldömölk	Kossuth Lajos utca	*		
+*	9500	Celldömölk	Ostffy tér				9500	Celldömölk	Ostffy Mihály tér			
+hupostapo	9501	Celldömölk	Dr Géfin Lajos tér	14			9501	Celldömölk	Dr. Géfin Lajos tér	14		
+*	9512	Ostffyasszonyfa	Bajcsy-Zsilinszky utca	*			9512	Ostffyasszonyfa	Bajcsy-Zsilinszky Endre utca	*		
+*	9522	Kemenesmagasi	Kossuth utca	*			9522	Kemenesmagasi	Kossuth Lajos utca	*		
+*	9532	Külsővat	Raffel utca	*			9532	Külsővat	Raffel Mihály utca	*		
+hupostapo	9533	Nemesszalók	Rákóczi utca	36			9533	Nemesszalók	Rákóczi utca	36		
+*	9542	Boba	Rákóczi utca	*			9542	Boba	Rákóczi Ferenc utca	*		
+*	9545	Jánosháza	Berzsenyi utca	*			9545	Jánosháza	Berzsenyi Dániel utca	*		
+*	9561	Nagysimonyi	Kossuth utca	*			9561	Nagysimonyi	Kossuth Lajos utca	*		
+*	9600	Sárvár	Batthyány utca	*			9600	Sárvár	Batthyány Lajos utca	*		
+*	9600	Sárvár	Ikervári út	*			9600	Sárvár	Ikervári utca	*		
+*	9600	Sárvár	Rákóczi Ferenc utca	*			9600	Sárvár	Rákóczi Ferenc út	*		
+*	9600	Sárvár	Rákóczi út	*			9600	Sárvár	Rákóczi Ferenc út	*		
+*	9600	Sárvár	Rákóczi utca	*			9600	Sárvár	Rákóczi Ferenc út	*		
+*	9600	Sárvár	Várkerület utca				9600	Sárvár	Várkerület			
+hupostapo	9601	Sárvár	Várkerület 	32			9601	Sárvár	Várkerület	32		
+*	9622	Szeleste	Berzsenyi utca	*			9622	Szeleste	Berzsenyi Dániel utca	*		
+*	9631	Hegyfalu	Kossuth utca	*			9631	Hegyfalu	Kossuth Lajos utca	*		
+*	9651	Uraiújfalu	Petőfi utca	*			9651	Uraiújfalu	Petőfi Sándor utca	*		
+hupostapo	9653	Répcelak	Honvéd utca	5. A ép			9653	Répcelak	Honvéd utca	5/a		
+*	9653	Répcelak	Vörösmarty utca	*			9653	Répcelak	Vörösmarty Mihály utca	*		
+*	9672	Gérce	Kossuth Lajos utca	*			9672	Gérce	Kossuth utca	*		
+*	9673	Káld	Berzsenyi utca	*			9673	Káld	Berzsenyi Dániel utca	*		
+*	9676	Hosszúpereszteg	Széchenyi utca	*			9676	Hosszúpereszteg	2602183	*		
+*	9700	Szombathely	Ady tér. MMIK park				9700	Szombathely	Ady Endre tér			
+*	9700	Szombathely	Csaba út	*			9700	Szombathely	Csaba utca	*		
+hushellfu	9700	Szombathely	Oladi lakótelep				9700	Szombathely	Dolgozók útja			
+*	9700	Szombathely	Éhen Gyula tér. vasútállomás				9700	Szombathely	Éhen Gyula tér			
+*	9700	Szombathely	Fő tér 24.. Uránia udvar				9700	Szombathely	Fő tér	24		
+*	9700	Szombathely	Kisfaludy utca. Borostyán park				9700	Szombathely	Kisfaludy Sándor utca			
+*	9700	Szombathely	Körmendi utca	*			9700	Szombathely	Körmendi út	*		
+*	9700	Szombathely	Kőszegi út				9700	Szombathely	Kőszegi utca			
+*	9700	Szombathely	Mátyás király utca	21/A			9700	Szombathely	Mátyás király út	21/a		
+*	9700	Szombathely	Rumi utca				9700	Szombathely	Rumi út			
+*	9700	Szombathely	Varasd út	*			9700	Szombathely	Varasd utca	*		
+*	9700	Szombathely	Zanati utca	*			9700	Szombathely	Zanati út	*		
+hupostacso	9702	Szombathely	Zanati út	70			9700	Szombathely	Zanati út	70		
+*	9700	Szombathely	Huszár út	*			9700	Szombathely	11-es huszár út	*		
+hupostapo	9705	Szombathely	Károly Róbert körút	14			9705	Szombathely	Károly Róbert utca	14		
+hupostapo	9719	Szombathely	Ifjúság út	35			9719	Szombathely	Ifjúság utca	35		
+*	9721	Gencsapáti	Hunyadi utca	*			9721	Gencsapáti	Hunyadi János út	*		
+*	9723	Gyöngyösfalu	Kőszegi utca	*			9723	Gyöngyösfalu	Kőszegi út	*		
+*	9724	Lukácsháza	Kiscsömötei út	*			9724	Lukácsháza	2602187	*		
+*	9730	Kőszeg	Pogány út	*			9730	Kőszeg	Pogányi út	*		
+hupostapo	9731	Kőszeg	Várkör 	65			9731	Kőszeg	Várkör	65		
+hupostapo	9732	Kőszeg	Rohonczi utca	37			9732	Kőszeg	Rohonci utca	37		
+*	9735	Csepreg	Rákóczi utca	*			9735	Csepreg	Rákóczi Ferenc utca	*		
+*	9737	Bük	Kossuth utca	*			9737	Bük	Kossuth Lajos utca	*		
+*	9737	Bük	Petőfi utca	*			9737	Bük	Petőfi Sándor utca	*		
+*	9740	Bük	Thermal krt	*			9740	Bük	Termál körút	*		
+*	9751	Vép	Szent Imre herceg utca	*			9751	Vép	Szent Imre utca	*		
+*	9754	Pecöl	Széchenyi utca	*			9754	Pecöl	Széchenyi István utca	*		
+*	9757	Meggyeskovácsi	Kossuth utca	*			9757	Meggyeskovácsi	Kossuth Lajos utca	*		
+*	9761	Táplánszentkereszt	Fő utca	*			9761	Táplánszentkereszt	Fő út	*		
+*	9774	Sorkifalud	Petőfi utca	*			9774	Sorkifalud	Petőfi Sándor utca	*		
+*	9781	Egyházashollós	Kossuth utca	*			9781	Egyházashollós	Kossuth út	*		
+*	9791	Torony	Felsőőri utca	*			9791	Torony	Felsőőr utca	*		
+*	9797	Nárai	Petőfi utca	*			9797	Nárai	Petőfi Sándor utca	*		
+*	9798	Ják	Kossuth utca	*			9798	Ják	Kossuth Lajos utca	*		
+*	9800	Vasvár	Győrvári út	*			9800	Vasvár	Győrvári utca	*		
+*	9800	Vasvár	Járdányi Porfesszor utca	*			9800	Vasvár	Járdányi professzor utca	*		
+hupostapo	9801	Vasvár	Járdányi utca	4			9801	Vasvár	Járdányi professzor utca	4		
+*	9831	Bérbaltavár	Rákóczi utca	*			9831	Bérbaltavár	Rákóczi Ferenc utca	*		
+*	9900	Körmend	Rákóczi út	2/C			9900	Körmend	Rákóczi utca	2/c		
+*	9900	Körmend	Rákóczi út		307/1		9900	Körmend	Rákóczi utca		307/1	
+*	9900	Körmend	Vida utca	1/A			9900	Körmend	Vida József utca	1/a		
+*	9912	Molnaszecsőd	Petőfi Sándor utca	*			9912	Molnaszecsőd	Petőfi út	*		
+*	9941	Őriszentpéter	Városszer utca	*			9941	Őriszentpéter	Városszer	*		
+*	9961	Rábagyarmat	Kocsis László út	*			9961	Rábagyarmat	Kocsis László utca	*		
+*	9962	Magyarlak	Kossuth utca	*			9962	Magyarlak	Kossuth Lajos út	*		
+*	9970	Szentgotthárd	Hunyadi út	*			9970	Szentgotthárd	Hunyadi János utca	*		
+*	9982	Apátistvánfalva	Fő utca	*			9982	Apátistvánfalva	Fő út	*		
+*	9985	Felsőszölnök	Templom utca	*			9985	Felsőszölnök	Templom út	*		
+*	1048	Budapest	Óceánárok utca	*			1048	Budapest	Óceán-árok utca	*		
+*	2083	Solymár	Terstyánszky Ödön utca	*			2083	Solymár	Terstyánszky utca	*		
+*	5300	karcag	Kisújszállási út	*			5300	Karcag	Kisújszállási út	*		
+*	7400	Kaposvár	Petőfi utca	*			7400	Kaposvár	Petőfi Sándor utca	*		
+*	7632	Pécs	Árnyas utca	*			7632	Pécs	Árnyas út	*		
+*	7634	Pécs	Nyugati Ipari út	*			7634	Pécs	Nyugati ipari út	*		
+*	1194	Budapest	Hofherr Albert utca	40a			1194	Budapest	Hofherr Albert utca	40/a		
+*	6500	Baja	Dózsa György út	87			6503	Baja	Dózsa György út	87		
+*	7150	Bonyhád	Deák Ferenc utca	10b			7150	Bonyhád	Deák Ferenc utca	10/b		
+*	5100	Jászberény	Nagykátai utca	22/C			5100	Jászberény	Nagykátai út	22/c		
+*	2144	Kerepes	Szabadság útja	1/E			2144	Kerepes	Szabadság út	1/e		
+*	4200	Hajdúszoboszló	Kabai útfél	34			4200	Hajdúszoboszló	Kabai út		34	
+*	4220	Hajdúböszörmény	Külső-Szoboszlói utca	2/B			4220	Hajdúböszörmény	Külső Szoboszlói út	2/b		
+*	1171	Budapest	Pesti út	237			1173	Budapest	Pesti út	237		

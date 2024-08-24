@@ -33,7 +33,7 @@ def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
     :return: Validated coordinates or None on error
     """
     if (latitude is not None and latitude != '') and (longitude is not None and longitude != ''):
-        if not isinstance(latitude, float):
+        if not isinstance(latitude, float) and not isinstance(latitude, int):
             la = PATTERN_COORDINATE.search(latitude.replace(',', '.').strip())
             try:
                 if la is not None:
@@ -48,7 +48,7 @@ def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
                 return None
         else:
             lat = latitude
-        if not isinstance(longitude, float):
+        if not isinstance(longitude, float) and not isinstance(longitude, int):
             lo = PATTERN_COORDINATE.search(longitude.replace(',', '.').strip())
             try:
                 if lo is not None:

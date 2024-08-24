@@ -5,9 +5,10 @@ try:
     import sys
     import os
     import json
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
-        clean_phone_to_str
+        clean_phone_to_str, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -21,13 +22,13 @@ except ImportError as err:
 
 class hu_omv(DataProvider):
 
-    def constains(self):
-        self.link = 'https://app.wigeogis.com/kunden/omvpetrom/data/getresults.php'
+    def contains(self):
+        self.link = 'https://app.wigeogis.com/kunden/omv/data/getresults.php'
         self.tags = {'amenity': 'fuel', 'name': 'OMV', 'brand': 'OMV', 'fuel:diesel': 'yes',
                      'fuel:octane_95': 'yes', 'air_conditioning': 'yes', 'brand:wikidata': 'Q168238',
-                     'brand:wikipedia': 'en:OMV', 'operator': 'OMV Hungária Kft.',
-                     'operator:addr': '1117 Budapest, Október huszonharmadika utca 6-10 5. emelet 5/A.',
-                     'ref:vatin:hu': '10542925-2-44', 'ref:vatin': 'HU10542925',
+                     'brand:wikipedia': 'en:OMV', 'brand:operator': 'OMV Hungária Kft.',
+                     'brand:operator:addr': '1117 Budapest, Október huszonharmadika utca 6-10 5. emelet 5/A.',
+                     'ref:HU:vatin': '10542925-2-44', 'ref:vatin': 'HU10542925',
                      'ref:HU:company': '01-09-071584', 'contact:email': 'info.hungary@omv.com',
                      'contact:facebook': 'https://www.facebook.com/omvmagyarorszag',
                      'contact:fax': '+36 1 381 9899', 'contact:twitter': 'omv',
@@ -45,8 +46,9 @@ class hu_omv(DataProvider):
         huomvfu.update(POS_HU_GEN)
         huomvfu.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'huomvfu', 'poi_name': 'OMV', 'poi_type': 'fuel',
+            {'poi_code': 'huomvfu', 'poi_common_name': 'OMV', 'poi_type': 'fuel',
              'poi_tags': huomvfu, 'poi_url_base': 'https://www.omv.hu', 'poi_search_name': '(omv|omw|ömv|ömw|ovm|owm)',
+             'poi_search_avoid_name': '(mol|shell|m. petrol|avia|lukoil|hunoil)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 450,
              'osm_search_distance_unsafe': 60},
         ]
@@ -55,18 +57,14 @@ class hu_omv(DataProvider):
     def process(self):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype, self.post)
+                                        self.filetype, False, self.post)
             if soup is not None:
                 text = json.loads(soup)
                 for poi_data in text:
                     try:
-                        self.data.name = 'OMV'
                         self.data.code = 'huomvfu'
-                        if poi_data.get('postcode') is not None and poi_data.get('postcode') != '':
-                            self.data.postcode = poi_data.get(
-                                'postcode').strip()
-                        if poi_data.get('town_l') is not None and poi_data.get('town_l') != '':
-                            self.data.city = clean_city(poi_data.get('town_l'))
+                        self.data.postcode = clean_string(poi_data.get('postcode'))
+                        self.data.city = clean_city(poi_data.get('town_l'))
                         if poi_data.get('open_hours') is not None:
                             oho, ohc = clean_opening_hours(
                                 poi_data.get('open_hours'))
@@ -84,14 +82,10 @@ class hu_omv(DataProvider):
                             self.data.day_close(i, ohc)
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('y'), poi_data.get('x'))
-                        if poi_data.get('address_l') is not None and poi_data.get('address_l') != '':
-                            self.data.original = poi_data.get('address_l')
-                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                                extract_street_housenumber_better_2(
-                                    poi_data.get('address_l'))
-                        if poi_data.get('telnr') is not None and poi_data.get('telnr') != '':
-                            self.data.phone = clean_phone_to_str(
-                                poi_data.get('telnr'))
+                        self.data.original = clean_string(poi_data.get('address_l'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                                extract_street_housenumber_better_2(poi_data.get('address_l'))
+                        self.data.phone = clean_phone_to_str(poi_data.get('telnr'))
                         self.data.fuel_octane_95 = True
                         self.data.fuel_diesel = True
                         self.data.fuel_octane_100 = True
@@ -102,7 +96,6 @@ class hu_omv(DataProvider):
                         logging.error(e)
                         logging.error(poi_data)
                         logging.exception('Exception occurred')
-
         except Exception as e:
             logging.error(e)
             logging.exception('Exception occurred')

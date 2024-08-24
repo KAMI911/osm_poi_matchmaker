@@ -6,7 +6,7 @@ volumes:
   opm_outputdata:
 services:
   db:
-    image: postgis/postgis:13-3.0
+    image: postgis/postgis:14-3.2
     container_name: opm_db
     environment:
       - POSTGRES_USER=poi
@@ -20,19 +20,21 @@ services:
       # - ../container/dbdata-9.6:/var/lib/postgresql/data/
       - ../container/dbdata-fresh:/var/lib/postgresql/data/
       # - ${PWD}/osm2pgsql/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-    restart: on-failure:10
+    restart: on-failure
     oom_score_adj: -100
   osm_load_app:
     image: osm_loader:latest
     container_name: opm_osm_load_app
     environment:
       - PGPASSWORD=poitest
-      - OSM2PGSQL_VERSION=1.0.0
+      - OSM2PGSQL_VERSION=1.6.0
     volumes:
       - ../container/osmdata:/opm/osm
     depends_on:
       - db
-    restart: on-failure:10
+    links:
+      - db
+    restart: on-failure
     oom_score_adj: -100
     mem_limit: 4g
   poi_load_app:
@@ -44,6 +46,6 @@ services:
       - ../container/downloaddata:/opm/osm_poi_matchmaker/cache_url
     depends_on:
       - db
-    restart: on-failure:10
+    restart: on-failure
     oom_score_adj: -100
     mem_limit: 4g

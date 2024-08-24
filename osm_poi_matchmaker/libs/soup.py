@@ -5,9 +5,11 @@ try:
     import sys
     import requests
     import os
+    import shutil
     from bs4 import BeautifulSoup
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.utils.enums import FileType
+    from osm_poi_matchmaker.utils.cache import get_cached, set_cached
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -34,64 +36,97 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
     except requests.exceptions.ConnectionError as e:
         logging.warning('Unable to open connection. (%s)', e)
         return None
-    return page.text if page.status_code == 200 else None
+
+    etag = page.headers.get('ETag')
+    if etag is not None:
+        set_cached('etag:{}'.format(link), etag)
+    else:
+        logging.warning('cant save etag value of response: link={} headers={}'.format(link, page.headers))
+
+    if page.headers.get('Content-Type') == 'application/zip':
+        return page.content if page.status_code == 200 else None
+    else:
+        return page.text if page.status_code == 200 else None
 
 
-def save_downloaded_soup(link, file, filetype, post_data=None, verify=config.get_download_verify_link(), headers=None):
-    if config.get_download_use_cached_data() is True and os.path.isfile(file):
-        soup = readfile(file, filetype)
+def is_downloaded(link: str, verify_link=config.get_download_verify_link(), headers=None) -> bool:
+    cache_key = 'etag:{}'.format(link)
+    etag = get_cached(cache_key)
+    if etag is not None:
+        # fetch etag header to validate local file version
+        response = requests.head(link, verify=verify_link, headers=headers)
+        return etag == response.headers.get('ETag')
+    return False
+
+
+def save_downloaded_soup(link, file, filetype, skip_download = False, post_data=None, verify=config.get_download_verify_link(),
+                         headers=None):
+    logging.debug('save_downloaded_soup link={} file={} filetype={}'.format(link, file, filetype))
+
+    if skip_download is True or (config.get_download_use_cached_data() is True and os.path.isfile(file)):
+        # return true as a success marker, skip reading zip file to variable
+        if filetype == FileType.zip:
+            return True
     else:
         if link is not None:
-            soup = download_content(link, verify, post_data, headers)
-            if soup is not None:
-                logging.info('We got content, write to file.')
-                if not os.path.exists(config.get_directory_cache_url()):
-                    os.makedirs(config.get_directory_cache_url())
-                with open(file, mode='w', encoding='utf-8') as code:
-                    if filetype == FileType.html:
-                        soup = BeautifulSoup(soup, 'html.parser')
-                        code.write(str(soup.prettify()))
-                    elif filetype == FileType.xml:
-                        soup = BeautifulSoup(soup, 'lxml', from_encoding='utf-8')
-                        logging.debug('original encoding: %s', soup.original_encoding)
-                        code.write(str(soup.prettify()))
-                    elif filetype == FileType.csv or filetype == FileType.json:
-                        code.write(str(soup))
+            if os.path.exists(file) and is_downloaded(link, verify_link=verify, headers=headers):
+                if filetype == FileType.zip:
+                    return True
+            else:
+                content = download_content(link, verify, post_data, headers)
+                if content is not None:
+                    logging.info('We got content, write to file.')
+                    if not os.path.exists(config.get_directory_cache_url()):
+                        os.makedirs(config.get_directory_cache_url())
+                    if filetype == FileType.zip:
+                        with open(file, mode='wb') as file:
+                            file.write(content)
+                            return True
                     else:
-                        logging.error('Unexpected type to write: %s', filetype)
-            else:
-                if os.path.exists(file):
-                    logging.info(
-                        'The %s link returned error code other than 200 but there is an already downloaded file. Try to open it.',
-                        link)
-                    soup = readfile(file, filetype)
+                        with open(file, mode='w', encoding='utf-8') as code:
+                            if filetype == FileType.html:
+                                soup = BeautifulSoup(content, 'html.parser')
+                                code.write(str(soup.prettify()))
+                            elif filetype == FileType.xml:
+                                soup = BeautifulSoup(content, 'lxml', from_encoding='utf-8')
+                                logging.debug('original encoding: %s', soup.original_encoding)
+                                code.write(str(soup.prettify()))
+                            elif filetype == FileType.csv or filetype == FileType.json:
+                                code.write(str(content))
+                            else:
+                                logging.error('Unexpected type to write: %s', filetype)
                 else:
-                    logging.warning(
-                        'Skipping dataset: %s. There is not downloadable URL, nor already downbloaded file.', link)
+                    if os.path.exists(file):
+                        logging.info(
+                            'The %s link returned error code other than 200 but there is an already downloaded file. Try to open it.',
+                            link)
+                    else:
+                        logging.warning(
+                            'Skipping dataset: %s. There is not downloadable URL, nor already downloaded file.', link)
+                        return None
         else:
-            if os.path.exists(file):
-                soup = readfile(file, filetype)
-                if filetype == FileType.html:
-                    soup = BeautifulSoup(soup, 'html.parser')
-                elif filetype == FileType.xml:
-                    soup = BeautifulSoup(soup, 'lxml')
-                logging.info(
-                    'Using file only: %s. There is not downloadable URL only just the file. Do not forget to update file manually!',
-                    file)
-            else:
-                logging.warning(
-                    'Cannot use download and file: %s. There is not downloadable URL, nor already downbloaded file.',
-                    file)
-    return soup
+            logging.info('Using file only: %s. There is not downloadable URL only just the file. Do not forget to update file manually!',
+                file)
+    if filetype == FileType.zip:
+        return True
+    if os.path.exists(file):
+        content = readfile(file, filetype)
+    else:
+        logging.warning(
+            'Cannot use download and file: %s. There is not downloadable URL, nor already downloaded file.', file)
+        content = None
+    return content
 
 
-def readfile(r_filename, r_filetype):
+def readfile(r_filename: str, r_filetype: FileType):
     try:
         if os.path.exists(r_filename):
             with open(r_filename, mode='r', encoding='utf-8') as code:
                 if r_filetype == FileType.html:
                     soup = BeautifulSoup(code.read(), 'html.parser')
-                elif r_filetype == FileType.csv or r_filetype == FileType.json or r_filetype == FileType.xml:
+                elif r_filetype == FileType.xml:
+                    soup = BeautifulSoup(code.read(), 'lxml')
+                elif r_filetype == FileType.csv or r_filetype == FileType.json:
                     soup = code.read()
                 else:
                     logging.error('Unexpected type to read: %s', r_filetype)
@@ -101,3 +136,11 @@ def readfile(r_filename, r_filetype):
     except Exception as e:
         logging.error(e)
         logging.exception('Exception occurred')
+
+
+def extract_zip(filename: str, dst_dir: str):
+    logging.debug('extract_zip filename={} to directory={}'.format(filename, dst_dir))
+    if os.path.exists(filename):
+        shutil.unpack_archive(filename, dst_dir)
+    else:
+        logging.error('extract_zip file={} does not exists'.format(filename))

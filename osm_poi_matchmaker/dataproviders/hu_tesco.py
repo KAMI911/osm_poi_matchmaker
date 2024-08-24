@@ -5,8 +5,10 @@ try:
     import sys
     import os
     import json
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+        clean_url, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_osm_city_name_gpd
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -21,13 +23,13 @@ except ImportError as err:
 
 class hu_tesco(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = 'https://tesco.hu/Ajax?type=fetch-stores-for-area&reduceBy%5Btab%5D=all&bounds%5Bnw%5D%5Blat%5D=49.631214952216425&bounds%5Bnw%5D%5Blng%5D=11.727758183593778&bounds%5Bne%5D%5Blat%5D=49.631214952216425&bounds%5Bne%5D%5Blng%5D=27.004247441406278&bounds%5Bsw%5D%5Blat%5D=38.45256463471463&bounds%5Bsw%5D%5Blng%5D=11.727758183593778&bounds%5Bse%5D%5Blat%5D=38.45256463471463&bounds%5Bse%5D%5Blng%5D=27.004247441406278&currentCoords%5Blat%5D=44.30719090363816&currentCoords%5Blng%5D=19.366002812500028&instanceUUID=b5c4aa5f-9819-47d9-9e5a-d631e931c007'
         self.tags = {'operator': 'TESCO-GLOBAL Áruházak Zrt.',
                      'operator:addr': '2040 Budaörs, Kinizsi út 1-3.',
-                     'ref:HU:company': '13-10-040628', 'ref:vatin:hu': '10307078-2-44',
+                     'ref:HU:company': '13-10-040628', 'ref:HU:vatin': '10307078-2-44',
                      'ref:vatin': 'HU10307078', 'brand': 'Tesco',
-                     'brand:wikipedia': 'hu:Tesco', 'brand:wikidata': 'Q487494',
+                     'brand:wikipedia': 'hu:Tesco',
                      'internet_access': 'wlan', 'internet_access:fee': 'no',
                      'internet_access:ssid': 'tesco-internet',
                      'contact:facebook': 'https://www.facebook.com/tescoaruhazak',
@@ -42,34 +44,34 @@ class hu_tesco(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hutescoexp = {'shop': 'convenience'}
+        hutescoexp = {'shop': 'convenience', 'brand:wikidata': 'Q98456772'}
         hutescoexp.update(self.tags)
         hutescoext = {'shop': 'supermarket',
-                      'wheelchair': 'yes', 'source:wheelchair': 'website'}
+                      'wheelchair': 'yes', 'source:wheelchair': 'website', 'brand:wikidata': 'Q25172225'}
         hutescoext.update(self.tags)
         hutescosup = {'shop': 'supermarket',
-                      'wheelchair': 'yes', 'source:wheelchair': 'website'}
+                      'wheelchair': 'yes', 'source:wheelchair': 'website', 'brand:wikidata': 'Q487494'}
         hutescosup.update(self.tags)
-        husmrktexp = {'shop': 'convenience', 'alt_name': 'Tesco Expressz'}
+        husmrktexp = {'shop': 'convenience', 'alt_name': 'Tesco Expressz', 'brand:wikidata': 'Q487494'} # TODO: create wikidata tag
         husmrktexp.update(self.tags)
         husmrktsup = {'shop': 'supermarket', 'wheelchair': 'yes',
-                      'source:wheelchair': 'website', 'alt_name': 'Tesco'}
+                      'source:wheelchair': 'website', 'alt_name': 'Tesco', 'brand:wikidata': 'Q487494'} # TODO: create wikidata tag
         husmrktsup.update(self.tags)
         self.__types = [
-            {'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_type': 'shop',
+            {'poi_code': 'hutescoexp', 'poi_common_name': 'Tesco Expressz', 'poi_type': 'shop',
              'poi_tags': hutescoexp, 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
-            {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_type': 'shop',
+            {'poi_code': 'hutescoext', 'poi_common_name': 'Tesco Extra', 'poi_type': 'shop',
              'poi_tags': hutescoext, 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100},
-            {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_type': 'shop',
+            {'poi_code': 'hutescosup', 'poi_common_name': 'Tesco', 'poi_type': 'shop',
              'poi_tags': hutescosup, 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100},
-            {'poi_code': 'husmrktexp', 'poi_name': 'S-Market', 'poi_type': 'shop',
+            {'poi_code': 'husmrktexp', 'poi_common_name': 'S-Market', 'poi_type': 'shop',
              'poi_tags': husmrktexp, 'poi_url_base': 'https://tesco.hu',
              'poi_search_name': '(tesco|smarket|s-market|s market)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
-            {'poi_code': 'husmrktsup', 'poi_name': 'S-Market', 'poi_type': 'shop',
+            {'poi_code': 'husmrktsup', 'poi_common_name': 'S-Market', 'poi_type': 'shop',
              'poi_tags': husmrktsup, 'poi_url_base': 'https://tesco.hu',
              'poi_search_name': '(tesco|smarket|s-market|s market)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
@@ -88,10 +90,10 @@ class hu_tesco(DataProvider):
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber,
                         # conscriptionnumber, ref, geom
-                        self.data.branch = poi_data.get('store_name')
-                        self.data.ref = poi_data.get('goldid')
-                        self.data.website = 'https://tesco.hu/aruhazak/aruhaz/{}/'.format(
-                            poi_data.get('urlname'))
+                        self.data.branch = clean_string(poi_data.get('store_name'))
+                        self.data.ref = clean_string(poi_data.get('goldid'))
+                        if clean_url(poi_data.get('urlname')) is not None:
+                            self.data.website = 'https://tesco.hu/aruhazak/aruhaz/{}/'.format(clean_url(poi_data.get('urlname')))
                         opening = json.loads(poi_data.get('opening'))
                         for i in range(0, 7):
                             ind = str(i + 1) if i != 6 else '0'
@@ -103,25 +105,20 @@ class hu_tesco(DataProvider):
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(
                                 poi_data.get('address'))
-                        self.data.postcode = poi_data.get('zipcode').strip()
+                        self.data.postcode = clean_string(poi_data.get('zipcode'))
                         self.data.city = clean_city(query_osm_city_name_gpd(
                             self.session, self.data.lat, self.data.lon))
                         if 'xpres' in poi_data.get('name'):
                             if self.data.city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:
-                                self.data.name = 'Tesco Expressz'
                                 self.data.code = 'hutescoexp'
                             else:
-                                self.data.name = 'S-Market'
                                 self.data.code = 'husmrktexp'
                         elif 'xtra' in poi_data.get('name'):
-                            self.data.name = 'Tesco Extra'
                             self.data.code = 'hutescoext'
                         else:
                             if self.data.city not in ['Levél']:
-                                self.data.name = 'Tesco'
                                 self.data.code = 'hutescosup'
                             else:
-                                self.data.name = 'S-Market'
                                 self.data.code = 'husmrktsup'
                         self.data.original = poi_data.get('address')
                         if poi_data.get('phone') is not None and poi_data.get('phone') != '':
@@ -132,10 +129,9 @@ class hu_tesco(DataProvider):
                         self.data.public_holiday_open = False
                         self.data.add()
                     except Exception as e:
-                        logging.error(e)
-                        logging.error(poi_data)
-                        logging.exception('Exception occurred')
-
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.print_exc())
+                        logging.exception(poi_data)
         except Exception as e:
-            logging.error(e)
-            logging.exception('Exception occurred')
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.print_exc())

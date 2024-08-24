@@ -5,6 +5,7 @@ try:
     import sys
     import os
     import json
+    import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
         clean_string
@@ -21,11 +22,11 @@ except ImportError as err:
 
 class hu_takko(DataProvider):
 
-    def constains(self):
+    def contains(self):
         self.link = ''
         self.tags = {'shop': 'clothes', 'operator': 'Takko Fashion Kft.',
                      'operator:addr': '2040 Budaörs, Ébner György köz 4.',
-                     'ref:HU:company': '13-10-040628', 'ref:vatin:hu': '1335199-2-13', 'ref:vatin': 'HU1335199',
+                     'ref:HU:company': '13-10-040628', 'ref:HU:vatin': '1335199-2-13', 'ref:vatin': 'HU1335199',
                      'brand': 'Takko', 'contact:website': 'https://www.takko.com/hu-hu/', 'loyalty_card': 'yes',
                      'air_conditioning': 'yes'}
         self.filetype = FileType.json
@@ -37,7 +38,7 @@ class hu_takko(DataProvider):
         hutakkocl.update(POS_HU_GEN)
         hutakkocl.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'hutakkocl', 'poi_name': 'Takko', 'poi_type': 'shop',
+            {'poi_code': 'hutakkocl', 'poi_common_name': 'Takko', 'poi_type': 'clothes',
              'poi_tags': hutakkocl, 'poi_url_base': 'https://takko.hu', 'poi_search_name': 'takko'},
         ]
         return self.__types
