@@ -6,6 +6,7 @@ try:
     import requests
     import os
     import shutil
+    import traceback
     from bs4 import BeautifulSoup
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.utils.enums import FileType
@@ -23,6 +24,7 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
         if post_parm is None:
             logging.debug('Downloading without post parameters.')
             page = requests.get(link, verify=verify_link, headers=headers)
+            logging.debug('Downloaded without post parameters.')
             page.encoding = encoding
         else:
             logging.debug('Downloading with post parameters.')
@@ -32,20 +34,25 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
             else:
                 headers = headers_static
             page = requests.post(link, verify=verify_link, data=post_parm, headers=headers)
+            logging.debug('Downloaded with post parameters.')
             page.encoding = encoding
     except requests.exceptions.ConnectionError as e:
         logging.warning('Unable to open connection. (%s)', e)
         return None
-
+    except Exception as e:
+        logging.exception('Exception occurred: {}'.format(e))
+        logging.error(traceback.print_exc())
     etag = page.headers.get('ETag')
     if etag is not None:
         set_cached('etag:{}'.format(link), etag)
     else:
-        logging.warning('cant save etag value of response: link={} headers={}'.format(link, page.headers))
+        logging.warning("Can't save etag value of response: link={} headers={}".format(link, page.headers))
 
     if page.headers.get('Content-Type') == 'application/zip':
+        logging.debug('Returning a zip file content.')
         return page.content if page.status_code == 200 else None
     else:
+        logging.debug('Returning a zip file content.')
         return page.text if page.status_code == 200 else None
 
 
