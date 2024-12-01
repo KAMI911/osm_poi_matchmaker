@@ -24,11 +24,10 @@ class hu_easybox(DataProvider):
 
     def contains(self):
         self.link = 'https://sameday.hu/wp/wp-admin/admin-ajax.php?action=get_lockers_request&search='
-        self.tags = {'brand': 'easybox', 'operator': 'Delivery Solutions Kft.',
-                     'operator:addr': '1033 Budapest, Szentendrei út 89-95. X. épület', 'ref:vatin': 'HU28730978',
-                     'ref:HU:vatin': '28730978-2-41', 'ref:HU:company': '01-09-371417',
-                     'brand:wikidata': 'Q114496224', 'operator:wikidata': 'Q114417096',
-                     'contact:youtube': 'https://www.youtube.com/channel/UC-lcPt3u8bHUj9hwKRNYTTQ',
+        self.tags = {'brand': 'easybox', 'operator': 'Delivery Solutions Zrt.',
+                     'operator:addr': '1097 Budapest, Könyves Kálmán körút 34.', 'ref:vatin': 'HU32041848',
+                     'ref:HU:vatin': '32041848-2-43', 'ref:HU:company': '01-10-141982',
+                     'brand:wikidata': 'Q114496224', 'operator:wikidata': 'Q131107197',
                      'contact:email': 'info@sameday.hu', 'contact:phone': '+36 1 374 3890',
                      'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes',
                      'payment:cash': 'no',}
