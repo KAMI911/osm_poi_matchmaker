@@ -11,10 +11,10 @@ RUN rm -rf /var/cache/apk/* && \
 
 RUN apk --no-cache update \
     apk add apk-tools && \
-    apk add bash g++ make cmake openssl expat-dev bzip2-dev zlib-dev boost-dev postgresql-dev lua-dev proj-dev wget
+    apk add bash g++ make cmake openssl expat-dev bzip2-dev zlib-dev boost-dev postgresql-dev lua-dev proj-dev wget boost
 
 # install osm2pgsql
-ENV OSM2PGSQL_VERSION 1.2.1
+ENV OSM2PGSQL_VERSION 1.6.0
 
 RUN wget --no-check-certificate https://github.com/openstreetmap/osm2pgsql/archive/${OSM2PGSQL_VERSION}.tar.gz && \
     tar xzvf ${OSM2PGSQL_VERSION}.tar.gz && \
