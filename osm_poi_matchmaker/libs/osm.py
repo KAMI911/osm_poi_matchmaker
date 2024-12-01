@@ -49,10 +49,17 @@ def query_osm_postcode_gpd(session, lon, lat):
     return int(row['name'].split(' ')[0]) if row['name'].split(' ')[0] is not None else None
 
 
-def query_postcode_osm_external(prefer_osm, session, lon, lat, postcode_ext):
+def query_postcode_osm_external(prefer_osm, prefer_original, session, lon, lat, postcode_ext, postcode_original):
+    if prefer_original is True and clean_postcode(postcode_original) is not None:
+        return clean_postcode(postcode_original)
     if prefer_osm is False and clean_postcode(postcode_ext) is not None:
         return clean_postcode(postcode_ext)
     query_postcode = query_osm_postcode_gpd(session, lon, lat)
+    if prefer_original is True and clean_postcode(postcode_original) is None:
+        if prefer_osm is True and clean_postcode(query_postcode) is not None:
+            return clean_postcode(query_postcode)
+        elif prefer_osm is True and clean_postcode(query_postcode) is None:
+            return clean_postcode(postcode_ext)
     if prefer_osm is True and clean_postcode(query_postcode) is not None:
         return clean_postcode(query_postcode)
     elif prefer_osm is True and clean_postcode(query_postcode) is None:

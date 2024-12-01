@@ -925,7 +925,7 @@ class POIDatasetRaw:
         """
         data = clean_string(self.__postcode)
         if data is None or data == 0 or data == '':
-            osm_postcode = query_postcode_osm_external(True, self.__session_object(), self.__lon, self.__lat, None)
+            osm_postcode = query_postcode_osm_external(True, False, self.__session_object(), self.__lon, self.__lat, None, None)
             if osm_postcode is not None or osm_postcode != 0:
                 self.__postcode = osm_postcode
             else:
