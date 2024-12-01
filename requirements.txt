@@ -1,15 +1,15 @@
-numpy== 1.23.4
+numpy== 1.26.4 
 OSMPythonTools>= 0.2.6
 osmapi>= 1.2.2
-pandas== 1.5.1
-geopandas== 0.12.1
-scipy== 1.10.0
-requests>= 2.23.0
+pandas== 1.5.3
+geopandas== 0.14.4
+scipy== 1.14.1
+requests>= 2.32.3
 bs4
-sqlalchemy== 1.4.44
-geoalchemy2== 0.12.5
+sqlalchemy== 1.4.54
+geoalchemy2== 0.15.2
 psycopg2-binary>= 2.8.5
 xlrd>= 1.2.0
-phonenumbers>= 8.13.0
+phonenumbers>= 8.13.48
 lxml
-gtfs-kit>= 5.2.3
+gtfs-kit>= 5.2.8
