@@ -31,7 +31,7 @@ class hu_rossmann(DataProvider):
                      'operator:addr': '2225 Üllő, Zsaróka út 8.', 'ref:HU:vatin': '11149769-2-44',
                      'ref:vatin': 'HU11149769', 'brand': 'Rossmann', 'brand:wikidata': 'Q316004',
                      'brand:wikipedia': 'de:Dirk Rossmann GmbH', 'contact:email': 'ugyfelszolgalat@rossmann.hu',
-                     'phone': '+36 29 889-800;+36 70 4692 800',
+                     'contact:phone': '+36 29 889 800', 'contact:mobile': '+36 70 469 2800',
                      'contact:facebook': 'https://www.facebook.com/Rossmann.hu',
                      'contact:youtube': 'https://www.youtube.com/channel/UCmUCPmvMLL3IaXRBtx7-J7Q',
                      'contact:instagram': 'https://www.instagram.com/rossmann_hu', 'air_conditioning': 'yes'}

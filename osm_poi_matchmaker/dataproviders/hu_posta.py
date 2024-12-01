@@ -28,7 +28,7 @@ class hu_posta(DataProvider):
         self.tags = {'operator': 'Magyar Posta Zrt.',
                      'operator:addr': '1138 Budapest, Dunavirág utca 2-6.', 'ref:HU:vatin': '10901232-2-44',
                      'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614',
-                     'contact:email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200',
+                     'contact:email': 'ugyfelszolgalat@posta.hu', 'contact:phone': '+36 1 767 8200',
                      'contact:facebook': 'https://www.facebook.com/MagyarPosta',
                      'contact:youtube': 'https://www.youtube.com/user/magyarpostaofficial',
                      'contact:instagram': 'https://www.instagram.com/magyar_posta_zrt', 'payment:cash': 'yes',
@@ -42,10 +42,11 @@ class hu_posta(DataProvider):
         hupostapo.update(self.tags)
         hupostacse = {'amenity': 'vending_machine', 'vending': 'cheques', 'brand': 'Magyar Posta'}
         hupostacse.update(self.tags)
-        hupostacso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'brand': 'MPL'}
+        hupostacso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'brand': 'MPL', 'parcel_pickup': 'yes',
+                      'colour': 'green', 'material': 'metal', 'refrigerated': 'no'}
         hupostacso.update(self.tags)
-        hupostapp = {'amenity': 'post_office', 'brand': 'Posta Partner'}
-        hupostapp.update(self.tags)
+        hupostapp = {'post_office': 'post_partner', 'post_office:brand': 'PostaPont',
+                     'post_office:brand:wikidata': 'Q145614'}
         hupostamp = {'amenity': 'post_office', 'brand': 'Mobil Posta'}
         hupostamp.update(self.tags)
         self.__types = [
@@ -61,7 +62,7 @@ class hu_posta(DataProvider):
              'poi_type': 'vending_machine_parcel_locker',
              'poi_tags': hupostacso, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(mpl|posta)', 'export_poi_name': False,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
-            {'poi_code': 'hupostapp', 'poi_common_name': 'PostaPont', 'poi_type': 'post_office',
+            {'poi_code': 'hupostapp', 'poi_common_name': 'PostaPont', 'poi_type': 'post_partner',
              'poi_tags': hupostapp, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(postapont|posta)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
              'osm_search_distance_unsafe': 220, 'preserve_original_post_code': True},

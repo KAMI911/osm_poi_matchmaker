@@ -31,7 +31,7 @@ class hu_posta_json(DataProvider):
         self.link = link
         self.tags = {'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:HU:vatin': '10901232-2-44',
                      'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614',
-                     'contact:email': 'ugyfelszolgalat@posta.hu', 'phone': '+3617678200',
+                     'contact:email': 'ugyfelszolgalat@posta.hu', 'contact:phone': '+36 1 767 8200',
                      'contact:facebook': 'https://www.facebook.com/MagyarPosta',
                      'contact:youtube': 'https://www.youtube.com/user/magyarpostaofficial',
                      'contact:instagram': 'https://www.instagram.com/magyar_posta_zrt/',

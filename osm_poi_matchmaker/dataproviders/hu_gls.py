@@ -30,7 +30,8 @@ class hu_gls(DataProvider):
                      'ref:HU:vatin': '12369410-2-44', 'ref:HU:company': '13-09-111755',
                      'contact:facebook': 'https://www.facebook.com/GLSHungaryKft/',
                      'contact:youtube': 'https://www.youtube.com/channel/UC-Lv4AkW50HM80ZZQEq8Sqw/',
-                     'contact:email': 'info@gls-hungary.com', 'contact:phone': '+36 29 886 700', 'contact:mobile': '+36 20 890 0660',
+                     'contact:email': 'info@gls-hungary.com', 'contact:phone': '+36 29 886 700',
+                     'contact:mobile': '+36 20 890 0660',
                      'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes',
                      'payment:cash': 'no', }
         self.filetype = FileType.json
@@ -38,13 +39,23 @@ class hu_gls(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        huglscso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes'}
+        huglscso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'parcel_pickup': 'yes', 'colour': 'blue;grey',
+                    'material': 'metal', 'refrigerated': 'no'}
+        huglspp = {'post_office': 'post_partner', 'post_office:brand': 'GLS CsomagPont',
+                    'post_office:brand:wikidata': 'Q366182',
+                    'post_office:parcel_pickup': 'yes', 'refrigerated': 'no'}
         huglscso.update(POS_HU_GEN)
         huglscso.update(self.tags)
         self.__types = [
             {'poi_code': 'huglscso', 'poi_common_name': 'GLS CsomagPont', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': huglscso, 'poi_url_base': 'https://gls-group.com', 'poi_search_name': 'gls',
              'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost)', 'export_poi_name': False,
+             'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
+            {'poi_code': 'huglspp', 'poi_common_name': 'GLS CsomagPont',
+             'poi_type': 'post_partner',
+             'poi_tags': huglspp, 'poi_url_base': 'https://gls-group.com', 'poi_search_name': 'gls',
+             'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost)',
+             'export_poi_name': False,
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
         ]
         return self.__types
@@ -57,7 +68,10 @@ class hu_gls(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text.get('data'):
                     try:
-                        self.data.code = 'huglscso'
+                        if poi_data.get('type') == 'parcel-locker':
+                            self.data.code = 'huglscso'
+                        elif poi_data.get('type') == 'parcel-shop':
+                            self.data.code = 'huglscpp'
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('location')[0], poi_data.get('location')[1])
                         self.data.postcode = clean_string(poi_data.get('contact').get('zipCode'))

@@ -36,7 +36,13 @@ def query_osm_postcode_gpd(session, lon, lat):
         SELECT name
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat),4326) as geom) point
         WHERE boundary='postal_code' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
-    data = session.execute(query, {'lon': lon, 'lat': lat}).first()
+    try:
+        data = session.execute(query, {'lon': lon, 'lat': lat}).first()
+    except Exception as e:
+        logging.error(e)
+        logging.exception('Exception occurred')
+    finally:
+        session.commit()
     if data is None:
         return None
     row = dict(zip(data.keys(), data))
@@ -86,7 +92,13 @@ def query_osm_city_name_gpd(session, lon, lat):
         SELECT name
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lat,:lon),4326) as geom) point
         WHERE admin_level='8' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
-    data = session.execute(query, {'lon': lon, 'lat': lat}).first()
+    try:
+        data = session.execute(query, {'lon': lon, 'lat': lat}).first()
+    except Exception as e:
+        logging.error(e)
+        logging.exception('Exception occurred')
+    finally:
+        session.commit()
     if data is None:
         return None
     else:
@@ -97,7 +109,13 @@ def query_osm_city_name(session, name):
     query = sqlalchemy.text('''
         SELECT name
         FROM planet_osm_polygon WHERE admin_level='8' and name=:name ORDER BY name LIMIT 1;''')
-    data = session.execute(query, {'name': name}).first()
+    try:
+        data = session.execute(query, {'name': name}).first()
+    except Exception as e:
+        logging.error(e)
+        logging.exception('Exception occurred')
+    finally:
+        session.commit()
     if data is None:
         return None
     else:

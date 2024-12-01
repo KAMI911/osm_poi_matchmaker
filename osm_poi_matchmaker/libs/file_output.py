@@ -306,7 +306,6 @@ def generate_osm_xml(df, session=None):
                 logging.debug('Add OSM live tags.')
                 if row.get('osm_live_tags') is not None:
                     logging.debug('Add OSM live tags.')
-                    logging.debug('Add OSM live tags.')
                     tags.update(row.get('osm_live_tags').copy())
                     logging.info('Additional live tags'.format(row.get('osm_live_tags')))
                     osm_live_tags.update(row.get('osm_live_tags').copy())
@@ -421,12 +420,22 @@ def generate_osm_xml(df, session=None):
                 logging.error(traceback.print_exc())
             try:
                 # Write back the saved name tag
-                if 'preserved_name' in locals():
-                    logging.debug('Add back "{}" preserved name instead of common name.'.format(preserved_name))
-                    tags['name'] = preserved_name
-                elif row.get('name') is not None:
-                    logging.debug('Add "{}" individual name instead of common name.'.format(row.get('name')))
-                    tags['name'] = row.get('name')
+                if row.get('poi_type') != 'bus_stop':
+                    if 'preserved_name' in locals():
+                        logging.debug('Add back "{}" preserved name instead of common name.'.format(preserved_name))
+                        tags['name'] = preserved_name
+                    elif row.get('name') is not None:
+                        logging.debug('Add "{}" individual name instead of common name.'.format(row.get('name')))
+                        tags['name'] = row.get('name')
+                else:
+                    # Use OSM live 'name' tag for bus_stops when possible
+                    if osm_live_tags.get('name') is not None and osm_live_tags.get('name') != '':
+                        tags['name'] = osm_live_tags.get('name')
+                    else:
+                        if 'preserved_name' in locals():
+                            tags['name'] = preserved_name
+                        else:
+                            tags['name'] = row.get('name')
                 # Rewrite old contact tags to contact:* tag form
                 logging.debug('Rewrite old contact tags to contact:* tag form.')
                 tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax']
@@ -482,8 +491,20 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.error(traceback.print_exc())
             try:
+                if row.get('poi_type') == 'bus_stop':
+                    tags.pop('ref:vatin', None)
+                    tags.pop('ref:vatin:hu', None)
+                    tags.pop('ref:vatin:HU', None)
+                    tags.pop('ref:HU:vatin', None)
+                    tags.pop('ref:hu:vatin', None)
+            except Exception as e:
+                logging.exception('Exception occurred: {}'.format(e))
+                logging.error(traceback.print_exc())
+            try:
                 # Remove name tag in export if export_poi_name is false
                 if row.get('export_poi_name') is False:
+                    tags.pop('name', None)
+                if tags.get('name') == 'None':
                     tags.pop('name', None)
             except KeyError as e:
                 logging.debug('No name tag is specified - do not have to remove.')

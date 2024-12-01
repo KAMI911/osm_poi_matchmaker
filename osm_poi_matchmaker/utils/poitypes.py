@@ -24,6 +24,9 @@ def getPOITypes(ptype):
     elif ptype == 'atm':
         query_type = "amenity='atm'"
         distance = config.get_geo_amenity_atm_poi_distance()
+    elif ptype == 'post_partner':
+        query_type = "post_office='post_partner'"
+        distance = config.get_geo_shop_poi_distance()
     elif ptype == 'post_office':
         query_type = "amenity='post_office'"
         distance = config.get_geo_amenity_post_office_poi_distance()

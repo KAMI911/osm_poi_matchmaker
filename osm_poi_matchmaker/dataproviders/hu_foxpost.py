@@ -32,7 +32,7 @@ class hu_foxpost(DataProvider):
                      'ref:HU:vatin': '25034644-2-10', 'ref:HU:company': '10-10-020309',
                      'contact:facebook': 'https://www.facebook.com/foxpostzrt',
                      'contact:youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w',
-                     'contact:email': 'info@foxpost.hu', 'contact:phone': '+36 1 999 03 69',
+                     'contact:email': 'info@foxpost.hu', 'contact:phone': '+36 1 999 0369',
                      'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes',
                      'payment:cash': 'no', }
         self.filetype = FileType.json
@@ -40,7 +40,8 @@ class hu_foxpost(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hufoxpocso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes'}
+        hufoxpocso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'parcel_pickup': 'yes',
+                      'colour': 'red', 'material': 'metal', 'refrigerated': 'no'}
         hufoxpocso.update(POS_HU_GEN)
         hufoxpocso.update(self.tags)
         self.__types = [

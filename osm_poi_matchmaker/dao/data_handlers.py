@@ -33,6 +33,7 @@ def get_or_create(session, model, **kwargs):
         try:
             instance = model(**kwargs)
             session.add(instance)
+            session.commit()
             return instance
         except Exception as e:
             logging.error('Cannot add to the database. (%s)', e)
@@ -69,12 +70,14 @@ def get_or_create_poi(session, model, **kwargs):
                 .filter_by(poi_additional_ref=kwargs.get('poi_additional_ref'))\
                 .first()
     if instance:
+        session.commit()
         logging.debug('Already added: %s', instance)
         return instance
     else:
         try:
             instance = model(**kwargs)
             session.add(instance)
+            session.commit()
             return instance
         except Exception as e:
             logging.error('Cannot add to the database. (%s)', e)
@@ -105,6 +108,7 @@ def search_poi_patch(session, model, **kwargs):
         try:
             instance = model(**kwargs)
             session.add(instance)
+            session.commit()
             return instance
         except Exception as e:
             logging.error('Cannot add to the database. (%s)', e)
@@ -123,11 +127,14 @@ def get_or_create_cache(session, model, **kwargs):
             try:
                 instance = model(**kwargs)
                 session.add(instance)
+                session.commit()
                 return instance
             except Exception as e:
                 logging.error('Cannot add to the database. (%s)', e)
                 logging.exception('Exception occurred')
                 raise e
+            finally:
+                session.close()
 
 
 def get_or_create_common(session, model, **kwargs):
@@ -140,6 +147,7 @@ def get_or_create_common(session, model, **kwargs):
             try:
                 instance = model(**kwargs)
                 session.add(instance)
+                session.commit()
                 return instance
             except Exception as e:
                 logging.error('Cannot add to the database. (%s)', e)
@@ -179,63 +187,68 @@ def insert_city_dataframe(session, city_df):
 def query_city_name_external(session, city_name: str, zip_code: str, similarity_threshold: float = 0.7,
                              levenshtein_threshold: int = 3):
 
-    logging.debug(f'Name and post code based search ...')
-    result = session.query(City)\
-        .filter(City.city_name == city_name)\
-        .filter(City.city_post_code == zip_code)\
-        .first()
-    if result is not None:
-        city = result.city_name
-        logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
-        return city
-
-    logging.debug(f'Soundex, similarity, levenshtein, post code based search ...')
-    result = session.query(City)\
-        .filter(func.soundex(City.city_name) == func.soundex(city_name))\
-        .filter(func.similarity(City.city_name, city_name) > similarity_threshold)\
-        .filter(func.levenshtein(City.city_name, city_name) < levenshtein_threshold)\
-        .filter(City.city_post_code == zip_code)\
-        .order_by(func.similarity(City.city_name, city_name).desc())\
-        .first()
-    if result is not None:
-        city = result.city_name
-        logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
-        return city
-
-    logging.debug(f'Similarity, levenshtein, post code based search ...')
-    result = session.query(City)\
-        .filter(func.similarity(City.city_name, city_name) > similarity_threshold)\
-        .filter(func.levenshtein(City.city_name, city_name) < levenshtein_threshold)\
-        .filter(City.city_post_code == zip_code)\
-        .order_by(func.similarity(City.city_name, city_name).desc())\
-        .first()
-    if result is not None:
-        city = result.city_name
-        logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
-        return city
-
-    logging.debug(f'Similarity, levenshtein based search ...')
-    result = session.query(City)\
-        .filter(func.similarity(City.city_name, city_name) > similarity_threshold)\
-        .filter(func.levenshtein(City.city_name, city_name) < levenshtein_threshold)\
-        .order_by(func.similarity(City.city_name, city_name).desc())\
-        .first()
-    if result is not None:
-        city = result.city_name
-        logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
-        return city
-
-    logging.debug(f'Post code based search ...')
-    if zip_code is not None:
+    try:
+        logging.debug(f'Name and post code based search ...')
         result = session.query(City)\
+            .filter(City.city_name == city_name)\
             .filter(City.city_post_code == zip_code)\
             .first()
-    if result is not None:
-        city = result.city_name
-        logging.debug(f'Not found {city_name}, but found {city} where postcode is: {zip_code} ')
-        return city
-    return None
+        if result is not None:
+            city = result.city_name
+            logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
+            return city
 
+        logging.debug(f'Soundex, similarity, levenshtein, post code based search ...')
+        result = session.query(City)\
+            .filter(func.soundex(City.city_name) == func.soundex(city_name))\
+            .filter(func.similarity(City.city_name, city_name) > similarity_threshold)\
+            .filter(func.levenshtein(City.city_name, city_name) < levenshtein_threshold)\
+            .filter(City.city_post_code == zip_code)\
+            .order_by(func.similarity(City.city_name, city_name).desc())\
+            .first()
+        if result is not None:
+            city = result.city_name
+            logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
+            return city
+
+        logging.debug(f'Similarity, levenshtein, post code based search ...')
+        result = session.query(City)\
+            .filter(func.similarity(City.city_name, city_name) > similarity_threshold)\
+            .filter(func.levenshtein(City.city_name, city_name) < levenshtein_threshold)\
+            .filter(City.city_post_code == zip_code)\
+            .order_by(func.similarity(City.city_name, city_name).desc())\
+            .first()
+        if result is not None:
+            city = result.city_name
+            logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
+            return city
+
+        logging.debug(f'Similarity, levenshtein based search ...')
+        result = session.query(City)\
+            .filter(func.similarity(City.city_name, city_name) > similarity_threshold)\
+            .filter(func.levenshtein(City.city_name, city_name) < levenshtein_threshold)\
+            .order_by(func.similarity(City.city_name, city_name).desc())\
+            .first()
+        if result is not None:
+            city = result.city_name
+            logging.debug(f'Found {city_name} as {city}, postcode is: {zip_code}')
+            return city
+
+        logging.debug(f'Post code based search ...')
+        if zip_code is not None:
+            result = session.query(City)\
+                .filter(City.city_post_code == zip_code)\
+                .first()
+        if result is not None:
+            city = result.city_name
+            logging.debug(f'Not found {city_name}, but found {city} where postcode is: {zip_code} ')
+            return city
+        return None
+    except Exception as e:
+        logging.error('Error: %s.', e)
+        logging.exception('Exception occurred')
+    finally:
+        session.commit()
 
 def insert_street_type_dataframe(session, street_df):
     db_count = count(session, Street_type)
@@ -347,14 +360,20 @@ def insert_common_dataframe(session, common_df):
 
 
 def search_for_postcode(session, city_name):
-    city_col = session.query(City.city_post_code).filter(City.city_name == city_name).all()
-    if len(city_col) == 1:
-        if city_col is not None and city_col != 0 and city_col != '0':
-            return city_col
-        return None
-    else:
-        logging.info('Cannot determine the post code from city name (%s).', city_name)
-        return None
+    try:
+        city_col = session.query(City.city_post_code).filter(City.city_name == city_name).all()
+        if len(city_col) == 1:
+            if city_col is not None and city_col != 0 and city_col != '0':
+                return city_col
+            return None
+        else:
+            logging.info('Cannot determine the post code from city name (%s).', city_name)
+            return None
+    except Exception as e:
+        logging.error('Error: %s.', e)
+        logging.exception('Exception occurred')
+    finally:
+        session.commit()
 
 
 def insert_poi_dataframe(session, poi_df, raw=True):
@@ -404,8 +423,6 @@ def insert_poi_dataframe(session, poi_df, raw=True):
         except Exception as e:
             logging.exception('Exception occurred: {} unsuccessfully commit: {}'.format(e, traceback.print_exc()))
             session.rollback()
-        finally:
-            session.close()
     finally:
         session.close()
 

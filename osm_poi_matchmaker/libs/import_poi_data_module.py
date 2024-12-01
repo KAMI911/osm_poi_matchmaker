@@ -68,7 +68,12 @@ def import_poi_data_module(module: str):
             insert_type(session_object(), work.types())
             work.process()
             work.export_list()
-            logging.info('Finished processing %s module ...', module)
+        logging.debug('Removing session scope for %s module ...', module)
+        session_object.remove()
+        logging.debug('Closing one session for %s module ...', module)
+        one_session.close()
+        logging.info('Finished processing %s module ...', module)
+        return None
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.error(traceback.print_exc())

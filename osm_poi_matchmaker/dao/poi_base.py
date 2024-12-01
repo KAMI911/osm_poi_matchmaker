@@ -770,6 +770,7 @@ class POIBase:
                 logging.info('Item not found in {} stage.'.format(stage))
         logging.info('Item not found at all.')
         try:
+            self.session.commit()
             self.session.close()
         except Exception as err:
             logging.warning('Exception occurred')
@@ -841,7 +842,8 @@ class POIBase:
               ORDER BY distance ASC LIMIT 1) AS geo
             WHERE geo.distance < :distance
               ''')
-            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params={'lon': lon, 'lat': lat,
+            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params={'lon': lon,
+                                                                                                   'lat': lat,
                                                                                              'distance': distance})
             return data
         except Exception as err:
@@ -860,7 +862,7 @@ class POIBase:
         :param mode: Looking for name, metaphone or both
         :return: GeoDataFrame of distance ordered result.
         '''
-        logging.debug(f'Looing for streets around with same name, using method: {mode} ...')
+        logging.debug(f'Looking for streets around with same name, using method: {mode} ...')
         try:
             distance = config.get_geo_default_poi_road_distance()
             if with_metadata is True:
@@ -909,6 +911,7 @@ class POIBase:
         except Exception as err:
             logging.warning('Exception occurred')
             logging.exception(err)
-        logging.debug({'lon': lon, 'lat': lat, 'distance': distance, 'name': name, 'similarity_threshold': similarity_threshold, 'levenshtein_threshold': levenshtein_threshold})
+        logging.debug({'lon': lon, 'lat': lat, 'distance': distance, 'name': name,
+                       'similarity_threshold': similarity_threshold, 'levenshtein_threshold': levenshtein_threshold})
         logging.debug(f'Returned data: {data.to_string()}')
         return data
