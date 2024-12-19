@@ -23,7 +23,7 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
     try:
         if post_parm is None:
             logging.debug('Downloading without post parameters.')
-            page = requests.get(link, verify=verify_link, headers=headers)
+            page = requests.get(link, verify=verify_link, headers=headers, timeout=500)
             logging.debug('Downloaded without post parameters.')
             page.encoding = encoding
         else:
@@ -33,7 +33,7 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
                 headers.update(headers_static)
             else:
                 headers = headers_static
-            page = requests.post(link, verify=verify_link, data=post_parm, headers=headers)
+            page = requests.post(link, verify=verify_link, data=post_parm, headers=headers, timeout=500)
             logging.debug('Downloaded with post parameters.')
             page.encoding = encoding
     except requests.exceptions.ConnectionError as e:
