@@ -140,6 +140,7 @@ node,way   leisure      text         polygon
 node,way   lock         text         linear
 node,way   man_made     text         polygon
 node,way   military     text         polygon
+node,way   mobile       text         linear
 node,way   motorcar     text         linear
 node,way   name         text         linear
 node,way   natural      text         polygon  # natural=coastline tags are discarded by a hard coded rule in osm2pgsql
@@ -155,9 +156,11 @@ node,way   ref:HU:company text         linear
 node,way   contact:website text        linear
 node,way   contact:email  text         linear
 node,way   contact:phone  text         linear
+node,way   contact:mobile text         linear
 node,way   contact:fax    text         linear
 node,way   contact:youtube text        linear
 node,way   contact:instagram text      linear
+node       phone        text         linear
 node,way   place        text         polygon
 node       poi          text         linear
 node,way   population   text         linear

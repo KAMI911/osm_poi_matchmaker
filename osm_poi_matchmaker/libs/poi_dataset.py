@@ -93,6 +93,7 @@ class POIDatasetRaw:
         self.__ref = None
         self.__poi_additional_ref = None
         self.__phone = None
+        self.__mobile = None
         self.__email = None
         self.__geom = None
         self.__lat = None
@@ -148,6 +149,7 @@ class POIDatasetRaw:
         self.__ref = None
         self.__poi_additional_ref = None
         self.__phone = None
+        self.__mobile = None
         self.__email = None
         self.__geom = None
         self.__lat = None
@@ -516,6 +518,14 @@ class POIDatasetRaw:
     @phone.setter
     def phone(self, data: str):
         self.__phone = clean_phone_to_str(data)
+
+    @property
+    def mobile(self) -> str:
+        return self.__mobile
+
+    @mobile.setter
+    def mobile(self, data: str):
+        self.__mobile = clean_phone_to_str(data)
 
     @property
     def email(self) -> str:
@@ -961,7 +971,7 @@ class POIDatasetRaw:
                  self.__socket_type2_cable, self.__socket_type2_cable_output,
                  self.__socket_type2, self.__socket_type2_output, self.__manufacturer, self.__model,
                  self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
-                 self.__ref, self.__poi_additional_ref, self.__phone, self.__email, self.__geom, self.__nonstop,
+                 self.__ref, self.__poi_additional_ref, self.__phone, self.__mobile, self.__email, self.__geom, self.__nonstop,
                  self.__oh.at[WeekDaysShort.mo, OpenClose.open],
                  self.__oh.at[WeekDaysShort.tu, OpenClose.open],
                  self.__oh.at[WeekDaysShort.we, OpenClose.open],
@@ -1089,7 +1099,7 @@ class POIDataset(POIDatasetRaw):
                  self.__socket_type2_cable, self.__socket_type2_cable_output,
                  self.__socket_type2, self.__socket_type2_output, self.__manufacturer, self.__model,
                  self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
-                 self.__ref, self.__poi_additional_ref, self.__phone, self.__email, self.__geom, self.__nonstop,
+                 self.__ref, self.__poi_additional_ref, self.__phone, self.__mobile, self.__email, self.__geom, self.__nonstop,
                  self.__oh.at[WeekDaysShort.mo, OpenClose.open],
                  self.__oh.at[WeekDaysShort.tu, OpenClose.open],
                  self.__oh.at[WeekDaysShort.we, OpenClose.open],

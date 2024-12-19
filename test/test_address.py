@@ -5,8 +5,9 @@ try:
     import logging
     import sys
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address, \
-        clean_opening_hours, clean_opening_hours_2, clean_phone, clean_phone_to_str, clean_string, clean_url, \
-        clean_city, replace_html_newlines, extract_phone_number, clean_postcode, extract_all_address_waxeye
+        clean_opening_hours, clean_opening_hours_2, clean_phone, clean_phone_to_str, clean_phone_and_mobile_to_str, \
+        clean_string, clean_url, clean_city, replace_html_newlines, extract_phone_number, clean_postcode, \
+        extract_all_address_waxeye
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -190,7 +191,7 @@ class TestPhoneCleaner(unittest.TestCase):
                 self.assertEqual(ph, a)
 
 
-class TestPhoneCleaner_to_str(unittest.TestCase):
+class TestPhoneCleanerStr(unittest.TestCase):
     def setUp(self):
         self.phones = [
             {'original': '0684/330-734, 0630/2374-712', 'converted': '+36 84 330 734;+36 30 237 4712'},
@@ -210,6 +211,27 @@ class TestPhoneCleaner_to_str(unittest.TestCase):
             with self.subTest():
                 self.assertEqual(ph, a)
 
+
+class TestPhoneCleanerMobileStr(unittest.TestCase):
+    def setUp(self):
+        self.phones = [
+            {'original': '0684/330-734, 0630/2374-712', 'converted_phone': '+36 84 330 734', 'converted_mobile': '+36 30 237 4712'},
+            {'original': '06-20-200-4000', 'converted_phone': None, 'converted_mobile': '+36 20 200 4000'},
+            {'original': '62464024', 'converted_phone': '+36 62 464 024', 'converted_mobile': None},
+            {'original': ' 3684330 - 734', 'converted_phone': '+36 84 330 734', 'converted_mobile': None},
+            {'original': '06205089009(Központi Telszám: Benzinkút, Motel, Kávézó, Szobafoglalás)', 'converted_phone': None,
+             'converted_mobile': '+36 20 508 9009'},
+            {'original': '  ', 'converted_phone': None, 'converted_mobile': None},
+            {'original': '+36303035698', 'converted_phone': None, 'converted_mobile': '+36 30 303 5698'},
+        ]
+
+    def test_clean_phone(self):
+        for i in self.phones:
+            original, ph, mo = i['original'], i['converted_phone'], i['converted_mobile']
+            a, b = clean_phone_and_mobile_to_str(original)
+            with self.subTest():
+                self.assertEqual(ph, a)
+                self.assertEqual(mo, b)
 
 class TestStringCleaner(unittest.TestCase):
     def setUp(self):

@@ -41,6 +41,8 @@ PATTERN_FULL_URL = re.compile('((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\
 
 SZFKL = '. számú főközlekedési út'
 
+MOBILE_HU_PHONE_NUMBERS = {'20', '30', '31', '50', '70'}
+
 
 def remove_whitespace(wsp: str, rpl: str = '') -> str:
     """
@@ -449,6 +451,23 @@ def clean_phone_to_str(phone):
     else:
         return None
 
+def clean_phone_and_mobile_to_str(phone, mobile):
+    phone_numbers = []
+    mobile_numbers = []
+    if phone is None and mobile is None:
+        return None
+    phone = clean_string(phone)
+    mobile = clean_string(mobile)
+    all_phones = tuple(sum(zip(clean_phone(phone), clean_phone(mobile))), ())
+    for pn in all_phones:
+        if ' ' + MOBILE_HU_PHONE_NUMBERS + '' in pn:
+            mobile_numbers.append(pn)
+        else:
+            phone_numbers.append(pn)
+    if phone is not None and mobile is not None:
+        return ';'.join(phone_numbers), ';'.join(phone_numbers)
+    else:
+        return None
 
 def clean_email(email):
     if email is None:
