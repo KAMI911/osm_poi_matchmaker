@@ -742,7 +742,7 @@ def clean_branch(clearable):
     '''
     if clearable is not None and clearable != '':
         branch = clean_string(str(clearable))
-        branch = branch.title()
+        # branch = branch.title()
         if branch is not None:
             branch = branch.replace('Sz.', 'számú')
             branch = branch.replace('Számú', 'számú')
