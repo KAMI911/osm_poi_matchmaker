@@ -29,7 +29,9 @@ class hu_easybox(DataProvider):
                      'ref:HU:vatin': '32041848-2-43', 'ref:HU:company': '01-10-141982',
                      'brand:wikidata': 'Q114496224', 'operator:wikidata': 'Q131107197',
                      'contact:email': 'info@sameday.hu', 'contact:phone': '+36 1 374 3890',
-                     'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes',
+                     'payment:contactless': 'yes', 'payment:maestro': 'yes',
+                     'payment:mastercard': 'yes', 'payment:mastercard_contactless': 'yes', 'payment:mastercard_electronic': 'yes',
+                     'payment:visa': 'yes', 'payment:visa_electron': 'yes',
                      'payment:cash': 'no',}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(
