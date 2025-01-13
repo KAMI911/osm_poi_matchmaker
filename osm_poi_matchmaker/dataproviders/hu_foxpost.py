@@ -30,11 +30,14 @@ class hu_foxpost(DataProvider):
         self.tags = {'brand': 'Foxpost', 'operator': 'FoxPost Zrt.',
                      'operator:addr': '3200 Gyöngyös, Batsányi János utca 9.', 'ref:vatin': 'HU25034644',
                      'ref:HU:vatin': '25034644-2-10', 'ref:HU:company': '10-10-020309',
+                     'brand:wikidata': 'Q126538316',
                      'contact:facebook': 'https://www.facebook.com/foxpostzrt',
                      'contact:youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w',
                      'contact:email': 'info@foxpost.hu', 'contact:phone': '+36 1 999 0369',
-                     'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes',
-                     'payment:cash': 'no', }
+                     'payment:contactless': 'yes', 'payment:maestro': 'yes',
+                     'payment:mastercard': 'yes', 'payment:mastercard_contactless': 'yes', 'payment:mastercard_electronic': 'yes',
+                     'payment:visa': 'yes', 'payment:visa_electron': 'yes',
+                     'payment:cash': 'no',}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)
@@ -65,7 +68,7 @@ class hu_foxpost(DataProvider):
                             poi_data.get('geolat'), poi_data.get('geolng'))
                         self.data.postcode = clean_string(poi_data.get('zip'))
                         self.data.city = clean_city(poi_data.get('city'))
-                        self.data.branch = poi_data.get('name')
+                        self.data.branch = clean_string(poi_data.get('name'))
                         self.data.description = clean_string(poi_data.get('findme'))
                         if 'kültéri' in self.data.description:
                             self.data.nonstop = True
