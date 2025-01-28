@@ -593,7 +593,7 @@ def generate_osm_xml(df, session=None):
             if 'preserved_name' in locals():
                 del preserved_name
             logging.info('Finished processing: {}. item'.format(index + 1))
-        logging.info('What is happening here')
+        logging.debug('All items have processed.')
     except ValueError as e:
         logging.exception('ValueError Exception occurred: {}'.format(e))
         logging.error(traceback.print_exc())
@@ -601,8 +601,8 @@ def generate_osm_xml(df, session=None):
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.error(traceback.print_exc())
-    logging.info('Processed {}. items'.format(len(df)))
-    logging.critical('---------------------------------------------')
-    logging.debug(lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8"))
-    logging.critical('---------------------------------------------')
+    logging.info('Finished process of {} items'.format(len(df)))
+    #logging.debug('---------------------------------------------')
+    #logging.debug(lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8"))
+    #logging.debug('---------------------------------------------')
     return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")
