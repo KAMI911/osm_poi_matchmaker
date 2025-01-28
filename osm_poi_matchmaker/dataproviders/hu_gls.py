@@ -47,14 +47,13 @@ class hu_gls(DataProvider):
         huglscso.update(POS_HU_GEN)
         huglscso.update(self.tags)
         self.__types = [
-            {'poi_code': 'huglscso', 'poi_common_name': 'GLS CsomagPont', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
+            {'poi_code': 'huglscso', 'poi_common_name': 'GLS', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': huglscso, 'poi_url_base': 'https://gls-group.com', 'poi_search_name': 'gls',
-             'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost)', 'export_poi_name': False,
+             'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost|mpl|express one|z-box)', 'export_poi_name': False,
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
-            {'poi_code': 'huglspp', 'poi_common_name': 'GLS CsomagPont',
-             'poi_type': 'post_partner',
+            {'poi_code': 'huglspp', 'poi_common_name': 'GLS', 'poi_type': 'post_partner',
              'poi_tags': huglspp, 'poi_url_base': 'https://gls-group.com', 'poi_search_name': 'gls',
-             'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost)',
+             'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost|mpl|express one|z-box)',
              'export_poi_name': False,
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
         ]

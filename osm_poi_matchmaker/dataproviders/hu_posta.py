@@ -61,7 +61,7 @@ class hu_posta(DataProvider):
             {'poi_code': 'hupostacso', 'poi_common_name': 'Posta csomagautomata',
              'poi_type': 'vending_machine_parcel_locker',
              'poi_tags': hupostacso, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(mpl|posta)', 'export_poi_name': False,
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
             {'poi_code': 'hupostapp', 'poi_common_name': 'PostaPont', 'poi_type': 'post_partner',
              'poi_tags': hupostapp, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(postapont|posta)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
