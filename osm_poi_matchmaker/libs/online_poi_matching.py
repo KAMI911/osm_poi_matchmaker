@@ -85,8 +85,8 @@ def online_poi_matching(args):
                         try:
                             if row.get('preserve_original_post_code') is not True:
                                 # Current OSM postcode based on lat,long query.
-                                postcode = None
                                 try:
+                                    postcode = None
                                     postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
                                                                            session_object(), lon, lat,
                                                                            row.get('poi_postcode'), osm_query.get('addr:postcode').values[0])
@@ -348,6 +348,7 @@ def online_poi_matching(args):
                             Keeping POI coordinates as is as.')
                     if row['preserve_original_post_code'] is not True:
                         try:
+                            postcode = None
                             postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
                                                                    session_object(),
                                                                    data.at[i, 'poi_lon'], data.at[i, 'poi_lat'],
@@ -355,7 +356,7 @@ def online_poi_matching(args):
                         except Exception as e:
                             logging.exception('Exception occurred during postcode query (1): {}'.format(e))
                             logging.error(traceback.print_exc())
-                        if postcode != row.get('poi_postcode'):
+                        if postcode is not None and postcode != row.get('poi_postcode'):
                             logging.info('Changing postcode from %s to %s.', row.get('poi_postcode'), postcode)
                             data.at[i, 'poi_postcode'] = postcode
                     else:
