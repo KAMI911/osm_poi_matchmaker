@@ -466,7 +466,11 @@ def insert(session, **kwargs):
 
         session.rollback()
     else:
-        logging.debug('Successfully added the item to the dataset.')
-        session.commit()
+        try:
+            session.commit()
+            logging.debug('Successfully added the item to the dataset.')
+        except Exception as e:
+            logging.exception('Exception occurred: {} unsuccessfully commit: {}'.format(e, traceback.print_exc()))
+            session.rollback()
     finally:
         session.close()
