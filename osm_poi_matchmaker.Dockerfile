@@ -11,7 +11,7 @@ ENV LANG C.UTF-8
 # extra dependencies (over what buildpack-deps already includes)
 RUN apt-get update && apt-get install -y --no-install-recommends \
    build-essential \
-   apt-utils \
+   apt-utils  \
    libgdal-dev \
    libxml2-dev \
    libxslt-dev \
@@ -20,7 +20,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY ./requirements.txt /opm/requirements.txt
 
-RUN python3.11 --version && python3.11 -m pip --version && python3.11 -m pip install -r /opm/requirements.txt
+RUN python3.11 --version && \
+    python3.11 -m pip --version && \
+    python3.11 -m pip install -r /opm/requirements.txt
 
 COPY ./osm_poi_matchmaker /opm/osm_poi_matchmaker
 ENV PYTHONPATH /opm/
