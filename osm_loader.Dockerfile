@@ -32,7 +32,7 @@ RUN apk --no-cache update &&\
     cd build && \
     cmake .. && \
     make && make install && \
-    apk del expat-dev bzip2-dev zlib-dev boost-dev g++ make openssl && |
+    apk del expat-dev bzip2-dev zlib-dev boost-dev g++ make openssl && \
     rm -rf /var/cache/apk/* && \
     rm -rf /tmp/* && \
     mkdir -p /opm/tools/ /opm/osm2pgsql
