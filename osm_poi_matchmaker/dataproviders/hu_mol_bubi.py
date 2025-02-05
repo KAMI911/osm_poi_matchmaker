@@ -23,7 +23,8 @@ class hu_mol_bubi(DataProvider):
     # Processing https://bubi.nextbike.net/maps/nextbike-live.xml?&domains=mb file
 
     def contains(self):
-        self.link = 'https://maps.nextbike.net/maps/nextbike-live.json?domains=bh&list_cities=0&bikes=0'
+        # self.link = 'https://maps.nextbike.net/maps/nextbike-live.json?domains=bh&list_cities=0&bikes=0'
+        self.link = 'https://maps.nextbike.net/maps/nextbike.json?domains=bh&list_cities=0&bikes=0'
         self.tags = {'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'brand:wikidata': 'Q16971969',
                      'brand:wikipedia':'hu:MOL Bubi', 'operator': 'BKK', 'operator:wikidata': 'Q608917',
                      'operator:wikipedia': 'hu:Budapesti Közlekedési Központ','operator:type': 'private',
