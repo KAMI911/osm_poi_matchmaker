@@ -533,7 +533,8 @@ class POIDatasetRaw:
 
     @email.setter
     def email(self, data: str):
-        self.__email = clean_email(data)
+        if clean_string(data) is not None:
+            self.__email = clean_email(data)
 
     @property
     def geom(self) -> str:

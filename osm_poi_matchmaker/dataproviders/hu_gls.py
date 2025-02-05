@@ -71,7 +71,7 @@ class hu_gls(DataProvider):
                             self.data.code = 'huglscso'
                             self.data.public_holiday_open = True
                         elif poi_data.get('features').get('isParcelLocker') == False:
-                            self.data.code = 'huglscpp'
+                            self.data.code = 'huglspp'
                             self.data.public_holiday_open = False
                         else:
                             logging.critical('Non matching poi code. Invalid state.')
@@ -79,14 +79,15 @@ class hu_gls(DataProvider):
                             poi_data.get('location')[0], poi_data.get('location')[1])
                         self.data.postcode = clean_string(poi_data.get('contact').get('zipCode'))
                         self.data.city = clean_city(poi_data.get('contact').get('city'))
-                        self.data.branch = poi_data.get('name')
+                        self.data.branch = clean_string(poi_data.get('name').split('|')[0])
                         self.data.ref = poi_data.get('id')
                         self.data.original = poi_data.get('contact').get('address')
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data.get('contact').get('address'))
                         self.data.phone = clean_phone_to_str(poi_data.get('contact').get('phone'))
                         self.data.email = clean_phone_to_str(poi_data.get('contact').get('email'))
-                        self.data.description = clean_string(poi_data.get('description'))
+                        self.data.description = clean_string(poi_data.get('description')) if len(('name').split('|')) <= 1 else \
+                            clean_string(';'.join(poi_data.get('name').split('|')[1:]))
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
