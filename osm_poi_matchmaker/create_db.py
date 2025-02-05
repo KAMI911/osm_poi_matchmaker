@@ -72,6 +72,8 @@ def load_poi_data(database, table='poi_address_raw', raw=True):
     logging.info('Loading {} table from database ...'.format(table))
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
+    if not os.path.exists(os.path.join(config.get_directory_cache_url(), 'cache')):
+        os.makedirs(os.path.join(config.get_directory_cache_url(), 'cache'))
     # Build Dataframe from our POI database
     addr_data = database.query_all_gpd_in_order(table)
     if raw is True:
