@@ -62,6 +62,7 @@ def online_poi_matching(args):
                     # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
                     osm_id = osm_query['osm_id'].values[0] if osm_query.get('osm_id') is not None else None
                     osm_node = osm_query.get('node').values[0] if osm_query.get('node') is not None else None
+                    osm_postcode = osm_query.get('addr:postcode').values[0] if osm_query.get('addr:postcode') is not None else None
                     # Set OSM POI coordinates for all kind of geom
                     lat = osm_query.get('lat').values[0]
                     lon = osm_query.get('lon').values[0]
@@ -89,7 +90,7 @@ def online_poi_matching(args):
                                     postcode = None
                                     postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
                                                                            session_object(), lon, lat,
-                                                                           row.get('poi_postcode'), osm_query.get('addr:postcode').values[0])
+                                                                           row.get('poi_postcode'), osm_postcode)
                                 except Exception as err:
                                     logging.exception('Exception occurred during postcode query (1): {}'.format(err))
                                     logging.error(traceback.print_exc())
@@ -352,7 +353,7 @@ def online_poi_matching(args):
                             postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
                                                                    session_object(),
                                                                    data.at[i, 'poi_lon'], data.at[i, 'poi_lat'],
-                                                                   row.get('poi_postcode'), osm_query.get('addr:postcode').values[0])
+                                                                   row.get('poi_postcode'), osm_postcode)
                         except Exception as e:
                             logging.exception('Exception occurred during postcode query (1): {}'.format(e))
                             logging.error(traceback.print_exc())

@@ -473,6 +473,8 @@ def clean_email(email):
     if email is None:
         return None
     email = clean_string(email)
+    if email is None:
+        return None
     email_parts = email.lower().split()
     if len(email_parts) == 0:
         return None
