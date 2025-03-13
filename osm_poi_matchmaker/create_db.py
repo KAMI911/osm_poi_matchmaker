@@ -26,6 +26,7 @@ try:
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.libs.osm_prepare import index_osm_data
+    import tracemalloc
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -37,7 +38,7 @@ RETRY = 3
 POI_COLS = poi_array_structure.POI_DB
 POI_COLS_RAW = poi_array_structure.POI_DB_RAW
 
-PROCESS_DIVIDER = 1
+PROCESS_DIVIDER = 2
 
 def init_log():
     logging.config.fileConfig('log.conf')
@@ -106,7 +107,7 @@ class WorkflowManager(object):
             self.queue.put(m)
         try:
             # Start multiprocessing in case multiple cores
-            process_count = self.NUMBER_OF_PROCESSES
+            process_count = self.NUMBER_OF_PROCESSES // PROCESS_DIVIDER
             # process_count = 1
             logging.info('Starting processing POI harvest on %s cores.', process_count)
             self.results = []
@@ -128,7 +129,7 @@ class WorkflowManager(object):
                     'poi_address'] for c in poi_codes]
         try:
             # Start multiprocessing in case multiple cores
-            process_count = self.NUMBER_OF_PROCESSES
+            process_count = self.NUMBER_OF_PROCESSES // PROCESS_DIVIDER
             #process_count = 1
             logging.info('Starting processing export on %s cores.', process_count)
             self.results = []
@@ -144,7 +145,7 @@ class WorkflowManager(object):
     def start_matcher(self, data, comm_data):
         try:
             # Start multiprocessing in case multiple cores
-            process_count = self.NUMBER_OF_PROCESSES//PROCESS_DIVIDER
+            process_count = self.NUMBER_OF_PROCESSES // PROCESS_DIVIDER
             #process_count = 1
             logging.info('Starting processing matcher on %s cores.', process_count)
             self.results = []
@@ -167,6 +168,7 @@ class WorkflowManager(object):
 
 def main():
     logging.info('Starting %s ...', __program__)
+    tracemalloc.start()
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                               config.get_database_writer_password(),
                                               config.get_database_writer_host(),
@@ -176,26 +178,49 @@ def main():
     session_factory = sessionmaker(pgsql_pool)
     session_object = scoped_session(session_factory)
     try:
-        logging.info('Starting STAGE 0 ...')
+        logging.info('Starting STAGE 0 ... Importing basic datasets from external databases.')
         import_basic_data(session_object())
-        logging.info('Starting STAGE 1 ...')
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        for stat in top_stats[:10]:
+            logging.debug(stat)
+        logging.info('Starting STAGE 1 ... Adding index for database.')
         index_osm_data(session_object())
-        logging.info('Starting STAGE 2 ...')
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        for stat in top_stats[:10]:
+            logging.debug(stat)
+        logging.info('Starting STAGE 2 ... Do POI harversting from external sites and files.')
         manager = WorkflowManager()
         manager.start_poi_harvest()
         manager.join()
-        logging.info('Starting STAGE 3 ...')
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        for stat in top_stats[:10]:
+            logging.debug(stat)
+        logging.info('Starting STAGE 3 ... Loading database persisted data into memory.')
         # Load basic dataset from database
         poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        for stat in top_stats[:10]:
+            logging.debug(stat)
         # Download and load POI dataset to database
-        logging.info('Starting STAGE 4 ...')
+        logging.info('Starting STAGE 4 ... Merge all available information in memory.')
         poi_common_data = load_common_data(db)
         logging.info('Merging dataframes ...')
         poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        for stat in top_stats[:10]:
+            logging.debug(stat)
         # Add additional empty fields
-        logging.info('Starting STAGE 5 ...')
+        logging.info('Starting STAGE 5 ... Dropping unnecessary data from memory.')
         del poi_addr_data
-
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        for stat in top_stats[:10]:
+            logging.debug(stat)
         logging.info('Starting STAGE 6 ...')
         poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
         logging.info('Merging dataframes ...')
@@ -216,7 +241,11 @@ def main():
         logging.info('Merging with OSM datasets ...')
         poi_addr_data['osm_nodes'] = None
         poi_addr_data['poi_distance'] = None
-        logging.info('Starting STAGE 7 ...')
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        for stat in top_stats[:10]:
+            logging.debug(stat)
+        logging.info('Starting STAGE 7 ... Starting online POI matching.')
         # Enrich POI datasets from online OpenStreetMap database
         logging.info('Starting online POI matching part...')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
@@ -231,9 +260,17 @@ def main():
         logging.info('Starting matched POI ...')
         manager.start_exporter(poi_addr_data, prefix)
         manager.join()
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        for stat in top_stats[:10]:
+            logging.debug(stat)
         logging.info('Starting grouped matched POI ...')
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
         manager.join()
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        for stat in top_stats[:10]:
+            logging.debug(stat)
     except (KeyboardInterrupt, SystemExit):
         logging.info('Interrupt signal received')
         sys.exit(1)
