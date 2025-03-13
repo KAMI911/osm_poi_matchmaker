@@ -7,4 +7,4 @@ while [ -f "${OUTPUT_DIR}/osm_download.lock" -o -f "${OUTPUT_DIR}/osm_import.loc
   sleep 60
 done
 echo "Start the matchmaking ..."
-python3 ./create_db.py
+python3 -m cProfile -o /opm/osm/profile_results.prof -s time ./create_db.py
