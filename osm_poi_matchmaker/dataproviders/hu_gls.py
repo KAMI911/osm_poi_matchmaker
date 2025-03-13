@@ -80,6 +80,8 @@ class hu_gls(DataProvider):
                         self.data.postcode = clean_string(poi_data.get('contact').get('zipCode'))
                         self.data.city = clean_city(poi_data.get('contact').get('city'))
                         self.data.branch = clean_string(poi_data.get('name').split('|')[0])
+                        self.data.branch.replace('GLS Automata', '')
+                        self.data.branch = clean_string(self.data.branch)
                         self.data.ref = poi_data.get('id')
                         self.data.original = poi_data.get('contact').get('address')
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
