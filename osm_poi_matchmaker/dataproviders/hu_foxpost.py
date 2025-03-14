@@ -70,17 +70,18 @@ class hu_foxpost(DataProvider):
                         self.data.city = clean_city(poi_data.get('city'))
                         self.data.branch = clean_string(poi_data.get('name'))
                         self.data.description = clean_string(poi_data.get('findme'))
-                        if 'kültéri' in self.data.description:
-                            self.data.nonstop = True
-                        else:
-                            for i in range(0, 7):
-                                if poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()] is not None:
-                                    opening, closing = clean_opening_hours(
-                                        poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()])
-                                    self.data.day_open(i, opening)
-                                    self.data.day_close(i, closing)
-                                else:
-                                    self.data.day_open_close(i, None, None)
+                        if self.data.description:
+                            if 'kültéri' in self.data.description:
+                                self.data.nonstop = True
+                            else:
+                                for i in range(0, 7):
+                                    if poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()] is not None:
+                                        opening, closing = clean_opening_hours(
+                                            poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()])
+                                        self.data.day_open(i, opening)
+                                        self.data.day_close(i, closing)
+                                    else:
+                                        self.data.day_open_close(i, None, None)
                         self.data.original = poi_data.get('address')
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
                             self.data.conscriptionnumber = extract_all_address_waxeye(poi_data.get('address'))
