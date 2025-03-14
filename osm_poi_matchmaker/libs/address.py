@@ -182,14 +182,14 @@ def extract_all_address_waxeye(clearable):
                 conscriptionnumber = address_dict.get('conscriptionHrsz')
         except Exception as err_ext_waxeye:
             logging.debug(f'Exception occurred: {err_ext_waxeye} ... Waxeye parsing has failed: {clearable}')
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())
         else:
             try:
                 logging.debug('Try fallback to extract_all_address function')
                 postcode, city, street, housenumber, conscriptionnumber = extract_all_address(clearable)
             except Exception as err_ext_addr:
                 logging.debug(f'Exception occurred: {err_ext_addr} ...')
-                logging.exception(traceback.print_exc())
+                logging.exception(traceback.format_exc())
         return postcode, city, street, housenumber, conscriptionnumber
     else:
         return None, None, None, None, None
@@ -337,7 +337,7 @@ def extract_phone_number(data: str) -> str:
 
     except Exception as e:
         logging.exception('Extracting phone number failed: {}'.format(e))
-        logging.exception(traceback.print_exc())
+        logging.exception(traceback.format_exc())
 
 
 def clean_city(clearable: str) -> str:

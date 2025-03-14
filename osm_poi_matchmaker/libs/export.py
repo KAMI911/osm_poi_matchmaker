@@ -22,7 +22,7 @@ def export_raw_poi_data(addr_data, comm_data, postfix=''):
         save_csv_file(config.get_directory_output(), 'poi_address{}.csv'.format(postfix), addr_data, 'poi_address')
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
-        logging.exception(traceback.print_exc())
+        logging.exception(traceback.format_exc())
 
 
 def export_raw_poi_data_xml(addr_data, postfix=''):
@@ -31,7 +31,7 @@ def export_raw_poi_data_xml(addr_data, postfix=''):
             oxf.write(generate_osm_xml(addr_data))
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
-        logging.exception(traceback.print_exc())
+        logging.exception(traceback.format_exc())
 
 
 def export_grouped_poi_data(data):
@@ -50,10 +50,10 @@ def export_grouped_poi_data(data):
                 logging.info('The {}.osm was successfully saved'.format(filename))
             except Exception as e:
                 logging.exception('Exception occurred during write wile: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
     except Exception as e:
         logging.exception('Exception occurred during opening file: {}'.format(e))
-        logging.error(traceback.print_exc())
+        logging.exception(traceback.format_exc())
 
 
 def export_grouped_poi_data_with_postcode_groups(data):

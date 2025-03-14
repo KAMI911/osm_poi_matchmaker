@@ -46,6 +46,6 @@ def waxeye_process(ast_items):
         return processed
     except Exception as err_waxeye:
         logging.exception('Exception occurred: {}'.format(err_waxeye))
-        logging.error(traceback.print_exc())
+        logging.exception(traceback.format_exc())
         logging.debug(ast_items)
         return None

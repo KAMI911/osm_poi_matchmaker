@@ -76,4 +76,4 @@ def import_poi_data_module(module: str):
         return None
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
-        logging.error(traceback.print_exc())
+        logging.exception(traceback.format_exc())

@@ -107,7 +107,7 @@ class hu_fire_station(DataProvider):
                     pois = json.loads(pois_variable[1])
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
-                    logging.exception(traceback.print_exc())
+                    logging.exception(traceback.format_exc())
                     logging.exception(pois)
                 if pois is None:
                     return None
@@ -153,8 +153,8 @@ class hu_fire_station(DataProvider):
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())

@@ -413,7 +413,7 @@ def insert_poi_dataframe(session, poi_df, raw=True):
             else:
                 get_or_create_poi(session, POI_address, **poi_data)
     except Exception as e:
-        logging.exception('Exception occurred: {} rolled back: {}'.format(e, traceback.print_exc()))
+        logging.exception('Exception occurred: {} rolled back: {}'.format(e, traceback.format_exc()))
         session.rollback()
         raise e
     else:
@@ -421,7 +421,7 @@ def insert_poi_dataframe(session, poi_df, raw=True):
             session.commit()
             logging.info('Successfully added %s POI items to the dataset.', len(poi_dict))
         except Exception as e:
-            logging.exception('Exception occurred: {} unsuccessfully commit: {}'.format(e, traceback.print_exc()))
+            logging.exception('Exception occurred: {} unsuccessfully commit: {}'.format(e, traceback.format_exc()))
             session.rollback()
     finally:
         session.close()
@@ -470,7 +470,7 @@ def insert(session, **kwargs):
             session.commit()
             logging.debug('Successfully added the item to the dataset.')
         except Exception as e:
-            logging.exception('Exception occurred: {} unsuccessfully commit: {}'.format(e, traceback.print_exc()))
+            logging.exception('Exception occurred: {} unsuccessfully commit: {}'.format(e, traceback.format_exc()))
             session.rollback()
     finally:
         session.close()

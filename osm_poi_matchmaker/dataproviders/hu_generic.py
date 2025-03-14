@@ -64,7 +64,7 @@ class hu_city_postcode_from_xml():
             root = etree.fromstring(xml)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.error(traceback.print_exc())
+            logging.exception(traceback.format_exc())
             logging.error(xml)
         for e in root.findall('zipCode'):
             cities = e[1].text
@@ -92,7 +92,7 @@ class hu_street_types_from_xml():
             root = etree.fromstring(xml)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.error(traceback.print_exc())
+            logging.exception(traceback.format_exc())
             logging.error(xml)
         for e in root.findall('streetType'):
             if e.text is not None:

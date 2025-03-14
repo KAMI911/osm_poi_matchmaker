@@ -58,7 +58,7 @@ class hu_benu(DataProvider):
                         text = json.load(f, strict=False)
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.error(f)
                     for poi_data in text:
                         try:
@@ -84,8 +84,8 @@ class hu_benu(DataProvider):
                             self.data.add()
                         except Exception as e:
                             logging.exception('Exception occurred: {}'.format(e))
-                            logging.exception(traceback.print_exc())
+                            logging.exception(traceback.format_exc())
                             logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())

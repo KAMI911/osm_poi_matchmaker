@@ -41,7 +41,7 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
         return None
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
-        logging.error(traceback.print_exc())
+        logging.exception(traceback.format_exc())
     etag = page.headers.get('ETag')
     if etag is not None:
         set_cached('etag:{}'.format(link), etag)

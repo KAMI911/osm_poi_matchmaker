@@ -60,11 +60,11 @@ class hu_mol_bubi(DataProvider):
                     poi_datas = text.get('countries')[0].get('cities')[0].get('places')
                 except IndexError as e:
                     logging.exception('Index Error Exception occurred: %s', e)
-                    logging.exception(traceback.print_exc())
+                    logging.exception(traceback.format_exc())
                     logging.error(soup)
                 except Exception as e:
                     logging.exception('Exception occurred: %s', e)
-                    logging.exception(traceback.print_exc())
+                    logging.exception(traceback.format_exc())
                     logging.error(soup)
 
                 for poi_data in poi_datas:
@@ -79,7 +79,7 @@ class hu_mol_bubi(DataProvider):
                                       self.data.branch = clean_string(poi_data.get('name').split('-')[1])
                             except IndexError as e:
                                 logging.exception('There is no branch data: Index Error Exception occurred: %s', e)
-                                logging.exception(traceback.print_exc())
+                                logging.exception(traceback.format_exc())
                             try:
                                 if clean_string(poi_data.get('name').split('-')[2]) is not None \
                                   and len(clean_string(poi_data.get('name')).split('-')) > 2:
@@ -91,7 +91,7 @@ class hu_mol_bubi(DataProvider):
                                     self.data.ref = clean_string(poi_data.get('name').split('-')[0])
                             except IndexError as e:
                                 logging.exception('There is no ref data: Index Error Exception occurred: %s', e)
-                                logging.exception(traceback.print_exc())
+                                logging.exception(traceback.format_exc())
                         #self.data.capacity = clean_string(poi_data.get('bike_racks'))
                         self.data.nonstop = True
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
@@ -100,8 +100,8 @@ class hu_mol_bubi(DataProvider):
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())

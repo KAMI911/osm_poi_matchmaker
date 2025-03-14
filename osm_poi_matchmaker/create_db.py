@@ -120,7 +120,7 @@ class WorkflowManager(object):
             logging.debug('Pool is closed.')
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.error(traceback.print_exc())
+            logging.exception(traceback.format_exc())
 
     def start_exporter(self, data: list, postfix: str = '', to_do=export_grouped_poi_data):
         logging.debug(data.to_string())
@@ -140,7 +140,7 @@ class WorkflowManager(object):
             logging.debug('Pool is closed.')
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.error(traceback.print_exc())
+            logging.exception(traceback.format_exc())
 
     def start_matcher(self, data, comm_data):
         try:
@@ -160,7 +160,7 @@ class WorkflowManager(object):
             return pd.concat(list(self.results.get()), sort=False)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.error(traceback.print_exc())
+            logging.exception(traceback.format_exc())
 
     def join(self):
         self.pool.join()
@@ -276,7 +276,7 @@ def main():
         sys.exit(1)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
-        logging.exception(traceback.print_exc())
+        logging.exception(traceback.format_exc())
 
 
 if __name__ == '__main__':

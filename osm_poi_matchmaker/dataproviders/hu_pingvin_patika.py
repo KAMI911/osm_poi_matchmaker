@@ -80,13 +80,13 @@ class hu_pingvin_patika(DataProvider):
                             self.data.description = soup.find_all('p')[-1].text
                         except Exception as e:
                             logging.exception('Exception occurred: {}'.format(e))
-                            logging.exception(traceback.print_exc())
+                            logging.exception(traceback.format_exc())
                         self.data.public_holiday_open = False
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())

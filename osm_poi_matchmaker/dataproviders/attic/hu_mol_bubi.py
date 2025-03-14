@@ -63,8 +63,8 @@ class hu_mol_bubi(DataProvider):
                     self.data.add()
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
-                    logging.exception(traceback.print_exc())
+                    logging.exception(traceback.format_exc())
                     logging.exception(pla)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())
