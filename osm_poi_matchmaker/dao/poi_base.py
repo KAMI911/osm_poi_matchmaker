@@ -742,7 +742,7 @@ class POIBase:
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
                 try:
-                    p_query = sqlalchemy.text('EXPLAIN ANALYZE ' + q.format(query_type=query_type, query_name=query_name,
+                    perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + q.format(query_type=query_type, query_name=query_name,
                                                                         query_avoid_name=query_avoid_name,
                                                                         metadata_fields=metadata_fields,
                                                                         street_query=street_query,

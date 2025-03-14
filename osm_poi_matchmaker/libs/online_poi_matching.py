@@ -318,6 +318,7 @@ def online_poi_matching(args):
                             logging.warning('Live tag is None (from cached_node)')
                 # This is a new POI
                 else:
+                    osm_postcode = None
                     # This is a new POI - will add fix me tag to the new items.
                     data.at[i, 'poi_new'] = True
                     # Get the first character of then name of POI and generate a floating number between 0 and 1
