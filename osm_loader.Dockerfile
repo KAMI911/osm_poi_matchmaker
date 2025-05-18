@@ -1,13 +1,13 @@
 
 FROM alpine:3.11.3
 
-LABEL maintainer Kálmán Szalai (KAMI) <kami911@gmail.com>
+LABEL maintainer="Kálmán Szalai (KAMI) <kami911@gmail.com>"
 
-ENV PATH /usr/local/bin:$PATH
-ENV LANG C.UTF-8
+ENV PATH=/usr/local/bin:$PATH
+ENV LANG=C.UTF-8
 
 # install osm2pgsql
-ENV OSM2PGSQL_VERSION 1.6.0
+ENV OSM2PGSQL_VERSION=1.6.0
 
 RUN apk --no-cache update &&\
     apk add apk-tools && \
