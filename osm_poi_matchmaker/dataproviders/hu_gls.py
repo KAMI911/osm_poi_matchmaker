@@ -25,7 +25,7 @@ class hu_gls(DataProvider):
 
     def contains(self):
         self.link = 'https://csomag.hu/api/parcel-shops'
-        self.tags = {'brand': 'GLS', 'operator': 'GLS General Logistics Systems Hungary Csomag-Logisztikai Kft.',
+        self.tags = {'brand': 'GLS', 'operator': 'GLS General Logistics Systems Hungary Kft.',
                      'operator:addr': '2351 Alsónémedi, Európa utca 2.', 'ref:vatin': 'HU12369410',
                      'ref:HU:vatin': '12369410-2-44', 'ref:HU:company': '13-09-111755',
                      'contact:facebook': 'https://www.facebook.com/GLSHungaryKft/',
