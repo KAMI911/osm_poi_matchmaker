@@ -39,8 +39,7 @@ class hu_foxpost(DataProvider):
                      'payment:visa': 'yes', 'payment:visa_electron': 'yes',
                      'payment:cash': 'no',}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(
-            self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hufoxpocso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'parcel_pickup': 'yes',
