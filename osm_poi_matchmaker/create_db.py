@@ -257,14 +257,14 @@ def main():
         # Export filesets
         prefix = 'merge_'
         export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
-        logging.info('Starting matched POI ...')
+        logging.info('Starting STAGE 8 ... Exporting matched POI.')
         manager.start_exporter(poi_addr_data, prefix)
         manager.join()
         snapshot = tracemalloc.take_snapshot()
         top_stats = snapshot.statistics('lineno')
         for stat in top_stats[:10]:
             logging.debug(stat)
-        logging.info('Starting grouped matched POI ...')
+        logging.info('Starting STAGE 9 ... Exporting grouped matched POI.')
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
         manager.join()
         snapshot = tracemalloc.take_snapshot()
