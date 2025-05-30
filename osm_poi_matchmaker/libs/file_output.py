@@ -41,12 +41,26 @@ POI_YESNO_TAGS = {'poi_fuel_adblue': 'fuel:adblue', 'poi_fuel_octane_100': 'fuel
                   'poi_parking_fee': 'parking_fee', 'poi_motorcar': 'motorcar'}
 
 POI_EV_TAGS = {'poi_capacity': 'capacity',
-               'poi_socket_chademo': 'socket:chademo', 'poi_socket_chademo_output': 'socket:chademo:output',
+               'poi_socket_chademo': 'socket:chademo',
+               'poi_socket_chademo_output': 'socket:chademo:output',
+               'poi_socket_chademo_current': 'socket:chademo:current',
+               'poi_socket_chademo_voltage': 'socket:chademo:voltage',
+
                'poi_socket_type2_combo': 'socket:type2_combo',
                'poi_socket_type2_combo_output': 'socket:type2_combo:output',
+               'poi_socket_type2_combo_current': 'socket:type2_combo:current',
+               'poi_socket_type2_combo_voltage': 'socket:type2_combo:voltage',
+
                'poi_socket_type2_cable': 'socket:type2_cable',
                'poi_socket_type2_cable_output': 'socket:type2_cable:output',
-               'poi_socket_type2': 'socket:type2', 'poi_socket_type2_output': 'socket:type2:output',
+               'poi_socket_type2_cable_current': 'socket:type2_cable:current',
+               'poi_socket_type2_cable_voltage': 'socket:type2_cable:voltage',
+               
+               'poi_socket_type2_cableless': 'socket:type2',
+               'poi_socket_type2_cableless_output': 'socket:type2:output',
+               'poi_socket_type2_cableless_current': 'socket:type2:current',
+               'poi_socket_type2_cableless_voltage': 'socket:type2:voltage',
+
                'poi_manufacturer': 'manufacturer', 'poi_model': 'model'}
 
 TESTCASE_GEN_KEYS = ('original', 'poi_postcode', 'poi_city', 'poi_addr_street', 'poi_addr_housenumber', 'poi_conscriptionnumber')
@@ -306,8 +320,12 @@ def generate_osm_xml(df, session=None):
                 logging.debug('Add OSM live tags.')
                 if row.get('osm_live_tags') is not None:
                     logging.debug('Add OSM live tags.')
-                    tags.update(row.get('osm_live_tags').copy())
+                    tags_keys = list(osm_live_tags.keys())
+                    for tk in tags_keys :
+                        if tk.startswith('socket:'):
+                            osm_live_tags.pop(tk)
                     logging.info('Additional live tags'.format(row.get('osm_live_tags')))
+                    tags.update(row.get('osm_live_tags').copy())
                     osm_live_tags.update(row.get('osm_live_tags').copy())
                 # Adding POI common tags
                 logging.debug('Add POI common tags.')
@@ -476,12 +494,14 @@ def generate_osm_xml(df, session=None):
                 for k, v in POI_YESNO_TAGS.items():
                     if row.get(k) is not None and row.get(k) != '':
                         tags[v] = 'yes' if row.get(k) is True else 'no'
+
+                logging.debug('Add EV tags')
                 for k, v in POI_EV_TAGS.items():
-                    if row.get(k) is not None and row.get(k) != '':
-                        if isinstance(row.get(k), float):
-                            if not math.isnan(row.get(k)):
-                                tags[v] = int(row.get(k))
-                        else:
+                    if isinstance(row.get(k), float):
+                        if not math.isnan(row.get(k)):
+                            tags[v] = int(row.get(k))
+                    else:
+                        if row.get(k) is not None:
                             tags[v] = row.get(k)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))

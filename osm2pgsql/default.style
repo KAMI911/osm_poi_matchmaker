@@ -199,15 +199,22 @@ node,way   fee        text     linear
 node,way   parking:fee text     linear
 node,way   socket:chademo text     linear
 node,way   socket:chademo:output text     linear
+node,way   socket:chademo:current text     linear
+node,way   socket:chademo:voltage text     linear
 node,way   socket:type2_combo text     linear
 node,way   socket:type2_combo:output text     linear
+node,way   socket:type2_combo:current text     linear
+node,way   socket:type2_combo:voltage text     linear
 node,way   socket:type2_cable text     linear
 node,way   socket:type2_cable:output text     linear
+node,way   socket:type2_cable:current text     linear
+node,way   socket:type2_cable:voltage text     linear
 node,way   socket:type2 text     linear
 node,way   socket:type2:output text     linear
+node,way   socket:type2:current text     linear
+node,way   socket:type2:voltage text     linear
 node,way   manufacturer text     linear
 node,way   model        text     linear
-
 
 ### Add these additional tags
 node,way   ref:bkk text         linear
