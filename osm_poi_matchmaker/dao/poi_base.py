@@ -913,5 +913,7 @@ class POIBase:
             logging.exception(err)
         logging.debug({'lon': lon, 'lat': lat, 'distance': distance, 'name': name,
                        'similarity_threshold': similarity_threshold, 'levenshtein_threshold': levenshtein_threshold})
-        logging.debug(f'Returned data: {data.to_string()}')
+        logging.debug(f'Returned data:')
+        logging.debug(f'{data.to_string()}')
+
         return data
