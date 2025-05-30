@@ -62,11 +62,11 @@ class hu_benu(DataProvider):
                         logging.error(f)
                     for poi_data in text:
                         try:
-                            if 'BENU Gyógyszertár' not in poi_data.get('title'):
-                                self.data.name = poi_data.get('title').strip()
+                            if 'BENU Gyógyszertár' not in poi_data.get('name'):
+                                self.data.name = poi_data.get('name').strip()
                                 self.data.branch = None
                             else:
-                                self.data.branch = poi_data.get('title').strip()
+                                self.data.branch = poi_data.get('name').strip()
                             self.data.code = 'hubenupha'
                             if poi_data.get('description') is not None:
                                 pu_match = PATTERN_FULL_URL.match(poi_data.get('description'))
