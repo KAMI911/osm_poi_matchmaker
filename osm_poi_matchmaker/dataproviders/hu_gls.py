@@ -6,6 +6,7 @@ try:
     import os
     import json
     import traceback
+    import re
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
         clean_string, clean_phone_to_str
@@ -80,7 +81,9 @@ class hu_gls(DataProvider):
                         self.data.postcode = clean_string(poi_data.get('contact').get('zipCode'))
                         self.data.city = clean_city(poi_data.get('contact').get('city'))
                         self.data.branch = clean_string(poi_data.get('name').split('|')[0])
-                        self.data.branch = self.data.branch.replace('GLS Automata', '')
+                        self.data.branch = re.sub('^GLS automata', '', self.data.branch, flags=re.IGNORECASE)
+                        self.data.branch = re.sub('\\(.*\\)', '', self.data.branch)
+                        self.data.branch = self.data.branch.replace('Csak bankkártyás fizetés', '')
                         self.data.branch = clean_string(self.data.branch)
                         self.data.ref = poi_data.get('id')
                         self.data.original = poi_data.get('contact').get('address')
