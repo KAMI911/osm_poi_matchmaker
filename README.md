@@ -156,8 +156,6 @@ There are many ways to contribute to `osm_poi_matchmaker`—sending patches,
 testing, reporting bugs, or reviewing and updating the documentation. Every
 contribution is appreciated!
 
-Please also read the [contributing chapter](CONTRIBUTING.md).
-
 ### Fork me on GitHub
 
 https://github.com/KAMI911/osm_poi_matchmaker
