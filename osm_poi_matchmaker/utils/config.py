@@ -54,6 +54,7 @@ KEY_DATABASE_POI_DATABASE = 'db.poi.database'
 KEY_DATABASE_ENABLE_QUERY_LOG = 'db.enable.query_log'
 KEY_DATABASE_ENABLE_ANALYZE = 'db.enable.analyze'
 KEY_DATABASE_ENABLE_HUGE_QUERY = 'db.enable.huge_query'
+KEY_DATABASE_START_DROP_POI_TABLES = 'db.start.drop.poi_tables'
 KEY_GEO_DEFAULT_PROJECTION = 'geo.default.projection'
 KEY_GEO_DEFAULT_POI_DISTANCE = 'geo.default.poi.distance'
 KEY_GEO_DEFAULT_POI_UNSAFE_DISTANCE = 'geo.default.poi.unsafe.distance'
@@ -219,6 +220,14 @@ def get_database_enable_huge_query():
         return setting
     else:
         return False
+    
+    
+def get_database_start_drop_poi_tables():
+    setting = get_config_bool(KEY_DATABASE_START_DROP_POI_TABLES)
+    if setting is not None:
+        return setting
+    else:
+        return True
 
 
 def get_geo_default_projection():

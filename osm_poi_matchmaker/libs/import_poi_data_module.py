@@ -8,7 +8,9 @@ try:
     import os
     import traceback
     from sqlalchemy.orm import scoped_session, sessionmaker
+    from sqlalchemy import inspect
     from osm_poi_matchmaker.dao.poi_base import POIBase
+    from osm_poi_matchmaker.dao.data_structure import POI_OSM_cache, POI_address, POI_address_raw, POI_common, POI_osm, POI_patch
     from osm_poi_matchmaker.utils import config, dataproviders_loader
     from osm_poi_matchmaker.dao.data_handlers import insert_type, get_or_create
 except ImportError as err:
@@ -30,6 +32,8 @@ def import_poi_data_module(module: str):
                                                   config.get_database_writer_host(),
                                                   config.get_database_writer_port(),
                                                   config.get_database_poi_database()))
+        if config.get_database_start_drop_poi_tables():
+            delete_poi_tables(db)
         pgsql_pool = db.pool
         session_factory = sessionmaker(pgsql_pool)
         session_object = scoped_session(session_factory)
@@ -77,3 +81,21 @@ def import_poi_data_module(module: str):
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
+
+
+def delete_poi_tables(db: POIBase) -> None:
+    bases_to_drop = [
+        POI_address,
+        POI_address_raw,
+        POI_common,
+        POI_osm,
+        POI_OSM_cache,
+        POI_patch
+    ]
+    
+    for base in bases_to_drop:
+        table = base.__table__
+        logging.info(f'Dropping table {table.name}...')
+        table.drop(db.engine, checkfirst=True)
+    
+    logging.info('Dropped all poi_* tables for a clean start.')
