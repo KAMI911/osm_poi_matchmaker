@@ -39,8 +39,15 @@ class hu_gls(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        huglscso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'parcel_pickup': 'yes', 'colour': 'blue;grey',
-                    'material': 'metal', 'refrigerated': 'no'}
+        huglscso = {
+            'amenity': 'parcel_locker',
+            'brand:wikidata': 'Q366182',
+            'parcel_mail_in': 'yes',
+            'parcel_pickup': 'yes',
+            'colour': 'blue;grey',
+            'material': 'metal',
+            'refrigerated': 'no',
+        }
         huglspp = {'post_office': 'post_partner', 'post_office:brand': 'GLS CsomagPont',
                     'post_office:brand:wikidata': 'Q366182',
                     'post_office:parcel_pickup': 'yes', 'refrigerated': 'no'}
