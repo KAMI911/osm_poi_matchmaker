@@ -46,7 +46,7 @@ class hu_ccc(DataProvider):
             {'poi_code': 'hucccsho', 'poi_common_name': 'CCC', 'poi_type': 'shoes',
              'poi_tags': hucccsho, 'poi_url_base': 'https://ccc.eu/hu/', 'poi_search_name': 'ccc',
              'poi_search_avoid_name': '(deichmann)',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
              'osm_search_distance_unsafe': 50},
         ]
         return self.__types
