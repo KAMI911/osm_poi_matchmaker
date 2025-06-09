@@ -66,7 +66,7 @@ def is_downloaded(link: str, verify_link=config.get_download_verify_link(), head
     return False
 
 
-def save_downloaded_soup(link, file, filetype, skip_download = False, post_data=None, verify=config.get_download_verify_link(),
+def save_downloaded_soup(link, file, filetype, skip_download=False, post_data=None, verify=config.get_download_verify_link(),
                          headers=None):
     logging.debug('save_downloaded_soup link={} file={} filetype={}'.format(link, file, filetype))
 
