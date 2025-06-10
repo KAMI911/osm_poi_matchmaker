@@ -32,8 +32,6 @@ services:
       - ../container/osmdata:/opm/osm
     depends_on:
       - db
-    links:
-      - db
     restart: on-failure
     oom_score_adj: -100
     mem_limit: 4g
