@@ -48,7 +48,7 @@ services:
       - db
     restart: on-failure
     oom_score_adj: -100
-    mem_limit: 4g
+    mem_limit: 10g
     cap_add:
       - SYS_PTRACE
     pid: host
