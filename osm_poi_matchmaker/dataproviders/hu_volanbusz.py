@@ -28,7 +28,7 @@ except ImportError as err:
 class hu_volanbusz(DataProvider):
 
     def contains(self):
-        self.link = 'http://opendata.menetrendek.hu/public_gtfs/volanbusz_gtfs.zip'
+        self.link = 'https://gtfs.kti.hu/public-gtfs/volanbusz_gtfs.zip'
         self.tags = {'highway': 'bus_stop', 'public_transport': 'stop_position',
                      'bus': 'yes', 'operator': 'MÁV Személyszállítási Zrt.',
                      'operator:wikidata': 'Q1180332',
