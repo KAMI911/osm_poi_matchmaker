@@ -381,6 +381,7 @@ def online_poi_matching(args):
         logging.error(e)
         logging.exception('Exception occurred')
 
+
 def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
     """
     Enhancement for the former problem: addr:postcode was changed without
@@ -392,6 +393,7 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
     changed = 0
     current_postcode = curr_data.get('poi_postcode')
     try:
+        osm_db_postcode = osm_data.get('addr:postcode', [None])[0]
         osm_db_postcode = osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')]
     except KeyError as e:
         logging.debug('Not found postcode in OSM database caused {}'.format(e))
