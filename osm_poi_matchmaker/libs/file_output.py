@@ -18,6 +18,7 @@ try:
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from lxml import etree
     import lxml
+    import re
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -69,6 +70,24 @@ TIMESTAMP_FORMAT = '{:{dfmt}T{tfmt}Z}'
 DATE_FORMAT = '%Y-%m-%d'
 TIME_FORMAT = '%H:%M:%S'
 
+COMPLEX_OH_PATTERNS = [
+    r'sunrise', r'sunset', r'by appointment', r'SH',
+    # hónapok rövidítései
+    r'\bJan\b', r'\bFeb\b', r'\bMar\b', r'\bApr\b', r'\bMay\b', r'\bJun\b',
+    r'\bJul\b', r'\bAug\b', r'\bSep\b', r'\bOct\b', r'\bNov\b', r'\bDec\b',
+    # napok számozása, pl. 1-6, 15-31
+    r'\b\d{1,2}-\d{1,2}\b',
+    # opcionális: évszakok, extra szövegek
+    r'Winter', r'Summer',
+]
+
+
+def is_complex_opening_hours(oh_value):
+    """ Heuristic check to see if opening_hours is too complex for automatic processing. """
+    for pattern in COMPLEX_OH_PATTERNS:
+        if re.search(pattern, oh_value, re.IGNORECASE):
+            return True
+    return False
 
 def ascii_numcoder(text):
     output = ''
@@ -353,22 +372,41 @@ def generate_osm_xml(df, session=None):
             try:
                 logging.debug('Decide opening_hours tag key.')
                 if config.get_geo_alternative_opening_hours():
+                    # Alternative opening hours code path to handle cases like COVID-19 special tagging
                     alternative_oh_tag = config.get_geo_alternative_opening_hours_tag()
-                    # Alternative opening_hours handling for COVID-19 code path
+
                     if tags.get('opening_hours') is not None and tags.get('opening_hours') != '':
-                        if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
-                            if tags.get('opening_hours') == row.get('poi_opening_hours'):
-                                tags[alternative_oh_tag] = 'same'
-                            else:
-                                tags[alternative_oh_tag] = row.get('poi_opening_hours')
+                        current_oh = tags.get('opening_hours')
+                        if is_complex_opening_hours(current_oh):
+                            # Too complex → not to modify, also add a comment
+                            comment = f'Opening Hours is too complex ({current_oh}) to handle automatically.'
+                            etree.Comment(comment)
+                            logging.debug(f'Opening_hours too complex ({current_oh}), skipping modification.')
+                        else:
+                            if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
+                                if current_oh == row.get('poi_opening_hours'):
+                                    tags[alternative_oh_tag] = 'same'
+                                else:
+                                    tags[alternative_oh_tag] = row.get('poi_opening_hours')
                     else:
                         if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
                             tags['opening_hours'] = row.get('poi_opening_hours')
                             tags[alternative_oh_tag] = 'same'
+
                 else:
-                    # Alternative opening_hours handling for NON COVID-19 code path: just simply add opening_hours to tags
+                    # NON COVID-19 code path: simple opening hours tagging
                     if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
-                        tags['opening_hours'] = row.get('poi_opening_hours')
+                        if tags.get('opening_hours') is not None and tags.get('opening_hours') != '':
+                            current_oh = tags.get('opening_hours')
+                            if is_complex_opening_hours(current_oh):
+                                comment = f'Opening Hours is too complex ({current_oh}) to handle automatically.'
+                                etree.Comment(comment)
+                                logging.debug(f'Opening_hours too complex ({current_oh}), skipping modification.')
+                            else:
+                                tags['opening_hours'] = row.get('poi_opening_hours')
+                        else:
+                            tags['opening_hours'] = row.get('poi_opening_hours')
+
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
