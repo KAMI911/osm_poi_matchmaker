@@ -12,9 +12,12 @@ except ImportError as err:
 
     sys.exit(128)
 
-config = configparser.ConfigParser()
-config.sections()
-config.read("app.conf")
+try:
+    config = configparser.ConfigParser(strict=False)
+    config.sections()
+    config.read('app.conf')
+except configparser.DuplicateOptionError as e:
+    logging.error('At least one of configured key has multiple value. Please review your app.conf file.')
 
 
 class Mode(Enum):
