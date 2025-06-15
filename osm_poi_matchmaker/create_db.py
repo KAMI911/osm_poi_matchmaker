@@ -26,7 +26,7 @@ try:
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.libs.osm_prepare import index_osm_data
-    import tracemalloc
+    from utils.memory_info import MemoryInfo
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -98,77 +98,108 @@ class WorkflowManager(object):
         self.manager = multiprocessing.Manager()
         self.queue = self.manager.Queue()
         self.NUMBER_OF_PROCESSES = multiprocessing.cpu_count()
-        self.items = 0
         self.pool = None
-        self.results = []
+        self.results = None
+
+    def _create_pool(self, process_divider=PROCESS_DIVIDER):
+        if self.pool is not None:
+            logging.warning('Existing pool found, closing it first.')
+            self.pool.close()
+            self.pool.join()
+            logging.info('Old pool closed.')
+        process_count = (max(1, self.NUMBER_OF_PROCESSES // process_divider))
+        logging.info('Creating new multiprocessing pool with %d processes.', process_count)
+        self.pool = multiprocessing.Pool(processes=process_count)
+
+    def _wait_for_results(self, task_name: str, return_results=False, timeout=36000):
+        """ Wait for async map to finish and handle errors."""
+        try:
+            logging.info('Waiting for %s results (timeout %d sec)...', task_name, timeout)
+            results = self.results.get(timeout=timeout)
+            logging.info('%s completed successfully.', task_name)
+            return results if return_results else None
+        except multiprocessing.TimeoutError:
+            logging.error('%s timed out after %d seconds.', task_name, timeout)
+            raise
+        except Exception as e:
+            logging.exception('Exception in %s: %s', task_name, e)
+            raise
+        finally:
+            self._cleanup_pool()
+
+    def _cleanup_pool(self):
+        if self.pool is not None:
+            try:
+                self.pool.close()
+                self.pool.join()
+                logging.info('Pool cleaned up.')
+            except Exception as e:
+                logging.warning('Exception during pool cleanup: %s', e)
+            finally:
+                self.pool = None
 
     def start_poi_harvest(self):
-        for m in config.get_dataproviders_modules_enable():
-            self.queue.put(m)
         try:
+            logging.info('Starting processing POI harvest.')
+            self._create_pool()
             # Start multiprocessing in case multiple cores
-            process_count = self.NUMBER_OF_PROCESSES // PROCESS_DIVIDER
             # process_count = 1
-            logging.info('Starting processing POI harvest on %s cores.', process_count)
-            self.results = []
-            self.pool = multiprocessing.Pool(processes=process_count)
-            self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable(),
-                                               )
-#                                               chunksize=100)
+            self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable(),)
+            # chunksize=100)
+            self._wait_for_results('POI harvest')
             logging.info('Finished processing POI harvest.')
-            self.pool.close()
-            logging.debug('Pool is closed.')
         except Exception as e:
-            logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.format_exc())
+            logging.exception('Exception occurred', exc_info=True)
 
-    def start_exporter(self, data: list, postfix: str = '', to_do=export_grouped_poi_data):
+    def start_exporter(self, data: pd.DataFrame, postfix: str = '', to_do=export_grouped_poi_data):
         logging.debug(data.to_string())
+        logging.info('Preparing export jobs...')
         poi_codes = data['poi_code'].unique()
-        modules = [[config.get_directory_output(), 'poi_address_{}{}'.format(postfix, c), data[data.poi_code == c],
+        modules = [[config.get_directory_output(), f'poi_address_{postfix}{c}', data[data.poi_code == c],
                     'poi_address'] for c in poi_codes]
         try:
-            # Start multiprocessing in case multiple cores
-            process_count = self.NUMBER_OF_PROCESSES // PROCESS_DIVIDER
-            #process_count = 1
-            logging.info('Starting processing export on %s cores.', process_count)
-            self.results = []
-            self.pool = multiprocessing.Pool(processes=process_count)
-            self.results = self.pool.map_async(to_do, modules)#, chunksize=100)
+            logging.info('Starting processing export.')
+            self._create_pool()
+            logging.info('Starting export with %d export groups.', len(modules))
+            self.results = self.pool.map_async(to_do, modules)  # chunksize=100)
+            self._wait_for_results('exporter', timeout=360000)
             logging.info('Finished processing export.')
-            self.pool.close()
-            logging.debug('Pool is closed.')
         except Exception as e:
-            logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.format_exc())
+            logging.exception('Exception occurred', exc_info=True)
 
-    def start_matcher(self, data, comm_data):
+    def start_matcher(self, data: pd.DataFrame, comm_data: pd.DataFrame):
         try:
             # Start multiprocessing in case multiple cores
-            process_count = self.NUMBER_OF_PROCESSES // PROCESS_DIVIDER
-            #process_count = 1
-            logging.info('Starting processing matcher on %s cores.', process_count)
-            self.results = []
-            self.pool = multiprocessing.Pool(processes=process_count)
-            self.results = self.pool.map_async(online_poi_matching,
-                                               [(d, comm_data) for d in np.array_split(data, process_count)],
-                                               )
-#                                               chunksize=100)
-            logging.info('Finished processing export.')
-            self.pool.close()
-            logging.debug('Pool is closed.')
-            return pd.concat(list(self.results.get()), sort=False)
+            logging.info('Starting processing matcher.')
+            self._create_pool()
+            if len(data) > self.NUMBER_OF_PROCESSES * 8:
+                split_data = np.array_split(data, self.NUMBER_OF_PROCESSES * 8)
+            else:
+                split_data = np.array_split(data, self.NUMBER_OF_PROCESSES * 8)
+            logging.info('Starting matcher on %d data chunks.', len(split_data))
+            self.results = self.pool.map_async(online_poi_matching, [(chunk, comm_data) for chunk in split_data],
+                                               chunksize=16)
+            result_chunks = self._wait_for_results('matcher', return_results=True, timeout=360000)
+            combined_result = pd.concat(result_chunks, ignore_index=True, sort=False)
+            return combined_result
         except Exception as e:
-            logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.format_exc())
+            logging.exception('Exception occurred', exc_info=True)
 
     def join(self):
-        self.pool.join()
-
+        if self.pool is not None:
+            try:
+                self.pool.join()
+                logging.info('Pool joined manually.')
+            except Exception as e:
+                logging.warning('Exception during manual join: %s', e)
+            finally:
+                self.pool = None
+        else:
+            logging.warning('No active pool to join.')
 
 def main():
     logging.info('Starting %s ...', __program__)
-    tracemalloc.start()
+    mem_info = MemoryInfo()
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                               config.get_database_writer_password(),
                                               config.get_database_writer_host(),
@@ -180,47 +211,29 @@ def main():
     try:
         logging.info('Starting STAGE 0 ... Importing basic datasets from external databases.')
         import_basic_data(session_object())
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        for stat in top_stats[:10]:
-            logging.debug(stat)
+        mem_info.log_top_memory_snapshot('STAGE 0')
         logging.info('Starting STAGE 1 ... Adding index for database.')
         index_osm_data(session_object())
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        for stat in top_stats[:10]:
-            logging.debug(stat)
+        mem_info.log_top_memory_snapshot('STAGE 1')
         logging.info('Starting STAGE 2 ... Do POI harversting from external sites and files.')
         manager = WorkflowManager()
         manager.start_poi_harvest()
         manager.join()
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        for stat in top_stats[:10]:
-            logging.debug(stat)
+        mem_info.log_top_memory_snapshot('STAGE 2')
         logging.info('Starting STAGE 3 ... Loading database persisted data into memory.')
         # Load basic dataset from database
         poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        for stat in top_stats[:10]:
-            logging.debug(stat)
+        mem_info.log_top_memory_snapshot('STAGE 3')
         # Download and load POI dataset to database
         logging.info('Starting STAGE 4 ... Merge all available information in memory.')
         poi_common_data = load_common_data(db)
         logging.info('Merging dataframes ...')
         poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        for stat in top_stats[:10]:
-            logging.debug(stat)
+        mem_info.log_top_memory_snapshot('STAGE 4')
         # Add additional empty fields
         logging.info('Starting STAGE 5 ... Dropping unnecessary data from memory.')
         del poi_addr_data
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        for stat in top_stats[:10]:
-            logging.debug(stat)
+        mem_info.log_top_memory_snapshot('STAGE 5')
         logging.info('Starting STAGE 6 ...')
         poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
         logging.info('Merging dataframes ...')
@@ -241,10 +254,7 @@ def main():
         logging.info('Merging with OSM datasets ...')
         poi_addr_data['osm_nodes'] = None
         poi_addr_data['poi_distance'] = None
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        for stat in top_stats[:10]:
-            logging.debug(stat)
+        mem_info.log_top_memory_snapshot('STAGE 6')
         logging.info('Starting STAGE 7 ... Starting online POI matching.')
         # Enrich POI datasets from online OpenStreetMap database
         logging.info('Starting online POI matching part...')
@@ -257,20 +267,15 @@ def main():
         # Export filesets
         prefix = 'merge_'
         export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
+        mem_info.log_top_memory_snapshot('STAGE 7')
         logging.info('Starting STAGE 8 ... Exporting matched POI.')
         manager.start_exporter(poi_addr_data, prefix)
         manager.join()
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        for stat in top_stats[:10]:
-            logging.debug(stat)
+        mem_info.log_top_memory_snapshot('STAGE 8')
         logging.info('Starting STAGE 9 ... Exporting grouped matched POI.')
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
         manager.join()
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        for stat in top_stats[:10]:
-            logging.debug(stat)
+        mem_info.log_top_memory_snapshot('STAGE 9')
     except (KeyboardInterrupt, SystemExit):
         logging.info('Interrupt signal received')
         sys.exit(1)
