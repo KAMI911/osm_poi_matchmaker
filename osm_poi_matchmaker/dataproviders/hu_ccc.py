@@ -65,7 +65,7 @@ class hu_ccc(DataProvider):
                         self.data.city = clean_city(poi_data.get('city'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(poi_data.get('street'))
-                        self.data.housenumber = clean_string(poi_data.get('house_number'))
+                        self.data.housenumber = clean_string(poi_data.get('house_number').replace('.', ''))
                         opening_hours_raw = poi_data.get('openings')
                         self.data.original = clean_string(poi_data.get('street'))
                         self.data.public_holiday_open = False
