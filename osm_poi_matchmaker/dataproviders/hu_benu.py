@@ -9,7 +9,7 @@ try:
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
-        PATTERN_FULL_URL, clean_string
+        PATTERN_FULL_URL, clean_string, extract_all_address
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -72,12 +72,11 @@ class hu_benu(DataProvider):
                             self.data.website = pu_match.group(0).strip() if pu_match is not None else None
                         else:
                             self.data.website = None
-                        self.data.city = clean_city(poi_data.get('city'))
-                        self.data.postcode = clean_string(poi_data.get('postal_code'))
+                        self.data.postcode, self.data.city = extract_all_address(poi_data.get('address'))
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                            extract_street_housenumber_better_2(poi_data.get('street'))
-                        self.data.original = poi_data.get('street')
+                            extract_street_housenumber_better_2(poi_data.get('address_street'))
+                        self.data.original = poi_data.get('address_street')
                         self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                         self.data.public_holiday_open = False
                         self.data.add()
