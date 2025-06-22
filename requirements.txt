@@ -13,3 +13,4 @@ xlrd>= 1.2.0
 phonenumbers>= 8.13.48
 lxml
 gtfs-kit>= 5.2.8
+debugpy== 1.8.14

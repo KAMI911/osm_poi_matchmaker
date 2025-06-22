@@ -38,6 +38,8 @@ services:
   poi_load_app:
     image: osm_poi_matchmaker:latest
     container_name: opm_poi_load_app
+    ports:
+      - "5678:5678"
     volumes:
       - ../container/osmdata:/opm/osm
       - ../container/importdata:/opm/osm_poi_matchmaker/output
