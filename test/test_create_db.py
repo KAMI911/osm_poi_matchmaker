@@ -6,8 +6,9 @@ try:
     import logging
     import sys
     from test.test_address import TestAddressResolver, TestFullAddressResolver, TestOpeningHoursCleaner, \
-        TestOpeningHoursCleaner2, TestPhoneCleaner, TestPhoneCleaner_to_str, TestStringCleaner, TestURLCleaner, \
-        TestCityCleaner, TestPostcodeCleaner, TestReplaceHTMLNewLines, TestExtractPhoneNumber
+        TestOpeningHoursCleaner2, TestPhoneCleaner, TestPhoneCleanerStr, TestPhoneCleanerMobileStr, \
+        TestStringCleaner, TestURLCleaner, TestCityCleaner, TestPostcodeCleaner, TestReplaceHTMLNewLines, \
+        TestExtractPhoneNumber
     from test.test_online_poi_matching import TestSmartOnlinePOIMatching
     from test.test_opening_hours import TestOpeningHours
     from test.test_file_output_helper import TestURLTagGenerator
@@ -32,7 +33,8 @@ def testing_create_db():
     replace_html_newlines = unittest.TestLoader().loadTestsFromTestCase(TestReplaceHTMLNewLines)
     extract_phone_number = unittest.TestLoader().loadTestsFromTestCase(TestExtractPhoneNumber)
     phone_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestPhoneCleaner)
-    phone_cleaner_to_str = unittest.TestLoader().loadTestsFromTestCase(TestPhoneCleaner_to_str)
+    phone_cleaner_to_str = unittest.TestLoader().loadTestsFromTestCase(TestPhoneCleanerStr)
+    clean_phone_and_mobile_to_str = unittest.TestLoader().loadTestsFromTestCase(TestPhoneCleanerMobileStr)
     string_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestStringCleaner)
     url_cleaner = unittest.TestLoader().loadTestsFromTestCase(TestURLCleaner)
     opening_hours_resolver = unittest.TestLoader().loadTestsFromTestCase(TestOpeningHours)
@@ -44,8 +46,8 @@ def testing_create_db():
     suite = unittest.TestSuite(
         [address_resolver, address_full_resolver, opening_hours_cleaner, opening_hours_cleaner2, city_cleaner,
          postcode_cleaner, replace_html_newlines, extract_phone_number, phone_cleaner, phone_cleaner_to_str,
-         string_cleaner, url_cleaner, opening_hours_resolver, smart_online_poi_matching, url_tag_generator,
-         timing, osm])
+         clean_phone_and_mobile_to_str, string_cleaner, url_cleaner, opening_hours_resolver,
+         smart_online_poi_matching, url_tag_generator, timing, osm])
     return unittest.TextTestResult(verbosity=1).run(suite)
 
 

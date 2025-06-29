@@ -1,12 +1,12 @@
 # OSM POI Matchmaker
-version: '2.2'
+version: "2.2"
 volumes:
   opm_dbdata:
   opm_osmdata:
   opm_outputdata:
 services:
   db:
-    image: postgis/postgis:14-3.2
+    image: postgis/postgis:17-3.5
     container_name: opm_db
     environment:
       - POSTGRES_USER=poi
@@ -32,14 +32,14 @@ services:
       - ../container/osmdata:/opm/osm
     depends_on:
       - db
-    links:
-      - db
     restart: on-failure
     oom_score_adj: -100
     mem_limit: 4g
   poi_load_app:
     image: osm_poi_matchmaker:latest
     container_name: opm_poi_load_app
+    ports:
+      - "5678:5678"
     volumes:
       - ../container/osmdata:/opm/osm
       - ../container/importdata:/opm/osm_poi_matchmaker/output
@@ -48,4 +48,7 @@ services:
       - db
     restart: on-failure
     oom_score_adj: -100
-    mem_limit: 4g
+    mem_limit: 10g
+    cap_add:
+      - SYS_PTRACE
+    pid: host

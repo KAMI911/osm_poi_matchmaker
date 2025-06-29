@@ -14,8 +14,11 @@ except ImportError as err:
 
 def waxeye_process(ast_items):
     try:
+        if isinstance(ast_items, Exception):  # For example ParseError
+            logging.error("ParseError detected: %s", ast_items)
+            return None
         processed = dict()
-        for index, ast_item in enumerate(ast_items.children):
+        for index, ast_item in enumerate(getattr(ast_items, 'children', [])):  # Children must exits here
             if hasattr(ast_item, 'children'):
                 try:
                     stri = 0
@@ -33,18 +36,16 @@ def waxeye_process(ast_items):
                             if isinstance(check_string, str):
                                 string_value += ast_item.children[stri]
                             if isinstance(check_string, AST):
-                                key = check_string.type
-                                value = ''.join(check_string.children)
-                                processed[key] = value
+                                processed[check_string.type] = ''.join(check_string.children)
                         processed[string_type] = string_value
                 except IndexError:
+                    logging.warning("IndexError occurred while processing AST node: %s", ast_item)
                     continue
             else:
-                value = ''.join(ast_item)
-                key = ast_item.type
-                processed[key] = value
+                processed[ast_item.type] = ''.join(ast_item)
         return processed
     except Exception as err_waxeye:
         logging.exception('Exception occurred: {}'.format(err_waxeye))
-        logging.error(traceback.print_exc())
+        logging.exception(traceback.format_exc())
+        logging.debug(ast_items)
         return None

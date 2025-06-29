@@ -61,7 +61,7 @@ class hu_posta(DataProvider):
             {'poi_code': 'hupostacso', 'poi_common_name': 'Posta csomagautomata',
              'poi_type': 'vending_machine_parcel_locker',
              'poi_tags': hupostacso, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(mpl|posta)', 'export_poi_name': False,
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
             {'poi_code': 'hupostapp', 'poi_common_name': 'PostaPont', 'poi_type': 'post_partner',
              'poi_tags': hupostapp, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': '(postapont|posta)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300,
@@ -207,9 +207,9 @@ class hu_posta(DataProvider):
                         self.data.add()
                 except Exception as err:
                     logging.exception('Exception occurred: {}'.format(err))
-                    logging.exception(traceback.print_exc())
+                    logging.exception(traceback.format_exc())
                     logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())
             logging.exception(soup)

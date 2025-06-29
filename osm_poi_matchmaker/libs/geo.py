@@ -12,7 +12,7 @@ except ImportError as err:
 
     sys.exit(128)
 
-PATTERN_COORDINATE = re.compile('[\d]{1,3}.[\d]{2,5}')
+PATTERN_COORDINATE = re.compile(r'[\d]{1,3}.[\d]{2,5}')
 
 
 def geom_point(latitude, longitude, projection):

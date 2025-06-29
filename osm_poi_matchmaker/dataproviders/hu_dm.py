@@ -23,7 +23,7 @@ except ImportError as err:
 class hu_dm(DataProvider):
 
     def contains(self):
-        self.link = 'https://services.dm.de/storedata/stores/bbox/49%2C16%2C45%2C23'
+        self.link = 'https://store-data-service.services.dmtech.com/stores/bbox/49,16,45,23'
         self.tags = {'shop': 'chemist', 'operator': 'dm Kft.', 'brand': 'dm',
                      'brand:wikidata': 'Q266572', 'brand:wikipedia': 'en:Dm-drogerie markt',
                      'contact:facebook': 'https://www.facebook.com/dm.Magyarorszag',
@@ -73,15 +73,15 @@ class hu_dm(DataProvider):
                                     street_tmp.title())
                             self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                             self.data.ref = clean_string(poi_data.get('storeNumber').strip())
-                            opening = poi_data.get('openingDays')
+                            opening = poi_data.get('openingHours')
                             try:
                                 for i, d in enumerate(opening):
                                     if d.get('weekDay') is not None and 1 <= d.get('weekDay') <= 7:
                                         day = d.get('weekDay')
                                         self.data.day_open(
-                                            day - 1, d.get('timeSlices')[0].get('opening'))
+                                            day - 1, d.get('timeRanges')[0].get('opening'))
                                         self.data.day_close(
-                                            day - 1, d.get('timeSlices')[0].get('closing'))
+                                            day - 1, d.get('timeRanges')[0].get('closing'))
                             except (IndexError, KeyError):
                                 logging.warning(
                                     'Exception occurred during opening hours processing')
@@ -89,8 +89,8 @@ class hu_dm(DataProvider):
                             self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())

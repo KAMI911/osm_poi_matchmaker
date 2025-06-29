@@ -61,14 +61,14 @@ CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_brand ON planet_osm_polygon(bran
 ''')
         data = session.execute(query)
     except Exception as e:
-        logging.exception('Exception occurred: {} rolled back: {}'.format(e, traceback.print_exc()))
+        logging.exception('Exception occurred: {} rolled back: {}'.format(e, traceback.format_exc()))
         session.rollback()
     else:
         try:
             session.commit()
             logging.info('Successfully added database indexes.')
         except Exception as e:
-            logging.exception('Exception occurred: {} unsuccessfully commit: {}'.format(e, traceback.print_exc()))
+            logging.exception('Exception occurred: {} unsuccessfully commit: {}'.format(e, traceback.format_exc()))
             session.rollback()
     finally:
         session.close()

@@ -28,16 +28,11 @@ except ImportError as err:
 class hu_volanbusz(DataProvider):
 
     def contains(self):
-        self.link = 'http://opendata.menetrendek.hu/public_gtfs/volanbusz_gtfs.zip'
+        self.link = 'https://gtfs.kti.hu/public-gtfs/volanbusz_gtfs.zip'
         self.tags = {'highway': 'bus_stop', 'public_transport': 'stop_position',
-                     #'operator': 'Volánbusz Zrt.',
-                     #'operator:addr': '1091 Budapest, Üllői út 131.', 'ref:HU:vatin': '10824346-2-44',
-                     #'ref:vatin': 'HU10824346', 'brand': 'Volánbusz', 'brand:wikidata': 'Q746503',
-                     #'brand:wikipedia': 'hu:Volánbusz', 'contact:email': 'info@volanbusz.hu',
-                     #'contact:phone': '+36 1 219 8000',
-                     #'contact:facebook': 'https://www.facebook.com/VOLANBUSZ',
-                     #'contact:youtube': 'https://www.youtube.com/channel/UCWQ_bIOMja8YYiSwijV2-JQ',
-                     #'contact:instagram': 'https://www.instagram.com/volanbusz.hu'
+                     'bus': 'yes', 'operator': 'MÁV Személyszállítási Zrt.',
+                     'operator:wikidata': 'Q1180332',
+                     'network': 'Volán',
                      }
         self.filetype = FileType.zip
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
@@ -48,7 +43,7 @@ class hu_volanbusz(DataProvider):
             {'poi_code': 'huvolantra', 'poi_common_name': 'Volánbusz', 'poi_type': 'bus_stop',
              'poi_tags': huvolantra, 'poi_url_base': 'https://www.volanbusz.hu', 'poi_search_name': 'volanbusz',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
-             'osm_search_distance_unsafe': 10, 'preserve_original_name': True, 'additional_ref_name': 'volan',
+             'osm_search_distance_unsafe': 10, 'preserve_original_name': True, 'additional_ref_name': 'gtfs:stop_id',
              'do_not_export_addr_tags': True},
         ]
         return self.__types
@@ -96,8 +91,8 @@ class hu_volanbusz(DataProvider):
                     self.data.add()
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
-                    logging.exception(traceback.print_exc())
+                    logging.exception(traceback.format_exc())
                     logging.exception(stop)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())

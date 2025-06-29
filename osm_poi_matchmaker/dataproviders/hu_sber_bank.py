@@ -75,7 +75,7 @@ class hu_sber_bank(DataProvider):
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.exception(poi_data)
                 for poi_data in text['branchList']:
                     try:
@@ -115,8 +115,8 @@ class hu_sber_bank(DataProvider):
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())

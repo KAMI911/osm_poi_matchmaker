@@ -75,9 +75,9 @@ class hu_mol_plugee_ev(DataProvider):
                             'Darab (Type 2)')
                         self.data.socket_type2_cable_output = poi_data.get(
                             'Teljesítmény (Type 2)')
-                        self.data.socket_type2 = poi_data.get(
+                        self.data.socket_type2_cableless = poi_data.get(
                             'Darab (Type 2 – kábel nélkül)')
-                        self.data.socket_type2_output = poi_data.get(
+                        self.data.socket_type2_cableless_output = poi_data.get(
                             'Teljesítmény (Type 2 – kábel nélkül)')
                         self.data.manufacturer = poi_data.get('Gyártó')
                         self.data.model = poi_data.get('Típus')
@@ -85,8 +85,8 @@ class hu_mol_plugee_ev(DataProvider):
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())

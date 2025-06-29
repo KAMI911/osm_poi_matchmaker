@@ -18,6 +18,7 @@ try:
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from lxml import etree
     import lxml
+    import re
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -41,12 +42,26 @@ POI_YESNO_TAGS = {'poi_fuel_adblue': 'fuel:adblue', 'poi_fuel_octane_100': 'fuel
                   'poi_parking_fee': 'parking_fee', 'poi_motorcar': 'motorcar'}
 
 POI_EV_TAGS = {'poi_capacity': 'capacity',
-               'poi_socket_chademo': 'socket:chademo', 'poi_socket_chademo_output': 'socket:chademo:output',
+               'poi_socket_chademo': 'socket:chademo',
+               'poi_socket_chademo_output': 'socket:chademo:output',
+               'poi_socket_chademo_current': 'socket:chademo:current',
+               'poi_socket_chademo_voltage': 'socket:chademo:voltage',
+
                'poi_socket_type2_combo': 'socket:type2_combo',
                'poi_socket_type2_combo_output': 'socket:type2_combo:output',
+               'poi_socket_type2_combo_current': 'socket:type2_combo:current',
+               'poi_socket_type2_combo_voltage': 'socket:type2_combo:voltage',
+
                'poi_socket_type2_cable': 'socket:type2_cable',
                'poi_socket_type2_cable_output': 'socket:type2_cable:output',
-               'poi_socket_type2': 'socket:type2', 'poi_socket_type2_output': 'socket:type2:output',
+               'poi_socket_type2_cable_current': 'socket:type2_cable:current',
+               'poi_socket_type2_cable_voltage': 'socket:type2_cable:voltage',
+               
+               'poi_socket_type2_cableless': 'socket:type2',
+               'poi_socket_type2_cableless_output': 'socket:type2:output',
+               'poi_socket_type2_cableless_current': 'socket:type2:current',
+               'poi_socket_type2_cableless_voltage': 'socket:type2:voltage',
+
                'poi_manufacturer': 'manufacturer', 'poi_model': 'model'}
 
 TESTCASE_GEN_KEYS = ('original', 'poi_postcode', 'poi_city', 'poi_addr_street', 'poi_addr_housenumber', 'poi_conscriptionnumber')
@@ -55,6 +70,24 @@ TIMESTAMP_FORMAT = '{:{dfmt}T{tfmt}Z}'
 DATE_FORMAT = '%Y-%m-%d'
 TIME_FORMAT = '%H:%M:%S'
 
+COMPLEX_OH_PATTERNS = [
+    r'sunrise', r'sunset', r'by appointment', r'SH',
+    # hónapok rövidítései
+    r'\bJan\b', r'\bFeb\b', r'\bMar\b', r'\bApr\b', r'\bMay\b', r'\bJun\b',
+    r'\bJul\b', r'\bAug\b', r'\bSep\b', r'\bOct\b', r'\bNov\b', r'\bDec\b',
+    # napok számozása, pl. 1-6, 15-31
+    r'\b\d{1,2}-\d{1,2}\b',
+    # opcionális: évszakok, extra szövegek
+    r'Winter', r'Summer',
+]
+
+
+def is_complex_opening_hours(oh_value):
+    """ Heuristic check to see if opening_hours is too complex for automatic processing. """
+    for pattern in COMPLEX_OH_PATTERNS:
+        if re.search(pattern, oh_value, re.IGNORECASE):
+            return True
+    return False
 
 def ascii_numcoder(text):
     output = ''
@@ -82,7 +115,7 @@ def save_csv_file(path: str, file: str, data, message: str):
         logging.info('The %s was successfully saved', file)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
-        logging.error(traceback.print_exc())
+        logging.exception(traceback.format_exc())
 
 
 def add_osm_node(osm_id: int, node_data: dict, prefix: str = 'poi') -> dict:
@@ -225,7 +258,7 @@ def generate_osm_xml(df, session=None):
                 osm_version = '99999' if row.get('osm_version') is None else row.get('osm_version')
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 # OSM Object type is node and select this for new node to where osm_node type is not defined (None)
                 if row.get('osm_node') is None or row.get('osm_node') == OSM_object_type.node:
@@ -235,7 +268,7 @@ def generate_osm_xml(df, session=None):
                         main_data = etree.SubElement(osm_xml_data, 'node', add_osm_node(current_osm_id, row))
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.error(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                 elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.way:
                     try:
                         logging.debug('Object type is way.')
@@ -265,7 +298,7 @@ def generate_osm_xml(df, session=None):
                     except TypeError as e:
                         logging.warning('Missing nodes on this way: %s.', row.get('osm_id'))
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.error(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                 elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.relation:
                     try:
                         logging.debug('Object type is relation.')
@@ -278,10 +311,10 @@ def generate_osm_xml(df, session=None):
                     except TypeError as e:
                         logging.warning('Missing nodes on this relation: %s.', row['osm_id'])
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.error(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             # Add already existing node, way, relation OpenStreetMap reference as comment
             try:
                 logging.debug('Add OSM reference as comment.')
@@ -306,8 +339,12 @@ def generate_osm_xml(df, session=None):
                 logging.debug('Add OSM live tags.')
                 if row.get('osm_live_tags') is not None:
                     logging.debug('Add OSM live tags.')
-                    tags.update(row.get('osm_live_tags').copy())
+                    tags_keys = list(osm_live_tags.keys())
+                    for tk in tags_keys :
+                        if tk.startswith('socket:'):
+                            osm_live_tags.pop(tk)
                     logging.info('Additional live tags'.format(row.get('osm_live_tags')))
+                    tags.update(row.get('osm_live_tags').copy())
                     osm_live_tags.update(row.get('osm_live_tags').copy())
                 # Adding POI common tags
                 logging.debug('Add POI common tags.')
@@ -315,7 +352,7 @@ def generate_osm_xml(df, session=None):
                     tags.update(row.get('poi_tags'))
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 # Save live name tags if preserve name is enabled
                 logging.debug('Preserve item name tag.')
@@ -331,37 +368,64 @@ def generate_osm_xml(df, session=None):
                         tags[v] = row.get(k)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 logging.debug('Decide opening_hours tag key.')
                 if config.get_geo_alternative_opening_hours():
+                    # Alternative opening hours code path to handle cases like COVID-19 special tagging
                     alternative_oh_tag = config.get_geo_alternative_opening_hours_tag()
-                    # Alternative opening_hours handling for COVID-19 code path
+
                     if tags.get('opening_hours') is not None and tags.get('opening_hours') != '':
-                        if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
-                            if tags.get('opening_hours') == row.get('poi_opening_hours'):
-                                tags[alternative_oh_tag] = 'same'
-                            else:
-                                tags[alternative_oh_tag] = row.get('poi_opening_hours')
+                        current_oh = tags.get('opening_hours')
+                        if is_complex_opening_hours(current_oh):
+                            # Too complex → not to modify, also add a comment
+                            comment = f'Opening Hours is too complex ({current_oh}) to handle automatically.'
+                            etree.Comment(comment)
+                            logging.debug(f'Opening_hours too complex ({current_oh}), skipping modification.')
+                        else:
+                            if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
+                                if current_oh == row.get('poi_opening_hours'):
+                                    tags[alternative_oh_tag] = 'same'
+                                else:
+                                    tags[alternative_oh_tag] = row.get('poi_opening_hours')
                     else:
                         if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
                             tags['opening_hours'] = row.get('poi_opening_hours')
                             tags[alternative_oh_tag] = 'same'
+
                 else:
-                    # Alternative opening_hours handling for NON COVID-19 code path: just simply add opening_hours to tags
+                    # NON COVID-19 code path: simple opening hours tagging
                     if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
-                        tags['opening_hours'] = row.get('poi_opening_hours')
+                        if tags.get('opening_hours') is not None and tags.get('opening_hours') != '':
+                            current_oh = tags.get('opening_hours')
+                            if is_complex_opening_hours(current_oh):
+                                comment = f'Opening Hours is too complex ({current_oh}) to handle automatically.'
+                                etree.Comment(comment)
+                                logging.debug(f'Opening_hours too complex ({current_oh}), skipping modification.')
+                            else:
+                                tags['opening_hours'] = row.get('poi_opening_hours')
+                        else:
+                            tags['opening_hours'] = row.get('poi_opening_hours')
+
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 # If we got POI phone tag use it as OSM contact:phone tag
                 logging.debug('Add contact:phone tag with phone numbers.')
                 if row.get('poi_phone') is not None and row.get('poi_phone') != '':
                     tags['contact:phone'] = row.get('poi_phone')
+                logging.debug('Add contact:mobil tag with phone numbers.')
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
+            try:
+                logging.debug('Add contact:mobil tag with phone numbers.')
+                if row.get('poi_mobil') is not None and row.get('poi_mobil') != '':
+                    tags['contact:mobil'] = row.get('poi_mobil')
+            except Exception as e:
+                logging.exception('Exception occurred: {}'.format(e))
+                logging.exception(traceback.format_exc())
             try:
                 if row.get('do_not_export_addr_tags'):
                     logging.debug('Removing address tags based on common file settings')
@@ -375,7 +439,7 @@ def generate_osm_xml(df, session=None):
                         logging.debug('Removed tags are: {}'.format(','.join(tr_removed)))
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 # If there is additional_ref_name then use it as key and poi_additional_ref as value
                 if row.get('additional_ref_name') is not None and row.get('poi_additional_ref') is not None:
@@ -383,14 +447,14 @@ def generate_osm_xml(df, session=None):
                     logging.debug('Add ref:{} tag with additional ref name.'.format(row.get('additional_ref_name')))
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 # If we got POI website tag use it as OSM contact:website tag
                 logging.debug('Add contact:website tag with website URL.')
                 tags['contact:website'] = url_tag_generator(row.get('poi_url_base'), row.get('poi_website'))
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 # Short URL for source OSM tag
                 # Can disable in app.conf via use.general.source.website.date key (deafault)
@@ -417,7 +481,7 @@ def generate_osm_xml(df, session=None):
                             tags['source'] = '{};{}'.format(tags['source'], st)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 # Write back the saved name tag
                 if row.get('poi_type') != 'bus_stop':
@@ -438,7 +502,7 @@ def generate_osm_xml(df, session=None):
                             tags['name'] = row.get('name')
                 # Rewrite old contact tags to contact:* tag form
                 logging.debug('Rewrite old contact tags to contact:* tag form.')
-                tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax']
+                tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax', 'mobil']
                 for tr in tags_rewrite:
                     if tr in tags:
                         # Never overwrite already existing contact:* tags
@@ -454,30 +518,32 @@ def generate_osm_xml(df, session=None):
                                 tags['contact:{}'.format(tr)] = str(tags.get('contact:{}'.format(tr))).lower()
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 logging.debug('Add description OSM tag.')
                 if row.get('poi_description') is not None and row.get('poi_description') != '':
                     tags['description'] = row.get('poi_description')
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 # Write tags with yes/no value
                 logging.debug('Add boolean OSM tags.')
                 for k, v in POI_YESNO_TAGS.items():
                     if row.get(k) is not None and row.get(k) != '':
                         tags[v] = 'yes' if row.get(k) is True else 'no'
+
+                logging.debug('Add EV tags')
                 for k, v in POI_EV_TAGS.items():
-                    if row.get(k) is not None and row.get(k) != '':
-                        if isinstance(row.get(k), float):
-                            if not math.isnan(row.get(k)):
-                                tags[v] = int(row.get(k))
-                        else:
+                    if isinstance(row.get(k), float):
+                        if not math.isnan(row.get(k)):
+                            tags[v] = int(row.get(k))
+                    else:
+                        if row.get(k) is not None:
                             tags[v] = row.get(k)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 # This is a new POI - will add fix me tag to the new items.
                 if row.get('poi_new') is not None and row.get('poi_new') is True:
@@ -489,7 +555,7 @@ def generate_osm_xml(df, session=None):
                 # tags['import'] = 'osm_poi_matchmaker'
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 if row.get('poi_type') == 'bus_stop':
                     tags.pop('ref:vatin', None)
@@ -499,7 +565,7 @@ def generate_osm_xml(df, session=None):
                     tags.pop('ref:hu:vatin', None)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 # Remove name tag in export if export_poi_name is false
                 if row.get('export_poi_name') is False:
@@ -532,7 +598,7 @@ def generate_osm_xml(df, session=None):
                 osm_xml_data.append(comment)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 logging.debug('Rendering JOSM link as XML comment.')
                 # URL encode link and '--' in comment
@@ -544,7 +610,7 @@ def generate_osm_xml(df, session=None):
                 osm_xml_data.append(comment)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             try:
                 logging.debug('Rendering test data as XML comment.')
                 test_case = {ckey: (row.get(ckey, None).replace('-', '\-') if isinstance(row.get(ckey, None), str) else\
@@ -555,7 +621,7 @@ def generate_osm_xml(df, session=None):
                 osm_xml_data.append(comment)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
                 logging.error(test_case)
             try:
                 logging.debug('XML node tags check.')
@@ -564,12 +630,12 @@ def generate_osm_xml(df, session=None):
                     osm_xml_data.append(xml_node_tags)
             except UnboundLocalError as e:
                 logging.debug('Unbound local error extra node tags')
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
                 logging.debug(etree.dump(osm_xml_data))
                 logging.debug(etree.dump(xml_node_tags))
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
                 logging.debug(etree.dump(osm_xml_data))
                 logging.debug(etree.dump(xml_node_tags))
             try:
@@ -580,21 +646,21 @@ def generate_osm_xml(df, session=None):
                 default_osm_id -= 1
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
-                logging.error(traceback.print_exc())
+                logging.exception(traceback.format_exc())
             # Not use preserved name for next item
             if 'preserved_name' in locals():
                 del preserved_name
             logging.info('Finished processing: {}. item'.format(index + 1))
-        logging.info('What is happening here')
+        logging.debug('All items have processed.')
     except ValueError as e:
         logging.exception('ValueError Exception occurred: {}'.format(e))
-        logging.error(traceback.print_exc())
+        logging.exception(traceback.format_exc())
 
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
-        logging.error(traceback.print_exc())
-    logging.info('Processed {}. items'.format(len(df)))
-    logging.critical('---------------------------------------------')
-    logging.debug(lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8"))
-    logging.critical('---------------------------------------------')
+        logging.exception(traceback.format_exc())
+    logging.info('Finished process of {} items'.format(len(df)))
+    #logging.debug('---------------------------------------------')
+    #logging.debug(lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8"))
+    #logging.debug('---------------------------------------------')
     return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")

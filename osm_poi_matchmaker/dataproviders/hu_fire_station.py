@@ -62,31 +62,31 @@ class hu_fire_station(DataProvider):
              'poi_type': 'fire_station',
              'poi_tags': hufiremsta, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
              'poi_search_name': '(tűzoltó-parancsnokság)',
-             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100,
              'osm_search_distance_unsafe': 100},
             {'poi_code': 'hufirelsta', 'poi_common_name': 'Katasztrófavédelmi Őrs',
              'poi_type': 'fire_station',
              'poi_tags': hufirelsta, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
              'poi_search_name': '(katasztrófavédelmi|örs)',
-             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100,
              'osm_search_distance_unsafe': 100},
             {'poi_code': 'hufirevsta', 'poi_common_name': 'Önkéntes Tűzoltó Egyesület',
              'poi_type': 'fire_station',
              'poi_tags': hufirevsta, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
              'poi_search_name': '(tűzoltó|egyesület)',
-             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100,
              'osm_search_distance_unsafe': 100},
             {'poi_code': 'hufireusta', 'poi_common_name': 'Önkormányzati Tűzoltó-parancsnokság',
              'poi_type': 'fire_station',
              'poi_tags': hufireusta, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
              'poi_search_name': '(tűzoltó|önkormányzati)',
-             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100,
              'osm_search_distance_unsafe': 100},
             {'poi_code': 'hufirecsta', 'poi_common_name': 'Létesítményi Tűzoltó-parancsnokság',
              'poi_type': 'fire_station',
              'poi_tags': hufirecsta, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
              'poi_search_name': '(tűzoltó|létesítményi)',
-             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100,
              'osm_search_distance_unsafe': 100},
         ]
         return self.__types
@@ -107,7 +107,7 @@ class hu_fire_station(DataProvider):
                     pois = json.loads(pois_variable[1])
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
-                    logging.exception(traceback.print_exc())
+                    logging.exception(traceback.format_exc())
                     logging.exception(pois)
                 if pois is None:
                     return None
@@ -153,8 +153,8 @@ class hu_fire_station(DataProvider):
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())

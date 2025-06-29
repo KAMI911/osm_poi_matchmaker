@@ -30,14 +30,16 @@ class hu_foxpost(DataProvider):
         self.tags = {'brand': 'Foxpost', 'operator': 'FoxPost Zrt.',
                      'operator:addr': '3200 Gyöngyös, Batsányi János utca 9.', 'ref:vatin': 'HU25034644',
                      'ref:HU:vatin': '25034644-2-10', 'ref:HU:company': '10-10-020309',
+                     'brand:wikidata': 'Q126538316',
                      'contact:facebook': 'https://www.facebook.com/foxpostzrt',
                      'contact:youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w',
                      'contact:email': 'info@foxpost.hu', 'contact:phone': '+36 1 999 0369',
-                     'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes',
-                     'payment:cash': 'no', }
+                     'payment:contactless': 'yes', 'payment:maestro': 'yes',
+                     'payment:mastercard': 'yes', 'payment:mastercard_contactless': 'yes', 'payment:mastercard_electronic': 'yes',
+                     'payment:visa': 'yes', 'payment:visa_electron': 'yes',
+                     'payment:cash': 'no',}
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(
-            self.__class__.__name__, self.filetype.name)
+        self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
         hufoxpocso = {'amenity': 'parcel_locker', 'parcel_mail_in': 'yes', 'parcel_pickup': 'yes',
@@ -47,7 +49,7 @@ class hu_foxpost(DataProvider):
         self.__types = [
             {'poi_code': 'hufoxpocso', 'poi_common_name': 'Foxpost', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': hufoxpocso, 'poi_url_base': 'https://www.foxpost.hu', 'poi_search_name': 'foxpost',
-             'poi_search_avoid_name': '(alzabox|alza|dpd|gls|pick pack|postapont|easybox|sameday)', 'export_poi_name': False,
+             'poi_search_avoid_name': '(alzabox|alza|dpd|gls|pick pack|postapont|easybox|sameday|mpl|express one|z-box)', 'export_poi_name': False,
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
         ]
         return self.__types
@@ -65,19 +67,20 @@ class hu_foxpost(DataProvider):
                             poi_data.get('geolat'), poi_data.get('geolng'))
                         self.data.postcode = clean_string(poi_data.get('zip'))
                         self.data.city = clean_city(poi_data.get('city'))
-                        self.data.branch = poi_data.get('name')
+                        self.data.branch = clean_string(poi_data.get('name'))
                         self.data.description = clean_string(poi_data.get('findme'))
-                        if 'kültéri' in self.data.description:
-                            self.data.nonstop = True
-                        else:
-                            for i in range(0, 7):
-                                if poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()] is not None:
-                                    opening, closing = clean_opening_hours(
-                                        poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()])
-                                    self.data.day_open(i, opening)
-                                    self.data.day_close(i, closing)
-                                else:
-                                    self.data.day_open_close(i, None, None)
+                        if self.data.description:
+                            if 'kültéri' in self.data.description:
+                                self.data.nonstop = True
+                            else:
+                                for i in range(0, 7):
+                                    if poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()] is not None:
+                                        opening, closing = clean_opening_hours(
+                                            poi_data['open'][WeekDaysLongHUUnAccented(i).name.lower()])
+                                        self.data.day_open(i, opening)
+                                        self.data.day_close(i, closing)
+                                    else:
+                                        self.data.day_open_close(i, None, None)
                         self.data.original = poi_data.get('address')
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
                             self.data.conscriptionnumber = extract_all_address_waxeye(poi_data.get('address'))
@@ -89,8 +92,8 @@ class hu_foxpost(DataProvider):
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())

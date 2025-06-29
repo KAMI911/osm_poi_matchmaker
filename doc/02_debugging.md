@@ -1,6 +1,6 @@
 # Debugging of the tool
 
-Since OSM POI Matchmaker was written in Python languege, you can use any of your favorite tool to debug it. I am using PyCharm Community edition. This is a free tool for coding yout Python project.
+Since OSM POI Matchmaker was written in Python language, you can use any of your favorite tool to debug it. I am using PyCharm Community edition. This is a free tool for coding yout Python project.
 
 ## Current number of importeble POIs grouped by POI names
 
@@ -13,7 +13,7 @@ SELECT pc.pc_id, poi_name, COUNT(pa.pa_id)
   ORDER BY poi_name, pc.pc_id;
 ```
 
-## Current number of importeble POIs grouped by POI names from POI RAW table
+## Current number of importable POIs grouped by POI names from POI RAW table
 
 ```
 SELECT pc.pc_id, pc.poi_common_name, COUNT(pa.pa_id)

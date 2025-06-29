@@ -41,6 +41,8 @@ PATTERN_FULL_URL = re.compile('((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\
 
 SZFKL = '. számú főközlekedési út'
 
+MOBILE_HU_PHONE_NUMBERS = {'20', '30', '31', '50', '70'}
+
 
 def remove_whitespace(wsp: str, rpl: str = '') -> str:
     """
@@ -180,14 +182,14 @@ def extract_all_address_waxeye(clearable):
                 conscriptionnumber = address_dict.get('conscriptionHrsz')
         except Exception as err_ext_waxeye:
             logging.debug(f'Exception occurred: {err_ext_waxeye} ... Waxeye parsing has failed: {clearable}')
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())
         else:
             try:
                 logging.debug('Try fallback to extract_all_address function')
                 postcode, city, street, housenumber, conscriptionnumber = extract_all_address(clearable)
             except Exception as err_ext_addr:
                 logging.debug(f'Exception occurred: {err_ext_addr} ...')
-                logging.exception(traceback.print_exc())
+                logging.exception(traceback.format_exc())
         return postcode, city, street, housenumber, conscriptionnumber
     else:
         return None, None, None, None, None
@@ -335,7 +337,7 @@ def extract_phone_number(data: str) -> str:
 
     except Exception as e:
         logging.exception('Extracting phone number failed: {}'.format(e))
-        logging.exception(traceback.print_exc())
+        logging.exception(traceback.format_exc())
 
 
 def clean_city(clearable: str) -> str:
@@ -449,11 +451,30 @@ def clean_phone_to_str(phone):
     else:
         return None
 
+def clean_phone_and_mobile_to_str(phone, mobile):
+    phone_numbers = []
+    mobile_numbers = []
+    if phone is None and mobile is None:
+        return None
+    phone = clean_string(phone)
+    mobile = clean_string(mobile)
+    all_phones = tuple(sum(zip(clean_phone(phone), clean_phone(mobile))), ())
+    for pn in all_phones:
+        if ' ' + MOBILE_HU_PHONE_NUMBERS + '' in pn:
+            mobile_numbers.append(pn)
+        else:
+            phone_numbers.append(pn)
+    if phone is not None and mobile is not None:
+        return ';'.join(phone_numbers), ';'.join(phone_numbers)
+    else:
+        return None
 
 def clean_email(email):
     if email is None:
         return None
     email = clean_string(email)
+    if email is None:
+        return None
     email_parts = email.lower().split()
     if len(email_parts) == 0:
         return None
@@ -723,7 +744,7 @@ def clean_branch(clearable):
     '''
     if clearable is not None and clearable != '':
         branch = clean_string(str(clearable))
-        branch = branch.title()
+        # branch = branch.title()
         if branch is not None:
             branch = branch.replace('Sz.', 'számú')
             branch = branch.replace('Számú', 'számú')

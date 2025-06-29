@@ -742,7 +742,7 @@ class POIBase:
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
                 try:
-                    p_query = sqlalchemy.text('EXPLAIN ANALYZE ' + q.format(query_type=query_type, query_name=query_name,
+                    perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' + q.format(query_type=query_type, query_name=query_name,
                                                                         query_avoid_name=query_avoid_name,
                                                                         metadata_fields=metadata_fields,
                                                                         street_query=street_query,
@@ -913,5 +913,7 @@ class POIBase:
             logging.exception(err)
         logging.debug({'lon': lon, 'lat': lat, 'distance': distance, 'name': name,
                        'similarity_threshold': similarity_threshold, 'levenshtein_threshold': levenshtein_threshold})
-        logging.debug(f'Returned data: {data.to_string()}')
+        logging.debug(f'Returned data:')
+        logging.debug(f'{data.to_string()}')
+
         return data

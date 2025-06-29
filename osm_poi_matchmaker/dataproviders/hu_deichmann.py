@@ -80,7 +80,7 @@ class hu_deichmann(DataProvider):
                             logging.info('Non existing opening hours value: {}'.format(poi_data))
                         except Exception as e:
                             logging.exception('Exception occurred: {}'.format(e))
-                            logging.exception(traceback.print_exc())
+                            logging.exception(traceback.format_exc())
 
                         self.data.branch = clean_string(poi_data.get('address').get('appartment'))
                         self.data.public_holiday_open = False
@@ -88,8 +88,8 @@ class hu_deichmann(DataProvider):
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())

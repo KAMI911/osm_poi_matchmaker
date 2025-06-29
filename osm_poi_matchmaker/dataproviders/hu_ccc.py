@@ -46,7 +46,7 @@ class hu_ccc(DataProvider):
             {'poi_code': 'hucccsho', 'poi_common_name': 'CCC', 'poi_type': 'shoes',
              'poi_tags': hucccsho, 'poi_url_base': 'https://ccc.eu/hu/', 'poi_search_name': 'ccc',
              'poi_search_avoid_name': '(deichmann)',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
              'osm_search_distance_unsafe': 50},
         ]
         return self.__types
@@ -63,16 +63,17 @@ class hu_ccc(DataProvider):
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'), poi_data.get('longitude'))
                         self.data.postcode = clean_string(poi_data.get('postcode'))
                         self.data.city = clean_city(poi_data.get('city'))
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                                poi_data.get('street'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_street_housenumber_better_2(poi_data.get('street'))
+                        self.data.housenumber = clean_string(poi_data.get('house_number').replace('.', ''))
                         opening_hours_raw = poi_data.get('openings')
                         self.data.original = clean_string(poi_data.get('street'))
                         self.data.public_holiday_open = False
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.print_exc())
+                        logging.exception(traceback.format_exc())
                         logging.exception(poi_data)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.print_exc())
+            logging.exception(traceback.format_exc())
