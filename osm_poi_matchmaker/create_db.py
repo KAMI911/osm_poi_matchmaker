@@ -40,6 +40,7 @@ POI_COLS_RAW = poi_array_structure.POI_DB_RAW
 
 PROCESS_DIVIDER = 2
 
+
 def init_log():
     logging.config.fileConfig('log.conf')
 
