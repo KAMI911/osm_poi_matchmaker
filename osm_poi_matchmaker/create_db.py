@@ -45,24 +45,24 @@ def init_log():
 
 
 def import_basic_data(session):
-    logging.info('Importing patch table ...')
+    logging.info('Importing patch table…')
     from osm_poi_matchmaker.dataproviders.hu_generic import poi_patch_from_csv
     work = poi_patch_from_csv(session, 'poi_patch.csv')
     work.process()
 
-    logging.info('Importing countries ...')
+    logging.info('Importing countries…')
     from osm_poi_matchmaker.dataproviders.hu_generic import poi_country_from_csv
     work = poi_country_from_csv(session, 'country.csv')
     work.process()
 
-    logging.info('Importing cities ...')
+    logging.info('Importing cities…')
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_city_postcode_from_xml
     work = hu_city_postcode_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/ZipCodes.xml',
                                      config.get_directory_cache_url())
-    logging.info('Processing cities ...')
+    logging.info('Processing cities…')
     work.process()
 
-    logging.info('Importing street types ...')
+    logging.info('Importing street types…')
     from osm_poi_matchmaker.dataproviders.hu_generic import hu_street_types_from_xml
     work = hu_street_types_from_xml(session, 'http://httpmegosztas.posta.hu/PartnerExtra/OUT/StreetTypes.xml',
                                     config.get_directory_cache_url())
@@ -70,7 +70,7 @@ def import_basic_data(session):
 
 
 def load_poi_data(database, table='poi_address_raw', raw=True):
-    logging.info('Loading {} table from database ...'.format(table))
+    logging.info('Loading {} table from database…'.format(table))
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
     if not os.path.exists(os.path.join(config.get_directory_cache_url(), 'cache')):
@@ -88,7 +88,7 @@ def load_poi_data(database, table='poi_address_raw', raw=True):
 
 
 def load_common_data(database):
-    logging.info('Loading common data from database ...')
+    logging.info('Loading common data from database…')
     return database.query_all_pd('poi_common')
 
 
@@ -114,7 +114,7 @@ class WorkflowManager(object):
     def _wait_for_results(self, task_name: str, return_results=False, timeout=36000):
         """ Wait for async map to finish and handle errors."""
         try:
-            logging.info('Waiting for %s results (timeout %d sec)...', task_name, timeout)
+            logging.info('Waiting for %s results (timeout %d sec)…', task_name, timeout)
             results = self.results.get(timeout=timeout)
             logging.info('%s completed successfully.', task_name)
             return results if return_results else None
@@ -153,7 +153,7 @@ class WorkflowManager(object):
 
     def start_exporter(self, data: pd.DataFrame, postfix: str = '', to_do=export_grouped_poi_data):
         logging.debug(data.to_string())
-        logging.info('Preparing export jobs...')
+        logging.info('Preparing export jobs…')
         poi_codes = data['poi_code'].unique()
         modules = [[config.get_directory_output(), f'poi_address_{postfix}{c}', data[data.poi_code == c],
                     'poi_address'] for c in poi_codes]
@@ -198,7 +198,7 @@ class WorkflowManager(object):
             logging.warning('No active pool to join.')
 
 def main():
-    logging.info('Starting %s ...', __program__)
+    logging.info('Starting %s …', __program__)
     mem_info = MemoryInfo()
     db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                               config.get_database_writer_password(),
@@ -209,34 +209,34 @@ def main():
     session_factory = sessionmaker(pgsql_pool)
     session_object = scoped_session(session_factory)
     try:
-        logging.info('Starting STAGE 0 ... Importing basic datasets from external databases.')
+        logging.info('Starting STAGE 0 – Importing basic datasets from external databases.')
         import_basic_data(session_object())
         mem_info.log_top_memory_snapshot('STAGE 0')
-        logging.info('Starting STAGE 1 ... Adding index for database.')
+        logging.info('Starting STAGE 1 – Adding index for database.')
         index_osm_data(session_object())
         mem_info.log_top_memory_snapshot('STAGE 1')
-        logging.info('Starting STAGE 2 ... Do POI harversting from external sites and files.')
+        logging.info('Starting STAGE 2 – Do POI harversting from external sites and files.')
         manager = WorkflowManager()
         manager.start_poi_harvest()
         manager.join()
         mem_info.log_top_memory_snapshot('STAGE 2')
-        logging.info('Starting STAGE 3 ... Loading database persisted data into memory.')
+        logging.info('Starting STAGE 3 – Loading database persisted data into memory.')
         # Load basic dataset from database
         poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
         mem_info.log_top_memory_snapshot('STAGE 3')
         # Download and load POI dataset to database
-        logging.info('Starting STAGE 4 ... Merge all available information in memory.')
+        logging.info('Starting STAGE 4 – Merge all available information in memory.')
         poi_common_data = load_common_data(db)
-        logging.info('Merging dataframes ...')
+        logging.info('Merging dataframes …')
         poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
         mem_info.log_top_memory_snapshot('STAGE 4')
         # Add additional empty fields
-        logging.info('Starting STAGE 5 ... Dropping unnecessary data from memory.')
+        logging.info('Starting STAGE 5 – Dropping unnecessary data from memory.')
         del poi_addr_data
         mem_info.log_top_memory_snapshot('STAGE 5')
-        logging.info('Starting STAGE 6 ...')
+        logging.info('Starting STAGE 6…')
         poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
-        logging.info('Merging dataframes ...')
+        logging.info('Merging dataframes…')
         poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
         poi_addr_data['osm_id'] = None
         poi_addr_data['osm_node'] = None
@@ -247,17 +247,17 @@ def main():
         # Export non-transformed data
         export_raw_poi_data(poi_addr_data, poi_common_data)
         export_raw_poi_data_xml(poi_addr_data)
-        logging.info('Saving poi_code grouped filesets...')
+        logging.info('Saving poi_code grouped filesets…')
         # Export non-transformed filesets
         manager.start_exporter(poi_addr_data)
         manager.join()
-        logging.info('Merging with OSM datasets ...')
+        logging.info('Merging with OSM datasets…')
         poi_addr_data['osm_nodes'] = None
         poi_addr_data['poi_distance'] = None
         mem_info.log_top_memory_snapshot('STAGE 6')
-        logging.info('Starting STAGE 7 ... Starting online POI matching.')
+        logging.info('Starting STAGE 7 – online POI matching…')
         # Enrich POI datasets from online OpenStreetMap database
-        logging.info('Starting online POI matching part...')
+        logging.info('Starting online POI matching part…')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
         '''
@@ -268,11 +268,11 @@ def main():
         prefix = 'merge_'
         export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
         mem_info.log_top_memory_snapshot('STAGE 7')
-        logging.info('Starting STAGE 8 ... Exporting matched POI.')
+        logging.info('Starting STAGE 8 – Exporting matched POI.')
         manager.start_exporter(poi_addr_data, prefix)
         manager.join()
         mem_info.log_top_memory_snapshot('STAGE 8')
-        logging.info('Starting STAGE 9 ... Exporting grouped matched POI.')
+        logging.info('Starting STAGE 9 – Exporting grouped matched POI.')
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
         manager.join()
         mem_info.log_top_memory_snapshot('STAGE 9')
@@ -289,4 +289,4 @@ if __name__ == '__main__':
     init_log()
     timer = timing.Timing()
     main()
-    logging.info('Total duration of process: %s. Finished, exiting and go home ...', timer.end())
+    logging.info('Total duration of process: %s. Finished, exiting…', timer.end())

@@ -767,7 +767,7 @@ class POIBase:
                 logging.debug('Return without precise geometry search data: {}'.format(data.iloc[[0]]))
                 return data.iloc[[0]]
             else:
-                logging.info('Item not found in {} stage.'.format(stage))
+                logging.info('Item not found in stage {}.'.format(stage))
         logging.info('Item not found at all.')
         try:
             self.session.commit()
