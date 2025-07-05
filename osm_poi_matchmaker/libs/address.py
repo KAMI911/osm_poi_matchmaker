@@ -217,12 +217,14 @@ def extract_city_street_housenumber_address(clearable):
         return None, None, None, None, None
 
 
-def extract_street_housenumber_better_2(clearable: str) -> str:
-    '''Try to separate street and house number from a Hungarian style address string
+def extract_street_housenumber_better_2(clearable: str) -> tuple[str | None, str | None, str | None]:
+    """
+    Try to separate street and house number from a Hungarian style address string
 
     :param clearable: An input string with Hungarian style address string
     return: Separated street and housenumber
-    '''
+    """
+    
     # Split and clean up street
     if clearable is None:
         return None, None, None
@@ -245,12 +247,14 @@ def extract_street_housenumber_better_2(clearable: str) -> str:
             conscriptionnumber = cn_match_1.group(2) if cn_match_1.group(2) is not None else None
             cnn_length = len(cn_match_1.group(0))
             logging.debug(
-                'Matching conscription number with method 1: %s from %s', conscriptionnumber, clearable)
+                'Matching conscription number with method 1: %s from %s', conscriptionnumber, clearable
+            )
         elif cn_match_2 is not None:
             conscriptionnumber = cn_match_2.group(2) if cn_match_2.group(2) is not None else None
             cnn_length = len(cn_match_2.group(0))
             logging.debug(
-                'Matching conscription number with method 2: %s from %s', conscriptionnumber, clearable)
+                'Matching conscription number with method 2: %s from %s', conscriptionnumber, clearable
+            )
         elif cn_match_3 is not None:
             conscriptionnumber = cn_match_3.group(0)
             cnn_length = len(conscriptionnumber)
