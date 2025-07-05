@@ -30,6 +30,7 @@ PATTERN_CONSCRIPTIONNUMBER = re.compile(
     re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER_1 = re.compile('((?:belterület\s*)?hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1})', re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER_2 = re.compile('(\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})', re.IGNORECASE)
+PATTERN_CONSCRIPTIONNUMBER_3 = re.compile(r'\d{4,}/\d+')  # treshold value (999+1) copied from https://github.com/vmiklos/osm-gimmisn/blob/9816d6eef7a06a53ee45b27ba3c504c72ac200e8/src/util.rs#L1116-L1117
 PATTERN_OPENING_HOURS = re.compile('0*[0-9]{1,2}\:0*[0-9]{1,2}\s*-\s*0*[0-9]{1,2}:0*[0-9]{1,2}')
 PATTERN_PHONE = re.compile('[\/\\\(\)\-\+]')
 
@@ -239,6 +240,7 @@ def extract_street_housenumber_better_2(clearable: str) -> str:
         data = clearable.split('(')[0]
         cn_match_1 = PATTERN_CONSCRIPTIONNUMBER_1.search(data)
         cn_match_2 = PATTERN_CONSCRIPTIONNUMBER_2.search(data)
+        cn_match_3 = PATTERN_CONSCRIPTIONNUMBER_3.search(data)
         if cn_match_1 is not None:
             conscriptionnumber = cn_match_1.group(2) if cn_match_1.group(2) is not None else None
             cnn_length = len(cn_match_1.group(0))
@@ -249,6 +251,12 @@ def extract_street_housenumber_better_2(clearable: str) -> str:
             cnn_length = len(cn_match_2.group(0))
             logging.debug(
                 'Matching conscription number with method 2: %s from %s', conscriptionnumber, clearable)
+        elif cn_match_3 is not None:
+            conscriptionnumber = cn_match_3.group(0)
+            cnn_length = len(conscriptionnumber)
+            logging.debug(
+                'Matching conscription number with method 3: %s from %s', conscriptionnumber, clearable
+            )
         else:
             conscriptionnumber = None
             cnn_length = None
