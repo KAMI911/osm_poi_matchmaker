@@ -48,7 +48,7 @@ def testing_create_db():
          postcode_cleaner, replace_html_newlines, extract_phone_number, phone_cleaner, phone_cleaner_to_str,
          clean_phone_and_mobile_to_str, string_cleaner, url_cleaner, opening_hours_resolver,
          smart_online_poi_matching, url_tag_generator, timing, osm])
-    return unittest.TextTestResult(verbosity=1).run(suite)
+    return unittest.TextTestResult(verbosity=1, stream=sys.stdout, descriptions=True)
 
 
 if __name__ == '__main__':
