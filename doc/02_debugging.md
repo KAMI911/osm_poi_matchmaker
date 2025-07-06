@@ -1,6 +1,47 @@
-# Debugging of the tool
+# Debugging the tool
 
-Since OSM POI Matchmaker was written in Python language, you can use any of your favorite tool to debug it. I am using PyCharm Community edition. This is a free tool for coding yout Python project.
+Since OSM POI Matchmaker was written in Python, you can use any of your favorite tools to debug it. 
+I prefer to use the free version of PyCharm.
+
+## In PyCharm
+
+1. Open PyCharm
+1. Open _Settings_ → _Plugins_ → _Marketplace_
+1. Search for `23257-lsp4ij`
+1. Click on _Install_
+1. Close _Settings_
+1. Open _Run_ → _Edit Configurations…_
+1. Click on _Add New Configuration_ (`+` icon)
+1. Click on _Debug Adapter Protocol_
+1. Enter `Docker` as _Name_
+1. Click on _Server_ → _Use an Existing Debug Adapter Server_ → _NONE_
+1. Select _Python - Debugpy_ from the dropdown list
+1. Click on _Configuration_
+1. Select _Attach_ as the _Debug Mode_
+1. Paste this in the _DAP Parameters (JSON)_ text box:
+    ```json
+    {
+        "name": "Attach",
+        "type": "python",
+        "request": "attach",
+        "redirectOutput": true,
+        "connect": {
+            "host": "127.0.0.1",
+            "port": 5678
+        },
+        "pathMappings": [
+            {
+                "localRoot": "${workspaceFolder}",
+                "remoteRoot": "/opm/"
+            }
+        ]
+    }
+    ```
+1. Click on _OK_
+1. Run `osm_poi_matchmaker`
+1. Wait until you see logs from the `opm_poi_load_app` container
+1. Click on _Run_ → _Debug 'Docker'_
+1. If you see a message like `ptvsd` and/or `debugpy`, you are connected successfully!
 
 ## Current number of importeble POIs grouped by POI names
 
