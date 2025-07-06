@@ -40,7 +40,7 @@ def online_poi_matching(args):
         osm_live_query = OsmApi()
         for i, row in data.head(config.get_dataproviders_limit_elemets()).iterrows():
         # for i, row in data[data['poi_code'].str.contains('ping')].iterrows():
-            logging.info("Starting Online POI matching ...")
+            logging.info("Starting online POI matching…")
             try:
                 # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
                 osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
@@ -347,7 +347,7 @@ def online_poi_matching(args):
                     else:
                         logging.info(
                             'The POI is already in its building or there is no building match. \
-                            Keeping POI coordinates as is as.')
+                            Keeping POI coordinates as they are.')
                     if row['preserve_original_post_code'] is not True:
                         try:
                             postcode = None
@@ -374,7 +374,7 @@ def online_poi_matching(args):
             finally:
                 session.commit()
         session.commit()
-        logging.info("Finished Online POI matching ...")
+        logging.info("Finished online POI matching!")
         session.close()
         return data
     except Exception as e:

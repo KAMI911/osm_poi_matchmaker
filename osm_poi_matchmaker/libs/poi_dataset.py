@@ -1034,7 +1034,7 @@ class POIDatasetRaw:
                     #    return
                     query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
                     if query is None or query.empty:
-                        logging.warning('There is no street around with same name, tring metaphone name ...')
+                        logging.warning('There is no street around with the same name, trying metaphone name…')
                         query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'all')
                         if query is None or query.empty:
                             logging.warning('(1) There is no street around named or metaphone named: %s', data)
@@ -1050,7 +1050,7 @@ class POIDatasetRaw:
                         self.__street = data
                         cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
                 else:
-                    logging.debug('There are not coordinates. Is this a bug or missing data?')
+                    logging.debug('There are no coordinates. Is this a bug or missing data?')
                     self.__street = data
                     cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
                 set_cached(cache_key, self.__street)
