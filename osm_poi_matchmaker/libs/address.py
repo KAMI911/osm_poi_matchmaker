@@ -20,24 +20,25 @@ except ImportError as err:
     sys.exit(128)
 
 # Patterns for re
-PATTERN_POSTCODE_CITY = re.compile('^((\d){4})([.\s]{0,2})([a-zA-ZáÁéÉíÍóÓúÚüÜöÖőŐűŰ]{3,40})')
-PATTERN_CITY_ADDRESS = re.compile('^([a-zA-ZáÁéÉíÍóÓúÚüÜöÖőŐűŰ]{3,40})')
-PATTERN_CITY = re.compile('\s?[XVI]{1,5}[.:,]{0,3}\s*$')
-PATTERN_JS_2 = re.compile('\s*;\s*$')
-PATTERN_HOUSENUMBER = re.compile('[0-9]{1,3}(\/[A-z]{1}|\-[0-9]{1,3}|)', re.IGNORECASE)
+PATTERN_POSTCODE_CITY = re.compile(r'^((\d){4})([.\s]{0,2})([a-zA-ZáÁéÉíÍóÓúÚüÜöÖőŐűŰ]{3,40})')
+PATTERN_CITY_ADDRESS = re.compile(r'^([a-zA-ZáÁéÉíÍóÓúÚüÜöÖőŐűŰ]{3,40})')
+PATTERN_CITY = re.compile(r'\s?[XVI]{1,5}[.:,]{0,3}\s*$')
+PATTERN_JS_2 = re.compile(r'\s*;\s*$')
+PATTERN_HOUSENUMBER = re.compile(r'[0-9]{1,3}(/[A-z]|-[0-9]{1,3}|)', re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER = re.compile(
-    '(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}|\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})',
+    r'(hrsz[.:]{0,2}\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?|\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?\s*hrsz[s.]?)',
     re.IGNORECASE)
-PATTERN_CONSCRIPTIONNUMBER_1 = re.compile('((?:belterület\s*)?hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1})', re.IGNORECASE)
-PATTERN_CONSCRIPTIONNUMBER_2 = re.compile('(\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})', re.IGNORECASE)
-PATTERN_OPENING_HOURS = re.compile('0*[0-9]{1,2}\:0*[0-9]{1,2}\s*-\s*0*[0-9]{1,2}:0*[0-9]{1,2}')
-PATTERN_PHONE = re.compile('[\/\\\(\)\-\+]')
+PATTERN_CONSCRIPTIONNUMBER_1 = re.compile(r'((?:belterület\s*)?hrsz[.:]{0,2}\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?)', re.IGNORECASE)
+PATTERN_CONSCRIPTIONNUMBER_2 = re.compile(r'(\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?\s*hrsz[s.]?)', re.IGNORECASE)
+PATTERN_CONSCRIPTIONNUMBER_3 = re.compile(r'\d{4,}/\d+')  # treshold value (999+1) copied from https://github.com/vmiklos/osm-gimmisn/blob/9816d6eef7a06a53ee45b27ba3c504c72ac200e8/src/util.rs#L1116-L1117
+PATTERN_OPENING_HOURS = re.compile(r'0*[0-9]{1,2}:0*[0-9]{1,2}\s*-\s*0*[0-9]{1,2}:0*[0-9]{1,2}')
+PATTERN_PHONE = re.compile(r'[\/\\\(\)\-\+]')
 
 PATTERN_STREET_RICH = re.compile(
-    '\s*(.*)\s+(akna|alja|almáskert|alsó|alsósor|aluljáró|autópálya|autóversenypálya|állomás|árok|átjáró|barakképület|bánya|bányatelep|bekötőút|benzinkút|bérc|bisztró|bokor|burgundia|büfé|camping|campingsor|centrum|célgazdaság|csapás|csarnok|csárda|cser|csoport|domb|dunapart|dunasor|dűlő|dűlője|dűlők|dűlőút|egyesület|egyéb|elágazás|erdeje|erdészház|erdészlak|erdő|erdősarok|erdősor|épület|épületek|észak|étterem|falu|farm|fasor|fasora|feketeerdő|feketeföldek|felső|felsősor|fennsík|fogadó|fok|forduló|forrás|föld|földek|földje|főcsatorna|főtér|főút|fürdő|fürdőhely|fürésztelepe|gazdaság|gát|gátőrház|gátsor|gimnázium|gödör|gulyakút|gyár|gyártelep|halom|határátkelőhely|határrész|határsor|határút|hatházak|hát|ház|háza|házak|hegy|hegyhát|hegyhát dűlő|hely|hivatal|híd|hídfő|horgásztanya|hotel|intézet|ipari park|ipartelep|iparterület|irodaház|irtás|iskola|jánoshegy|járás|juhászház|kapcsolóház|kapu|kastély|kálvária|kemping|kert|kertek|kertek-köze|kertsor|kertváros|kerület|kikötő|kilátó|kishajtás|kitérő|kocsiszín|kolónia|korzó|kórház|környék|körönd|körtér|körút|körútja|körvasútsor|körzet|köz|köze|középsor|központ|kút|kútház|kültelek|külterület|külterülete|lakás|lakások|lakóház|lakókert|lakónegyed|lakópark|lakótelep|laktanya|legelő|lejáró|lejtő|lépcső|liget|lovasiskola|lovastanya|magánút|major|malom|malomsor|megálló|mellékköz|mező|mélyút|MGTSZ|munkásszálló|műút|nagymajor|nagyút|nádgazdaság|nyaraló|oldal|országút|otthon|otthona|öböl|öregszőlők|ösvény|ötház|őrház|őrházak|pagony|pallag|palota|park|parkfalu|parkja|parkoló|part|pavilonsor|pálya|pályafenntartás|pályaudvar|piac|pihenő|pihenőhely|pince|pinceköz|pincesor|pincék|présházak|puszta|rakodó|rakpart|repülőtér|rész|rét|rétek|rév|ring|sarok|sertéstelep|sétatér|sétány|sikátor|sor|sora|sportpálya|sporttelep|stadion|strand|strandfürdő|sugárút|szabadstrand|szakiskola|szállás|szálló|szárító|szárnyasliget|szektor|szer|szél|széle|sziget|szigete|szivattyútelep|szög|szőlő|szőlőhegy|szőlők|szőlőkert|szőlős|szőlősor|tag|tanya|tanyaközpont|tanyasor|tanyák|tavak|tábor|tároló|társasház|teherpályaudvar|telek|telep|telepek|település|temető|tere|terményraktár|terület|teteje|tető|téglagyár|tér|tipegő|tormás|torony|tó|tömb|TSZ|turistaház|udvar|udvara|ugarok|utca|utcája|újfalu|újsor|újtelep|útfél|útgyűrű|útja|út|üdülő|üdülő központ|üdülő park|üdülők|üdülőközpont|üdülőpart|üdülő-part|üdülősor|üdülő-sor|üdülőtelep|üdülő-telep|üdülőterület|ürbő|üzem|üzletház|üzletsor|vadászház|varroda|vasútállomás|vasúti megálló|vasúti őrház|vasútsor|vám|vár|város|városrész|vásártér|vendéglő|vég|villa|villasor|viztároló|vízmű|vízmű telep|völgy|zsilip|zug|ltp\.|ltp|krt\.|krt|sgt\.|u\.|u\s+|Várkerület){1}.*',
+    r'\s*(.*)\s+(akna|alja|almáskert|alsó|alsósor|aluljáró|autópálya|autóversenypálya|állomás|árok|átjáró|barakképület|bánya|bányatelep|bekötőút|benzinkút|bérc|bisztró|bokor|burgundia|büfé|camping|campingsor|centrum|célgazdaság|csapás|csarnok|csárda|cser|csoport|domb|dunapart|dunasor|dűlő|dűlője|dűlők|dűlőút|egyesület|egyéb|elágazás|erdeje|erdészház|erdészlak|erdő|erdősarok|erdősor|épület|épületek|észak|étterem|falu|farm|fasor|fasora|feketeerdő|feketeföldek|felső|felsősor|fennsík|fogadó|fok|forduló|forrás|föld|földek|földje|főcsatorna|főtér|főút|fürdő|fürdőhely|fürésztelepe|gazdaság|gát|gátőrház|gátsor|gimnázium|gödör|gulyakút|gyár|gyártelep|halom|határátkelőhely|határrész|határsor|határút|hatházak|hát|ház|háza|házak|hegy|hegyhát|hegyhát dűlő|hely|hivatal|híd|hídfő|horgásztanya|hotel|intézet|ipari park|ipartelep|iparterület|irodaház|irtás|iskola|jánoshegy|járás|juhászház|kapcsolóház|kapu|kastély|kálvária|kemping|kert|kertek|kertek-köze|kertsor|kertváros|kerület|kikötő|kilátó|kishajtás|kitérő|kocsiszín|kolónia|korzó|kórház|környék|körönd|körtér|körút|körútja|körvasútsor|körzet|köz|köze|középsor|központ|kút|kútház|kültelek|külterület|külterülete|lakás|lakások|lakóház|lakókert|lakónegyed|lakópark|lakótelep|laktanya|legelő|lejáró|lejtő|lépcső|liget|lovasiskola|lovastanya|magánút|major|malom|malomsor|megálló|mellékköz|mező|mélyút|MGTSZ|munkásszálló|műút|nagymajor|nagyút|nádgazdaság|nyaraló|oldal|országút|otthon|otthona|öböl|öregszőlők|ösvény|ötház|őrház|őrházak|pagony|pallag|palota|park|parkfalu|parkja|parkoló|part|pavilonsor|pálya|pályafenntartás|pályaudvar|piac|pihenő|pihenőhely|pince|pinceköz|pincesor|pincék|présházak|puszta|rakodó|rakpart|repülőtér|rész|rét|rétek|rév|ring|sarok|sertéstelep|sétatér|sétány|sikátor|sor|sora|sportpálya|sporttelep|stadion|strand|strandfürdő|sugárút|szabadstrand|szakiskola|szállás|szálló|szárító|szárnyasliget|szektor|szer|szél|széle|sziget|szigete|szivattyútelep|szög|szőlő|szőlőhegy|szőlők|szőlőkert|szőlős|szőlősor|tag|tanya|tanyaközpont|tanyasor|tanyák|tavak|tábor|tároló|társasház|teherpályaudvar|telek|telep|telepek|település|temető|tere|terményraktár|terület|teteje|tető|téglagyár|tér|tipegő|tormás|torony|tó|tömb|TSZ|turistaház|udvar|udvara|ugarok|utca|utcája|újfalu|újsor|újtelep|útfél|útgyűrű|útja|út|üdülő|üdülő központ|üdülő park|üdülők|üdülőközpont|üdülőpart|üdülő-part|üdülősor|üdülő-sor|üdülőtelep|üdülő-telep|üdülőterület|ürbő|üzem|üzletház|üzletsor|vadászház|varroda|vasútállomás|vasúti megálló|vasúti őrház|vasútsor|vám|vár|város|városrész|vásártér|vendéglő|vég|villa|villasor|viztároló|vízmű|vízmű telep|völgy|zsilip|zug|ltp\.|ltp|krt\.|krt|sgt\.|u\.|u\s+|Várkerület).*',
     re.UNICODE | re.IGNORECASE)
-PATTERN_URL_SLASH = re.compile('(?<!:)(//{1,})')
-PATTERN_FULL_URL = re.compile('((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)')
+PATTERN_URL_SLASH = re.compile(r'(?<!:)(//+)')
+PATTERN_FULL_URL = re.compile(r'((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)')
 
 SZFKL = '. számú főközlekedési út'
 
@@ -216,12 +217,14 @@ def extract_city_street_housenumber_address(clearable):
         return None, None, None, None, None
 
 
-def extract_street_housenumber_better_2(clearable: str) -> str:
-    '''Try to separate street and house number from a Hungarian style address string
+def extract_street_housenumber_better_2(clearable: str) -> tuple[str | None, str | None, str | None]:
+    """
+    Try to separate street and house number from a Hungarian style address string
 
     :param clearable: An input string with Hungarian style address string
     return: Separated street and housenumber
-    '''
+    """
+    
     # Split and clean up street
     if clearable is None:
         return None, None, None
@@ -239,16 +242,25 @@ def extract_street_housenumber_better_2(clearable: str) -> str:
         data = clearable.split('(')[0]
         cn_match_1 = PATTERN_CONSCRIPTIONNUMBER_1.search(data)
         cn_match_2 = PATTERN_CONSCRIPTIONNUMBER_2.search(data)
+        cn_match_3 = PATTERN_CONSCRIPTIONNUMBER_3.search(data)
         if cn_match_1 is not None:
             conscriptionnumber = cn_match_1.group(2) if cn_match_1.group(2) is not None else None
             cnn_length = len(cn_match_1.group(0))
             logging.debug(
-                'Matching conscription number with method 1: %s from %s', conscriptionnumber, clearable)
+                'Matching conscription number with method 1: %s from %s', conscriptionnumber, clearable
+            )
         elif cn_match_2 is not None:
             conscriptionnumber = cn_match_2.group(2) if cn_match_2.group(2) is not None else None
             cnn_length = len(cn_match_2.group(0))
             logging.debug(
-                'Matching conscription number with method 2: %s from %s', conscriptionnumber, clearable)
+                'Matching conscription number with method 2: %s from %s', conscriptionnumber, clearable
+            )
+        elif cn_match_3 is not None:
+            conscriptionnumber = cn_match_3.group(0)
+            cnn_length = len(conscriptionnumber)
+            logging.debug(
+                'Matching conscription number with method 3: %s from %s', conscriptionnumber, clearable
+            )
         else:
             conscriptionnumber = None
             cnn_length = None
