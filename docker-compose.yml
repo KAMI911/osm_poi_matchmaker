@@ -1,5 +1,4 @@
 # OSM POI Matchmaker
-version: "2.2"
 volumes:
   opm_dbdata:
   opm_osmdata:
