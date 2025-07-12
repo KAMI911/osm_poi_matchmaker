@@ -9,6 +9,7 @@ db.poi.database=poi
 db.enable.analyze=False
 db.enable.query_log=False
 db.enable.huge_query=False
+db.start.drop.poi_tables=True
 
 # Directory settings
 dir.output=output
