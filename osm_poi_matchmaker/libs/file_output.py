@@ -441,6 +441,10 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
+                if row.get('poi_ref'):
+                    tags['ref'] = row.get('poi_ref')
+                    logging.debug('Added ref tag.')
+                    
                 # If there is additional_ref_name then use it as key and poi_additional_ref as value
                 if row.get('additional_ref_name') is not None and row.get('poi_additional_ref') is not None:
                     tags['ref:{}'.format(row.get('additional_ref_name'))] = row.get('poi_additional_ref')
