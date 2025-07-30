@@ -22,22 +22,30 @@ except ImportError as err:
 
 
 class hu_ccc(DataProvider):
-
-
+    
     def contains(self):
         self.link = 'https://ccc.eu/hu/sklepy'
-        self.tags = {'shop': 'shoes', 'operator': ' CCC Hungary Shoes Kft.',
-                     'operator:addr': '1123 Budapest, Alkotás utca 53.', 'ref:HU:vatin': '24128296-2-44',
-                     'ref:vatin': 'HU24128296', 'ref:HU:company': '01-09-991763', 'brand': 'CCC', 'brand:wikidata': 'Q11788344',
-                     'brand:wikipedia': 'pl:CCC (przedsiębiorstwo)', 'contact:email': 'info.hu@ccc.eu',
-                     'contact:phone': '+36 1 445 3701', 'contact:linkedin': 'https://www.linkedin.com/company/cccsa',
-                     'contact:facebook': 'https://www.facebook.com/CCC.Hungary/',
-                     'contact:youtube': 'https://www.youtube.com/channel/UCVscWDmL_2JddDdGuku7f2w',
-                     'contact:instagram': 'https://www.instagram.com/cccshoesbags_hu/', 'air_conditioning': 'yes'}
+        self.tags = {
+            'shop': 'shoes',
+            'operator': ' MODIVO HUNGARY Kft.',
+            'operator:addr': '1134 Budapest, Váci út 45.',
+            'ref:HU:vatin': '24128296-2-44',
+            'ref:vatin': 'HU24128296',
+            'ref:HU:company': '01-09-991763',
+            'brand': 'CCC',
+            'brand:wikidata': 'Q11788344',
+            'brand:wikipedia': 'pl:CCC (przedsiębiorstwo)',
+            'contact:email': 'info.hu@ccc.eu',
+            'contact:phone': '+36 1 445 3701',
+            'contact:linkedin': 'https://www.linkedin.com/company/cccsa',
+            'contact:facebook': 'https://www.facebook.com/CCC.Hungary/',
+            'contact:youtube': 'https://www.youtube.com/channel/UCVscWDmL_2JddDdGuku7f2w',
+            'contact:instagram': 'https://www.instagram.com/cccshoesbags_hu/',
+            'air_conditioning': 'yes'
+        }
         self.filetype = FileType.html
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
-
-
+    
     def types(self):
         hucccsho = self.tags.copy()
         hucccsho.update(POS_HU_GEN)
