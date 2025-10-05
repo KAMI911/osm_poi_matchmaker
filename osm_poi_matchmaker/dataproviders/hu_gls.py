@@ -25,16 +25,14 @@ except ImportError as err:
 class hu_gls(DataProvider):
 
     def contains(self):
-        self.link = 'https://csomag.hu/api/parcel-shops'
+        self.link = 'https://map.gls-hungary.com/data/deliveryPoints/hu.json'
         self.tags = {'brand': 'GLS', 'operator': 'GLS General Logistics Systems Hungary Kft.',
                      'operator:addr': '2351 Alsónémedi, Európa utca 2.', 'ref:vatin': 'HU12369410',
                      'ref:HU:vatin': '12369410-2-44', 'ref:HU:company': '13-09-111755',
                      'contact:facebook': 'https://www.facebook.com/GLSHungaryKft/',
                      'contact:youtube': 'https://www.youtube.com/channel/UC-Lv4AkW50HM80ZZQEq8Sqw/',
                      'contact:email': 'info@gls-hungary.com', 'contact:phone': '+36 29 886 700',
-                     'contact:mobile': '+36 20 890 0660',
-                     'payment:contactless': 'yes', 'payment:mastercard': 'yes', 'payment:visa': 'yes',
-                     'payment:cash': 'no', }
+                     'contact:mobile': '+36 20 890 0660', }
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)
@@ -48,10 +46,17 @@ class hu_gls(DataProvider):
             'colour': 'blue;grey',
             'material': 'metal',
             'refrigerated': 'no',
+            'payment:contactless': 'yes',
+            'payment:mastercard': 'yes',
+            'payment:visa': 'yes',
+            'payment:cash': 'no',
         }
-        huglspp = {'post_office': 'post_partner', 'post_office:brand': 'GLS CsomagPont',
-                    'post_office:brand:wikidata': 'Q366182',
-                    'post_office:parcel_pickup': 'yes', 'refrigerated': 'no'}
+        huglspp = {
+            'post_office': 'post_partner',
+            'post_office:brand': 'GLS CsomagPont',
+            'post_office:brand:wikidata': 'Q366182',
+            'post_office:parcel_pickup': 'yes',
+            'refrigerated': 'no'}
         huglscso.update(POS_HU_GEN)
         huglscso.update(self.tags)
         self.__types = [
@@ -72,34 +77,46 @@ class hu_gls(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
             if soup is not None:
-                text = json.loads(soup)
-                for poi_data in text.get('data'):
+                text = json.loads(soup, strict=False)
+                for poi_data in text.get('items'):
                     try:
-                        if poi_data.get('features').get('isParcelLocker') == True:
-                            self.data.code = 'huglscso'
-                            self.data.public_holiday_open = True
-                        elif poi_data.get('features').get('isParcelLocker') == False:
-                            self.data.code = 'huglspp'
-                            self.data.public_holiday_open = False
-                        else:
-                            logging.critical('Non matching poi code. Invalid state.')
-                        self.data.lat, self.data.lon = check_hu_boundary(
-                            poi_data.get('location')[0], poi_data.get('location')[1])
-                        self.data.postcode = clean_string(poi_data.get('contact').get('zipCode'))
-                        self.data.city = clean_city(poi_data.get('contact').get('city'))
                         self.data.branch = clean_string(poi_data.get('name').split('|')[0])
                         self.data.branch = re.sub('^GLS automata', '', self.data.branch, flags=re.IGNORECASE)
                         self.data.branch = re.sub('\\(.*\\)', '', self.data.branch)
                         self.data.branch = self.data.branch.replace('Csak bankkártyás fizetés', '')
                         self.data.branch = clean_string(self.data.branch)
-                        self.data.ref = poi_data.get('id')
+                        if poi_data.get('type') == 'parcel-locker':
+                            self.data.code = 'huglscso'
+                            self.data.public_holiday_open = True
+                        elif poi_data.get('type') == 'parcel-shop':
+                            self.data.code = 'huglspp'
+                            self.data.public_holiday_open = False
+                            self.data.name = self.data.branch
+                        else:
+                            logging.critical('Non matching poi code. Invalid state.')
+                        self.data.lat, self.data.lon = check_hu_boundary(
+                            poi_data.get('location')[0], poi_data.get('location')[1])
+                        self.data.postcode = clean_string(poi_data.get('contact').get('postalCode'))
+                        self.data.city = clean_city(poi_data.get('contact').get('city'))
+                        self.data.ref = poi_data.get('externalId')
                         self.data.original = poi_data.get('contact').get('address')
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                            poi_data.get('contact').get('address'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_street_housenumber_better_2(poi_data.get('contact').get('address'))
                         self.data.phone = clean_phone_to_str(poi_data.get('contact').get('phone'))
                         self.data.email = clean_phone_to_str(poi_data.get('contact').get('email'))
-                        self.data.description = clean_string(poi_data.get('description')) if len(('name').split('|')) <= 1 else \
-                            clean_string(';'.join(poi_data.get('name').split('|')[1:]))
+                        self.data.description = clean_string(poi_data.get('description')) if len('name'.split('|')) \
+                            <= 1 else clean_string(';'.join(poi_data.get('name').split('|')[1:]))
+                        opening = poi_data.get('hours')
+                        for day in opening:
+                            day_number = day[0]
+                            self.data.day_open(day_number-1, day[1])
+                            self.data.day_close(day_number-1, day[2])
+                        if poi_data.get('features') and 'acceptsCash' in poi_data.get('features'):
+                            self.tags.update({'payment:cash': 'yes'})
+                        if poi_data.get('description') and 'azonnali átutalás' in poi_data.get('description'):
+                            self.tags.update({'payment:wire_transfer': 'no', 'payment:instant_wire_transfer': 'yes', })
+                        elif poi_data.get('features') and 'acceptsCard' in poi_data.get('features'):
+                            self.tags.update(POS_HU_GEN)
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
