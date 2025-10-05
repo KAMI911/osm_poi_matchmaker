@@ -85,10 +85,11 @@ class hu_foxpost(DataProvider):
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
                             self.data.conscriptionnumber = extract_all_address_waxeye(poi_data.get('address'))
                         self.data.public_holiday_open = False
-                        ref_match = PATTERN_REF.search(self.data.description)
-                        if ref_match is not None:
-                            logging.debug('Foxpost ref is: {}'.format(ref_match.group(1)))
-                            self.data.ref = ref_match.group(1)
+                        if self.data.description:
+                            ref_match = PATTERN_REF.search(self.data.description)
+                            if ref_match is not None:
+                                logging.debug('Foxpost ref is: {}'.format(ref_match.group(1)))
+                                self.data.ref = ref_match.group(1)
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
