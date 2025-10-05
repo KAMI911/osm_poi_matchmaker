@@ -38,7 +38,7 @@ RETRY = 3
 POI_COLS = poi_array_structure.POI_DB
 POI_COLS_RAW = poi_array_structure.POI_DB_RAW
 
-PROCESS_DIVIDER = 2
+PROCESS_DIVIDER = 1
 
 
 def init_log():
