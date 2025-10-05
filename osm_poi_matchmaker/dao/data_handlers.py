@@ -1,44 +1,126 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import traceback
     import logging
     import sys
     import hashlib
-    from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, POI_address_raw, Street_type
+    import traceback
+    import numpy as np
+    import pandas as pd
+    from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, POI_address_raw, POI_patch, \
+        Street_type, Country
     from osm_poi_matchmaker.libs import address
     from osm_poi_matchmaker.dao import poi_array_structure
+    from sqlalchemy import func
+    from sqlalchemy.exc import SQLAlchemyError
+    from sqlalchemy.orm import Session
 except ImportError as err:
-    logging.error('Error {0} import module: {1}'.format(__name__, err))
-    logging.error(traceback.print_exc())
+    logging.error('Error %s import module: %s', __name__, err)
+    logging.exception('Exception occurred')
+
     sys.exit(128)
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
 
 
-def get_or_create(session, model, **kwargs):
-    instance = session.query(model).filter_by(**kwargs).first()
-    if instance:
-        logging.debug('Already added: {}'.format(instance))
-        return instance
-    else:
-        try:
-            instance = model(**kwargs)
-            session.add(instance)
+def count(session, model):
+    return session.query(model.id).count()
+
+
+def get_or_create(session: Session, model, **kwargs):
+    """
+    Retrieve an existing database record or create a new one if it doesn't exist.
+
+    This function queries the database for a single instance of the given SQLAlchemy
+    model that matches the provided keyword arguments. If such an instance exists, it
+    is returned. If not, a new instance is created, added to the session, committed,
+    and then returned.
+
+    Args:
+        session (sqlalchemy.orm.Session): The SQLAlchemy session object to use for querying and committing.
+        model (Base): The SQLAlchemy model class to query or create an instance of.
+        **kwargs: Arbitrary keyword arguments used to filter the query and to instantiate the model.
+
+    Returns:
+        model: An instance of the specified model, either retrieved or newly created.
+
+    Raises:
+        SQLAlchemyError: If a database error occurs during the creation or commit process.
+        Exception: If any other unexpected error occurs during model instantiation or session handling.
+
+    Logs:
+        - A debug message if the instance already exists or is created.
+        - An error and full traceback if an exception occurs.
+    """
+    try:
+        instance = session.query(model).filter_by(**kwargs).first()
+        if instance:
+            logging.debug('Already exists: %s', instance)
             return instance
-        except Exception as e:
-            logging.error("Can't add to database. ({})".format(e))
-            logging.error(traceback.print_exc())
-            raise (e)
+
+        instance = model(**kwargs)
+        session.add(instance)
+        session.commit()
+        logging.debug('Created new instance: %s', instance)
+        return instance
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        logging.error('Database error: %s', e)
+        logging.exception('Exception occurred during get_or_create')
+        raise
+
+    except Exception as e:
+        session.rollback()
+        logging.error('Unexpected error: %s', e)
+        logging.exception('Exception occurred during get_or_create')
+        raise
 
 
 def get_or_create_poi(session, model, **kwargs):
-    if kwargs['poi_common_id'] is not None:
-        if kwargs['poi_common_id'] is not None and kwargs['poi_addr_city'] is not None and (
-                (kwargs['poi_addr_street'] and kwargs['poi_addr_housenumber'] is not None) or (
-                kwargs['poi_conscriptionnumber'] is not None)):
-            logging.debug('Fully filled basic data record')
+    """
+    Retrieve or create a Point of Interest (POI) record in the database.
+
+    This function attempts to find an existing POI entry based on provided identifying
+    information. If `poi_additional_ref` is present, it performs a lookup using that field.
+    Otherwise, it tries to identify the POI based on address components such as city,
+    street, house number, conscription number, and branch. If no matching record is found,
+    it creates a new one and commits it to the database.
+
+    Args:
+        session (sqlalchemy.orm.Session): The active SQLAlchemy session for querying and committing.
+        model (Base): The SQLAlchemy ORM model representing the POI table.
+        **kwargs: Named keyword arguments that include fields like:
+            - poi_common_id (str): Unique identifier shared across related POIs.
+            - poi_addr_city (str): City name.
+            - poi_addr_street (str): Street name (optional).
+            - poi_addr_housenumber (str): House number (optional).
+            - poi_conscriptionnumber (str): Conscription number (optional).
+            - poi_branch (str): Branch identifier (optional).
+            - poi_additional_ref (str): External reference (e.g., ref:bkk, ref:volanbusz).
+
+    Returns:
+        model: An existing or newly created POI instance.
+
+    Raises:
+        Exception: If the model instantiation or database commit fails.
+
+    Logs:
+        - Debug information on how the record was searched or created.
+        - Warnings if required fields are missing for identification.
+        - Errors and tracebacks in case of commit failures.
+    """
+
+    try:
+        query = session.query(model)
+
+        if kwargs.get('poi_additional_ref'):
+            logging.debug('Search based on additional ref field.')
+            query = query.filter_by(
+                poi_common_id=kwargs.get('poi_common_id'),
+                poi_additional_ref=kwargs.get('poi_additional_ref')
+            )
         else:
             logging.warning('Missing record data: {}'.format(kwargs))
     instance = session.query(model)\

@@ -1,8 +1,9 @@
 language: python
 
 python:
-  - "3.5"
   - "3.6"
+  - "3.7"
+  - "3.8"
 
 sudo: true
 
@@ -12,8 +13,8 @@ install:
   - "pip install --pre -r requirements.txt"
 
 env:
-  - PYTHONPATH="."
+  - PYTHONPATH= `dirname $(realpath $0)`
 
 # command to run test
 script:
-  - python test/test_create_db.py
+  - python3 ${PYTHONPATH}/test/test_create_db.py
