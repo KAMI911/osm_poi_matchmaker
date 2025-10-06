@@ -64,7 +64,8 @@ POI_EV_TAGS = {'poi_capacity': 'capacity',
 
                'poi_manufacturer': 'manufacturer', 'poi_model': 'model'}
 
-TESTCASE_GEN_KEYS = ('original', 'poi_postcode', 'poi_city', 'poi_addr_street', 'poi_addr_housenumber', 'poi_conscriptionnumber')
+TESTCASE_GEN_KEYS = ('original', 'poi_postcode', 'poi_city', 'poi_addr_street', 'poi_addr_housenumber',
+                     'poi_conscriptionnumber')
 
 TIMESTAMP_FORMAT = '{:{dfmt}T{tfmt}Z}'
 DATE_FORMAT = '%Y-%m-%d'
@@ -137,7 +138,8 @@ def add_osm_node(osm_id: int, node_data: dict, prefix: str = 'poi') -> dict:
     osm_data = {'action': 'modify', 'id': str(osm_id),
                 'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
                 'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
-                'user': '{}'.format('osm_poi_matchmaker'), 'uid': '{}'.format('8635934'), 'version': '{}'.format(osm_version),
+                'user': '{}'.format('osm_poi_matchmaker'), 'uid': '{}'.format('8635934'),
+                'version': '{}'.format(osm_version),
                 'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FORMAT, tfmt=TIME_FORMAT)}
     logging.info('Created OSM data: {}'.format(osm_data))
     return osm_data
@@ -365,7 +367,16 @@ def generate_osm_xml(df, session=None):
                 logging.debug('Overwrite item tags from common tags.')
                 for k, v in POI_TAGS.items():
                     if row.get(k) is not None:
-                        tags[v] = row.get(k)
+                        if k != 'poi_addr_housenumber':
+                            tags[v] = row.get(k)
+                        else:
+                            # Avoid housenumber change if only latter case is different (issue #129)
+                            # 'poi_addr_housenumber': 'addr:housenumber'
+                            if osm_live_tags.get(v) and row.get(k) and \
+                                    osm_live_tags.get(v).lower() == row.get(k).lower():
+                                tags[v] = osm_live_tags.get(v)
+                            else:
+                                tags[v] = row.get(k)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
@@ -429,7 +440,8 @@ def generate_osm_xml(df, session=None):
             try:
                 if row.get('do_not_export_addr_tags'):
                     logging.debug('Removing address tags based on common file settings')
-                    tags_remove = ['addr:postcode', 'addr:city', 'addr:street', 'addr:housenumber', 'addr:conscriptionnumber']
+                    tags_remove = ['addr:postcode', 'addr:city', 'addr:street', 'addr:housenumber',
+                                   'addr:conscriptionnumber']
                     for tr in tags_remove:
                         tr_removed = []
                         if tr in tags:
@@ -617,8 +629,8 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Rendering test data as XML comment.')
-                test_case = {ckey: (row.get(ckey, None).replace('-', '\-') if isinstance(row.get(ckey, None), str) else\
-                    row.get(ckey, None)) for ckey in TESTCASE_GEN_KEYS}
+                test_case = {ckey: (row.get(ckey, None).replace('-', '\-') if isinstance(row.get(ckey, None), str) \
+                    else row.get(ckey, None)) for ckey in TESTCASE_GEN_KEYS}
                 comment = etree.Comment(
                     "ˇ'original': '{t[original]}', 'postcode': '{t[poi_postcode]}', 'city': '{t[poi_city]}', 'street': '{t[poi_addr_street]}', 'housenumber': '{t[poi_addr_housenumber]}', 'conscriptionnumber': '{t[poi_conscriptionnumber]}'°".format(
                         t=test_case))
