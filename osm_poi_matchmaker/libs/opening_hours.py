@@ -106,7 +106,7 @@ class OpeningHours(object):
                 if self.__public_holiday_open is None:
                     oh_ph = ''
                 elif self.__public_holiday_open is True:
-                    oh_ph = '; PH on'
+                    oh_ph = '; PH open'
                 elif self.__public_holiday_open is False:
                     oh_ph = '; PH off'
                 else:
