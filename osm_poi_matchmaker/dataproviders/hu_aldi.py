@@ -38,7 +38,11 @@ class hu_aldi(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hualdisup = {'shop': 'supermarket'}
+        hualdisup = {'shop': 'supermarket',
+                     'diet:gluten_free': 'yes',
+                     'diet:lactose_free': 'yes',
+                     'diet:vegan': 'yes',
+                     'diet:url': 'https://szorolap.aldi.hu/mentes_laktozmentes/'}
         hualdisup.update(self.tags)
         self.__types = [
             {'poi_code': 'hualdisup', 'poi_common_name': 'ALDI', 'poi_type': 'shop', 'poi_tags': hualdisup,
