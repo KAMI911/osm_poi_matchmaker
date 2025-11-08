@@ -198,96 +198,136 @@ class WorkflowManager(object):
         else:
             logging.warning('No active pool to join.')
 
+
 def main():
     logging.info('Starting %s …', __program__)
     mem_info = MemoryInfo()
-    db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
-                                              config.get_database_writer_password(),
-                                              config.get_database_writer_host(),
-                                              config.get_database_writer_port(),
-                                              config.get_database_poi_database()))
+
+    # --- Database connection initialization ---
+    db = POIBase('{}://{}:{}@{}:{}/{}'.format(
+        config.get_database_type(),
+        config.get_database_writer_username(),
+        config.get_database_writer_password(),
+        config.get_database_writer_host(),
+        config.get_database_writer_port(),
+        config.get_database_poi_database()
+    ))
+
     pgsql_pool = db.pool
-    session_factory = sessionmaker(pgsql_pool)
+    session_factory = sessionmaker(bind=pgsql_pool)
     session_object = scoped_session(session_factory)
+
     try:
+        session = session_object()
+        # --- STAGE 0 ---
         logging.info('Starting STAGE 0 – Importing basic datasets from external databases.')
-        import_basic_data(session_object())
+        import_basic_data(session)
         mem_info.log_top_memory_snapshot('STAGE 0')
+
+        # --- STAGE 1 ---
         logging.info('Starting STAGE 1 – Adding index for database.')
-        index_osm_data(session_object())
+        index_osm_data(session)
         mem_info.log_top_memory_snapshot('STAGE 1')
-        logging.info('Starting STAGE 2 – Do POI harversting from external sites and files.')
+
+        # --- STAGE 2 ---
+        logging.info('Starting STAGE 2 – POI harvesting from external sites and files.')
         manager = WorkflowManager()
         manager.start_poi_harvest()
         manager.join()
+        logging.info("STAGE 2 – POI harvesting has finished successfully.")
         mem_info.log_top_memory_snapshot('STAGE 2')
-        logging.info('Starting STAGE 3 – Loading database persisted data into memory.')
-        # Load basic dataset from database
+
+        # --- STAGE 3 ---
+        logging.info('Starting STAGE 3 – Loading persisted data into memory.')
         poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
         mem_info.log_top_memory_snapshot('STAGE 3')
-        # Download and load POI dataset to database
-        logging.info('Starting STAGE 4 – Merge all available information in memory.')
+
+        # --- STAGE 4 ---
+        logging.info('Starting STAGE 4 – Merging all available information in memory.')
         poi_common_data = load_common_data(db)
-        logging.info('Merging dataframes …')
-        poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
+        poi_addr_data = pd.merge(
+            poi_addr_data, poi_common_data,
+            left_on='poi_common_id', right_on='pc_id', how='inner'
+        )
         mem_info.log_top_memory_snapshot('STAGE 4')
-        # Add additional empty fields
+
+        # --- STAGE 5 ---
         logging.info('Starting STAGE 5 – Dropping unnecessary data from memory.')
         del poi_addr_data
         mem_info.log_top_memory_snapshot('STAGE 5')
-        logging.info('Starting STAGE 6…')
+
+        # --- STAGE 6 ---
+        logging.info('Starting STAGE 6 – Reloading and preparing merged dataframe.')
         poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
-        logging.info('Merging dataframes…')
-        poi_addr_data = pd.merge(poi_addr_data, poi_common_data, left_on='poi_common_id', right_on='pc_id', how='inner')
+        poi_addr_data = pd.merge(
+            poi_addr_data, poi_common_data,
+            left_on='poi_common_id', right_on='pc_id', how='inner'
+        )
+        # New fields for OpenStreetMap data
+        now = datetime.datetime.utcnow()
         poi_addr_data['osm_id'] = None
         poi_addr_data['osm_node'] = None
         poi_addr_data['osm_version'] = None
         poi_addr_data['osm_changeset'] = None
-        poi_addr_data['osm_timestamp'] = datetime.datetime.now()
+        poi_addr_data['osm_timestamp'] = now
         poi_addr_data['osm_live_tags'] = None
-        # Export non-transformed data
+        logging.info("STAGE 6 – POI dataframe merging has finished successfully.")
+
+        # --- STAGE 7 ---
+        logging.info('Starting STAGE 7 – Exporting.')
         export_raw_poi_data(poi_addr_data, poi_common_data)
         export_raw_poi_data_xml(poi_addr_data)
-        logging.info('Saving poi_code grouped filesets…')
-        # Export non-transformed filesets
+        logging.info('Saving POI code grouped filesets…')
         manager.start_exporter(poi_addr_data)
         manager.join()
-        logging.info('Merging with OSM datasets…')
-        poi_addr_data['osm_nodes'] = None
-        poi_addr_data['poi_distance'] = None
-        mem_info.log_top_memory_snapshot('STAGE 6')
-        logging.info('Starting STAGE 7 – online POI matching…')
-        # Enrich POI datasets from online OpenStreetMap database
-        logging.info('Starting online POI matching part…')
+        logging.info("STAGE 7 – Exporting has finished successfully.")
+        mem_info.log_top_memory_snapshot('STAGE 7')
+
+        # --- STAGE 8 ---
+        logging.info('Starting STAGE 8 – Online POI matching.')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
-        '''
-        poi_addr_data['geometry_wkb'] = poi_addr_data['poi_geom'].apply(lambda poi_geom: poi_geom.wkb)
-        insert_poi_dataframe(session, poi_addr_data, False)
-        '''
-        # Export filesets
+        logging.info("STAGE 8 – Online POI matching finished successfully.")
+
+        # insert_poi_dataframe(session, poi_addr_data, False)
+
         prefix = 'merge_'
         export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
-        mem_info.log_top_memory_snapshot('STAGE 7')
-        logging.info('Starting STAGE 8 – Exporting matched POI.')
+        mem_info.log_top_memory_snapshot('STAGE 8')
+
+        # --- STAGE 9 ---
+        logging.info('Starting STAGE 9 – Exporting matched POI.')
         manager.start_exporter(poi_addr_data, prefix)
         manager.join()
-        mem_info.log_top_memory_snapshot('STAGE 8')
-        logging.info('Starting STAGE 9 – Exporting grouped matched POI.')
+        logging.info("STAGE 9 – Matched POI exported successfully.")
+        mem_info.log_top_memory_snapshot('STAGE 9')
+
+        # --- STAGE 10 ---
+        logging.info('Starting STAGE 10 – Exporting grouped matched POI.')
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
         manager.join()
-        mem_info.log_top_memory_snapshot('STAGE 9')
+        logging.info("STAGE 10 – Grouped POI exported successfully.")
+        mem_info.log_top_memory_snapshot('STAGE 10')
+
+        logging.info('%s finished successfully.', __program__)
+        return 0
+
     except (KeyboardInterrupt, SystemExit):
-        logging.info('Interrupt signal received')
-        sys.exit(1)
-    except Exception as e:
-        logging.exception('Exception occurred: {}'.format(e))
-        logging.exception(traceback.format_exc())
+        logging.info('Interrupt signal received. Exiting gracefully.')
+        return 1
+
+    except Exception:
+        logging.exception('Critical error occurred during pipeline execution.')
+        return 2
+
+    finally:
+        session_object.remove()
 
 
 if __name__ == '__main__':
     config.set_mode(config.Mode.matcher)
     init_log()
     timer = timing.Timing()
-    main()
+    exit_code = main()
     logging.info('Total duration of process: %s. Finished, exiting…', timer.end())
+    sys.exit(exit_code)
