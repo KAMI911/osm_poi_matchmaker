@@ -8,6 +8,7 @@ requests>= 2.32.3
 bs4
 sqlalchemy== 1.4.54
 geoalchemy2== 0.15.2
+shapely
 psycopg2-binary>= 2.8.5
 xlrd>= 1.2.0
 phonenumbers>= 8.13.48
