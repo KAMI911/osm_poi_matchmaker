@@ -18,9 +18,10 @@ services:
       #- ../container/dbdata-9.6-2.5:/var/lib/postgresql/data/
       # - ../container/dbdata-9.6:/var/lib/postgresql/data/
       - ../container/dbdata-fresh:/var/lib/postgresql/data/
-      # - ${PWD}/osm2pgsql/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - ${PWD}/osm2pgsql/postgresql.conf:/etc/postgresql/postgresql.conf
     restart: on-failure
     oom_score_adj: -100
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
   osm_load_app:
     image: osm_loader:latest
     container_name: opm_osm_load_app
