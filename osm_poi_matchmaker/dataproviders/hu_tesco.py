@@ -14,6 +14,7 @@ try:
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_OTP, PAY_CASH
     from osm_poi_matchmaker.utils.enums import FileType
+    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -24,7 +25,8 @@ except ImportError as err:
 class hu_tesco(DataProvider):
 
     def contains(self):
-        self.link = 'https://tesco.hu/Ajax?type=fetch-stores-for-area&reduceBy%5Btab%5D=all&bounds%5Bnw%5D%5Blat%5D=49.631214952216425&bounds%5Bnw%5D%5Blng%5D=11.727758183593778&bounds%5Bne%5D%5Blat%5D=49.631214952216425&bounds%5Bne%5D%5Blng%5D=27.004247441406278&bounds%5Bsw%5D%5Blat%5D=38.45256463471463&bounds%5Bsw%5D%5Blng%5D=11.727758183593778&bounds%5Bse%5D%5Blat%5D=38.45256463471463&bounds%5Bse%5D%5Blng%5D=27.004247441406278&currentCoords%5Blat%5D=44.30719090363816&currentCoords%5Blng%5D=19.366002812500028&instanceUUID=b5c4aa5f-9819-47d9-9e5a-d631e931c007'
+        # self.link = 'https://tesco.hu/Ajax?type=fetch-stores-for-area&reduceBy%5Btab%5D=all&bounds%5Bnw%5D%5Blat%5D=49.631214952216425&bounds%5Bnw%5D%5Blng%5D=11.727758183593778&bounds%5Bne%5D%5Blat%5D=49.631214952216425&bounds%5Bne%5D%5Blng%5D=27.004247441406278&bounds%5Bsw%5D%5Blat%5D=38.45256463471463&bounds%5Bsw%5D%5Blng%5D=11.727758183593778&bounds%5Bse%5D%5Blat%5D=38.45256463471463&bounds%5Bse%5D%5Blng%5D=27.004247441406278&currentCoords%5Blat%5D=44.30719090363816&currentCoords%5Blng%5D=19.366002812500028&instanceUUID=b5c4aa5f-9819-47d9-9e5a-d631e931c007'
+        self.link = os.path.join(config.get_directory_cache_url(), 'hu_tesco.json')
         self.tags = {'operator': 'TESCO-GLOBAL Áruházak Zrt.',
                      'operator:addr': '2040 Budaörs, Kinizsi út 1-3.',
                      'ref:HU:company': '13-10-040628', 'ref:HU:vatin': '10307078-2-44',
@@ -80,12 +82,14 @@ class hu_tesco(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
-            if soup is not None:
+            # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+            #                             self.filetype)
+            # if soup is not None:
+            with open(self.link, 'r') as f:
+                text = json.load(f)
                 # parse the html using beautiful soap and store in variable `soup`
                 # script = soup.find('div', attrs={'data-stores':True})
-                text = json.loads(str(soup))
+                # text = json.loads(str(soup))
                 for poi_data in text.get('stores'):
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber,

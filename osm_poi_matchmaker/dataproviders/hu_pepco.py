@@ -14,6 +14,7 @@ try:
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
+    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -24,7 +25,8 @@ except ImportError as err:
 class hu_pepco(DataProvider):
 
     def contains(self):
-        self.link = 'https://pepco.hu/uzleteink/uzletkereso/?type=1002&tx_pepco_mapplugin[action]=view&tx_pepco_mapplugin[controller]=Map&tx_pepco_mapplugin[loadall]=true'
+        # self.link = 'https://pepco.hu/uzleteink/uzletkereso/?type=1002&tx_pepco_mapplugin[action]=view&tx_pepco_mapplugin[controller]=Map&tx_pepco_mapplugin[loadall]=true'
+        self.link = os.path.join(config.get_directory_cache_url(), 'hu_pepco.json')
         self.tags = {'shop': 'clothes', 'brand': 'Pepco', 'brand:wikidata': 'Q11815580',
                      'brand:wikipedia': 'pl:Pepco', 'contact:facebook': 'https://www.facebook.com/pepcohu/',
                      'contact:website': 'https://pepco.hu/',
@@ -49,17 +51,19 @@ class hu_pepco(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
-            if soup is not None:
-                text = json.loads(soup)
-                for poi_data in text['data']:
+            # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+            #                             self.filetype)
+            # if soup is not None:
+            #     text = json.loads(soup)
+            with open(self.link, 'r') as f:
+                text = json.load(f)
+                for poi_data in text.get('data'):
                     try:
                         '''
-                        The Pepco dataset contains all European data. Since the program cannot handle POIs outside Hungary (so far)
-                        this will limit only for Hungarian POIs
-                        In fact this depends on OSM extract but currently we use only Hungarian OSM extract
-                        Select only Hungarian POIs
+                        The Pepco dataset contains all European data. Since the program cannot handle POIs
+                        outside Hungary (so far) this will limit only for Hungarian POIs.
+                        In fact this depends on OSM extract but currently we use only Hungarian OSM extract.
+                        Select only Hungarian POIs.
                         '''
                         if 'city' in poi_data and (poi_data['city'] == '' or
                                                 query_osm_city_name(self.session, poi_data['city']) is None):
@@ -69,7 +73,8 @@ class hu_pepco(DataProvider):
                         else:
                             continue
                         self.data.code = 'hupepcoclo'
-                        # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
+                        # Assign: code, postcode, city, name, branch, website, original, street, housenumber,
+                        # conscriptionnumber, ref, geom
                         self.data.lat, self.data.lon = \
                             check_hu_boundary(
                                 poi_data['coordinates']['lat'], poi_data['coordinates']['lng'])
@@ -85,7 +90,7 @@ class hu_pepco(DataProvider):
                             if i in opening:
                                 self.data.day_open(i, opening[i]['from'])
                                 self.data.day_close(i, opening[i]['to'])
-                        # Assign additional informations
+                        # Assign additional information
                         self.data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
                         self.data.public_holiday_open = False
                         self.data.add()

@@ -12,24 +12,26 @@ try:
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
+    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
 
     sys.exit(128)
 
-POST_DATA = {'country': 'Magyarország', 'lat': '47.162494',
-             'lng': '19.503304100000037', 'radius': 20}
+POST_DATA = {'api': 'stations', 'input': 'HU',
+             'lang': 'hu', 'mode': 'country'}
 
 
 class hu_mol(DataProvider):
 
     def contains(self):
-        self.link = 'https://toltoallomaskereso.mol.hu/hu/portlet/routing/along_latlng.json'
-        self.headers = {'Referer': 'https://toltoallomaskereso.mol.hu',
+        # self.link = 'https://toltoallomaskereso.mol.hu/api.php'
+        self.link = os.path.join(config.get_directory_cache_url(), 'hu_mol.json')
+        self.headers = {'Referer': 'https://toltoallomaskereso.mol.hu/hu',
                         'Origin': 'https://toltoallomaskereso.mol.hu',
                         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0',
-                        'Accept': 'application/json, text/javascript, */*; q=0.01'}
+                        'Accept': '*/*'}
         self.fuel = {'amenity': 'fuel', 'fuel:diesel': 'yes', 'fuel:octane_95': 'yes', 'air_conditioning': 'yes'}
         self.tags = {'brand': 'MOL', 'operator': 'MOL Nyrt.',
                      'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.',
@@ -77,18 +79,21 @@ class hu_mol(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype, False, post_data=POST_DATA, headers=self.headers)
-            if soup is not None:
-                text = json.loads(soup)
+            # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+            #                            self.filetype, False, post_data=POST_DATA, headers=self.headers)
+            # if soup is not None:
+            with open(self.link, 'r') as f:
+                text = json.load(f)
+                # text = json.loads(soup)
                 for poi_data in text:
                     try:
                         if ' Sziget ' in poi_data.get('name'):
                             self.data.code = 'humolwfu'
                         else:
-                            if 'fresh_corner' in poi_data.get('servicesin') and \
-                              not ('shop' in poi_data.get('servicesin') or \
-                              ('adblue' in poi_data.get('servicesin') or ('matrica_magyar' in poi_data.get('servicesin')))):
+                            if 'FRESH_CORNER' in poi_data.get('services') and \
+                              not ('SHOP' in poi_data.get('services') or \
+                              ('AD_BLUE' in poi_data.get('services') or \
+                              ('TOLL_TERMINAL' in poi_data.get('services')))):
                                 self.data.code = 'humolfaf'
                             else:
                                 self.data.code = 'humolfu'
@@ -96,20 +101,20 @@ class hu_mol(DataProvider):
                         self.data.city = clean_city(poi_data.get('city'))
                         self.data.original = clean_string(poi_data.get('address'))
                         self.data.lat, self.data.lon = check_hu_boundary(
-                            poi_data['lat'], poi_data['lng'])
+                            poi_data.get('gpsPosition').get('latitude'), poi_data.get('gpsPosition').get('longitude'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data['address'])
                         self.data.public_holiday_open = True
-                        self.data.truck = True if 'kamion_parkolo' in poi_data.get(
-                            'servicesin') else False
-                        self.data.food = True if 'fresh_corner' in poi_data.get(
-                            'servicesin') else False
-                        self.data.rent_lpg_bottles = True if 'pb' in poi_data.get(
-                            'servicesin') else False
-                        self.data.fuel_adblue = True if 'adblue' in poi_data.get(
-                            'servicesin') else False
-                        self.data.fuel_lpg = True if 'lpg' in poi_data.get(
-                            'servicesin') else False
+                        self.data.truck = True if 'TRUCK_PARK' in poi_data.get(
+                            'services') else False
+                        self.data.food = True if 'FRESH_CORNER' in poi_data.get(
+                            'services') else False
+                        self.data.rent_lpg_bottles = True if 'CYLINDER_PB_GAS' in poi_data.get(
+                            'services') else False
+                        self.data.fuel_adblue = True if 'AD_BLUE' in poi_data.get(
+                            'services') else False
+                        self.data.fuel_lpg = True if 'LPG' in poi_data.get(
+                            'services') else False
                         self.data.fuel_octane_95 = True
                         self.data.fuel_diesel = True
                         self.data.fuel_octane_100 = True

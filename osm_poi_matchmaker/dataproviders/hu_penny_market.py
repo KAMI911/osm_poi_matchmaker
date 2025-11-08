@@ -13,6 +13,7 @@ try:
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
+    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -23,7 +24,8 @@ except ImportError as err:
 class hu_penny_market(DataProvider):
 
     def contains(self):
-        self.link = '' # 'https://www.penny.hu/uzleteim'
+        # self.link = 'https://www.penny.hu/uzleteim'
+        self.link = os.path.join(config.get_directory_cache_url(), 'hu_penny_market.json')
         self.tags = {'shop': 'supermarket', 'operator': 'Penny Market Kft.', 'brand': 'Penny Market',
                      'brand:wikidata': 'Q284688', 'brand:wikipedia': 'en:Penny (supermarket)',
                      'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'PENNY FREE WLAN',
@@ -49,11 +51,13 @@ class hu_penny_market(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
-            if soup is not None:
-                text = json.loads(soup)
-                for poi_data in text['markets']:
+            # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+            #                            self.filetype)
+            # if soup is not None:
+            #     text = json.loads(soup)
+            with open(self.link, 'r') as f:
+                text = json.load(f)
+                for poi_data in text:
                     try:
                         self.data.code = 'hupennysup'
                         self.data.postcode = clean_string(poi_data.get('address')['zip'])
