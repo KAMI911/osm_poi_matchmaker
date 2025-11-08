@@ -72,7 +72,8 @@ class hu_benu(DataProvider):
                             self.data.website = pu_match.group(0).strip() if pu_match is not None else None
                         else:
                             self.data.website = None
-                        self.data.postcode, self.data.city = extract_all_address(poi_data.get('address'))
+                        self.data.postcode, self.data.city, self.data.street, self.data.housenumber,\
+                            self.data.conscriptionnumber = extract_all_address(poi_data.get('address'))
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(poi_data.get('address_street'))
