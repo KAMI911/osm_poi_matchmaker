@@ -14,6 +14,7 @@ try:
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
+    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -24,7 +25,8 @@ except ImportError as err:
 class hu_deichmann(DataProvider):
 
     def contains(self):
-        self.link = 'https://www.deichmann.com/hu-hu/rest/v2/deichmann-hu/mosaic/stores?latitude=47.6874569&longitude=17.6503974&pageSize=10000&radius=1000000&fields=FULL&format=json&lang=hu_HU'
+        # self.link = 'https://www.deichmann.com/hu-hu/rest/v2/deichmann-hu/mosaic/stores?latitude=47.6874569&longitude=17.6503974&pageSize=10000&radius=1000000&fields=FULL&format=json&lang=hu_HU'
+        self.link = os.path.join(config.get_directory_cache_url(), 'hu_deichmann.json')
         self.tags = {'shop': 'shoes', 'operator': ' Deichmann Cipőkereskedelmi Kft.',
                      'operator:addr': '1134 Budapest, Kassák Lajos utca 19-25. 6. emelet', 'ref:HU:vatin': '12583083-2-44',
                      'ref:vatin': 'HU12583083', 'ref:HU:company': '01-09-693582', 'brand': 'Deichmann', 'brand:wikidata': 'Q11788344',
@@ -55,11 +57,13 @@ class hu_deichmann(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
-            if soup is not None:
-                text = json.loads(soup)
-                for poi_data in text.get('stores'):
+            # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+            #                             self.filetype)
+            #if soup is not None:
+            with open(self.link, 'r') as f:
+                text = json.load(f)
+                # text = json.loads(soup)
+                for poi_data in text.get('shops'):
                     try:
                         self.data.code = 'hudeichsho'
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('geoPoint').get('latitude'),
