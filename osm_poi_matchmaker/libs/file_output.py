@@ -8,6 +8,7 @@ try:
     import datetime
     import traceback
     from urllib.parse import quote
+    import numpy as np
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import clean_url
@@ -19,6 +20,7 @@ try:
     from lxml import etree
     import lxml
     import re
+    import json
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -279,12 +281,12 @@ def generate_osm_xml(df, session=None):
                         # Add way nodes without any modification)
                         node_data = []
                         if row.get('osm_nodes') is not None:
-                            for n in row.get('osm_nodes'):
+                            for n in json.loads(row.get('osm_nodes')):
                                 data = etree.SubElement(main_data, 'nd', ref=str(n))
                         if session is not None:
                             if row.get('osm_nodes') is not None:
                                 # Go through the list except the last value (which is same as the first)
-                                for n in row.get('osm_nodes'):
+                                for n in json.loads(row.get('osm_nodes')):
                                     # Add nodes only when it is not already added.
                                     if n not in added_nodes:
                                         added_nodes.append(n)
@@ -326,7 +328,8 @@ def generate_osm_xml(df, session=None):
                 comment = etree.Comment(' Original coordinates: {} '.format(row.get('poi_geom')))
                 osm_xml_data.append(comment)
                 logging.debug('Add OSM - POI distance as comment.')
-                if 'poi_distance' in row and row.get('poi_distance') is not None:
+                dst = row.get('poi_distance')
+                if 'poi_distance' in row and dst is not None and not (isinstance(dst, float) and np.isnan(dst)):
                     comment = etree.Comment(' OSM <-> POI distance: {} m'.format(row.get('poi_distance')))
                 else:
                     logging.debug('New POI, have not got distance data.')
