@@ -10,7 +10,8 @@ try:
     from sqlalchemy.orm import scoped_session, sessionmaker
     from sqlalchemy import inspect, text
     from osm_poi_matchmaker.dao.poi_base import POIBase
-    from osm_poi_matchmaker.dao.data_structure import POI_OSM_cache, POI_address, POI_address_raw, POI_common, POI_osm, POI_patch
+    from osm_poi_matchmaker.dao.data_structure import POI_OSM_cache, POI_address, POI_address_raw, POI_common, POI_osm,\
+        POI_patch
     from osm_poi_matchmaker.utils import config, dataproviders_loader
     from osm_poi_matchmaker.dao.data_handlers import insert_type, get_or_create
 except ImportError as err:
