@@ -14,6 +14,10 @@ try:
     from sqlalchemy import func
     from sqlalchemy.exc import SQLAlchemyError
     from sqlalchemy.orm import Session
+    from geoalchemy2 import WKTElement
+    from shapely.geometry import Point, LineString, Polygon
+    from osm_poi_matchmaker.utils import config
+
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -22,10 +26,145 @@ except ImportError as err:
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
-
+INTEGER_FIELDS = [
+    'poi_capacity', 'poi_socket_chademo', 'poi_socket_chademo_current', 'poi_socket_chademo_voltage',
+    'poi_socket_type2_combo', 'poi_socket_type2_combo_current', 'poi_socket_type2_combo_voltage',
+    'poi_socket_type2_cable', 'poi_socket_type2_cable_current', 'poi_socket_type2_cable_voltage',
+    'poi_socket_type2_cableless', 'poi_socket_type2_cableless_current',
+    'poi_socket_type2_cableless_voltage',
+]
 
 def count(session, model):
     return session.query(model.id).count()
+
+
+def clean_integer_fields(poi_data: dict, int_fields: list) -> dict:
+    """
+    Ensures that all fields listed in `int_fields` contain valid integer values or None.
+
+    This function is designed to sanitize POI (Point of Interest) data before
+    inserting it into the database. It converts float or string representations of
+    numbers (e.g., "725.0" or "725") to proper integers, while invalid, empty, or
+    non-numeric values are replaced with None.
+
+    Args:
+        poi_data (dict): A dictionary representing a single POI record.
+        int_fields (list): A list of field names that are expected to hold integer values.
+
+    Returns:
+        dict: The cleaned POI data dictionary, where all integer fields are either
+              valid integers or None.
+
+    Examples:
+        >>> clean_integer_fields({'poi_addr_city': '725.0'}, ['poi_addr_city'])
+        {'poi_addr_city': 725}
+
+        >>> clean_integer_fields({'poi_addr_city': 'abc'}, ['poi_addr_city'])
+        {'poi_addr_city': None}
+
+    Conversion rules:
+        - Floats (e.g. 725.0) → int (725)
+        - Strings with digits or decimal (e.g. "725" or "725.0") → int (725)
+        - Empty strings, None, NaN → None
+        - Invalid strings (e.g. "abc") → None
+        - Existing ints remain unchanged
+    """
+    for field in int_fields:
+        value = poi_data.get(field)
+
+        # Üres, NaN vagy None érték kezelése
+        if value is None or (isinstance(value, float) and (pd.isna(value) or value != value)):
+            poi_data[field] = None
+            continue
+
+        try:
+            # Ha string, és számot tartalmaz, konvertáljuk
+            if isinstance(value, str):
+                if value.strip() == "":
+                    poi_data[field] = None
+                    continue
+                # pl. "725.0" vagy "725"
+                if value.replace('.', '', 1).isdigit():
+                    poi_data[field] = int(float(value))
+                else:
+                    poi_data[field] = None
+                    continue
+
+            # Ha float, alakítsuk int-té
+            elif isinstance(value, float):
+                poi_data[field] = int(value)
+
+            # Ha int, hagyjuk
+            elif isinstance(value, int):
+                continue
+
+            # Minden más esetben None
+            else:
+                poi_data[field] = None
+
+        except (ValueError, TypeError):
+            poi_data[field] = None
+
+    return poi_data
+
+
+def normalize_geometry(geom):
+    """
+    Normalize various geometry inputs to a PostGIS-compatible WKTElement.
+
+    Accepts shapely objects, EWKT strings, tuples/lists, or existing WKTElements.
+    Returns a WKTElement with SRID=4326, or None if invalid.
+    """
+
+    if not geom:
+        return None
+
+    # Other PostGIS-compatible types
+    if isinstance(geom, WKTElement):
+        logging.debug("Geometry already WKTElement.")
+        return geom
+
+    # Already EWKT string
+    if isinstance(geom, str) and geom.strip().startswith("SRID="):
+        logging.debug("Geometry already EWKT string.")
+        return WKTElement(geom.split(";", 1)[1], srid=config.get_geo_default_projection())
+
+    # Tuple or list
+    if isinstance(geom, (tuple, list)):
+        try:
+            if len(geom) == 2 and all(isinstance(c, (int, float)) for c in geom):
+                geom = Point(geom)
+            else:
+                # polygon vs line
+                if geom[0] == geom[-1]:
+                    geom = Polygon(geom)
+                else:
+                    geom = LineString(geom)
+            logging.debug("Converted tuple/list to Shapely geometry.")
+        except Exception as e:
+            logging.warning("Failed to parse tuple/list as geometry: %s", e)
+            return None
+
+    # Shapely object
+    if hasattr(geom, "wkt"):
+        return WKTElement(geom.wkt, srid=config.get_geo_default_projection())
+
+    logging.warning("Unrecognized geometry type: %s", type(geom))
+    return None
+
+
+def sanitize_kwargs(kwargs):
+    clean = {}
+    for key, value in kwargs.items():
+        if value is None:
+            clean[key] = None
+        elif isinstance(value, float) and (value != value):  # NaN check
+            clean[key] = None
+        elif isinstance(value, str) and value.strip().lower() == 'nan':
+            clean[key] = None
+        else:
+            clean[key] = value
+    return clean
 
 
 def get_or_create(session: Session, model, **kwargs):
@@ -113,6 +252,12 @@ def get_or_create_poi(session, model, **kwargs):
     """
 
     try:
+        # --- Geometry normalization ---
+        kwargs = sanitize_kwargs(kwargs)
+
+        if 'poi_geom' in kwargs:
+            kwargs['poi_geom'] = normalize_geometry(kwargs['poi_geom'])
+
         query = session.query(model)
 
         if kwargs.get('poi_additional_ref'):
@@ -156,12 +301,16 @@ def get_or_create_poi(session, model, **kwargs):
 
     except SQLAlchemyError as e:
         session.rollback()
+        print(e.statement)
+        print(e.params)
         logging.error('Database error during get_or_create_poi: %s', e)
         logging.exception('SQLAlchemy exception occurred')
         raise
 
     except Exception as e:
         session.rollback()
+        print(e.statement)
+        print(e.params)
         logging.error('Unexpected error during get_or_create_poi: %s', e)
         logging.exception('General exception occurred')
         raise
@@ -674,14 +823,19 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
                 .first()
 
             if city_col is not None:
-                poi_data['poi_addr_city'] = city_col[0]
+                poi_data['poi_addr_city'] = int(float(city_col[0]))
+            elif isinstance(poi_data.get('poi_addr_city'), (float, str)) and str(poi_data['poi_addr_city']).replace('.', '', 1).isdigit():
+                poi_data['poi_addr_city'] = int(float(poi_data['poi_addr_city']))
             if common_col is not None:
-                poi_data['poi_common_id'] = common_col[0]
+                poi_data['poi_common_id'] = int(float(common_col[0]))
 
             logging.debug(f"POI Name is {poi_data.get('poi_name')}")
 
             poi_data.pop('poi_code', None)
-
+            poi_data = clean_integer_fields(poi_data, INTEGER_FIELDS)
+            if isinstance(poi_data.get('poi_addr_city'), str) and not poi_data['poi_addr_city'].isdigit():
+                logging.warning(f"poi_addr_city has invalid type/value: {poi_data['poi_addr_city']}, converting to None")
+                poi_data['poi_addr_city'] = None
             get_or_create_poi(session, model, **poi_data)
 
     except Exception as e:
