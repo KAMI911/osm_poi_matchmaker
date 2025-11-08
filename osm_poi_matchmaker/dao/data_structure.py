@@ -4,7 +4,8 @@ try:
     import logging
     import sys
     from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, UniqueConstraint
-    from sqlalchemy import Boolean, Integer, BigInteger, Unicode, DateTime, Time, Enum, Float, JSON, func
+    from sqlalchemy import Boolean, Integer, BigInteger, Unicode, DateTime, Time, Float, JSON, func
+    from sqlalchemy import Enum as SAEnum
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import synonym, relationship
     from geoalchemy2 import Geometry
@@ -73,7 +74,7 @@ class POI_address_raw(Base):
     poi_geom = Column(Geometry('POINT, {}'.format(config.get_geo_default_projection())))
     original = Column(Unicode(128))
     poi_website = Column(Unicode(256))
-    poi_description = Column(Unicode(1024))
+    poi_description = Column(Unicode(2048))
     poi_fuel_adblue = Column(Boolean)
     poi_fuel_octane_100 = Column(Boolean)
     poi_fuel_octane_98 = Column(Boolean)
@@ -188,7 +189,7 @@ class POI_address(Base):
     poi_geom = Column(Geometry('POINT, {}'.format(config.get_geo_default_projection())))
     original = Column(Unicode(128))
     poi_website = Column(Unicode(256))
-    poi_description = Column(Unicode(1024))
+    poi_description = Column(Unicode(2048))
     poi_fuel_adblue = Column(Boolean)
     poi_fuel_octane_100 = Column(Boolean)
     poi_fuel_octane_98 = Column(Boolean)
@@ -269,13 +270,14 @@ class POI_address(Base):
     osm_search_distance_unsafe = Column(Integer)
     osm_search_distance_safe = Column(Integer)
     osm_search_distance_perfect = Column(Integer)
-    osm_id = Column(Integer, nullable=False, index=True)
+    osm_id = Column(BigInteger, nullable=True, index=True)
     osm_timestamp = Column(DateTime(True))
     poi_tags = Column(JSON, nullable=True, unique=False)
     osm_live_tags = Column(JSON, nullable=True, unique=False)
     poi_type = Column(Unicode(64))
     osm_version = Column(Integer)
-    osm_node = Column(Integer)
+    osm_node = Column(SAEnum(OSM_object_type, name="osm_object_type"), nullable=True)
+    osm_nodes = Column(JSON, nullable=True, index=False)
     poi_url_base = Column(Unicode(128))
     preserve_original_name = Column(Boolean)
     preserve_original_post_code = Column(Boolean)
@@ -320,7 +322,7 @@ class POI_common(Base):
     pc_id = Column(Integer, primary_key=True, index=True)
     id = synonym('pc_id')
     poi_common_name = Column(Unicode(64), unique=False, nullable=False, index=True)
-    poi_type = Column(Enum(POI_type))
+    poi_type = Column(SAEnum(POI_type))
     poi_tags = Column(JSON, nullable=False, index=False)
     poi_url_base = Column(Unicode(128))
     poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
@@ -344,9 +346,9 @@ class POI_OSM_cache(Base):
     _plural_name_ = 'poi_osm_cache'
     poc_id = Column(Integer, primary_key=True, index=True)
     id = synonym('poc_id')
-    # poi_type = Column(Enum(POI_type))
+    # poi_type = Column(SAEnum(POI_type))
     osm_id = Column(BigInteger, nullable=False, index=True)
-    osm_object_type = Column(Enum(OSM_object_type))
+    osm_object_type = Column(SAEnum(OSM_object_type))
     osm_version = Column(Integer, nullable=False, index=True)
     osm_user = Column(Unicode(64), nullable=True, index=False)
     osm_user_id = Column(Integer, nullable=True, index=True)
@@ -383,19 +385,19 @@ class Street_type(Base):
     def __repr__(self):
         return '<Street type {}: {}>'.format(self.st_id, self.street_type)
 
-
+'''
 class POI_osm(Base):
     __tablename__ = 'poi_osm'
     _plural_name_ = 'poi_osm'
     po_id = Column(Integer, primary_key=True, index=True)
     id = synonym('po_id')
     poi_osm_id = Column(BigInteger, unique=True, index=True)
-    poi_osm_object_type = Column(Enum(OSM_object_type))
+    poi_osm_object_type = Column(SAEnum(OSM_object_type))
     poi_hash = Column(Unicode(128), nullable=True, unique=False, index=True)
     geom_hint = Column(Geometry(geometry_type='GEOMETRY', srid=config.get_geo_default_projection()))
 
     __table_args__ = (UniqueConstraint('poi_osm_id', 'poi_osm_object_type', name='uc_poi_osm_osm_type'),)
-
+'''
 
 class POI_patch(Base):
     """ This is database modell for patch table
