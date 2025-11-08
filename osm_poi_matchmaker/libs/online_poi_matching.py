@@ -16,6 +16,7 @@ try:
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao.data_handlers import get_or_create_cache
     from osm_poi_matchmaker.utils.config import get_dataproviders_limit_elemets
+    import json
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -27,6 +28,8 @@ RETRY = 3
 
 def online_poi_matching(args):
     data, comm_data = args
+    if 'osm_nodes' not in data.columns:
+        data['osm_nodes'] = None
     try:
         db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                                   config.get_database_writer_password(),
@@ -102,7 +105,7 @@ def online_poi_matching(args):
                                         logging.info('Changing postcode from {}  to {}. (OSM data: {}, POI in OSM: {},'
                                                      ' POI datasource: {})'.format(row.get('poi_postcode'),
                                                                                    postcode, postcode,
-                                                                                   osm_data.columns.get_loc('addr:postcode'),
+                                                                                   osm_query.columns.get_loc('addr:postcode'),
                                                                                    row.get('poi_postcode')))
                                         data.at[i, 'poi_postcode'] = postcode
                                 else:
@@ -170,7 +173,7 @@ def online_poi_matching(args):
                     else:
                         logging.debug('Do not handle addr:* changes for: %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
                                  data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'],
-                                 data.at[i, 'poi_type'], data.at[i, 'poi_distance'],
+                                 data.at[i, 'poi_type'], data.at[i, 'poi_distance'] if 'poi_distance' in data.columns else None,
                                  data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
                                  data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'])
                     try:
@@ -203,13 +206,13 @@ def online_poi_matching(args):
                         logging.info('This is an OSM way looking for id %s nodes.', osm_id)
                         # Add list of nodes to the dataframe
                         nodes = db.query_ways_nodes(osm_id)
-                        data.at[i, 'osm_nodes'] = nodes
+                        data.at[i, 'osm_nodes'] = json.dumps(nodes) if isinstance(nodes, (list, dict)) else nodes
                     elif osm_node == OSM_object_type.relation:
                         logging.info('This is an OSM relation looking for id %s nodes.', osm_id)
                         # Add list of relation nodes to the dataframe
                         nodes = db.query_relation_nodes(osm_id)
-                        data.at[i, 'osm_nodes'] = nodes
-                    if changed_from_osm == False:
+                        data.at[i, 'osm_nodes'] = json.dumps(nodes) if isinstance(nodes, (list, dict)) else nodes
+                    if not changed_from_osm:
                         logging.info('Old %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
                                  data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'], 
                                  data.at[i, 'poi_type'], data.at[i, 'poi_distance'],
@@ -330,7 +333,9 @@ def online_poi_matching(args):
                     elif row.get('poi_common_name') is not None:
                         ib = row.get('poi_common_name')
                     if ib is not None:
-                        ibp = 1 - (((ord(ib[0]) // 16) + 1) / 17)
+                        ibp = abs(1 - (((ord(ib[0]) // 16) + 1) / 17))
+                        # Normalization between 0 and 1
+                        ibp = max(0.0, min(ibp, 1.0))
                     else:
                         ibp = 0.50
                     # Refine postcode
@@ -393,7 +398,7 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
     changed = 0
     current_postcode = curr_data.get('poi_postcode')
     try:
-        osm_db_postcode = osm_data.get('addr:postcode', [None])[0]
+        # osm_db_postcode = osm_data.get('addr:postcode', [None])[0]
         osm_db_postcode = osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')]
     except KeyError as e:
         logging.debug('Not found postcode in OSM database caused {}'.format(e))
@@ -433,7 +438,7 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
         logging.info(f'The postcode is equal to OSM postcode query {postcode}. (OSM data: {osm_query_postcode}, '
                      f'POI in OSM: {osm_db_postcode}, POI datasource: {current_postcode})')
     if postcode == osm_db_postcode:
-        logging.info(f'The postcode  is equal to OSM POI value  {postcode}. (OSM data: {osm_query_postcode}, '
+        logging.info(f'The postcode is equal to OSM POI value  {postcode}. (OSM data: {osm_query_postcode}, '
                      f'POI in OSM: {osm_db_postcode}, POI datasource: {current_postcode})')
     else:
         logging.info(f'Changing postcode from {osm_db_postcode} to {postcode}. (OSM data: {osm_query_postcode} ,'
