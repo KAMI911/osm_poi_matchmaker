@@ -612,7 +612,12 @@ class POIDatasetRaw:
 
     @housenumber.setter
     def housenumber(self, data: str):
-        self.__housenumber = clean_string(data)
+        cleaned = clean_string(data)
+        if not cleaned:
+            self.__housenumber = None
+            return
+        # TODO: field length handling for all fields
+        self.__housenumber = cleaned if len(cleaned) < 16 else None
 
     @property
     def conscriptionnumber(self) -> str:
