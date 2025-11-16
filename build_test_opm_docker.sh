@@ -1,4 +1,3 @@
 #!/bin/bash
 
-docker build -t osm_poi_matchmaker -f osm_poi_matchmaker.Dockerfile .
 docker build -t test_osm_poi_matchmaker -f test_osm_poi_matchmaker.Dockerfile .

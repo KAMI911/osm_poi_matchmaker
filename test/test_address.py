@@ -118,17 +118,18 @@ class TestFullAddressResolver(unittest.TestCase):
                                                                                 i['city'], i['street'], \
                                                                                 i['housenumber'], \
                                                                                 i['conscriptionnumber']
-            a, b, c, d, e = extract_all_address_waxeye(original)
+            check_postcode, check_city, check_street, check_housenumber, \
+                check_conscriptionnumber = extract_all_address_waxeye(original)
             with self.subTest():
-                self.assertEqual(postcode, a)
+                self.assertEqual(postcode, check_postcode)
             with self.subTest():
-                self.assertEqual(city, b)
+                self.assertEqual(city, check_city)
             with self.subTest():
-                self.assertEqual(street, c)
+                self.assertEqual(street, check_street)
             with self.subTest():
-                self.assertEqual(housenumber, d)
+                self.assertEqual(housenumber, check_housenumber)
             with self.subTest():
-                self.assertEqual(conscriptionnumber, e)
+                self.assertEqual(conscriptionnumber, check_conscriptionnumber)
 
 
 class TestOpeningHoursCleaner(unittest.TestCase):

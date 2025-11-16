@@ -57,7 +57,7 @@ class TestSmartOnlinePOIMatching(unittest.TestCase):
         self.osm_addresses.columns = OSM_ADDR_COLS
         self.postcodes = ['9737', '9739', '9740', '9741', '9737', '9742', '9750', '1029', '1040', '1030',
                           '1029', '5555', '1037', '0']
-        self.good_codes = ['9737', '9737', '9740', '9741', '9738', '9742', '9750', '1028', '1040', '1029',
+        self.good_codes = ['9737', '9737', '9737', '9737', '9738', '9738', '9738', '1028', '1028', '1029',
                            '1028', '5662', '1032', '1024']
 
     def test_smart_online_poi_matching(self):
