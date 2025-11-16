@@ -632,8 +632,8 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Rendering test data as XML comment.')
-                test_case = {ckey: (row.get(ckey, None).replace('-', '\-') if isinstance(row.get(ckey, None), str) \
-                    else row.get(ckey, None)) for ckey in TESTCASE_GEN_KEYS}
+                test_case = {ckey: (row.get(ckey, None).replace('-', '\-') if isinstance(row.get(ckey, None), str)
+                                    else row.get(ckey, None)) for ckey in TESTCASE_GEN_KEYS}
                 comment = etree.Comment(
                     "ˇ'original': '{t[original]}', 'postcode': '{t[poi_postcode]}', 'city': '{t[poi_city]}', 'street': '{t[poi_addr_street]}', 'housenumber': '{t[poi_addr_housenumber]}', 'conscriptionnumber': '{t[poi_conscriptionnumber]}'°".format(
                         t=test_case))
@@ -660,7 +660,7 @@ def generate_osm_xml(df, session=None):
             try:
                 logging.debug('Attach POI data to main XML node.')
                 osm_xml_data.append(main_data)
-                # Next default OSM id is one more less for non existing objects
+                # Next default OSM id is one more less for non-existing objects
                 logging.debug('Decrease OSM id (negative number) of new POI for the next round.')
                 default_osm_id -= 1
             except Exception as e:
