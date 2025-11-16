@@ -42,7 +42,9 @@ PATTERN_FULL_URL = re.compile(r'((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\
 
 SZFKL = '. számú főközlekedési út'
 
-MOBILE_HU_PHONE_NUMBERS = {'20', '30', '31', '50', '70'}
+MOBILE_HU_PHONE_NUMBERS = ('20', '30', '31,' '50', '70',
+                           '+3620', '+3630', '+3631', '+3650', '+3670',
+                           '0620', '0630',  '0631', '0650', '0670')
 
 
 def remove_whitespace(wsp: str, rpl: str = '') -> str:
@@ -157,13 +159,10 @@ def extract_all_address_waxeye(clearable):
             parsed_address = hu_address_parser.Parser().parse(clearable)
             address_dict = waxeye_process(parsed_address)
             if address_dict is not None:
-                print(address_dict)
                 postcode = address_dict.get('postcode')
                 city = address_dict.get('cTown')
                 housenumber_only = address_dict.get('houseNumber')
                 subletter = address_dict.get('subLetter')
-                if subletter is not None:
-                    subletter.upper()
                 if housenumber_only is not None and subletter is not None:
                     housenumber = f'{housenumber_only}/{subletter}'
                 elif housenumber_only is not None:
@@ -181,10 +180,10 @@ def extract_all_address_waxeye(clearable):
                 else:
                     street = None
                 conscriptionnumber = address_dict.get('conscriptionHrsz')
+                return postcode, city, street, housenumber, conscriptionnumber
         except Exception as err_ext_waxeye:
             logging.debug(f'Exception occurred: {err_ext_waxeye} ... Waxeye parsing has failed: {clearable}')
             logging.exception(traceback.format_exc())
-        else:
             try:
                 logging.debug('Try fallback to extract_all_address function')
                 postcode, city, street, housenumber, conscriptionnumber = extract_all_address(clearable)
@@ -319,37 +318,40 @@ def replace_html_newlines(clearable: str) -> str:
 
 
 def extract_phone_number(data: str) -> str:
-    '''
-    Try to extract phone number
+    """
+    Extract phone number from a text, even if it's embedded in HTML or long text.
 
-    :data a string contains not just phone number
-    return: international format phone number string
-    '''
+    :param data: string that may contain phone number
+    :return: international format phone number string or None
+    """
     try:
-        data = str(replace_html_newlines(data))
-        if data is not None:
-            fields = data.split(';')
-            for f in fields:
-                if 'Telefonszám' in f:
-                    pn = f.split(':')[1]
-                    try:
-                        if '(' in pn:
-                            pn = pn.replace('(', '')
-                        if ')' in pn:
-                            pn = pn.replace(')', '')
-                        if '+36' in pn:
-                            pn = phonenumbers.parse(pn, 'HU')
-                        else:
-                            pn = phonenumbers.parse('+36 '.format(pn), 'HU')
-                    except phonenumbers.phonenumberutil.NumberParseException as e:
-                        logging.debug('This is string is cannot converted to phone number: %s ...', pn)
-                        logging.exception(e)
-                        return None
-                    return phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+        # Clean HTML br
+        data = str(data)
+        data = data.replace('<br>', ' ').replace('</br>', ' ')
+
+        # Regex hungarian phone numbers (for example: (26) 501-400, 06 26 501 400, +36 26 501 400)
+        phone_pattern = re.compile(r'(\+36|06)?\s*\(?\d{1,2}\)?[-\s]?\d{3}[-\s]?\d{3,4}')
+        match = phone_pattern.search(data)
+
+        if match:
+            raw_number = match.group()
+            logging.debug(f"Found number: {raw_number}")
+            try:
+                # phonenumbers formatting
+                if not raw_number.startswith('+36'):
+                    raw_number = '+36 ' + raw_number.lstrip('06').strip()
+                number = phonenumbers.parse(raw_number, 'HU')
+                if phonenumbers.is_possible_number(number) and phonenumbers.is_valid_number(number):
+                    return phonenumbers.format_number(number, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+            except phonenumbers.phonenumberutil.NumberParseException as e:
+                logging.debug(f"Cannot convert to phone number: {raw_number}")
+                logging.exception(e)
+                return None
 
     except Exception as e:
-        logging.exception('Extracting phone number failed: {}'.format(e))
+        logging.exception(f'Extracting phone number failed: {e}')
         logging.exception(traceback.format_exc())
+    return None
 
 
 def clean_city(clearable: str) -> str:
@@ -463,23 +465,36 @@ def clean_phone_to_str(phone):
     else:
         return None
 
-def clean_phone_and_mobile_to_str(phone, mobile):
+
+def clean_phone_and_mobile_to_str(phone, mobile=None):
     phone_numbers = []
     mobile_numbers = []
-    if phone is None and mobile is None:
-        return None
+
+    # Ha mindkettő None vagy üres
+    if not phone and not mobile:
+        return None, None
+
     phone = clean_string(phone)
     mobile = clean_string(mobile)
-    all_phones = tuple(sum(zip(clean_phone(phone), clean_phone(mobile))), ())
+
+    all_phones = (clean_phone(phone) or []) + (clean_phone(mobile) or [])
+
     for pn in all_phones:
-        if ' ' + MOBILE_HU_PHONE_NUMBERS + '' in pn:
+        stripped = pn.replace(' ', '').replace('-', '').replace('/', '')
+        # ellenőrizni a mobil prefixeket a szám végén
+        num_without_prefix = stripped
+        if stripped.startswith('+36'):
+            num_without_prefix = stripped[3:]
+        if any(num_without_prefix.startswith(prefix) for prefix in MOBILE_HU_PHONE_NUMBERS):
             mobile_numbers.append(pn)
         else:
             phone_numbers.append(pn)
-    if phone is not None and mobile is not None:
-        return ';'.join(phone_numbers), ';'.join(phone_numbers)
-    else:
-        return None
+
+    phone_str = ';'.join(phone_numbers) if phone_numbers else None
+    mobile_str = ';'.join(mobile_numbers) if mobile_numbers else None
+
+    return phone_str, mobile_str
+
 
 def clean_email(email):
     if email is None:
