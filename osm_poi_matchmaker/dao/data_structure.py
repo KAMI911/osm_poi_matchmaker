@@ -385,7 +385,7 @@ class Street_type(Base):
     def __repr__(self):
         return '<Street type {}: {}>'.format(self.st_id, self.street_type)
 
-'''
+
 class POI_osm(Base):
     __tablename__ = 'poi_osm'
     _plural_name_ = 'poi_osm'
@@ -397,7 +397,7 @@ class POI_osm(Base):
     geom_hint = Column(Geometry(geometry_type='GEOMETRY', srid=config.get_geo_default_projection()))
 
     __table_args__ = (UniqueConstraint('poi_osm_id', 'poi_osm_object_type', name='uc_poi_osm_osm_type'),)
-'''
+
 
 class POI_patch(Base):
     """ This is database modell for patch table
