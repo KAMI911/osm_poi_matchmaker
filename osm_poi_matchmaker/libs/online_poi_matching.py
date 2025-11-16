@@ -171,11 +171,13 @@ def online_poi_matching(args):
                             logging.exception('Exception occurred during conscriptionnumber query: {}'.format(err_row))
                             logging.warning(traceback.format_exc())
                     else:
-                        logging.debug('Do not handle addr:* changes for: %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
-                                 data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'],
-                                 data.at[i, 'poi_type'], data.at[i, 'poi_distance'] if 'poi_distance' in data.columns else None,
-                                 data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
-                                 data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'])
+                        logging.debug('Do not handle addr:* changes for: %s (not %s) type: %s POI within %s m: '
+                                      '%s %s, %s %s (%s)',
+                                      data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'],
+                                      data.at[i, 'poi_type'],
+                                      data.at[i, 'poi_distance'] if 'poi_distance' in data.columns else None,
+                                      data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
+                                      data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'])
                     try:
                         data.at[i, 'osm_version'] = osm_query.get('osm_version').values[0] \
                             if osm_query.get('osm_version') is not None else None
@@ -197,7 +199,13 @@ def online_poi_matching(args):
                         logging.exception('Exception occurred during OSM timestamp query: {}'.format(err_row))
                         logging.warning(traceback.format_exc())
                     try:
-                        data.at[i, 'poi_distance'] = osm_query.get('distance').values[0] if osm_query.get('distance') is not None else None
+                        logging.info(osm_query.get('distance'))
+                        distance = osm_query.get('distance')
+                        if distance is not None:
+                            value = distance.values[0]
+                            data.at[i, 'poi_distance'] = int(value) if pd.notnull(value) else None
+                        else:
+                            data.at[i, 'poi_distance'] = None
                     except Exception as err_row:
                         logging.exception('Exception occurred during OSM distance query: {}'.format(err_row))
                         logging.warning(traceback.format_exc())
