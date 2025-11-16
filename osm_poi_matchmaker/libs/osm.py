@@ -70,7 +70,7 @@ def relationer(relation_text):
     if relation_text is None:
         return None
     data = []
-    logging.debug(f'Relation processing with this data: {relation_text}')
+    logging.info(f'Relation processing with this data: {relation_text}')
 
     for i in range(0, len(relation_text) - 1, 2):
         item = relation_text[i]
@@ -79,6 +79,7 @@ def relationer(relation_text):
         rl = relation_text[i + 1]
         data.append({'type': tp, 'ref': rf, 'role': rl})
     return data
+
 
 def timestamp_now():
     return datetime.datetime.now()
