@@ -77,8 +77,8 @@ class WaxeyeParser:
         self.eof_check = eof_check
         self.automata = automata
 
-    def parse(self, input):
-        return WaxeyeParser.InnerParser(self.start, self.eof_check, self.automata, input).parse()
+    def parse(self, parse_text):
+        return WaxeyeParser.InnerParser(self.start, self.eof_check, self.automata, parse_text).parse()
 
     class InnerParser:
         def __init__(self, start, eof_check, automata, input):
