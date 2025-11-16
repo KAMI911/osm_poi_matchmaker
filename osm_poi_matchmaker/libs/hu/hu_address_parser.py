@@ -3,6 +3,7 @@
 
 from osm_poi_matchmaker.libs.waxeye import Edge, State, FA, WaxeyeParser
 
+
 class Parser (WaxeyeParser):
     start = 0
     eof_check = True
