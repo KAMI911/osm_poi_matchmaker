@@ -329,12 +329,13 @@ def generate_osm_xml(df, session=None):
                 osm_xml_data.append(comment)
                 logging.debug('Add OSM - POI distance as comment.')
                 dst = row.get('poi_distance')
-                if 'poi_distance' in row and dst is not None and not (isinstance(dst, float) and np.isnan(dst)):
+                if 'poi_distance' in row and dst is not None and not (isinstance(dst, (int, float)) and np.isnan(dst)):
                     comment = etree.Comment(' OSM <-> POI distance: {} m'.format(row.get('poi_distance')))
                 else:
                     logging.debug('New POI, have not got distance data.')
-                    comment = etree.Comment(' OSM <-> POI distance: Non exist \n {}'.format(
-                        add_osm_coordinate_comment(row.get('poi_geom').x, row.get('poi_geom').y)))
+                    comment = etree.Comment(' OSM <-> POI distance: Non exist \n')
+                osm_xml_data.append(comment)
+                comment = etree.Comment(add_osm_coordinate_comment(row.get('poi_geom').x, row.get('poi_geom').y))
                 osm_xml_data.append(comment)
                 if 'poi_good' in row and 'poi_bad' in row:
                     logging.debug('Add good/bad quality comments.')
