@@ -27,7 +27,7 @@ class hu_mol_bubi(DataProvider):
         self.link = 'https://maps.nextbike.net/maps/nextbike.json?domains=bh&list_cities=0&bikes=0'
         self.tags = {'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'brand:wikidata': 'Q16971969',
                      'brand:wikipedia':'hu:MOL Bubi', 'operator': 'BKK', 'operator:wikidata': 'Q608917',
-                     'operator:wikipedia': 'hu:Budapesti Közlekedési Központ','operator:type': 'private',
+                     'operator:wikipedia': 'hu:Budapesti Közlekedési Központ','operator:type': 'public',
                      'operator:addr':'1075 Budapest Rumbach Sebestyén utca 19-21.', 'network': 'MOL Bubi',
                      'network:wikidata': 'Q16971969', 'network:wikipedia': 'hu:MOL Bubi',
                      'contact:phone': '+36 1 325 5255', 'contact:email': 'bkk@bkk.hu',
