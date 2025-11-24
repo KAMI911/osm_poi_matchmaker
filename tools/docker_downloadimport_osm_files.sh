@@ -1,10 +1,10 @@
 #!/bin/bash
 
-DOWNLOAD_URL="https://download.geofabrik.de/europe/"
+DOWNLOAD_URL="https://download.geofabrik.de/europe"
 DOWNLOAD=0
 FILE="hungary-latest.osm.pbf"
 DOWNLOAD_FILE="${DOWNLOAD_URL}/${FILE}"
-OUTPUT_DIR="/opm/osm/"
+OUTPUT_DIR="/opm/osm"
 DOWNLOAD_DS_FILE="${OUTPUT_DIR}/download_daystamp"
 IMPORT_DS_FILE="${OUTPUT_DIR}/import_daystamp"
 CURRENT_DAYSTAMP=$(date +%Y%m%d)
