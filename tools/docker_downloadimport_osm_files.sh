@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOWNLOAD_URL="https://download.geofabrik.de/europe/"
+DOWNLOAD_URL="https://download.geofabrik.de/europe"
 DOWNLOAD=0
 FILE="hungary-latest.osm.pbf"
 DOWNLOAD_FILE="${DOWNLOAD_URL}/${FILE}"
