@@ -27,7 +27,7 @@ class hu_ccc(DataProvider):
         self.link = 'https://ccc.eu/hu/sklepy'
         self.tags = {
             'shop': 'shoes',
-            'operator': ' MODIVO HUNGARY Kft.',
+            'operator': 'MODIVO HUNGARY Kft.',
             'operator:addr': '1134 Budapest, Váci út 45.',
             'ref:HU:vatin': '24128296-2-44',
             'ref:vatin': 'HU24128296',
