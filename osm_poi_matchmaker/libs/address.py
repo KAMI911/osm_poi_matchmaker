@@ -42,9 +42,9 @@ PATTERN_FULL_URL = re.compile(r'((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\
 
 SZFKL = '. számú főközlekedési út'
 
-MOBILE_HU_PHONE_NUMBERS = ('20', '30', '31,' '50', '70',
+MOBILE_HU_PHONE_NUMBERS = ('20', '30', '31', '50', '70',
                            '+3620', '+3630', '+3631', '+3650', '+3670',
-                           '0620', '0630',  '0631', '0650', '0670')
+                           '0620', '0630', '0631', '0650', '0670')
 
 
 def remove_whitespace(wsp: str, rpl: str = '') -> str:
