@@ -66,7 +66,7 @@ def clean_javascript_variable(clearable, removable):
     :return: Javascript clean text/JSON file
     """
     # Match on start
-    PATTERN_JS = re.compile('^\s*var\s*{}\s*=\s*'.format(removable))
+    PATTERN_JS = re.compile(r'^\s*var\s*{}\s*=\s*'.format(removable))
     data = re.sub(PATTERN_JS, '', clearable)
     # Match on end
     return re.sub(PATTERN_JS_2, '', data)
@@ -82,7 +82,7 @@ def extract_javascript_variable(input_soup, removable, use_replace=False):
     """
     # Match on start
     try:
-        pattern = re.compile('.*\s*var\s*{}\s*=\s*(.*?[}}\]]);'.format(removable), re.MULTILINE | re.DOTALL)
+        pattern = re.compile(r'.*\s*var\s*{}\s*=\s*(.*?[}}\]]);'.format(removable), re.MULTILINE | re.DOTALL)
         script = str(input_soup.find('script', text=pattern))
         if use_replace is True: script = script.replace("'", '"')
         m = pattern.match(script)
