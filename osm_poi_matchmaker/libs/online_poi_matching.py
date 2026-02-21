@@ -323,10 +323,11 @@ def online_poi_matching(args):
                     except Exception as e:
                         logging.warning('There was an error during OSM request: %s.', e)
                         logging.exception('Exception occurred')
-                        if cached_node is not None:
-                            logging.warning('Live tag is: {}'.format(cached_node.get('osm_live_tags')))
+                        _cached = locals().get('cached_node') or locals().get('cached_way')
+                        if _cached is not None:
+                            logging.warning('Live tag is: %s', _cached.get('osm_live_tags'))
                         else:
-                            logging.warning('Live tag is None (from cached_node)')
+                            logging.warning('Live tag is None (no cached entry available)')
                 # This is a new POI
                 else:
                     osm_postcode = None
@@ -336,6 +337,7 @@ def online_poi_matching(args):
                     # for a PostGIS function: https://postgis.net/docs/ST_LineInterpolatePoint.html
                     # If there is more than one POI in a building this will try to do a different location and
                     # not only on center or not only on edge
+                    ib = None
                     if row.get('poi_name') is not None:
                         ib = row.get('poi_name')
                     elif row.get('poi_common_name') is not None:
