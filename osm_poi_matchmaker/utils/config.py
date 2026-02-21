@@ -180,7 +180,7 @@ def get_database_writer_password():
     if setting == 'poitest':
         logging.warning(
             'Using default password. For security concerns please change default password in the config file and the database.')
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return 'poitest'
