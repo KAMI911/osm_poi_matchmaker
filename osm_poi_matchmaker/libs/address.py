@@ -24,7 +24,7 @@ PATTERN_POSTCODE_CITY = re.compile(r'^((\d){4})([.\s]{0,2})([a-zA-ZáÁéÉíÍ�
 PATTERN_CITY_ADDRESS = re.compile(r'^([a-zA-ZáÁéÉíÍóÓúÚüÜöÖőŐűŰ]{3,40})')
 PATTERN_CITY = re.compile(r'\s?[XVI]{1,5}[.:,]{0,3}\s*$')
 PATTERN_JS_2 = re.compile(r'\s*;\s*$')
-PATTERN_HOUSENUMBER = re.compile(r'[0-9]{1,3}(/[A-z]|-[0-9]{1,3}|)', re.IGNORECASE)
+PATTERN_HOUSENUMBER = re.compile(r'[0-9]{1,3}(/[A-Za-z]|-[0-9]{1,3}|)', re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER = re.compile(
     r'(hrsz[.:]{0,2}\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?|\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?\s*hrsz[s.]?)',
     re.IGNORECASE)
@@ -89,7 +89,6 @@ CLEAN_STREET_REPLS = (
     ('Bajcsy-Zs. E. u.', 'Bajcsy-Zsilinszky Endre utca'),
     ('Bajcsy-Zs. u.', 'Bajcsy-Zsilinszky utca'),
     ('Bajcsy Zs.u.', 'Bajcsy-Zsilinszky utca'),
-    ('Bajcsy-Zs. u.', 'Bajcsy-Zsilinszky utca'),
     ('Bajcsy Zs. u.', 'Bajcsy-Zsilinszky utca'),
     ('Bajcsy-Zs.', 'Bajcsy-Zsilinszky'),
     ('Bajcsy Zs.', 'Bajcsy-Zsilinszky'),
@@ -184,7 +183,6 @@ CLEAN_STREET_REPLS = (
     ('Rákóczi F.', 'Rákóczi Ferenc'),
     ('Jókai M.', 'Jókai Mór'),
     ('Szabó D.', 'Szabó Dezső'),
-    ('Kossuth F.', 'Kossuth F.'),
     ('Móricz Zs.', 'Móricz Zsigmond'),
     ('Hunyadi J ', 'Hunyadi János'),
     ('Szilágyi E ', 'Szilágyi Erzsébet fasor'),
@@ -235,9 +233,9 @@ def clean_javascript_variable(clearable, removable):
 def extract_javascript_variable(input_soup, removable, use_replace=False):
     """Extract JavaScript variable from <script> tag from a soup.
 
-    :param sp: Input soup
+    :param input_soup: Input soup
     :param removable: The name of Javascript variable
-    :param user_replace: Additional step to replace from ' to "
+    :param use_replace: Additional step to replace from ' to "
     :return: Javascript clean text/JSON file
     """
     # Match on start
@@ -259,7 +257,6 @@ def extract_javascript_variable(input_soup, removable, use_replace=False):
 
         logging.error(pattern)
         logging.error(script)
-        logging.error(m.group(1))
 
 
 def extract_street_housenumber(clearable):
@@ -426,6 +423,7 @@ def extract_street_housenumber_better_2(clearable: str) -> tuple[str | None, str
         # Try to match street
         street_corrected = clean_street(data)
         street_match = PATTERN_STREET_RICH.search(street_corrected)
+        street_type = None
         if street_match is None:
             logging.debug('Non matching street: %s', clearable)
             street, housenumber = None, None
@@ -453,7 +451,7 @@ def extract_street_housenumber_better_2(clearable: str) -> tuple[str | None, str
         street = clean_string(street)
         housenumber = clean_string(housenumber)
         conscriptionnumber = clean_string(conscriptionnumber)
-        if 'street_type' in locals():
+        if street_type is not None:
             street_type = clean_string(street_type)
             return '{} {}'.format(street, street_type), housenumber, conscriptionnumber
         else:
@@ -530,7 +528,6 @@ def clean_city(clearable: str) -> str:
     city = reduce(lambda a, kv: a.replace(*kv), repls, city)
     city = city.split('-')[0]
     city = city.split(',')[0]
-    city = city.split('/')[0]
     city = city.split('/')[0]
     city = city.split('(')[0]
     city = city.split(' ')[0]
