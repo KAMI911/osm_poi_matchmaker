@@ -258,11 +258,12 @@ def online_poi_matching(args):
                                                      'osm_lon': None,
                                                      'osm_nodes': live_tags_container.get('nd')}
                                         get_or_create_cache(session_object(), POI_OSM_cache, **cache_row)
-                                        # Downloading referenced nodes of the way
-                                        for way_nodes in live_tags_container['nd']:
-                                            logging.debug('Getting node %s belongs to way %s', way_nodes, osm_id)
-                                            live_tags_node = osm_live_query.NodeGet(way_nodes)
-                                            cache_row = {'osm_id': int(way_nodes),
+                                        # Batch-fetch all nodes of the way in a single API call
+                                        node_ids = live_tags_container['nd']
+                                        logging.debug('Batch fetching %d nodes for way %s', len(node_ids), osm_id)
+                                        live_tags_nodes = osm_live_query.NodesGet(node_ids)
+                                        for way_node_id, live_tags_node in live_tags_nodes.items():
+                                            cache_row = {'osm_id': int(way_node_id),
                                                          'osm_live_tags': live_tags_node.get('tag'),
                                                          'osm_version': live_tags_node.get('version'),
                                                          'osm_user': live_tags_node.get('user'),
