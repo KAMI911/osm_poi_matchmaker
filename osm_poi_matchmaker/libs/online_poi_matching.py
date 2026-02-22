@@ -41,14 +41,16 @@ def online_poi_matching(args):
         session_object = scoped_session(session_factory)
         session = session_object()
         osm_live_query = OsmApi()
+        # Pre-compute lookup so we avoid a full DataFrame scan on every iteration
+        poi_type_by_common_id = comm_data.set_index('pc_id')['poi_type'].to_dict()
         for i, row in data.head(config.get_dataproviders_limit_elemets()).iterrows():
         # for i, row in data[data['poi_code'].str.contains('ping')].iterrows():
             logging.info("Starting online POI matching…")
             try:
                 # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
                 osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
-                                                      comm_data.loc[comm_data['pc_id'] == row.get('poi_common_id')][
-                                                          'poi_type'].values[0], row.get('poi_search_name'),
+                                                      poi_type_by_common_id.get(row.get('poi_common_id')),
+                                                      row.get('poi_search_name'),
                                                       row.get('poi_search_avoid_name'), row.get('poi_name'),
                                                       row.get('additional_ref_name'), row.get('poi_ref'),
                                                       row.get('poi_addr_street'), row.get('poi_addr_housenumber'),
