@@ -43,26 +43,26 @@ def online_poi_matching(args):
         osm_live_query = OsmApi()
         # Pre-compute lookup so we avoid a full DataFrame scan on every iteration
         poi_type_by_common_id = comm_data.set_index('pc_id')['poi_type'].to_dict()
-        for i, row in data.head(config.get_dataproviders_limit_elemets()).iterrows():
+        for row in data.head(config.get_dataproviders_limit_elemets()).itertuples(index=True):
+            i = row.Index
         # for i, row in data[data['poi_code'].str.contains('ping')].iterrows():
             logging.info("Starting online POI matching…")
             try:
                 # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
-                osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
-                                                      poi_type_by_common_id.get(row.get('poi_common_id')),
-                                                      row.get('poi_search_name'),
-                                                      row.get('poi_search_avoid_name'), row.get('poi_name'),
-                                                      row.get('additional_ref_name'), row.get('poi_ref'),
-                                                      row.get('poi_addr_street'), row.get('poi_addr_housenumber'),
-                                                      row.get('poi_conscriptionnumber'), row.get('poi_city'),
-                                                      row.get('osm_search_distance_perfect'),
-                                                      row.get('osm_search_distance_safe'),
-                                                      row.get('osm_search_distance_unsafe'))
+                osm_query = db.query_osm_shop_poi_gpd(row.poi_lon, row.poi_lat,
+                                                      poi_type_by_common_id.get(row.poi_common_id),
+                                                      row.poi_search_name,
+                                                      row.poi_search_avoid_name, row.poi_name,
+                                                      row.additional_ref_name, row.poi_ref,
+                                                      row.poi_addr_street, row.poi_addr_housenumber,
+                                                      row.poi_conscriptionnumber, row.poi_city,
+                                                      row.osm_search_distance_perfect,
+                                                      row.osm_search_distance_safe,
+                                                      row.osm_search_distance_unsafe)
                 # Enrich our data with OSM database POI metadata
                 if osm_query is not None:
                     changed_from_osm = False
                     # This is not a new POI, already found in OSM database
-                    row['poi_new'] = False
                     data.at[i, 'poi_new'] = False
                     # Collect additional OSM metadata. Note: this needs style change during osm2pgsql
                     osm_id = osm_query['osm_id'].values[0] if osm_query.get('osm_id') is not None else None
@@ -87,15 +87,15 @@ def online_poi_matching(args):
                     data.at[i, 'osm_id'] = osm_id
                     data.at[i, 'osm_node'] = osm_node
                     # Refine postcode
-                    if row.get('do_not_export_addr_tags') is False:
+                    if row.do_not_export_addr_tags is False:
                         try:
-                            if row.get('preserve_original_post_code') is not True:
+                            if row.preserve_original_post_code is not True:
                                 # Current OSM postcode based on lat,long query.
                                 try:
                                     postcode = None
                                     postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
                                                                            session_object(), lon, lat,
-                                                                           row.get('poi_postcode'), osm_postcode)
+                                                                           row.poi_postcode, osm_postcode)
                                 except Exception as err:
                                     logging.exception('Exception occurred during postcode query (1): {}'.format(err))
                                     logging.exception(traceback.format_exc())
@@ -103,12 +103,12 @@ def online_poi_matching(args):
                                 force_postcode_change = False  # TODO: Has to be a setting in app.conf
                                 if force_postcode_change is True:
                                     # Force to use datasource postcode
-                                    if postcode != row.get('poi_postcode'):
+                                    if postcode != row.poi_postcode:
                                         logging.info('Changing postcode from {}  to {}. (OSM data: {}, POI in OSM: {},'
-                                                     ' POI datasource: {})'.format(row.get('poi_postcode'),
+                                                     ' POI datasource: {})'.format(row.poi_postcode,
                                                                                    postcode, postcode,
                                                                                    osm_query.columns.get_loc('addr:postcode'),
-                                                                                   row.get('poi_postcode')))
+                                                                                   row.poi_postcode))
                                         data.at[i, 'poi_postcode'] = postcode
                                 else:
                                     # Try to use smart method for postcode check
@@ -117,14 +117,14 @@ def online_poi_matching(args):
                                         data.at[i, 'poi_postcode'] = ch_postcode
                                         if 'osm_data' in locals():
                                             logging.info('Changing postcode from {} to {}. (OSM data: {},'
-                                                         ' POI in OSM: {}, POI datasource: {})'.format(row.get('poi_postcode'), ch_postcode, postcode, osm_data.columns.get_loc('addr:postcode'), row.get('poi_postcode')))
+                                                         ' POI in OSM: {}, POI datasource: {})'.format(row.poi_postcode, ch_postcode, postcode, osm_data.columns.get_loc('addr:postcode'), row.poi_postcode))
                                         else:
                                             logging.info('Changing postcode from {} to {}. (OSM data: {},'
-                                                         ' POI datasource: {})'.format(row.get('poi_postcode'),
+                                                         ' POI datasource: {})'.format(row.poi_postcode,
                                                                                        ch_postcode,postcode,
-                                                                                       row.get('poi_postcode')))
+                                                                                       row.poi_postcode))
                             else:
-                                logging.info('Preserving original postcode %s', row.get('poi_postcode'))
+                                logging.info('Preserving original postcode %s', row.poi_postcode)
                         except Exception as err_row:
                             logging.exception('Exception occurred during postcode query (2): {}'.format(err_row))
                             logging.warning(traceback.format_exc())
@@ -133,7 +133,7 @@ def online_poi_matching(args):
                             if osm_query.get('addr:housenumber') is not None:
                                 if osm_query.get('addr:housenumber').values[0] is not None and \
                                    osm_query.get('addr:housenumber').values[0] != '' and \
-                                   osm_query.get('addr:housenumber').values[0] != row.get('poi_addr_housenumber'):
+                                   osm_query.get('addr:housenumber').values[0] != row.poi_addr_housenumber:
                                     data.at[i, 'poi_addr_housenumber'] = osm_query.get('addr:housenumber').values[0]
                                     changed_from_osm = True
                         except Exception as err_row:
@@ -144,7 +144,7 @@ def online_poi_matching(args):
                             if osm_query.get('addr:city') is not None:
                                 if osm_query.get('addr:city').values[0] is not None and \
                                    osm_query.get('addr:city').values[0] != '' and \
-                                   osm_query.get('addr:city').values[0] != row.get('poi_city'):
+                                   osm_query.get('addr:city').values[0] != row.poi_city:
                                     data.at[i, 'poi_city'] = osm_query.get('addr:city').values[0]
                                     changed_from_osm = True
                         except Exception as err_row:
@@ -155,7 +155,7 @@ def online_poi_matching(args):
                             if osm_query.get('addr:street') is not None:
                                 if osm_query.get('addr:street').values[0] is not None and \
                                    osm_query.get('addr:street').values[0] != '' and \
-                                   osm_query.get('addr:street').values[0] != row.get('poi_addr_street'):
+                                   osm_query.get('addr:street').values[0] != row.poi_addr_street:
                                     data.at[i, 'poi_addr_street'] = osm_query.get('addr:street').values[0]
                                     changed_from_osm = True
                         except Exception as err_row:
@@ -166,7 +166,7 @@ def online_poi_matching(args):
                             if osm_query.get('addr:conscriptionnumber') is not None:
                                 if osm_query.get('addr:conscriptionnumber').values[0] is not None and \
                                    osm_query.get('addr:conscriptionnumber').values[0] != '' and \
-                                   osm_query.get('addr:conscriptionnumber').values[0] != row.get('poi_conscriptionnumber'):
+                                   osm_query.get('addr:conscriptionnumber').values[0] != row.poi_conscriptionnumber:
                                     data.at[i, 'poi_conscriptionnumber'] = osm_query.get('addr:conscriptionnumber').values[0]
                                     changed_from_osm = True
                         except Exception as err_row:
@@ -234,8 +234,8 @@ def online_poi_matching(args):
                                  data.at[i, 'poi_type'], data.at[i, 'poi_distance'],
                                  data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
                                  data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'],
-                                 row.get('poi_postcode'), row.get('poi_city'), row.get('poi_addr_street'),
-                                 row.get('poi_addr_housenumber'), row.get('poi_conscriptionnumber'))
+                                 row.poi_postcode, row.poi_city, row.poi_addr_street,
+                                 row.poi_addr_housenumber, row.poi_conscriptionnumber)
                     try:
                         # Download OSM POI way live tags
                         if osm_node == OSM_object_type.way:
@@ -341,10 +341,10 @@ def online_poi_matching(args):
                     # If there is more than one POI in a building this will try to do a different location and
                     # not only on center or not only on edge
                     ib = None
-                    if row.get('poi_name') is not None:
-                        ib = row.get('poi_name')
-                    elif row.get('poi_common_name') is not None:
-                        ib = row.get('poi_common_name')
+                    if row.poi_name is not None:
+                        ib = row.poi_name
+                    elif row.poi_common_name is not None:
+                        ib = row.poi_common_name
                     if ib is not None:
                         ibp = abs(1 - (((ord(ib[0]) // 16) + 1) / 17))
                         # Normalization between 0 and 1
@@ -352,39 +352,38 @@ def online_poi_matching(args):
                     else:
                         ibp = 0.50
                     # Refine postcode
-                    osm_building_q = db.query_osm_building_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
-                                                                   row.get('poi_city'), row.get('poi_postcode'),
-                                                                   row.get('poi_addr_street'),
-                                                                   row.get('poi_addr_housenumber'),
+                    osm_building_q = db.query_osm_building_poi_gpd(row.poi_lon, row.poi_lat,
+                                                                   row.poi_city, row.poi_postcode,
+                                                                   row.poi_addr_street,
+                                                                   row.poi_addr_housenumber,
                                                                    in_building_percentage=ibp)
                     if osm_building_q is not None:
                         logging.info('Relocating POI coordinates to the building with same address: %s %s, %s %s',
-                                     row.get('poi_lat'), row.get('poi_lon'), osm_building_q.get('lat')[0],
+                                     row.poi_lat, row.poi_lon, osm_building_q.get('lat')[0],
                                      osm_building_q.get('lon')[0]),
-                        row['poi_lat'], row['poi_lon'] = osm_building_q.get('lat')[0], osm_building_q.get('lon')[0]
                     else:
                         logging.info(
                             'The POI is already in its building or there is no building match. \
                             Keeping POI coordinates as they are.')
-                    if row['preserve_original_post_code'] is not True:
+                    if row.preserve_original_post_code is not True:
                         try:
                             postcode = None
                             postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
                                                                    session_object(),
                                                                    data.at[i, 'poi_lon'], data.at[i, 'poi_lat'],
-                                                                   row.get('poi_postcode'), osm_postcode)
+                                                                   row.poi_postcode, osm_postcode)
                         except Exception as e:
                             logging.exception('Exception occurred during postcode query (1): {}'.format(e))
                             logging.exception(traceback.format_exc())
-                        if postcode is not None and postcode != row.get('poi_postcode'):
-                            logging.info('Changing postcode from %s to %s.', row.get('poi_postcode'), postcode)
+                        if postcode is not None and postcode != row.poi_postcode:
+                            logging.info('Changing postcode from %s to %s.', row.poi_postcode, postcode)
                             data.at[i, 'poi_postcode'] = postcode
                     else:
-                        logging.info('Preserving original postcode %s', row.get('poi_postcode'))
-                    logging.info('New %s (not %s) type: %s POI: %s %s, %s %s (%s)', row.get('poi_search_name'),
-                                 row.get('poi_search_avoid_name'), row.get('poi_type'), row.get('poi_postcode'),
-                                 row.get('poi_city'), row.get('poi_addr_street'),
-                                 row.get('poi_addr_housenumber'), row.get('poi_conscriptionnumber'))
+                        logging.info('Preserving original postcode %s', row.poi_postcode)
+                    logging.info('New %s (not %s) type: %s POI: %s %s, %s %s (%s)', row.poi_search_name,
+                                 row.poi_search_avoid_name, row.poi_type, row.poi_postcode,
+                                 row.poi_city, row.poi_addr_street,
+                                 row.poi_addr_housenumber, row.poi_conscriptionnumber)
             except Exception as e:
                 logging.error(e)
                 logging.error(row)
@@ -409,7 +408,7 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
     """
     # Change postcode when there is no postcode in OSM or the address was changed
     changed = 0
-    current_postcode = curr_data.get('poi_postcode')
+    current_postcode = getattr(curr_data, 'poi_postcode', None)
     try:
         # osm_db_postcode = osm_data.get('addr:postcode', [None])[0]
         osm_db_postcode = osm_data.iloc[0, osm_data.columns.get_loc('addr:postcode')]
@@ -421,22 +420,22 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
                 osm_db_postcode is None:
             osm_db_postcode = None
     try:
-        if curr_data.get('poi_addr_housenumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:housenumber')]:
+        if getattr(curr_data, 'poi_addr_housenumber', None) != osm_data.iloc[0, osm_data.columns.get_loc('addr:housenumber')]:
             changed += 1
     except KeyError:
         changed += 1
     try:
-        if curr_data.get('poi_addr_street') != osm_data.iloc[0, osm_data.columns.get_loc('addr:street')]:
+        if getattr(curr_data, 'poi_addr_street', None) != osm_data.iloc[0, osm_data.columns.get_loc('addr:street')]:
             changed += 1
     except KeyError:
         changed += 1
     try:
-        if curr_data.get('poi_city') != osm_data.iloc[0, osm_data.columns.get_loc('addr:city')]:
+        if getattr(curr_data, 'poi_city', None) != osm_data.iloc[0, osm_data.columns.get_loc('addr:city')]:
             changed += 1
     except KeyError:
         changed += 1
     try:
-        if curr_data.get('poi_addr_conscriptionnumber') != osm_data.iloc[0, osm_data.columns.get_loc('addr:conscriptionnumber')]:
+        if getattr(curr_data, 'poi_addr_conscriptionnumber', None) != osm_data.iloc[0, osm_data.columns.get_loc('addr:conscriptionnumber')]:
             changed += 1
     except KeyError:
         changed += 1
