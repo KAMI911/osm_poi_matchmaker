@@ -39,6 +39,8 @@ PATTERN_STREET_RICH = re.compile(
     re.UNICODE | re.IGNORECASE)
 PATTERN_URL_SLASH = re.compile(r'(?<!:)(//+)')
 PATTERN_FULL_URL = re.compile(r'((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)')
+PATTERN_WHITESPACE = re.compile(r'\s+')
+PATTERN_PHONE_HU = re.compile(r'(\+36|06)?\s*\(?\d{1,2}\)?[-\s]?\d{3}[-\s]?\d{3,4}')
 
 SZFKL = '. számú főközlekedési út'
 
@@ -46,8 +48,11 @@ MOBILE_HU_PHONE_NUMBERS = ('20', '30', '31', '50', '70',
                            '+3620', '+3630', '+3631', '+3650', '+3670',
                            '0620', '0630', '0631', '0650', '0670')
 
-# Replacement table for clean_street(); defined at module level so it is
-# built only once instead of being recreated on every function call.
+# Replacement tables defined at module level so they are built only once
+# instead of being recreated on every function call.
+CLEAN_CITY_REPLS = (('Mikolc', 'Miskolc'), ('Iinárcs', 'Inárcs'))
+
+# Replacement table for clean_street():
 CLEAN_STREET_REPLS = (
     ('Nyúl 82. sz. főút', 'Kossuth Lajos út'),
     ('Nyúl  82. sz. főút', '82' + SZFKL),
@@ -212,8 +217,7 @@ def remove_whitespace(wsp: str, rpl: str = '') -> str:
     :param rpl: String replaced to.
     :return: Whitespaces cleaned text string.
     """
-    pattern = re.compile(r'\s+')
-    return re.sub(pattern, rpl, wsp)
+    return PATTERN_WHITESPACE.sub(rpl, wsp)
 
 
 def clean_javascript_variable(clearable, removable):
@@ -488,8 +492,7 @@ def extract_phone_number(data: str) -> str:
         data = data.replace('<br>', ' ').replace('</br>', ' ')
 
         # Regex hungarian phone numbers (for example: (26) 501-400, 06 26 501 400, +36 26 501 400)
-        phone_pattern = re.compile(r'(\+36|06)?\s*\(?\d{1,2}\)?[-\s]?\d{3}[-\s]?\d{3,4}')
-        match = phone_pattern.search(data)
+        match = PATTERN_PHONE_HU.search(data)
 
         if match:
             raw_number = match.group()
@@ -524,8 +527,7 @@ def clean_city(clearable: str) -> str:
 
     city = clean_string(clearable)
     city = re.sub(PATTERN_CITY, '', city)
-    repls = ('Mikolc', 'Miskolc'), ('Iinárcs', 'Inárcs')
-    city = reduce(lambda a, kv: a.replace(*kv), repls, city)
+    city = reduce(lambda a, kv: a.replace(*kv), CLEAN_CITY_REPLS, city)
     city = city.split('-')[0]
     city = city.split(',')[0]
     city = city.split('/')[0]
