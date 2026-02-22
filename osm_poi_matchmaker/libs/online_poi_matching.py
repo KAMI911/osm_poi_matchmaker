@@ -71,9 +71,9 @@ def online_poi_matching(args):
                     # Set OSM POI coordinates for all kind of geom
                     lat = osm_query.get('lat').values[0]
                     lon = osm_query.get('lon').values[0]
-                    if data.at[i, 'poi_lat'] != lat and data.at[i, 'poi_lon'] != lon:
+                    if row.poi_lat != lat and row.poi_lon != lon:
                         logging.info('Using new coordinates %s %s instead of %s %s.',
-                                     lat, lon, data.at[i, 'poi_lat'], data.at[i, 'poi_lon'])
+                                     lat, lon, row.poi_lat, row.poi_lon)
                         data.at[i, 'poi_lat'] = lat
                         data.at[i, 'poi_lon'] = lon
                     if osm_node == 'node':
@@ -94,7 +94,7 @@ def online_poi_matching(args):
                                 try:
                                     postcode = None
                                     postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
-                                                                           session_object(), lon, lat,
+                                                                           session, lon, lat,
                                                                            row.poi_postcode, osm_postcode)
                                 except Exception as err:
                                     logging.exception('Exception occurred during postcode query (1): {}'.format(err))
@@ -175,8 +175,8 @@ def online_poi_matching(args):
                     else:
                         logging.debug('Do not handle addr:* changes for: %s (not %s) type: %s POI within %s m: '
                                       '%s %s, %s %s (%s)',
-                                      data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'],
-                                      data.at[i, 'poi_type'],
+                                      row.poi_search_name, row.poi_search_avoid_name,
+                                      row.poi_type,
                                       data.at[i, 'poi_distance'] if 'poi_distance' in data.columns else None,
                                       data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
                                       data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'])
@@ -224,14 +224,14 @@ def online_poi_matching(args):
                         data.at[i, 'osm_nodes'] = json.dumps(nodes) if isinstance(nodes, (list, dict)) else nodes
                     if not changed_from_osm:
                         logging.info('Old %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
-                                 data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'], 
-                                 data.at[i, 'poi_type'], data.at[i, 'poi_distance'],
+                                 row.poi_search_name, row.poi_search_avoid_name, 
+                                 row.poi_type, data.at[i, 'poi_distance'],
                                  data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
                                  data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'])
                     else:
                         logging.info('Old changed %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s) was: %s %s, %s %s (%s)',
-                                 data.at[i, 'poi_search_name'], data.at[i, 'poi_search_avoid_name'],
-                                 data.at[i, 'poi_type'], data.at[i, 'poi_distance'],
+                                 row.poi_search_name, row.poi_search_avoid_name,
+                                 row.poi_type, data.at[i, 'poi_distance'],
                                  data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
                                  data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'],
                                  row.poi_postcode, row.poi_city, row.poi_addr_street,
@@ -257,7 +257,7 @@ def online_poi_matching(args):
                                                      'osm_lat': None,
                                                      'osm_lon': None,
                                                      'osm_nodes': live_tags_container.get('nd')}
-                                        get_or_create_cache(session_object(), POI_OSM_cache, **cache_row)
+                                        get_or_create_cache(session, POI_OSM_cache, **cache_row)
                                         # Batch-fetch all nodes of the way in a single API call
                                         node_ids = live_tags_container['nd']
                                         logging.debug('Batch fetching %d nodes for way %s', len(node_ids), osm_id)
@@ -274,7 +274,7 @@ def online_poi_matching(args):
                                                          'osm_lat': live_tags_node.get('lat'),
                                                          'osm_lon': live_tags_node.get('lon'),
                                                          'osm_nodes': None}
-                                            get_or_create_cache(session_object(), POI_OSM_cache, **cache_row)
+                                            get_or_create_cache(session, POI_OSM_cache, **cache_row)
                                         break
                                     else:
                                         logging.warning('Download of external data for way has failed.')
@@ -302,7 +302,7 @@ def online_poi_matching(args):
                                                      'osm_lat': live_tags_container.get('lat'),
                                                      'osm_lon': live_tags_container.get('lon'),
                                                      'osm_nodes': None}
-                                        get_or_create_cache(session_object(), POI_OSM_cache, **cache_row)
+                                        get_or_create_cache(session, POI_OSM_cache, **cache_row)
                                         break
                                     else:
                                         logging.warning('Download of external data for node has failed.')
@@ -369,7 +369,7 @@ def online_poi_matching(args):
                         try:
                             postcode = None
                             postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
-                                                                   session_object(),
+                                                                   session,
                                                                    data.at[i, 'poi_lon'], data.at[i, 'poi_lat'],
                                                                    row.poi_postcode, osm_postcode)
                         except Exception as e:
