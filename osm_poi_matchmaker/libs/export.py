@@ -5,7 +5,7 @@ try:
     import sys
     import os
     import traceback
-    from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml
+    from osm_poi_matchmaker.libs.file_output import save_csv_file, generate_osm_xml, generate_geojson
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -53,6 +53,33 @@ def export_grouped_poi_data(data):
                 logging.exception(traceback.format_exc())
     except Exception as e:
         logging.exception('Exception occurred during opening file: {}'.format(e))
+        logging.exception(traceback.format_exc())
+
+
+def export_raw_poi_data_geojson(addr_data, postfix=''):
+    try:
+        geojson_path = os.path.join(config.get_directory_output(), 'poi_address{}.geojson'.format(postfix))
+        logging.info('Saving GeoJSON to file: poi_address%s.geojson', postfix)
+        with open(geojson_path, 'wb') as gf:
+            gf.write(generate_geojson(addr_data))
+        logging.info('The poi_address%s.geojson was successfully saved', postfix)
+    except Exception as e:
+        logging.exception('Exception occurred: {}'.format(e))
+        logging.exception(traceback.format_exc())
+
+
+def export_grouped_poi_data_geojson(data):
+    try:
+        output_dir = data[0]
+        filename = data[1]
+        rows = data[2]
+        geojson_path = os.path.join(output_dir, '{}.geojson'.format(filename))
+        logging.info('Saving GeoJSON to file: %s.geojson', filename)
+        with open(geojson_path, 'wb') as gf:
+            gf.write(generate_geojson(rows))
+        logging.info('The %s.geojson was successfully saved', filename)
+    except Exception as e:
+        logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
 
 

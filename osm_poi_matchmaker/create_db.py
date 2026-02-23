@@ -20,7 +20,8 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
-    from osm_poi_matchmaker.libs.export import export_raw_poi_data, export_raw_poi_data_xml, export_grouped_poi_data, \
+    from osm_poi_matchmaker.libs.export import export_raw_poi_data, export_raw_poi_data_xml, \
+        export_raw_poi_data_geojson, export_grouped_poi_data, export_grouped_poi_data_geojson, \
         export_grouped_poi_data_with_postcode_groups
     from sqlalchemy.orm import scoped_session, sessionmaker
     from osm_poi_matchmaker.dao.poi_base import POIBase
@@ -277,8 +278,10 @@ def main():
         logging.info('Starting STAGE 7 – Exporting.')
         export_raw_poi_data(poi_addr_data, poi_common_data)
         export_raw_poi_data_xml(poi_addr_data)
+        export_raw_poi_data_geojson(poi_addr_data)
         logging.info('Saving POI code grouped filesets…')
         manager.start_exporter(poi_addr_data)
+        manager.start_exporter(poi_addr_data, to_do=export_grouped_poi_data_geojson)
         manager.join()
         logging.info("STAGE 7 – Exporting has finished successfully.")
         mem_info.log_top_memory_snapshot('STAGE 7')
@@ -293,11 +296,13 @@ def main():
 
         prefix = 'merge_'
         export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
+        export_raw_poi_data_geojson(poi_addr_data, prefix)
         mem_info.log_top_memory_snapshot('STAGE 8')
 
         # --- STAGE 9 ---
         logging.info('Starting STAGE 9 – Exporting matched POI.')
         manager.start_exporter(poi_addr_data, prefix)
+        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_geojson)
         manager.join()
         logging.info("STAGE 9 – Matched POI exported successfully.")
         mem_info.log_top_memory_snapshot('STAGE 9')

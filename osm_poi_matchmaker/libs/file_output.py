@@ -226,6 +226,85 @@ def add_osm_coordinate_comment(lat: str, long: str, zoom_level: int = 18) -> str
     return osm_comment
 
 
+def generate_geojson(df):
+    """Create a GeoJSON FeatureCollection from a POI DataFrame.
+
+    Each row becomes a GeoJSON Feature with a Point geometry built from
+    ``poi_lon``/``poi_lat`` and properties mapped from the standard POI
+    field dictionaries (POI_TAGS, POI_YESNO_TAGS, POI_EV_TAGS) plus a
+    small set of extra fields.
+
+    Args:
+        df: Pandas/GeoPandas DataFrame containing POI rows.
+
+    Returns:
+        bytes: UTF-8 encoded GeoJSON FeatureCollection.
+    """
+
+    def _valid(val):
+        """Return True when *val* is a non-empty, non-NaN value."""
+        if val is None:
+            return False
+        try:
+            if math.isnan(float(val)):
+                return False
+        except (TypeError, ValueError):
+            pass
+        return str(val).strip() != ''
+
+    features = []
+    for _, row in df.iterrows():
+        lon = row.get('poi_lon')
+        lat = row.get('poi_lat')
+        if not _valid(lon) or not _valid(lat):
+            continue
+
+        properties = {}
+
+        for col, tag in POI_TAGS.items():
+            val = row.get(col)
+            if _valid(val):
+                properties[tag] = str(val)
+
+        for col, tag in POI_YESNO_TAGS.items():
+            val = row.get(col)
+            if val is True:
+                properties[tag] = 'yes'
+            elif val is False:
+                properties[tag] = 'no'
+
+        for col, tag in POI_EV_TAGS.items():
+            val = row.get(col)
+            if _valid(val):
+                properties[tag] = str(val)
+
+        for col in ('poi_code', 'poi_website', 'poi_phone', 'poi_mobile',
+                    'poi_ref', 'poi_additional_ref'):
+            val = row.get(col)
+            if _valid(val):
+                properties[col] = str(val)
+
+        for col in ('osm_id', 'osm_node', 'osm_version'):
+            val = row.get(col)
+            if _valid(val):
+                properties[col] = str(val)
+
+        features.append({
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [float(lon), float(lat)],
+            },
+            'properties': properties,
+        })
+
+    geojson = {
+        'type': 'FeatureCollection',
+        'features': features,
+    }
+    return json.dumps(geojson, ensure_ascii=False, indent=2).encode('utf-8')
+
+
 def generate_osm_xml(df, session=None):
     """Crete OpenStreetMap (OSM XML) file from passed Panda Dataframe
 
