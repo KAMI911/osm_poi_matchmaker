@@ -140,7 +140,7 @@ class OpeningHours(object):
         if self.__non_stop is True or 'Mo-Su 00:00-24:00' in oh:
             try:
                 return '24/7{}'.format(oh_ph)
-            except:
+            except Exception:
                 return '24/7'
         elif oh_list == []:
             return None
