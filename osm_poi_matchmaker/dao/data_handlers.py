@@ -301,26 +301,18 @@ def get_or_create_poi(session, model, **kwargs):
 
     except SQLAlchemyError as e:
         session.rollback()
-        print(e.statement)
-        print(e.params)
         logging.error('Database error during get_or_create_poi: %s', e)
         logging.exception('SQLAlchemy exception occurred')
         raise
 
     except Exception as e:
         session.rollback()
-        print(e.statement)
-        print(e.params)
         logging.error('Unexpected error during get_or_create_poi: %s', e)
         logging.exception('General exception occurred')
         raise
 
 
 def search_poi_patch(session, model, **kwargs):
-    if kwargs.get('poi_common_id') == "*":
-        kwargs['valami'] = "%"
-    if kwargs.get('poi_common_id') == "*":
-        kwargs['valami'] = "%"
     if kwargs.get('poi_common_id') == "*":
         kwargs['valami'] = "%"
 
