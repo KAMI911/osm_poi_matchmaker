@@ -6,6 +6,7 @@ try:
     import logging
     import sys
     import tracemalloc
+    from osm_poi_matchmaker.utils.config import get_memory_enable_tracing
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -17,13 +18,19 @@ class MemoryInfo(object):
 
     def __init__(self):
         self.info = tracemalloc
-        if not self.info.is_tracing():
-            logging.info('Starting tracemalloc tracing.')
-            self.info.start()
+        self.enabled = get_memory_enable_tracing()
+        if self.enabled:
+            if not self.info.is_tracing():
+                logging.info('Starting tracemalloc tracing.')
+                self.info.start()
+            else:
+                logging.info('tracemalloc tracing already active.')
         else:
-            logging.info('tracemalloc tracing already active.')
+            logging.debug('Memory tracing disabled (memory.enable.tracing=False).')
 
     def log_top_memory_snapshot(self, stage_name, top_n=10):
+        if not self.enabled:
+            return
         if not self.info.is_tracing():
             logging.warning('tracemalloc tracing not active — starting it now.')
             self.info.start()
