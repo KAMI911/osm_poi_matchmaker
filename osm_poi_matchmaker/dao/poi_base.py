@@ -42,7 +42,7 @@ class POIBase:
                                                    max_overflow=20, pool_pre_ping=True, pool_use_lifo=True)
         except psycopg2.OperationalError as e:
             logging.error('Database error: %s', e)
-            if self.retry_counter >= reco:
+            if reco >= self.db_retry_counter:
                 logging.error('Cannot connect to database with %s connection string', self.db_connection)
             else:
                 logging.error('Cannot connect to the database. It will retry within %s seconds. [%s/%s]',
@@ -51,7 +51,7 @@ class POIBase:
                 self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8',
                                                        echo=config.get_database_enable_query_log(), pool_size=40,
                                                        max_overflow=20, pool_pre_ping=True, pool_use_lifo=True)
-                self.db_retry_counter += 1
+                reco += 1
         Base.metadata.create_all(self.engine)
         self.one_connection = self.engine.connect()
         self.session_maker = sqlalchemy.orm.sessionmaker(bind=self.engine)
@@ -126,7 +126,7 @@ class POIBase:
                 'select * from poi_osm_cache where osm_id = :node_id and osm_object_type = :object_type limit 1')
             data = pd.read_sql(query, self.connection(),
                                params={'node_id': int(node_id), 'object_type': object_type.name})
-            if not data.values.tolist():
+            if data.empty:
                 return None
             else:
                 return data.to_dict('records')[0]
@@ -137,14 +137,14 @@ class POIBase:
         if way_id > 0:
             query = sqlalchemy.text('select nodes from planet_osm_ways where id = :way_id limit 1')
             data = pd.read_sql(query, self.connection(), params={'way_id': int(way_id)})
-            return data.values.tolist()[0][0]
+            return data.iloc[0, 0]
         else:
             return None
 
     def query_relation_nodes(self, relation_id):
         query = sqlalchemy.text('select members from planet_osm_rels where id = :relation_id limit 1')
         data = pd.read_sql(query, self.connection(), params={'relation_id': int(abs(relation_id))})
-        return data.values.tolist()[0][0]
+        return data.iloc[0, 0]
 
     def query_osm_shop_poi_gpd(self, lon: float, lat: float, ptype: str = 'shop', name: str = None,
                                avoid_name: str = None, unique_name: str = None,
