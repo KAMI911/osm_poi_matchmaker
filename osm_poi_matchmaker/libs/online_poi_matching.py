@@ -41,14 +41,15 @@ def online_poi_matching(args):
         session_object = scoped_session(session_factory)
         session = session_object()
         osm_live_query = OsmApi()
+        comm_type_lookup = comm_data.set_index('pc_id')['poi_type']
         for i, row in data.head(config.get_dataproviders_limit_elemets()).iterrows():
         # for i, row in data[data['poi_code'].str.contains('ping')].iterrows():
             logging.info("Starting online POI matching…")
             try:
                 # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
                 osm_query = db.query_osm_shop_poi_gpd(row.get('poi_lon'), row.get('poi_lat'),
-                                                      comm_data.loc[comm_data['pc_id'] == row.get('poi_common_id')][
-                                                          'poi_type'].values[0], row.get('poi_search_name'),
+                                                      comm_type_lookup.get(row.get('poi_common_id')),
+                                                      row.get('poi_search_name'),
                                                       row.get('poi_search_avoid_name'), row.get('poi_name'),
                                                       row.get('additional_ref_name'), row.get('poi_ref'),
                                                       row.get('poi_addr_street'), row.get('poi_addr_housenumber'),
@@ -97,7 +98,6 @@ def online_poi_matching(args):
                                 except Exception as err:
                                     logging.exception('Exception occurred during postcode query (1): {}'.format(err))
                                     logging.exception(traceback.format_exc())
-                                logging.debug(f'(row, osm_query, postcode)')
                                 force_postcode_change = False  # TODO: Has to be a setting in app.conf
                                 if force_postcode_change is True:
                                     # Force to use datasource postcode
@@ -234,6 +234,7 @@ def online_poi_matching(args):
                                  data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'],
                                  row.get('poi_postcode'), row.get('poi_city'), row.get('poi_addr_street'),
                                  row.get('poi_addr_housenumber'), row.get('poi_conscriptionnumber'))
+                    cached_node = None
                     try:
                         # Download OSM POI way live tags
                         if osm_node == OSM_object_type.way:

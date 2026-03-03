@@ -253,7 +253,7 @@ def generate_geojson(df):
         return str(val).strip() != ''
 
     features = []
-    for _, row in df.iterrows():
+    for row in df.to_dict('records'):
         lon = row.get('poi_lon')
         lat = row.get('poi_lat')
         if not _valid(lon) or not _valid(lat):
