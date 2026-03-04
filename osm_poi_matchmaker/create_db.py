@@ -21,7 +21,7 @@ try:
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
     from osm_poi_matchmaker.libs.export import export_raw_poi_data, export_raw_poi_data_xml, \
-        export_raw_poi_data_geojson, export_grouped_poi_data, export_grouped_poi_data_geojson, \
+        export_raw_poi_data_geojson, export_grouped_poi_data, \
         export_new_poi_data, export_existing_poi_data, \
         export_grouped_poi_data_new, export_grouped_poi_data_existing, \
         export_grouped_poi_data_with_postcode_groups
@@ -155,11 +155,12 @@ class WorkflowManager(object):
         except Exception as e:
             logging.exception('Exception occurred', exc_info=True)
 
-    def start_exporter(self, data: pd.DataFrame, postfix: str = '', to_do=export_grouped_poi_data):
+    def start_exporter(self, data: pd.DataFrame, postfix: str = '', to_do=export_grouped_poi_data,
+                       infix: str = ''):
         logging.debug(data.to_string())
         logging.info('Preparing export jobs…')
         poi_codes = data['poi_code'].unique()
-        modules = [[config.get_directory_output(), f'poi_address_{postfix}{c}', data[data.poi_code == c],
+        modules = [[config.get_directory_output(), f'poi_address_{postfix}{infix}{c}', data[data.poi_code == c],
                     'poi_address'] for c in poi_codes]
         try:
             logging.info('Starting processing export.')
@@ -274,7 +275,6 @@ def main():
         export_raw_poi_data_geojson(poi_addr_data)
         logging.info('Saving POI code grouped filesets…')
         manager.start_exporter(poi_addr_data)
-        manager.start_exporter(poi_addr_data, to_do=export_grouped_poi_data_geojson)
         manager.join()
         logging.info("STAGE 7 – Exporting has finished successfully.")
         mem_info.log_top_memory_snapshot('STAGE 7')
@@ -297,9 +297,8 @@ def main():
         # --- STAGE 9 ---
         logging.info('Starting STAGE 9 – Exporting matched POI.')
         manager.start_exporter(poi_addr_data, prefix)
-        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_geojson)
-        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_new)
-        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_existing)
+        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_new, infix='new_')
+        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_existing, infix='existing_')
         manager.join()
         logging.info("STAGE 9 – Matched POI exported successfully.")
         mem_info.log_top_memory_snapshot('STAGE 9')

@@ -31,6 +31,14 @@ POI_TAGS = {'poi_common_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 
             'poi_addr_street': 'addr:street', 'poi_addr_housenumber': 'addr:housenumber',
             'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email'}
 
+# Extra POI fields mapped to their OSM tag equivalents (used in GeoJSON export)
+POI_EXTRA_TAGS = {
+    'poi_website': 'website',
+    'poi_phone': 'phone',
+    'poi_mobile': 'mobile',
+    'poi_ref': 'ref',
+}
+
 # TODO: Separete adblue_pack, adblue_car and adblue_truck tags
 # TODO: fuel:adblue=yes; fuel:adblue:canister=yes;fuel:adblue:motorcar=yes;fuel:adblue:hgv=yes
 
@@ -278,13 +286,14 @@ def generate_geojson(df):
             if _valid(val):
                 properties[tag] = str(val)
 
-        for col in ('poi_code', 'poi_website', 'poi_phone', 'poi_mobile',
-                    'poi_ref', 'poi_additional_ref'):
+        for col, tag in POI_EXTRA_TAGS.items():
             val = row.get(col)
             if _valid(val):
-                properties[col] = str(val)
+                properties[tag] = str(val)
 
-        for col in ('osm_id', 'osm_node', 'osm_version'):
+        # Internal metadata: poi_code is a system identifier; poi_additional_ref tag name
+        # is context-dependent; osm_* fields track the matched OSM object.
+        for col in ('poi_code', 'poi_additional_ref', 'osm_id', 'osm_node', 'osm_version'):
             val = row.get(col)
             if _valid(val):
                 properties[col] = str(val)
