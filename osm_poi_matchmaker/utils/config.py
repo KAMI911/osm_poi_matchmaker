@@ -165,13 +165,12 @@ def get_database_writer_username():
     env_setting = os.environ.get('OPM_DATABASE_WRITE_USERNAME')
     if env_setting is not None:
         setting = env_setting
+    if setting is None:
+        return 'poi'
     if setting == 'poi':
         logging.warning(
             'Using default username. For security concerns please change default username in the config file and the database.')
-        if setting is not None:
-            return setting
-    else:
-        return 'poi'
+    return setting
 
 
 def get_database_writer_password():
@@ -182,7 +181,7 @@ def get_database_writer_password():
     if setting == 'poitest':
         logging.warning(
             'Using default password. For security concerns please change default password in the config file and the database.')
-    if None != setting:
+    if setting is not None:
         return setting
     else:
         return 'poitest'

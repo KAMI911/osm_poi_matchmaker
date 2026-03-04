@@ -175,6 +175,7 @@ class POIBase:
         buffer = 10
         query_arr = []
         query_params = {}
+        conn = self.connection()
         query_type, distance = poitypes.getPOITypes(ptype)
         # If we have PO common defined unsafe search radius distance, then use it (or use defaults specified above)
         if distance_unsafe is None or distance_unsafe == '' or math.isnan(distance_unsafe):
@@ -195,7 +196,7 @@ class POIBase:
                          'OR LOWER(TEXT(network)) ~* LOWER(TEXT(:name))) '
             query_params.update({'name': '.*{}.*'.format(name)})
             # If we have PO common defined safe search radius distance, then use it (or use defaults specified above)
-            if distance_perfect is None or distance_perfect != '' or math.isnan(distance_perfect):
+            if distance_perfect is None or distance_perfect == '' or math.isnan(distance_perfect):
                 distance_perfect = config.get_geo_default_poi_perfect_distance()
             query_params.update({'distance_perfect': distance_perfect})
         else:
@@ -297,7 +298,7 @@ class POIBase:
                 perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
             try:
-                data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+                data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)
@@ -358,7 +359,7 @@ class POIBase:
                 perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
             try:
-                data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+                data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)
@@ -429,7 +430,7 @@ class POIBase:
                 perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
             try:
-                data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+                data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)
@@ -501,7 +502,7 @@ class POIBase:
                 perf_rows = [str(row.values()) for row in perf]
                 logging.debug('\n'.join(perf_rows))
             try:
-                data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+                data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)
@@ -716,7 +717,6 @@ class POIBase:
             WHERE (({query_type}) AND osm_id < 0 {query_avoid_name} )
                 AND ST_DistanceSphere(way, point.geom) < :distance_unsafe
         '''
-        query_text = []
         if 'wnwswh_w' in locals(): query_arr.append(wnwswh_w)
         if 'wnwswh_n' in locals(): query_arr.append(wnwswh_n)
         if 'wnwswh_r' in locals(): query_arr.append(wnwswh_r)
@@ -771,7 +771,7 @@ class POIBase:
                 perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
             try:
-                data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way', params=query_params)
+                data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)

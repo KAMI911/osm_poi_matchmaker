@@ -338,43 +338,45 @@ def generate_osm_xml(df, session=None):
     current_osm_id = default_osm_id
     added_nodes = []
     try:
-        for index, row in df.iterrows():
+        for row in df.itertuples(index=True):
+            index = row.Index
             try:
                 logging.info('Start processing: {}. item'.format(index + 1))
-                logging.debug(row.to_string())
+                logging.debug(str(row._asdict()))
                 tags = {}
                 xml_node_tags = None
                 osm_live_tags = {}
                 main_data = {}
-                current_osm_id = default_osm_id if row.get('osm_id') is None else row.get('osm_id')
-                osm_version = '99999' if row.get('osm_version') is None else row.get('osm_version')
+                preserved_name = None
+                current_osm_id = default_osm_id if row.osm_id is None else row.osm_id
+                osm_version = '99999' if row.osm_version is None else row.osm_version
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
                 # OSM Object type is node and select this for new node to where osm_node type is not defined (None)
-                if row.get('osm_node') is None or row.get('osm_node') == OSM_object_type.node:
+                if row.osm_node is None or row.osm_node == OSM_object_type.node:
                     try:
                         logging.debug('Object type is node or new node.')
                         josm_object = 'n{}'.format(current_osm_id)
-                        main_data = etree.SubElement(osm_xml_data, 'node', add_osm_node(current_osm_id, row))
+                        main_data = etree.SubElement(osm_xml_data, 'node', add_osm_node(current_osm_id, row._asdict()))
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
                         logging.exception(traceback.format_exc())
-                elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.way:
+                elif row.osm_node is not None and row.osm_node == OSM_object_type.way:
                     try:
                         logging.debug('Object type is way.')
-                        main_data = etree.SubElement(osm_xml_data, 'way', add_osm_way(current_osm_id, row))
+                        main_data = etree.SubElement(osm_xml_data, 'way', add_osm_way(current_osm_id, row._asdict()))
                         josm_object = 'w{}'.format(current_osm_id)
                         # Add way nodes without any modification)
                         node_data = []
-                        if row.get('osm_nodes') is not None:
-                            for n in json.loads(row.get('osm_nodes')):
+                        if row.osm_nodes is not None:
+                            for n in json.loads(row.osm_nodes):
                                 data = etree.SubElement(main_data, 'nd', ref=str(n))
                         if session is not None:
-                            if row.get('osm_nodes') is not None:
+                            if row.osm_nodes is not None:
                                 # Go through the list except the last value (which is same as the first)
-                                for n in json.loads(row.get('osm_nodes')):
+                                for n in json.loads(row.osm_nodes):
                                     # Add nodes only when it is not already added.
                                     if n not in added_nodes:
                                         added_nodes.append(n)
@@ -388,20 +390,20 @@ def generate_osm_xml(df, session=None):
                                                 for k, v in sorted(node_osm_live_tags).items():
                                                     xml_node_tags = etree.SubElement(node_data, 'tag', k=k, v='{}'.format(v))
                     except TypeError as e:
-                        logging.warning('Missing nodes on this way: %s.', row.get('osm_id'))
+                        logging.warning('Missing nodes on this way: %s.', row.osm_id)
                         logging.exception('Exception occurred: {}'.format(e))
                         logging.exception(traceback.format_exc())
-                elif row.get('osm_node') is not None and row.get('osm_node') == OSM_object_type.relation:
+                elif row.osm_node is not None and row.osm_node == OSM_object_type.relation:
                     try:
                         logging.debug('Object type is relation.')
-                        main_data = etree.SubElement(osm_xml_data, 'relation', add_osm_way(current_osm_id, row))
+                        main_data = etree.SubElement(osm_xml_data, 'relation', add_osm_way(current_osm_id, row._asdict()))
                         josm_object = 'r{}'.format(current_osm_id)
-                        relations = relationer(row.get('osm_nodes'))
+                        relations = relationer(row.osm_nodes)
                         for i in relations:
                             data = etree.SubElement(main_data, 'member', type=i.get('type'), ref=i.get('ref'),
                                                     role=i.get('role'))
                     except TypeError as e:
-                        logging.warning('Missing nodes on this relation: %s.', row['osm_id'])
+                        logging.warning('Missing nodes on this relation: %s.', row.osm_id)
                         logging.exception('Exception occurred: {}'.format(e))
                         logging.exception(traceback.format_exc())
             except Exception as e:
@@ -411,46 +413,46 @@ def generate_osm_xml(df, session=None):
             try:
                 logging.debug('Add OSM reference as comment.')
                 if current_osm_id > 0:
-                    osm_xml_data.append(etree.Comment(add_osm_link_comment(current_osm_id, row.get('osm_node'))))
+                    osm_xml_data.append(etree.Comment(add_osm_link_comment(current_osm_id, row.osm_node)))
                 # Add original POI coordinates as comment
-                comment = etree.Comment(' Original coordinates: {} '.format(row.get('poi_geom')))
+                comment = etree.Comment(' Original coordinates: {} '.format(row.poi_geom))
                 osm_xml_data.append(comment)
                 logging.debug('Add OSM - POI distance as comment.')
-                dst = row.get('poi_distance')
-                if 'poi_distance' in row and dst is not None and not (isinstance(dst, (int, float)) and np.isnan(dst)):
-                    comment = etree.Comment(' OSM <-> POI distance: {} m'.format(row.get('poi_distance')))
+                dst = row.poi_distance
+                if hasattr(row, 'poi_distance') and dst is not None and not (isinstance(dst, (int, float)) and np.isnan(dst)):
+                    comment = etree.Comment(' OSM <-> POI distance: {} m'.format(row.poi_distance))
                 else:
                     logging.debug('New POI, have not got distance data.')
                     comment = etree.Comment(' OSM <-> POI distance: Non exist \n')
                 osm_xml_data.append(comment)
-                comment = etree.Comment(add_osm_coordinate_comment(row.get('poi_geom').x, row.get('poi_geom').y))
+                comment = etree.Comment(add_osm_coordinate_comment(row.poi_geom.x, row.poi_geom.y))
                 osm_xml_data.append(comment)
-                if 'poi_good' in row and 'poi_bad' in row:
+                if hasattr(row, 'poi_good') and hasattr(row, 'poi_bad'):
                     logging.debug('Add good/bad quality comments.')
-                    comment = etree.Comment(' Checker good: {}; bad {}'.format(row.get('poi_good'), row.get('poi_bad')))
+                    comment = etree.Comment(' Checker good: {}; bad {}'.format(row.poi_good, row.poi_bad))
                     osm_xml_data.append(comment)
                 # Using already defined OSM tags if exists
                 logging.debug('Add OSM live tags.')
-                if row.get('osm_live_tags') is not None:
+                if row.osm_live_tags is not None:
                     logging.debug('Add OSM live tags.')
                     tags_keys = list(osm_live_tags.keys())
                     for tk in tags_keys :
                         if tk.startswith('socket:'):
                             osm_live_tags.pop(tk)
-                    logging.info('Additional live tags'.format(row.get('osm_live_tags')))
-                    tags.update(row.get('osm_live_tags').copy())
-                    osm_live_tags.update(row.get('osm_live_tags').copy())
+                    logging.info('Additional live tags'.format(row.osm_live_tags))
+                    tags.update(row.osm_live_tags.copy())
+                    osm_live_tags.update(row.osm_live_tags.copy())
                 # Adding POI common tags
                 logging.debug('Add POI common tags.')
-                if row.get('poi_tags') is not None:
-                    tags.update(row.get('poi_tags'))
+                if row.poi_tags is not None:
+                    tags.update(row.poi_tags)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
                 # Save live name tags if preserve name is enabled
                 logging.debug('Preserve item name tag.')
-                if row.get('preserve_original_name') is True and tags.get('name') is not None:
+                if row.preserve_original_name is True and tags.get('name') is not None:
                     preserved_name = tags.get('name')
             except KeyError as e:
                 logging.debug('No name tag is specified to save in original OpenStreetMap data.')
@@ -458,17 +460,17 @@ def generate_osm_xml(df, session=None):
                 # Overwriting with data from data providers
                 logging.debug('Overwrite item tags from common tags.')
                 for k, v in POI_TAGS.items():
-                    if row.get(k) is not None:
+                    if getattr(row, k, None) is not None:
                         if k != 'poi_addr_housenumber':
-                            tags[v] = row.get(k)
+                            tags[v] = getattr(row, k, None)
                         else:
                             # Avoid housenumber change if only latter case is different (issue #129)
                             # 'poi_addr_housenumber': 'addr:housenumber'
-                            if osm_live_tags.get(v) and row.get(k) and \
-                                    osm_live_tags.get(v).lower() == row.get(k).lower():
+                            if osm_live_tags.get(v) and getattr(row, k, None) and \
+                                    osm_live_tags.get(v).lower() == getattr(row, k, None).lower():
                                 tags[v] = osm_live_tags.get(v)
                             else:
-                                tags[v] = row.get(k)
+                                tags[v] = getattr(row, k, None)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
@@ -486,19 +488,19 @@ def generate_osm_xml(df, session=None):
                             etree.Comment(comment)
                             logging.debug(f'Opening_hours too complex ({current_oh}), skipping modification.')
                         else:
-                            if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
-                                if current_oh == row.get('poi_opening_hours'):
+                            if row.poi_opening_hours is not None and row.poi_opening_hours != '':
+                                if current_oh == row.poi_opening_hours:
                                     tags[alternative_oh_tag] = 'same'
                                 else:
-                                    tags[alternative_oh_tag] = row.get('poi_opening_hours')
+                                    tags[alternative_oh_tag] = row.poi_opening_hours
                     else:
-                        if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
-                            tags['opening_hours'] = row.get('poi_opening_hours')
+                        if row.poi_opening_hours is not None and row.poi_opening_hours != '':
+                            tags['opening_hours'] = row.poi_opening_hours
                             tags[alternative_oh_tag] = 'same'
 
                 else:
                     # NON COVID-19 code path: simple opening hours tagging
-                    if row.get('poi_opening_hours') is not None and row.get('poi_opening_hours') != '':
+                    if row.poi_opening_hours is not None and row.poi_opening_hours != '':
                         if tags.get('opening_hours') is not None and tags.get('opening_hours') != '':
                             current_oh = tags.get('opening_hours')
                             if is_complex_opening_hours(current_oh):
@@ -506,9 +508,9 @@ def generate_osm_xml(df, session=None):
                                 etree.Comment(comment)
                                 logging.debug(f'Opening_hours too complex ({current_oh}), skipping modification.')
                             else:
-                                tags['opening_hours'] = row.get('poi_opening_hours')
+                                tags['opening_hours'] = row.poi_opening_hours
                         else:
-                            tags['opening_hours'] = row.get('poi_opening_hours')
+                            tags['opening_hours'] = row.poi_opening_hours
 
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
@@ -516,21 +518,21 @@ def generate_osm_xml(df, session=None):
             try:
                 # If we got POI phone tag use it as OSM contact:phone tag
                 logging.debug('Add contact:phone tag with phone numbers.')
-                if row.get('poi_phone') is not None and row.get('poi_phone') != '':
-                    tags['contact:phone'] = row.get('poi_phone')
+                if row.poi_phone is not None and row.poi_phone != '':
+                    tags['contact:phone'] = row.poi_phone
                 logging.debug('Add contact:mobil tag with phone numbers.')
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Add contact:mobil tag with phone numbers.')
-                if row.get('poi_mobil') is not None and row.get('poi_mobil') != '':
-                    tags['contact:mobil'] = row.get('poi_mobil')
+                if row.poi_mobil is not None and row.poi_mobil != '':
+                    tags['contact:mobil'] = row.poi_mobil
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
-                if row.get('do_not_export_addr_tags'):
+                if row.do_not_export_addr_tags:
                     logging.debug('Removing address tags based on common file settings')
                     tags_remove = ['addr:postcode', 'addr:city', 'addr:street', 'addr:housenumber',
                                    'addr:conscriptionnumber']
@@ -545,21 +547,21 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
-                if row.get('poi_ref'):
-                    tags['ref'] = row.get('poi_ref')
+                if row.poi_ref:
+                    tags['ref'] = row.poi_ref
                     logging.debug('Added ref tag.')
                     
                 # If there is additional_ref_name then use it as key and poi_additional_ref as value
-                if row.get('additional_ref_name') is not None and row.get('poi_additional_ref') is not None:
-                    tags['ref:{}'.format(row.get('additional_ref_name'))] = row.get('poi_additional_ref')
-                    logging.debug('Add ref:{} tag with additional ref name.'.format(row.get('additional_ref_name')))
+                if row.additional_ref_name is not None and row.poi_additional_ref is not None:
+                    tags['ref:{}'.format(row.additional_ref_name)] = row.poi_additional_ref
+                    logging.debug('Add ref:{} tag with additional ref name.'.format(row.additional_ref_name))
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
                 # If we got POI website tag use it as OSM contact:website tag
                 logging.debug('Add contact:website tag with website URL.')
-                tags['contact:website'] = url_tag_generator(row.get('poi_url_base'), row.get('poi_website'))
+                tags['contact:website'] = url_tag_generator(row.poi_url_base, row.poi_website)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
@@ -567,8 +569,8 @@ def generate_osm_xml(df, session=None):
                 # Short URL for source OSM tag
                 # Can disable in app.conf via use.general.source.website.date key (deafault)
                 logging.debug('Add source OSM tag.')
-                if row['poi_url_base'] is not None and config.get_use_general_source_website_date() is False:
-                    source_url = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
+                if row.poi_url_base is not None and config.get_use_general_source_website_date() is False:
+                    source_url = 'source:{}:date'.format(row.poi_url_base.split('/')[2])
                 else:
                     # Issue #97: Remove source:(website):date tag and add source:website:date tag
                     # Then make it configurable via issue #98
@@ -576,8 +578,8 @@ def generate_osm_xml(df, session=None):
                         source_url = 'source:date'
                     else:
                         source_url = config.get_use_general_source_website_date_tag()
-                    if row['poi_url_base'] is not None:
-                        source_url_2 = 'source:{}:date'.format(row.get('poi_url_base').split('/')[2])
+                    if row.poi_url_base is not None:
+                        source_url_2 = 'source:{}:date'.format(row.poi_url_base.split('/')[2])
                         tags.pop(source_url_2, None)
                 tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt=DATE_FORMAT)
                 # Add source tag, issue #101 and not just overwrite as #103
@@ -592,22 +594,22 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 # Write back the saved name tag
-                if row.get('poi_type') != 'bus_stop':
-                    if 'preserved_name' in locals():
+                if row.poi_type != 'bus_stop':
+                    if preserved_name is not None:
                         logging.debug('Add back "{}" preserved name instead of common name.'.format(preserved_name))
                         tags['name'] = preserved_name
-                    elif row.get('name') is not None:
-                        logging.debug('Add "{}" individual name instead of common name.'.format(row.get('name')))
-                        tags['name'] = row.get('name')
+                    elif row.name is not None:
+                        logging.debug('Add "{}" individual name instead of common name.'.format(row.name))
+                        tags['name'] = row.name
                 else:
                     # Use OSM live 'name' tag for bus_stops when possible
                     if osm_live_tags.get('name') is not None and osm_live_tags.get('name') != '':
                         tags['name'] = osm_live_tags.get('name')
                     else:
-                        if 'preserved_name' in locals():
+                        if preserved_name is not None:
                             tags['name'] = preserved_name
                         else:
-                            tags['name'] = row.get('name')
+                            tags['name'] = row.name
                 # Rewrite old contact tags to contact:* tag form
                 logging.debug('Rewrite old contact tags to contact:* tag form.')
                 tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax', 'mobil']
@@ -629,8 +631,8 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Add description OSM tag.')
-                if row.get('poi_description') is not None and row.get('poi_description') != '':
-                    tags['description'] = row.get('poi_description')
+                if row.poi_description is not None and row.poi_description != '':
+                    tags['description'] = row.poi_description
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
@@ -638,23 +640,23 @@ def generate_osm_xml(df, session=None):
                 # Write tags with yes/no value
                 logging.debug('Add boolean OSM tags.')
                 for k, v in POI_YESNO_TAGS.items():
-                    if row.get(k) is not None and row.get(k) != '':
-                        tags[v] = 'yes' if row.get(k) is True else 'no'
+                    if getattr(row, k, None) is not None and getattr(row, k, None) != '':
+                        tags[v] = 'yes' if getattr(row, k, None) is True else 'no'
 
                 logging.debug('Add EV tags')
                 for k, v in POI_EV_TAGS.items():
-                    if isinstance(row.get(k), float):
-                        if not math.isnan(row.get(k)):
-                            tags[v] = int(row.get(k))
+                    if isinstance(getattr(row, k, None), float):
+                        if not math.isnan(getattr(row, k, None)):
+                            tags[v] = int(getattr(row, k, None))
                     else:
-                        if row.get(k) is not None:
-                            tags[v] = row.get(k)
+                        if getattr(row, k, None) is not None:
+                            tags[v] = getattr(row, k, None)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
                 # This is a new POI - will add fix me tag to the new items.
-                if row.get('poi_new') is not None and row.get('poi_new') is True:
+                if row.poi_new is not None and row.poi_new is True:
                     logging.debug('Add "fixme:verify import" OSM tag for new item.')
                     tags['fixme'] = 'Ellenőrizni a meglétét és a pontos helyére tenni'
                 # Remove unwanted addr:country from file output as we discussed in Issue #33
@@ -665,7 +667,7 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
-                if row.get('poi_type') == 'bus_stop':
+                if row.poi_type == 'bus_stop':
                     tags.pop('ref:vatin', None)
                     tags.pop('ref:vatin:hu', None)
                     tags.pop('ref:vatin:HU', None)
@@ -676,7 +678,7 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 # Remove name tag in export if export_poi_name is false
-                if row.get('export_poi_name') is False:
+                if row.export_poi_name is False:
                     tags.pop('name', None)
                 if tags.get('name') == 'None':
                     tags.pop('name', None)
@@ -721,8 +723,8 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Rendering test data as XML comment.')
-                test_case = {ckey: (row.get(ckey, None).replace('-', '\-') if isinstance(row.get(ckey, None), str)
-                                    else row.get(ckey, None)) for ckey in TESTCASE_GEN_KEYS}
+                test_case = {ckey: (getattr(row, ckey, None).replace('-', '\-') if isinstance(getattr(row, ckey, None), str)
+                                    else getattr(row, ckey, None)) for ckey in TESTCASE_GEN_KEYS}
                 comment = etree.Comment(
                     "ˇ'original': '{t[original]}', 'postcode': '{t[poi_postcode]}', 'city': '{t[poi_city]}', 'street': '{t[poi_addr_street]}', 'housenumber': '{t[poi_addr_housenumber]}', 'conscriptionnumber': '{t[poi_conscriptionnumber]}'°".format(
                         t=test_case))
@@ -756,7 +758,7 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             # Not use preserved name for next item
-            if 'preserved_name' in locals():
+            if preserved_name is not None:
                 del preserved_name
             logging.info('Finished processing: {}. item'.format(index + 1))
         logging.debug('All items have processed.')
