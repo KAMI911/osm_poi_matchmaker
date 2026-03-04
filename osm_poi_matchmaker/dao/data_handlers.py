@@ -483,10 +483,10 @@ def insert_city_dataframe(session, city_df: pd.DataFrame):
         existing = {(r.city_name, r.city_post_code)
                     for r in session.query(City.city_name, City.city_post_code).all()}
         new_cities = []
-        for city_data in city_df.itertuples(index=False):
-            cleaned = address.clean_city(city_data.city_name)
-            if (cleaned, city_data.city_post_code) not in existing:
-                new_cities.append(City(city_post_code=city_data.city_post_code, city_name=cleaned))
+        for _, city_data in city_df.iterrows():
+            cleaned = address.clean_city(city_data['city_name'])
+            if (cleaned, city_data['city_post_code']) not in existing:
+                new_cities.append(City(city_post_code=city_data['city_post_code'], city_name=cleaned))
         session.add_all(new_cities)
     except Exception as e:
         logging.error(f'Error occurred, rolling back transaction: {e}')
@@ -614,9 +614,9 @@ def insert_street_type_dataframe(session: Session, street_df: pd.DataFrame):
 
     try:
         existing = {r.street_type for r in session.query(Street_type.street_type).all()}
-        new_streets = [Street_type(street_type=row.street_type)
-                       for row in street_df.itertuples(index=False)
-                       if row.street_type not in existing]
+        new_streets = [Street_type(street_type=row['street_type'])
+                       for _, row in street_df.iterrows()
+                       if row['street_type'] not in existing]
         session.add_all(new_streets)
     except Exception as e:
         logging.error(f'Rolled back due to error: {e}')
@@ -644,17 +644,17 @@ def insert_patch_data_dataframe(session: Session, patch_df: pd.DataFrame):
     try:
         new_patches = [
             POI_patch(
-                poi_code=str(row.poi_code), orig_postcode=str(row.orig_postcode),
-                orig_city=str(row.orig_city), orig_street=str(row.orig_street),
-                orig_housenumber=str(row.orig_housenumber),
-                orig_conscriptionnumber=str(row.orig_conscriptionnumber),
-                orig_name=str(row.orig_name), new_postcode=str(row.new_postcode),
-                new_city=str(row.new_city), new_street=str(row.new_street),
-                new_housenumber=str(row.new_housenumber),
-                new_conscriptionnumber=str(row.new_conscriptionnumber),
-                new_name=str(row.new_name)
+                poi_code=str(row['poi_code']), orig_postcode=str(row['orig_postcode']),
+                orig_city=str(row['orig_city']), orig_street=str(row['orig_street']),
+                orig_housenumber=str(row['orig_housenumber']),
+                orig_conscriptionnumber=str(row['orig_conscriptionnumber']),
+                orig_name=str(row['orig_name']), new_postcode=str(row['new_postcode']),
+                new_city=str(row['new_city']), new_street=str(row['new_street']),
+                new_housenumber=str(row['new_housenumber']),
+                new_conscriptionnumber=str(row['new_conscriptionnumber']),
+                new_name=str(row['new_name'])
             )
-            for row in patch_df.itertuples(index=False)
+            for _, row in patch_df.iterrows()
         ]
         session.add_all(new_patches)
     except Exception as e:
@@ -703,12 +703,12 @@ def insert_country_data_dataframe(session: Session, country_df: pd.DataFrame) ->
         existing = {r.country_code for r in session.query(Country.country_code).all()}
         new_countries = [
             Country(
-                country_code=row.country_code, continent_code=row.continent_code,
-                country_name=row.country_name, country_iso3=row.country_iso3,
-                country_number=row.country_number, country_full_name=row.country_full_name
+                country_code=row['country_code'], continent_code=row['continent_code'],
+                country_name=row['country_name'], country_iso3=row['country_iso3'],
+                country_number=row['country_number'], country_full_name=row['country_full_name']
             )
-            for row in country_df.itertuples(index=False)
-            if row.country_code not in existing
+            for _, row in country_df.iterrows()
+            if row['country_code'] not in existing
         ]
         session.add_all(new_countries)
     except Exception as e:
@@ -726,9 +726,9 @@ def insert_common_dataframe(session, common_df):
     common_df.columns = ['poi_common_name', 'poi_tags', 'poi_url_base', 'poi_code']
     try:
         existing = {r.poi_code for r in session.query(POI_common.poi_code).all()}
-        new_commons = [POI_common(**row._asdict())
-                       for row in common_df.itertuples(index=False)
-                       if row.poi_code and row.poi_code not in existing]
+        new_commons = [POI_common(**dict(row))
+                       for _, row in common_df.iterrows()
+                       if row.get('poi_code') and row['poi_code'] not in existing]
         session.add_all(new_commons)
     except Exception as e:
         logging.error('Rolled back: %s.', e)

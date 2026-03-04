@@ -14,6 +14,14 @@ except ImportError as err:
     sys.exit(128)
 
 
+def _write_osm_and_geojson(output_dir, filename, rows):
+    """Write OSM XML and GeoJSON files to output_dir/{filename}.osm and .geojson."""
+    with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
+        oxf.write(generate_osm_xml(rows))
+    with open(os.path.join(output_dir, '{}.geojson'.format(filename)), 'wb') as gf:
+        gf.write(generate_geojson(rows))
+
+
 def export_raw_poi_data(addr_data, comm_data, postfix=''):
     try:
         logging.info('Exporting CSV files ...')
@@ -29,6 +37,18 @@ def export_raw_poi_data_xml(addr_data, postfix=''):
     try:
         with open(os.path.join(config.get_directory_output(), 'poi_address{}.osm'.format(postfix)), 'wb') as oxf:
             oxf.write(generate_osm_xml(addr_data))
+    except Exception as e:
+        logging.exception('Exception occurred: {}'.format(e))
+        logging.exception(traceback.format_exc())
+
+
+def export_raw_poi_data_geojson(addr_data, postfix=''):
+    try:
+        geojson_path = os.path.join(config.get_directory_output(), 'poi_address{}.geojson'.format(postfix))
+        logging.info('Saving GeoJSON to file: poi_address%s.geojson', postfix)
+        with open(geojson_path, 'wb') as gf:
+            gf.write(generate_geojson(addr_data))
+        logging.info('The poi_address%s.geojson was successfully saved', postfix)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
@@ -63,33 +83,6 @@ def export_grouped_poi_data(data):
         logging.exception(traceback.format_exc())
 
 
-def export_raw_poi_data_geojson(addr_data, postfix=''):
-    try:
-        geojson_path = os.path.join(config.get_directory_output(), 'poi_address{}.geojson'.format(postfix))
-        logging.info('Saving GeoJSON to file: poi_address%s.geojson', postfix)
-        with open(geojson_path, 'wb') as gf:
-            gf.write(generate_geojson(addr_data))
-        logging.info('The poi_address%s.geojson was successfully saved', postfix)
-    except Exception as e:
-        logging.exception('Exception occurred: {}'.format(e))
-        logging.exception(traceback.format_exc())
-
-
-def export_grouped_poi_data_geojson(data):
-    try:
-        output_dir = data[0]
-        filename = data[1]
-        rows = data[2]
-        geojson_path = os.path.join(output_dir, '{}.geojson'.format(filename))
-        logging.info('Saving GeoJSON to file: %s.geojson', filename)
-        with open(geojson_path, 'wb') as gf:
-            gf.write(generate_geojson(rows))
-        logging.info('The %s.geojson was successfully saved', filename)
-    except Exception as e:
-        logging.exception('Exception occurred: {}'.format(e))
-        logging.exception(traceback.format_exc())
-
-
 def export_new_poi_data(addr_data, postfix=''):
     """Export only new (unmatched) POIs — those with no osm_id — to XML and GeoJSON."""
     try:
@@ -98,12 +91,7 @@ def export_new_poi_data(addr_data, postfix=''):
             logging.info('No new POIs to export.')
             return
         logging.info('Exporting %d new POIs.', len(new_data))
-        with open(os.path.join(config.get_directory_output(),
-                               'poi_address_new{}.osm'.format(postfix)), 'wb') as oxf:
-            oxf.write(generate_osm_xml(new_data))
-        with open(os.path.join(config.get_directory_output(),
-                               'poi_address_new{}.geojson'.format(postfix)), 'wb') as gf:
-            gf.write(generate_geojson(new_data))
+        _write_osm_and_geojson(config.get_directory_output(), 'poi_address_new{}'.format(postfix), new_data)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
@@ -117,12 +105,7 @@ def export_existing_poi_data(addr_data, postfix=''):
             logging.info('No existing POIs to export.')
             return
         logging.info('Exporting %d existing POIs.', len(existing_data))
-        with open(os.path.join(config.get_directory_output(),
-                               'poi_address_existing{}.osm'.format(postfix)), 'wb') as oxf:
-            oxf.write(generate_osm_xml(existing_data))
-        with open(os.path.join(config.get_directory_output(),
-                               'poi_address_existing{}.geojson'.format(postfix)), 'wb') as gf:
-            gf.write(generate_geojson(existing_data))
+        _write_osm_and_geojson(config.get_directory_output(), 'poi_address_existing{}'.format(postfix), existing_data)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
@@ -137,10 +120,7 @@ def export_grouped_poi_data_new(data):
         new_rows = rows[rows['osm_id'].isna()]
         if len(new_rows) == 0:
             return
-        with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
-            oxf.write(generate_osm_xml(new_rows))
-        with open(os.path.join(output_dir, '{}.geojson'.format(filename)), 'wb') as gf:
-            gf.write(generate_geojson(new_rows))
+        _write_osm_and_geojson(output_dir, filename, new_rows)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
@@ -155,10 +135,7 @@ def export_grouped_poi_data_existing(data):
         existing_rows = rows[rows['osm_id'].notna()]
         if len(existing_rows) == 0:
             return
-        with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
-            oxf.write(generate_osm_xml(existing_rows))
-        with open(os.path.join(output_dir, '{}.geojson'.format(filename)), 'wb') as gf:
-            gf.write(generate_geojson(existing_rows))
+        _write_osm_and_geojson(output_dir, filename, existing_rows)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
