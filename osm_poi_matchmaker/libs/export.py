@@ -36,12 +36,11 @@ def export_raw_poi_data_xml(addr_data, postfix=''):
 
 def export_grouped_poi_data(data):
     try:
-        # Generating CSV files group by poi_code
+        # Generating CSV, OSM XML and GeoJSON files grouped by poi_code
         output_dir = data[0]
         filename = data[1]
         rows = data[2]
         table = data[3]
-        # Generating CSV files group by poi_code
         save_csv_file(output_dir, '{}.csv'.format(filename), rows, table)
         with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
             try:
@@ -49,7 +48,15 @@ def export_grouped_poi_data(data):
                 oxf.write(generate_osm_xml(rows))
                 logging.info('The {}.osm was successfully saved'.format(filename))
             except Exception as e:
-                logging.exception('Exception occurred during write wile: {}'.format(e))
+                logging.exception('Exception occurred during write: {}'.format(e))
+                logging.exception(traceback.format_exc())
+        with open(os.path.join(output_dir, '{}.geojson'.format(filename)), 'wb') as gf:
+            try:
+                logging.info('Saving {} to file: {}.geojson'.format(table, filename))
+                gf.write(generate_geojson(rows))
+                logging.info('The {}.geojson was successfully saved'.format(filename))
+            except Exception as e:
+                logging.exception('Exception occurred during GeoJSON write: {}'.format(e))
                 logging.exception(traceback.format_exc())
     except Exception as e:
         logging.exception('Exception occurred during opening file: {}'.format(e))
@@ -130,9 +137,9 @@ def export_grouped_poi_data_new(data):
         new_rows = rows[rows['osm_id'].isna()]
         if len(new_rows) == 0:
             return
-        with open(os.path.join(output_dir, '{}_new.osm'.format(filename)), 'wb') as oxf:
+        with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
             oxf.write(generate_osm_xml(new_rows))
-        with open(os.path.join(output_dir, '{}_new.geojson'.format(filename)), 'wb') as gf:
+        with open(os.path.join(output_dir, '{}.geojson'.format(filename)), 'wb') as gf:
             gf.write(generate_geojson(new_rows))
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
@@ -148,9 +155,9 @@ def export_grouped_poi_data_existing(data):
         existing_rows = rows[rows['osm_id'].notna()]
         if len(existing_rows) == 0:
             return
-        with open(os.path.join(output_dir, '{}_existing.osm'.format(filename)), 'wb') as oxf:
+        with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
             oxf.write(generate_osm_xml(existing_rows))
-        with open(os.path.join(output_dir, '{}_existing.geojson'.format(filename)), 'wb') as gf:
+        with open(os.path.join(output_dir, '{}.geojson'.format(filename)), 'wb') as gf:
             gf.write(generate_geojson(existing_rows))
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
