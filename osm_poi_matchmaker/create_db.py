@@ -29,7 +29,7 @@ try:
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.libs.osm_prepare import index_osm_data
-    from utils.memory_info import MemoryInfo
+    from osm_poi_matchmaker.utils.memory_info import MemoryInfo
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -176,10 +176,7 @@ class WorkflowManager(object):
             # Start multiprocessing in case multiple cores
             logging.info('Starting processing matcher.')
             self._create_pool()
-            if len(data) > self.NUMBER_OF_PROCESSES * 8:
-                split_data = np.array_split(data, self.NUMBER_OF_PROCESSES * 8)
-            else:
-                split_data = np.array_split(data, self.NUMBER_OF_PROCESSES * 8)
+            split_data = np.array_split(data, self.NUMBER_OF_PROCESSES * 8)
             logging.info('Starting matcher on %d data chunks.', len(split_data))
             self.results = self.pool.map_async(online_poi_matching, [(chunk, comm_data) for chunk in split_data],
                                                chunksize=16)
@@ -246,26 +243,20 @@ def main():
         mem_info.log_top_memory_snapshot('STAGE 3')
 
         # --- STAGE 4 ---
-        logging.info('Starting STAGE 4 – Merging all available information in memory.')
+        logging.info('Starting STAGE 4 – Loading common data into memory.')
         poi_common_data = load_common_data(db)
-        poi_addr_data = pd.merge(
-            poi_addr_data, poi_common_data,
-            left_on='poi_common_id', right_on='pc_id', how='inner'
-        )
         mem_info.log_top_memory_snapshot('STAGE 4')
 
         # --- STAGE 5 ---
-        logging.info('Starting STAGE 5 – Dropping unnecessary data from memory.')
-        del poi_addr_data
-        mem_info.log_top_memory_snapshot('STAGE 5')
-
-        # --- STAGE 6 ---
-        logging.info('Starting STAGE 6 – Reloading and preparing merged dataframe.')
-        poi_addr_data = load_poi_data(db, 'poi_address_raw', True)
+        logging.info('Starting STAGE 5 – Merging and preparing dataframe.')
         poi_addr_data = pd.merge(
             poi_addr_data, poi_common_data,
             left_on='poi_common_id', right_on='pc_id', how='inner'
         )
+        mem_info.log_top_memory_snapshot('STAGE 5')
+
+        # --- STAGE 6 ---
+        logging.info('Starting STAGE 6 – Adding OpenStreetMap metadata fields.')
         # New fields for OpenStreetMap data
         now = datetime.datetime.utcnow()
         poi_addr_data['osm_id'] = None

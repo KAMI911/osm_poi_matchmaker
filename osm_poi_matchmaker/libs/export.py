@@ -162,30 +162,21 @@ def export_grouped_poi_data_with_postcode_groups(data):
         # Generating CSV files group by poi_code and postcode
         output_dir = data[0]
         filename = data[1]
-        rows = data[2]
-        # Workaround for 'TypeError: geometries are not orderable error'
-        # https://github.com/geopandas/geopandas/issues/725
-        rows['geometry_wkb'] = rows['poi_geom'].apply(lambda poi_geom: poi_geom.wkb)
-        rows = data[2].sort_values(by=['geometry_wkb'])
+        rows = data[2].sort_values(by=['poi_postcode'], na_position='last').reset_index(drop=True)
         # Maximum number of items in one file
         batch = 100
         # Minimum difference between postcode grouped data sets
         postcode_gap = 200
-        # Postcode minimum value
-        postcode_start = 0
         # Postcode maximum value
         postcode_stop = len(rows)
         if postcode_stop > batch:
             # Create sliced data output
-            for i in range(postcode_start, postcode_stop, postcode_gap):
+            for i in range(0, postcode_stop, postcode_gap):
                 stop = i + postcode_gap - 1
-                # xml_export = rows[rows['poi_postcode'].between(int(i), int(stop), inclusive="both")]
                 xml_export = rows[i:stop]
-                # print(xml_export.to_string())
                 if len(xml_export) != 0:
                     with open(os.path.join(output_dir, '{}_{:04d}-{:04d}.osm'.format(filename, i, stop)), 'wb') as oxf:
                         oxf.write(generate_osm_xml(xml_export))
-                i += postcode_gap
     except Exception as e:
         logging.error(e)
         logging.exception('Exception occurred')

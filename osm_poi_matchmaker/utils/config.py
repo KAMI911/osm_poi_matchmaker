@@ -73,6 +73,7 @@ KEY_USE_GENERAL_SOURCE_WEBSITE_DATE_TAG = 'use.general.source.website.date.tag'
 KEY_DATAPROVIDERS_MODULES_AVAILABLE = 'dataproviders.modules.available'
 KEY_DATAPROVIDERS_MODULES_ENABLE = 'dataproviders.modules.enable'
 KEY_DATAPROVIDERS_LIMIT_ELEMENTS = 'dataproviders.limit.elements'
+KEY_MEMORY_ENABLE_TRACING = 'memory.enable.tracing'
 
 
 def get_config(key):
@@ -386,3 +387,11 @@ def get_dataproviders_limit_elemets():
         return setting
     else:
         return None
+
+
+def get_memory_enable_tracing():
+    setting = get_config_bool(KEY_MEMORY_ENABLE_TRACING)
+    if setting is not None:
+        return setting
+    else:
+        return False

@@ -99,7 +99,6 @@ def online_poi_matching(args):
                                 except Exception as err:
                                     logging.exception('Exception occurred during postcode query (1): {}'.format(err))
                                     logging.exception(traceback.format_exc())
-                                logging.debug(f'(row, osm_query, postcode)')
                                 force_postcode_change = False  # TODO: Has to be a setting in app.conf
                                 if force_postcode_change is True:
                                     # Force to use datasource postcode
@@ -236,6 +235,7 @@ def online_poi_matching(args):
                                  data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'],
                                  row.poi_postcode, row.poi_city, row.poi_addr_street,
                                  row.poi_addr_housenumber, row.poi_conscriptionnumber)
+                    cached_node = None
                     try:
                         # Download OSM POI way live tags
                         if osm_node == OSM_object_type.way:
