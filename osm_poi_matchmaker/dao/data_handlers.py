@@ -488,10 +488,10 @@ def insert_city_dataframe(session, city_df: pd.DataFrame):
     city_df.columns = ['city_post_code', 'city_name']
 
     try:
-        for _, city_data in city_df.iterrows():
-            cleaned_city_name = address.clean_city(city_data['city_name'])
+        for city_data in city_df.itertuples(index=False):
+            cleaned_city_name = address.clean_city(city_data.city_name)
             get_or_create(session, City,
-                          city_post_code=city_data['city_post_code'],
+                          city_post_code=city_data.city_post_code,
                           city_name=cleaned_city_name)
     except Exception as e:
         logging.error(f'Error occurred, rolling back transaction: {e}')
@@ -619,8 +619,8 @@ def insert_street_type_dataframe(session: Session, street_df: pd.DataFrame):
     street_df.columns = ['street_type']
 
     try:
-        for _, street_data in street_df.iterrows():
-            get_or_create(session, Street_type, street_type=street_data['street_type'])
+        for street_data in street_df.itertuples(index=False):
+            get_or_create(session, Street_type, street_type=street_data.street_type)
     except Exception as e:
         logging.error(f'Rolled back due to error: {e}')
         logging.error(f'Offending data row: {street_data}')
@@ -646,17 +646,17 @@ def insert_patch_data_dataframe(session: Session, patch_df: pd.DataFrame):
                         'orig_conscriptionnumber', 'orig_name', 'new_postcode', 'new_city', 'new_street',
                         'new_housenumber', 'new_conscriptionnumber', 'new_name']
     try:
-        for index, patch_data in patch_df.iterrows():
-            get_or_create(session, POI_patch, poi_code=str(patch_data['poi_code']),
-                          orig_postcode=str(patch_data['orig_postcode']),
-                          orig_city=str(patch_data['orig_city']), orig_street=str(patch_data['orig_street']),
-                          orig_housenumber=str(patch_data['orig_housenumber']),
-                          orig_conscriptionnumber=str(patch_data['orig_conscriptionnumber']),
-                          orig_name=str(patch_data['orig_name']), new_postcode=str(patch_data['new_postcode']),
-                          new_city=str(patch_data['new_city']),
-                          new_street=str(patch_data['new_street']), new_housenumber=str(patch_data['new_housenumber']),
-                          new_conscriptionnumber=str(patch_data['new_conscriptionnumber']),
-                          new_name=str(patch_data['new_name']))
+        for patch_data in patch_df.itertuples(index=False):
+            get_or_create(session, POI_patch, poi_code=str(patch_data.poi_code),
+                          orig_postcode=str(patch_data.orig_postcode),
+                          orig_city=str(patch_data.orig_city), orig_street=str(patch_data.orig_street),
+                          orig_housenumber=str(patch_data.orig_housenumber),
+                          orig_conscriptionnumber=str(patch_data.orig_conscriptionnumber),
+                          orig_name=str(patch_data.orig_name), new_postcode=str(patch_data.new_postcode),
+                          new_city=str(patch_data.new_city),
+                          new_street=str(patch_data.new_street), new_housenumber=str(patch_data.new_housenumber),
+                          new_conscriptionnumber=str(patch_data.new_conscriptionnumber),
+                          new_name=str(patch_data.new_name))
     except Exception as e:
         logging.error(f'Rolled back: {e}.')
         logging.error(patch_data)
@@ -702,15 +702,15 @@ def insert_country_data_dataframe(session: Session, country_df: pd.DataFrame) ->
     ]
 
     try:
-        for _, country_data in country_df.iterrows():
+        for country_data in country_df.itertuples(index=False):
             get_or_create(
                 session, Country,
-                country_code=country_data['country_code'],
-                continent_code=country_data['continent_code'],
-                country_name=country_data['country_name'],
-                country_iso3=country_data['country_iso3'],
-                country_number=country_data['country_number'],
-                country_full_name=country_data['country_full_name']
+                country_code=country_data.country_code,
+                continent_code=country_data.continent_code,
+                country_name=country_data.country_name,
+                country_iso3=country_data.country_iso3,
+                country_number=country_data.country_number,
+                country_full_name=country_data.country_full_name
             )
     except Exception as e:
         logging.error(f'Rolled back due to error: {e}')
@@ -727,8 +727,8 @@ def insert_country_data_dataframe(session: Session, country_df: pd.DataFrame) ->
 def insert_common_dataframe(session, common_df):
     common_df.columns = ['poi_common_name', 'poi_tags', 'poi_url_base', 'poi_code']
     try:
-        for index, poi_common_data in common_df.iterrows():
-            get_or_create_common(session, POI_common, **poi_common_data)
+        for poi_common_data in common_df.itertuples(index=False):
+            get_or_create_common(session, POI_common, **poi_common_data._asdict())
     except Exception as e:
         logging.error('Rolled back: %s.', e)
         logging.error(poi_common_data)

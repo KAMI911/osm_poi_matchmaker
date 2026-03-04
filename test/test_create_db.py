@@ -15,6 +15,10 @@ try:
     # from test.test_poi_dataset import TestPOIDatasetRaw
     from test.test_timing import TestTiming
     from test.test_osm import TestOSMRelationer
+    from test.test_address_extended import TestRemoveWhitespace, TestCleanJavascriptVariable, \
+        TestCleanStreet, TestCleanStreetType, TestCleanBranch, TestCleanEmail, TestCleanPhoneToJson, \
+        TestExtractStreetHousenumber, TestExtractCityStreetHousenumber
+    from test.test_osm_extended import TestOSMRelationerEdgeCases, TestOSMTimestamp
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -44,6 +48,17 @@ if __name__ == '__main__':
         unittest.TestLoader().loadTestsFromTestCase(TestURLTagGenerator),
         unittest.TestLoader().loadTestsFromTestCase(TestTiming),
         unittest.TestLoader().loadTestsFromTestCase(TestOSMRelationer),
+        unittest.TestLoader().loadTestsFromTestCase(TestRemoveWhitespace),
+        unittest.TestLoader().loadTestsFromTestCase(TestCleanJavascriptVariable),
+        unittest.TestLoader().loadTestsFromTestCase(TestCleanStreet),
+        unittest.TestLoader().loadTestsFromTestCase(TestCleanStreetType),
+        unittest.TestLoader().loadTestsFromTestCase(TestCleanBranch),
+        unittest.TestLoader().loadTestsFromTestCase(TestCleanEmail),
+        unittest.TestLoader().loadTestsFromTestCase(TestCleanPhoneToJson),
+        unittest.TestLoader().loadTestsFromTestCase(TestExtractStreetHousenumber),
+        unittest.TestLoader().loadTestsFromTestCase(TestExtractCityStreetHousenumber),
+        unittest.TestLoader().loadTestsFromTestCase(TestOSMRelationerEdgeCases),
+        unittest.TestLoader().loadTestsFromTestCase(TestOSMTimestamp),
     ])
 
     #runner = unittest.TextTestRunner(verbosity=1, stream=sys.stdout, descriptions=True)  # verbose output
