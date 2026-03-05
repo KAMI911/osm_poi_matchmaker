@@ -63,14 +63,14 @@ class hu_volanbusz(DataProvider):
             start = timer()
 
             # processing stops
-            for index, stop in stops_df.iterrows():
+            for stop in stops_df.itertuples():
                 try:
-                    if index > 0 and index % 100 == 0:
+                    if stop.Index > 0 and stop.Index % 100 == 0:
                         now = timer()
-                        per_item = (now - start) / index
-                        remaining = (len(stops_df) - index) * per_item
+                        per_item = (now - start) / stop.Index
+                        remaining = (len(stops_df) - stop.Index) * per_item
                         logging.debug('stops {}/{}  elapsed={}  remaining={} total={}'.format(
-                            index,
+                            stop.Index,
                             len(stops_df),
                             timedelta(seconds=round(now - start)),
                             timedelta(seconds=round(remaining)),
@@ -78,15 +78,15 @@ class hu_volanbusz(DataProvider):
                         ))
 
                     # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom
-                    self.data.name = stop.get('stop_name').strip()
+                    self.data.name = stop.stop_name.strip()
                     self.data.code = 'huvolantra'
-                    self.data.poi_additional_ref = clean_string(stop.get('stop_id'))
-                    self.data.lat, self.data.lon = check_hu_boundary(stop.get('stop_lat'), stop.get('stop_lon'))
+                    self.data.poi_additional_ref = clean_string(stop.stop_id)
+                    self.data.lat, self.data.lon = check_hu_boundary(stop.stop_lat, stop.stop_lon)
                     self.data.original = clean_string('id={} lat={} lon={} name={}'.format(
-                        stop.get('stop_id'),
-                        stop.get('stop_lat'),
-                        stop.get('stop_lon'),
-                        stop.get('stop_name')
+                        stop.stop_id,
+                        stop.stop_lat,
+                        stop.stop_lon,
+                        stop.stop_name
                     ))
                     self.data.add()
                 except Exception as e:

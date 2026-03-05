@@ -204,7 +204,7 @@ def online_poi_matching(args):
                         distance = osm_query.get('distance')
                         if distance is not None:
                             value = distance.values[0]
-                            data.at[i, 'poi_distance'] = int(value) if pd.notnull(value) else None
+                            data.at[i, 'poi_distance'] = int(value) if pd.notna(value) else None
                         else:
                             data.at[i, 'poi_distance'] = None
                     except Exception as err_row:

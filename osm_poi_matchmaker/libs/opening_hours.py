@@ -34,13 +34,13 @@ class OpeningHours(object):
         self.df_dup = self.df_oh.sort_values('did').drop_duplicates(['open', 'close'], keep='first')
         self.df_dup['same'] = None
         self.__public_holiday_open = public_holiday_open
-        for k, v in self.df_dup.iterrows():
+        for row in self.df_dup.itertuples():
             same = self.df_oh.loc[
-                (self.df_oh['open'] == v['open']) & (self.df_oh['close'] == v['close'])].index.tolist()
+                (self.df_oh['open'] == row.open) & (self.df_oh['close'] == row.close)].index.tolist()
             if same is not None:
-                same_id = self.df_oh.loc[(self.df_oh['open'] == v['open']) & (self.df_oh['close'] == v['close'])][
+                same_id = self.df_oh.loc[(self.df_oh['open'] == row.open) & (self.df_oh['close'] == row.close)][
                     'did'].tolist()
-                self.df_dup.at[k, 'same'] = collections.OrderedDict(zip(same_id, same))
+                self.df_dup.at[row.Index, 'same'] = collections.OrderedDict(zip(same_id, same))
 
     @property
     def nonstop(self):
@@ -97,10 +97,10 @@ class OpeningHours(object):
     def process(self):
         oh = ''
         oh_list = []
-        for k, v in self.df_dup.iterrows():
-            if v['open'] is not None and v['close'] is not None:
+        for row in self.df_dup.itertuples():
+            if row.open is not None and row.close is not None:
                 # Order by week days
-                ordered = collections.OrderedDict(sorted(v['same'].items(), key=lambda x: x[0]))
+                ordered = collections.OrderedDict(sorted(row.same.items(), key=lambda x: x[0]))
                 same = list(ordered.values())
                 # Public Holidays
                 if self.__public_holiday_open is None:

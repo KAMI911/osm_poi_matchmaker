@@ -988,7 +988,7 @@ class POIDatasetRaw:
         self.__public_holiday_open = data
 
     def process_opening_hours(self):
-        self.__oh = self.__oh.where((pd.notnull(self.__oh)), None)
+        self.__oh = self.__oh.where((pd.notna(self.__oh)), None)
         t = OpeningHours(self.__nonstop, self.__oh.at[WeekDaysShort.mo, OpenClose.open],
                          self.__oh.at[WeekDaysShort.tu, OpenClose.open],
                          self.__oh.at[WeekDaysShort.we, OpenClose.open],
@@ -1283,4 +1283,4 @@ class POIDataset(POIDatasetRaw):
     def process(self):
         df = pd.DataFrame(self.insert_data)
         df.columns = POI_COLS
-        return df.where((pd.notnull(df)), None)
+        return df.where((pd.notna(df)), None)
