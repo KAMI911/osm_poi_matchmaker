@@ -53,9 +53,10 @@ class hu_mol_bubi(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
             if soup is not None:
+                poi_datas = []
                 try:
                     text = json.loads(soup)
-                    poi_datas = text.get('countries')[0].get('cities')[0].get('places')
+                    poi_datas = text.get('countries')[0].get('cities')[0].get('places') or []
                 except IndexError as e:
                     logging.exception('Index Error Exception occurred: %s', e)
                     logging.exception(traceback.format_exc())

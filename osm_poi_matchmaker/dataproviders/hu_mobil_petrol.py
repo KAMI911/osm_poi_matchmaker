@@ -52,8 +52,11 @@ class hu_mobil_petrol(DataProvider):
                                         self.filetype)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
-                text = json.loads(
-                    extract_javascript_variable(soup, 'totem_stations'))
+                raw = extract_javascript_variable(soup, 'totem_stations')
+                if raw is None:
+                    logging.warning('Could not extract totem_stations variable from page.')
+                    return
+                text = json.loads(raw)
                 for poi_data in text.values():
                     try:
                         self.data.code = 'humobpefu'

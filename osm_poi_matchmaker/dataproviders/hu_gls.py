@@ -84,7 +84,7 @@ class hu_gls(DataProvider):
             )
             if soup is not None:
                 text = json.loads(soup, strict=False)
-                for poi_data in text.get('items'):
+                for poi_data in text.get('items', []):
                     try:
                         self.data.branch = clean_string(poi_data.get('name').split('|')[0])
                         self.data.branch = re.sub('^GLS automata', '', self.data.branch, flags=re.IGNORECASE)

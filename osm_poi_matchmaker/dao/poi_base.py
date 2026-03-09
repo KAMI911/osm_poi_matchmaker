@@ -911,6 +911,7 @@ class POIBase:
         except Exception as err:
             logging.warning('Exception occurred')
             logging.exception(err)
+        data = None
         try:
             query = sqlalchemy.text('''
               SELECT * FROM
@@ -931,14 +932,15 @@ class POIBase:
         except Exception as err:
             logging.warning('Exception occurred')
             logging.exception(err)
-        try:
-            data.sort_values(by=['levenshtein'])
-        except Exception as err:
-            logging.warning('Exception occurred')
-            logging.exception(err)
-        logging.debug({'lon': lon, 'lat': lat, 'distance': distance, 'name': name,
-                       'similarity_threshold': similarity_threshold, 'levenshtein_threshold': levenshtein_threshold})
-        logging.debug(f'Returned data:')
-        logging.debug(f'{data.to_string()}')
+        if data is not None:
+            try:
+                data.sort_values(by=['levenshtein'])
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
+            logging.debug({'lon': lon, 'lat': lat, 'distance': distance, 'name': name,
+                           'similarity_threshold': similarity_threshold, 'levenshtein_threshold': levenshtein_threshold})
+            logging.debug(f'Returned data:')
+            logging.debug(f'{data.to_string()}')
 
         return data

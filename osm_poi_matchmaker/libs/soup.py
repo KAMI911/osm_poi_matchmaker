@@ -43,11 +43,12 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
+        return None
     etag = page.headers.get('ETag')
     if etag is not None:
         set_cached('etag:{}'.format(link), etag)
     else:
-        logging.warning("Can't save etag value of response: link={} headers={}".format(link, page.headers))
+        logging.debug("No ETag in response: link=%s", link)
 
     returned_status = http.HTTPStatus(page.status_code)
 

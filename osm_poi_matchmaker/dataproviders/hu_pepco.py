@@ -51,13 +51,16 @@ class hu_pepco(DataProvider):
 
     def process(self):
         try:
+            if not os.path.isfile(self.link):
+                logging.warning('Cache file not found: %s', self.link)
+                return
             # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
             #                             self.filetype)
             # if soup is not None:
             #     text = json.loads(soup)
             with open(self.link, 'r') as f:
                 text = json.load(f)
-                for poi_data in text.get('data'):
+                for poi_data in text.get('data', []):
                     try:
                         '''
                         The Pepco dataset contains all European data. Since the program cannot handle POIs

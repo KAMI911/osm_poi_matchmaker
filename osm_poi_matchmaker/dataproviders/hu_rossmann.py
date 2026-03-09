@@ -62,7 +62,7 @@ class hu_rossmann(DataProvider):
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
                     logging.exception(traceback.format_exc())
-                    logging.exception(pois)
+                    logging.exception(locals().get('pois'))
                 if pois is None:
                     return None
                 for poi_data in pois:

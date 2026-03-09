@@ -64,7 +64,11 @@ class hu_ccc(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
             if soup is not None:
-                pois = json.loads(soup.find('div', {"id": "pos-list-json"}).text)
+                pos_list_element = soup.find('div', {"id": "pos-list-json"})
+                if pos_list_element is None:
+                    logging.warning('Could not find pos-list-json element in page.')
+                    return None
+                pois = json.loads(pos_list_element.text)
                 for poi_data in pois:
                     try:
                         self.data.code = 'hucccsho'

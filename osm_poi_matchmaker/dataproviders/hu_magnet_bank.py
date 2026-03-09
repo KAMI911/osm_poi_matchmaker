@@ -57,7 +57,7 @@ class hu_magnet_bank(DataProvider):
             if self.link:
                 with open(self.link, 'r') as f:
                     text = json.load(f)
-                    for poi_data in text['result']:
+                    for poi_data in text.get('result', []):
                         try:
                             if poi_data.get('address') is not None:
                                 if poi_data.get('type') == '1':

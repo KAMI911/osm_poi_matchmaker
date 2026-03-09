@@ -119,6 +119,9 @@ def save_csv_file(path: str, file: str, data, message: str):
         data (pd.DataFrame): Pandas dataframe to write
         message (str): Addtion information to display
     """
+    if data is None:
+        logging.warning('No data to save for %s', file)
+        return
     try:
         # Save file to CSV file
         logging.info('Saving %s to file: %s', message, file)
@@ -248,6 +251,8 @@ def generate_geojson(df):
     Returns:
         bytes: UTF-8 encoded GeoJSON FeatureCollection.
     """
+    if df is None:
+        return b'{"type": "FeatureCollection", "features": []}'
 
     def _valid(val):
         """Return True when *val* is a non-empty, non-NaN value."""
@@ -606,9 +611,9 @@ def generate_osm_xml(df, session=None):
                     if preserved_name is not None:
                         logging.debug('Add back "{}" preserved name instead of common name.'.format(preserved_name))
                         tags['name'] = preserved_name
-                    elif getattr(row, 'name', None) is not None:
-                        logging.debug('Add "{}" individual name instead of common name.'.format(getattr(row, 'name', None)))
-                        tags['name'] = getattr(row, 'name', None)
+                    elif row.poi_name is not None:
+                        logging.debug('Add "{}" individual name instead of common name.'.format(row.poi_name))
+                        tags['name'] = row.poi_name
                 else:
                     # Use OSM live 'name' tag for bus_stops when possible
                     if osm_live_tags.get('name') is not None and osm_live_tags.get('name') != '':
@@ -617,7 +622,7 @@ def generate_osm_xml(df, session=None):
                         if preserved_name is not None:
                             tags['name'] = preserved_name
                         else:
-                            tags['name'] = getattr(row, 'name', None)
+                            tags['name'] = row.poi_name
                 # Rewrite old contact tags to contact:* tag form
                 logging.debug('Rewrite old contact tags to contact:* tag form.')
                 tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax', 'mobile']

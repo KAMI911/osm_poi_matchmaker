@@ -36,6 +36,7 @@ def query_osm_postcode_gpd(session, lon, lat):
         SELECT name
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat),4326) as geom) point
         WHERE boundary='postal_code' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
+    data = None
     try:
         data = session.execute(query, {'lon': float(lon), 'lat': float(lat)}).first()
     except Exception as e:
@@ -45,7 +46,7 @@ def query_osm_postcode_gpd(session, lon, lat):
         session.commit()
     if data is None:
         return None
-    row = dict(zip(data.keys(), data))
+    row = dict(data._mapping)
     return int(row['name'].split(' ')[0]) if row['name'].split(' ')[0] is not None else None
 
 

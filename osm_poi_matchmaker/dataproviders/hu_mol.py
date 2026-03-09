@@ -79,13 +79,16 @@ class hu_mol(DataProvider):
 
     def process(self):
         try:
+            if not os.path.isfile(self.link):
+                logging.warning('Cache file not found: %s', self.link)
+                return
             # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
             #                            self.filetype, False, post_data=POST_DATA, headers=self.headers)
             # if soup is not None:
             with open(self.link, 'r') as f:
                 text = json.load(f)
                 # text = json.loads(soup)
-                for poi_data in text:
+                for poi_data in text or []:
                     try:
                         if ' Sziget ' in poi_data.get('name'):
                             self.data.code = 'humolwfu'
