@@ -695,13 +695,13 @@ def generate_osm_xml(df, session=None):
                     # Add original POI tags as comment
                     try:
                         if isinstance(v, str):
-                            v = v.replace('-', '\-').replace('\n', '')
+                            v = v.replace('-', '\\-').replace('\n', '')
                         w = osm_live_tags[k]
                     except KeyError:
                         comment += "{:32} NEW\t\t'{}'\n".format(k, v)
                     else:
                         if isinstance(w, str):
-                            w = w.replace('-', '\-').replace('\n', '')
+                            w = w.replace('-', '\\-').replace('\n', '')
                         comment += "{:32} {}\t\t'{}'\t\t\t'{}'\n".format(k, compare_strings(v, w), v, w)
                 logging.debug('Adding OSM tag XML comments to XML file representation.')
                 comment = etree.Comment(comment)
@@ -723,7 +723,7 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Rendering test data as XML comment.')
-                test_case = {ckey: (getattr(row, ckey, None).replace('-', '\-') if isinstance(getattr(row, ckey, None), str)
+                test_case = {ckey: (getattr(row, ckey, None).replace('-', '\\-') if isinstance(getattr(row, ckey, None), str)
                                     else getattr(row, ckey, None)) for ckey in TESTCASE_GEN_KEYS}
                 comment = etree.Comment(
                     "ˇ'original': '{t[original]}', 'postcode': '{t[poi_postcode]}', 'city': '{t[poi_city]}', 'street': '{t[poi_addr_street]}', 'housenumber': '{t[poi_addr_housenumber]}', 'conscriptionnumber': '{t[poi_conscriptionnumber]}'°".format(
