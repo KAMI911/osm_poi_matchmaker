@@ -74,8 +74,14 @@ class hu_gls(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
+            soup = save_downloaded_soup(
+                link="{}".format(self.link),
+                file=os.path.join(self.download_cache, self.filename),
+                filetype=self.filetype,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0"
+                },
+            )
             if soup is not None:
                 text = json.loads(soup, strict=False)
                 for poi_data in text.get('items'):
