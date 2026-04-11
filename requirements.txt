@@ -1,17 +1,17 @@
-numpy>= 2.4.2
-OSMPythonTools>= 0.2.6
-osmapi>= 1.2.2
-pandas>= 3.0.1
+numpy>=2.4.2
+OSMPythonTools>=0.2.6
+osmapi>=1.2.2
+pandas>=3.0.1
 geopandas>=1.1.2
-scipy>= 1.17.1
-requests>= 2.32.3
+scipy>=1.17.1
+requests>=2.32.3
 bs4
-sqlalchemy>= 2.0.48
-geoalchemy2>= 0.18.4
+sqlalchemy>=2.0.48
+geoalchemy2>=0.18.4
 shapely
-psycopg2-binary>= 2.8.5
-xlrd>= 1.2.0
-phonenumbers>= 8.13.48
+psycopg2-binary>=2.9.11
+xlrd>=1.2.0
+phonenumbers>=8.13.48
 lxml
-gtfs-kit>= 5.2.8
-debugpy>= 1.8.20
+gtfs-kit>=5.2.8
+debugpy>=1.8.20
