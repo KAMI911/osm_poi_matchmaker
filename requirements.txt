@@ -9,7 +9,7 @@ bs4
 sqlalchemy>= 2.0.48
 geoalchemy2>= 0.18.4
 shapely
-psycopg2-binary>= 2.8.5
+psycopg2-binary>= 2.9.11
 xlrd>= 1.2.0
 phonenumbers>= 8.13.48
 lxml
