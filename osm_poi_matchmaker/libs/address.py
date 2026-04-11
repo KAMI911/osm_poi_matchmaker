@@ -700,7 +700,7 @@ def clean_string(clearable: str):
     if len(clearable_parts) == 0:
         return None
     clearable = ' '.join(clearable_parts)
-    clearable = clearable.strip()
+    clearable = clearable.strip('-/, ')
     if clearable is not None and clearable != '' and clearable != ' ' and clearable.upper() not in ['NONE', 'NAN', 'NULL', 'NULLNONE']:
         return clearable
     else:
