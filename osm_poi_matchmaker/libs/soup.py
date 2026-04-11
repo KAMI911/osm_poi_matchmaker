@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import http
 
 try:
     import logging
@@ -48,12 +49,32 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
     else:
         logging.warning("Can't save etag value of response: link={} headers={}".format(link, page.headers))
 
-    if page.headers.get('Content-Type') == 'application/zip':
-        logging.debug('Returning a zip file content.')
-        return page.content if page.status_code == 200 else None
+    returned_status = http.HTTPStatus(page.status_code)
+
+    if (
+        returned_status.is_informational
+        or returned_status.is_client_error
+        or returned_status.is_server_error
+    ):
+        suggestion = (
+            "Perhaps you have to add a User-Agent header to the request "
+            "because the API operator bans HTTP requests having default Requests library headers?"
+            if headers is None
+            else "Please check if it works in your browser!"
+        )
+        logging.error(f"{link} returned a {page.status_code} status code. {suggestion}")
+        return None
+    elif returned_status.is_redirection:
+        logging.warning(
+            f"{link} returned a {page.status_code} redirection status code. Please update the URL if it has been moved permanently!"
+        )
+
+    if page.headers.get("Content-Type") == "application/zip":
+        logging.debug("Returning a ZIP file content.")
+        return page.content
     else:
-        logging.debug('Returning a zip file content.')
-        return page.text if page.status_code == 200 else None
+        logging.debug("Returning text content.")
+        return page.text
 
 
 def is_downloaded(link: str, verify_link=config.get_download_verify_link(), headers=None) -> bool:
