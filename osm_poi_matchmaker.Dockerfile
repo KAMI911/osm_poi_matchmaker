@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bullseye
+FROM python:3.12-slim-bullseye
 
 LABEL maintainer="Kálmán Szalai (KAMI) <kami911@gmail.com>"
 
@@ -18,9 +18,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY ./requirements.txt /opm/requirements.txt
 
-RUN python3.11 --version && \
-    python3.11 -m pip --version && \
-    python3.11 -m pip install -r /opm/requirements.txt
+RUN python3 --version && \
+    python3 -m pip --version && \
+    python3 -m pip install -r /opm/requirements.txt
 
 COPY ./osm_poi_matchmaker /opm/osm_poi_matchmaker
 ENV PYTHONPATH=/opm/
