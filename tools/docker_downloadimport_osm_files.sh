@@ -37,7 +37,7 @@ fi
 if [ "${DOWNLOAD}" -eq "1" ]; then
   echo "Will download OSM files"
 fi
-if [ -f "${OUTPUT_DIR}/do_osm_download" -a "${DOWNLOAD}" -eq "1" ]; then
+if [ "${DOWNLOAD}" -eq "1" ]; then
   echo "Downloading OSM files"
   mkdir -p ${OUTPUT_DIR}
   touch "${OUTPUT_DIR}/osm_download.lock"
@@ -47,7 +47,7 @@ if [ -f "${OUTPUT_DIR}/do_osm_download" -a "${DOWNLOAD}" -eq "1" ]; then
   rm "${OUTPUT_DIR}/osm_download.lock"
   echo "${CURRENT_DAYSTAMP}" >"${DOWNLOAD_DS_FILE}"
 fi
-if [ -f "${OUTPUT_DIR}/do_osm_import" -a "${IMPORT}" -eq "1" ]; then
+if [ "${IMPORT}" -eq "1" ]; then
   touch "${OUTPUT_DIR}/osm_import.lock"
   cd ${OUTPUT_DIR}
   md5sum -c ${OUTPUT_DIR}/${FILE}.md5
