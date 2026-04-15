@@ -528,14 +528,14 @@ def generate_osm_xml(df, session=None):
                 logging.debug('Add contact:phone tag with phone numbers.')
                 if row.poi_phone is not None and row.poi_phone != '':
                     tags['contact:phone'] = row.poi_phone
-                logging.debug('Add contact:mobil tag with phone numbers.')
+                logging.debug('Add contact:mobile tag with phone numbers.')
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
-                logging.debug('Add contact:mobil tag with phone numbers.')
-                if row.poi_mobil is not None and row.poi_mobil != '':
-                    tags['contact:mobil'] = row.poi_mobil
+                logging.debug('Add contact:mobile tag with phone numbers.')
+                if row.poi_mobile is not None and row.poi_mobile != '':
+                    tags['contact:mobile'] = row.poi_mobile
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
@@ -620,7 +620,7 @@ def generate_osm_xml(df, session=None):
                             tags['name'] = row.name
                 # Rewrite old contact tags to contact:* tag form
                 logging.debug('Rewrite old contact tags to contact:* tag form.')
-                tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax', 'mobil']
+                tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax', 'mobile']
                 for tr in tags_rewrite:
                     if tr in tags:
                         # Never overwrite already existing contact:* tags
