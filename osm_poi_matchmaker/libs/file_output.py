@@ -447,7 +447,7 @@ def generate_osm_xml(df, session=None):
                     for tk in tags_keys :
                         if tk.startswith('socket:'):
                             osm_live_tags.pop(tk)
-                    logging.info('Additional live tags'.format(row.osm_live_tags))
+                    logging.info('Additional live tags: {}'.format(row.osm_live_tags))
                     tags.update(row.osm_live_tags.copy())
                     osm_live_tags.update(row.osm_live_tags.copy())
                 # Adding POI common tags
