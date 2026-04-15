@@ -444,7 +444,7 @@ def generate_osm_xml(df, session=None):
                 if row.osm_live_tags is not None:
                     logging.debug('Add OSM live tags.')
                     tags_keys = list(osm_live_tags.keys())
-                    for tk in tags_keys :
+                    for tk in tags_keys:
                         if tk.startswith('socket:'):
                             osm_live_tags.pop(tk)
                     logging.info('Additional live tags: {}'.format(row.osm_live_tags))
