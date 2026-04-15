@@ -924,10 +924,19 @@ class POIBase:
               WHERE geo.distance < :distance
               LIMIT 5
               '''.format(metadata_fields=metadata_fields, name_query=name_query))
-            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way',
-                                                 params={'lon': lon, 'lat': lat, 'distance': distance,
-                                                         'name': name, 'similarity_threshold': similarity_threshold,
-                                                         'levenshtein_threshold': levenshtein_threshold})
+            data = gpd.GeoDataFrame.from_postgis(
+                query,
+                self.one_connection,
+                geom_col="way",
+                params={
+                    "lon": lon,
+                    "lat": lat,
+                    "distance": distance,
+                    "name": name,
+                    "similarity_threshold": similarity_threshold,
+                    "levenshtein_threshold": levenshtein_threshold,
+                },
+            )
         except Exception as err:
             logging.warning('Exception occurred')
             logging.exception(err)
