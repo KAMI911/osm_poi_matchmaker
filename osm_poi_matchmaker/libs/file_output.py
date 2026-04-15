@@ -418,9 +418,17 @@ def generate_osm_xml(df, session=None):
                 comment = etree.Comment(' Original coordinates: {} '.format(row.poi_geom))
                 osm_xml_data.append(comment)
                 logging.debug('Add OSM - POI distance as comment.')
-                dst = row.poi_distance
-                if hasattr(row, 'poi_distance') and dst is not None and not (isinstance(dst, (int, float)) and np.isnan(dst)):
-                    comment = etree.Comment(' OSM <-> POI distance: {} m'.format(row.poi_distance))
+                if (
+                    hasattr(row, "poi_distance")
+                    and row.poi_distance is not None
+                    and not (
+                        isinstance(row.poi_distance, (int, float))
+                        and np.isnan(row.poi_distance)
+                    )
+                ):
+                    comment = etree.Comment(
+                        " OSM <-> POI distance: {} m".format(row.poi_distance)
+                    )
                 else:
                     logging.debug('New POI, have not got distance data.')
                     comment = etree.Comment(' OSM <-> POI distance: Non exist \n')
