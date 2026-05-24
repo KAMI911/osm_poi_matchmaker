@@ -20,6 +20,7 @@ try:
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
+    from osm_poi_matchmaker.libs.poi_patch import apply_poi_patches, load_poi_patches_from_db
     from osm_poi_matchmaker.libs.export import export_raw_poi_data, export_raw_poi_data_xml, \
         export_raw_poi_data_geojson, export_grouped_poi_data, \
         export_new_poi_data, export_existing_poi_data, \
@@ -257,7 +258,14 @@ def main():
         mem_info.log_top_memory_snapshot('STAGE 5')
 
         # --- STAGE 6 ---
-        logging.info('Starting STAGE 6 – Adding OpenStreetMap metadata fields.')
+        logging.info('Starting STAGE 6 – Applying poi_patch address overrides.')
+        patch_df = load_poi_patches_from_db(db)
+        poi_addr_data = apply_poi_patches(poi_addr_data, patch_df)
+        logging.info("STAGE 6 – POI address patching has finished successfully.")
+        mem_info.log_top_memory_snapshot('STAGE 6')
+
+        # --- STAGE 7 ---
+        logging.info('Starting STAGE 7 – Adding OpenStreetMap metadata fields.')
         # New fields for OpenStreetMap data
         now = datetime.datetime.utcnow()
         poi_addr_data['osm_id'] = None
@@ -266,24 +274,24 @@ def main():
         poi_addr_data['osm_changeset'] = None
         poi_addr_data['osm_timestamp'] = now
         poi_addr_data['osm_live_tags'] = None
-        logging.info("STAGE 6 – POI dataframe merging has finished successfully.")
+        logging.info("STAGE 7 – POI dataframe merging has finished successfully.")
 
-        # --- STAGE 7 ---
-        logging.info('Starting STAGE 7 – Exporting.')
+        # --- STAGE 8 ---
+        logging.info('Starting STAGE 8 – Exporting.')
         export_raw_poi_data(poi_addr_data, poi_common_data)
         export_raw_poi_data_xml(poi_addr_data)
         export_raw_poi_data_geojson(poi_addr_data)
         logging.info('Saving POI code grouped filesets…')
         manager.start_exporter(poi_addr_data)
         manager.join()
-        logging.info("STAGE 7 – Exporting has finished successfully.")
-        mem_info.log_top_memory_snapshot('STAGE 7')
+        logging.info("STAGE 8 – Exporting has finished successfully.")
+        mem_info.log_top_memory_snapshot('STAGE 8')
 
-        # --- STAGE 8 ---
-        logging.info('Starting STAGE 8 – Online POI matching.')
+        # --- STAGE 9 ---
+        logging.info('Starting STAGE 9 – Online POI matching.')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
-        logging.info("STAGE 8 – Online POI matching finished successfully.")
+        logging.info("STAGE 9 – Online POI matching finished successfully.")
 
         # insert_poi_dataframe(session, poi_addr_data, False)
 
@@ -292,23 +300,23 @@ def main():
         export_raw_poi_data_geojson(poi_addr_data, prefix)
         export_new_poi_data(poi_addr_data, prefix)
         export_existing_poi_data(poi_addr_data, prefix)
-        mem_info.log_top_memory_snapshot('STAGE 8')
+        mem_info.log_top_memory_snapshot('STAGE 9')
 
-        # --- STAGE 9 ---
-        logging.info('Starting STAGE 9 – Exporting matched POI.')
+        # --- STAGE 10 ---
+        logging.info('Starting STAGE 10 – Exporting matched POI.')
         manager.start_exporter(poi_addr_data, prefix)
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_new, infix='new_')
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_existing, infix='existing_')
         manager.join()
-        logging.info("STAGE 9 – Matched POI exported successfully.")
-        mem_info.log_top_memory_snapshot('STAGE 9')
+        logging.info("STAGE 10 – Matched POI exported successfully.")
+        mem_info.log_top_memory_snapshot('STAGE 10')
 
-        # --- STAGE 10 ---
-        logging.info('Starting STAGE 10 – Exporting grouped matched POI.')
+        # --- STAGE 11 ---
+        logging.info('Starting STAGE 11 – Exporting grouped matched POI.')
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
         manager.join()
-        logging.info("STAGE 10 – Grouped POI exported successfully.")
-        mem_info.log_top_memory_snapshot('STAGE 10')
+        logging.info("STAGE 11 – Grouped POI exported successfully.")
+        mem_info.log_top_memory_snapshot('STAGE 11')
 
         logging.info('%s finished successfully.', __program__)
         return 0

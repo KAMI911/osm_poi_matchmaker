@@ -19,6 +19,7 @@ try:
         TestCleanStreet, TestCleanStreetType, TestCleanBranch, TestCleanEmail, TestCleanPhoneToJson, \
         TestExtractStreetHousenumber, TestExtractCityStreetHousenumber
     from test.test_osm_extended import TestOSMRelationerEdgeCases, TestOSMTimestamp
+    from test.test_poi_patch import TestApplyPoiPatches
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -59,6 +60,7 @@ if __name__ == '__main__':
         unittest.TestLoader().loadTestsFromTestCase(TestExtractCityStreetHousenumber),
         unittest.TestLoader().loadTestsFromTestCase(TestOSMRelationerEdgeCases),
         unittest.TestLoader().loadTestsFromTestCase(TestOSMTimestamp),
+        unittest.TestLoader().loadTestsFromTestCase(TestApplyPoiPatches),
     ])
 
     #runner = unittest.TextTestRunner(verbosity=1, stream=sys.stdout, descriptions=True)  # verbose output
