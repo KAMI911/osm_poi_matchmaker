@@ -107,12 +107,12 @@ class poi_patch_from_csv():
     """Insert CVS patch data into database poi_patch table
     """
 
-    def __init__(self, session, filename: str = 'poi_patch.csv'):
+    def __init__(self, session, filename: str = 'poi_patch.tsv'):
         """[summary]
 
         Args:
             session ([type]): [description]
-            filename (str, optional): Filename of CSV file to import. Defaults to 'poi_patch.csv'.
+            filename (str, optional): Filename of CSV file to import. Defaults to 'poi_patch.tsv'.
         """
         self.session = session
         self.filename = filename
@@ -127,12 +127,12 @@ class poi_country_from_csv():
     """Insert CVS country data into database country table
     """
 
-    def __init__(self, session, filename: str = 'country.csv'):
+    def __init__(self, session, filename: str = 'country.tsv'):
         """[summary]
 
         Args:
             session ([type]): [description]
-            filename (str, optional): Filename of CSV file to import. Defaults to 'country.csv'.
+            filename (str, optional): Filename of CSV file to import. Defaults to 'country.tsv'.
         """
         self.session = session
         self.filename = filename
