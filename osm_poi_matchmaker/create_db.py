@@ -52,12 +52,12 @@ def init_log():
 def import_basic_data(session):
     logging.info('Importing patch table…')
     from osm_poi_matchmaker.dataproviders.hu_generic import poi_patch_from_csv
-    work = poi_patch_from_csv(session, 'poi_patch.csv')
+    work = poi_patch_from_csv(session, 'poi_patch.tsv')
     work.process()
 
     logging.info('Importing countries…')
     from osm_poi_matchmaker.dataproviders.hu_generic import poi_country_from_csv
-    work = poi_country_from_csv(session, 'country.csv')
+    work = poi_country_from_csv(session, 'country.tsv')
     work.process()
 
     logging.info('Importing cities…')
