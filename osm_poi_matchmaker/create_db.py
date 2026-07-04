@@ -259,7 +259,7 @@ def main():
         # --- STAGE 6 ---
         logging.info('Starting STAGE 6 – Adding OpenStreetMap metadata fields.')
         # New fields for OpenStreetMap data
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
         poi_addr_data['osm_id'] = None
         poi_addr_data['osm_node'] = None
         poi_addr_data['osm_version'] = None
