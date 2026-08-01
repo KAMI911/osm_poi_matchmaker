@@ -81,7 +81,8 @@ class POIBase:
         :param table: Name of table where POI data is stored
         :return: Full table read from SQL database table
         """
-        return pd.read_sql_table(table, self.connection())
+        with self.connection() as conn:
+            return pd.read_sql_table(table, conn)
 
     def query_all_gpd(self, table):
         """
@@ -90,7 +91,8 @@ class POIBase:
         :return: Full table with poi_lat and poi_long fields read from SQL database table
         """
         query = sqlalchemy.text('select * from {} where poi_geom is not NULL'.format(table))
-        data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='poi_geom')
+        with self.connection() as conn:
+            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='poi_geom')
         data['poi_lat'] = data['poi_geom'].x
         data['poi_lon'] = data['poi_geom'].y
         return data
@@ -105,7 +107,8 @@ class POIBase:
                                      WHERE poi_geom is not NULL
                                      ORDER BY poi_common_id ASC, poi_postcode ASC, poi_addr_street ASC,
                                        poi_addr_housenumber ASC'''.format(table))
-        data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='poi_geom')
+        with self.connection() as conn:
+            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='poi_geom')
         data['poi_lat'] = data['poi_geom'].x
         data['poi_lon'] = data['poi_geom'].y
         return data
@@ -117,15 +120,17 @@ class POIBase:
         :return: Full table with poi_lat and poi_long fields read from SQL database table
         """
         query = sqlalchemy.text('select count(*) from {} where poi_geom is not NULL'.format(table))
-        data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='poi_geom')
+        with self.connection() as conn:
+            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='poi_geom')
         return data
 
     def query_from_cache(self, node_id, object_type):
         if node_id > 0:
             query = sqlalchemy.text(
                 'select * from poi_osm_cache where osm_id = :node_id and osm_object_type = :object_type limit 1')
-            data = pd.read_sql(query, self.connection(),
-                               params={'node_id': int(node_id), 'object_type': object_type.name})
+            with self.connection() as conn:
+                data = pd.read_sql(query, conn,
+                                   params={'node_id': int(node_id), 'object_type': object_type.name})
             if data.empty:
                 return None
             else:
@@ -136,14 +141,16 @@ class POIBase:
     def query_ways_nodes(self, way_id):
         if way_id > 0:
             query = sqlalchemy.text('select nodes from planet_osm_ways where id = :way_id limit 1')
-            data = pd.read_sql(query, self.connection(), params={'way_id': int(way_id)})
+            with self.connection() as conn:
+                data = pd.read_sql(query, conn, params={'way_id': int(way_id)})
             return data.iloc[0, 0]
         else:
             return None
 
     def query_relation_nodes(self, relation_id):
         query = sqlalchemy.text('select members from planet_osm_rels where id = :relation_id limit 1')
-        data = pd.read_sql(query, self.connection(), params={'relation_id': int(abs(relation_id))})
+        with self.connection() as conn:
+            data = pd.read_sql(query, conn, params={'relation_id': int(abs(relation_id))})
         return data.iloc[0, 0]
 
     def query_osm_shop_poi_gpd(self, lon: float, lat: float, ptype: str = 'shop', name: str = None,
