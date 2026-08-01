@@ -5,18 +5,17 @@ volumes:
   opm_outputdata:
 services:
   db:
-    image: postgis/postgis:17-3.5
+    image: postgis/postgis:18-3.6
     container_name: opm_db
     environment:
       - POSTGRES_USER=poi
       - POSTGRES_PASSWORD=poitest
       - POSTGRES_DB=poi
+      - PGDATA=/var/lib/postgresql/data/pgdata
     ports:
       - "15432:5432"
     shm_size: 1G
     volumes:
-      #- ../container/dbdata-9.6-2.5:/var/lib/postgresql/data/
-      # - ../container/dbdata-9.6:/var/lib/postgresql/data/
       - ../container/dbdata-fresh:/var/lib/postgresql/data/
       - ${PWD}/osm2pgsql/postgresql.conf:/etc/postgresql/postgresql.conf
     restart: on-failure
