@@ -639,7 +639,14 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Add description OSM tag.')
-                if row.poi_description is not None and row.poi_description != '':
+                if (
+                    row.poi_description is not None
+                    and row.poi_description != ""
+                    and not (
+                        isinstance(row.poi_description, float)
+                        and math.isnan(row.poi_description)
+                    )
+                ):
                     tags['description'] = row.poi_description
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))

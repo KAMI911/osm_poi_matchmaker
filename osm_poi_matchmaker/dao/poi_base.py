@@ -214,8 +214,8 @@ class POIBase:
             query_params.update({'unique_name': unique_name})
         else:
             query_unique_name = ''
-        if additional_ref_name is not None and additional_ref_name != '' \
-                and unique_ref is not None and unique_ref != '':
+        if additional_ref_name is not None and not pd.isna(additional_ref_name) and additional_ref_name != '' \
+                and unique_ref is not None and not pd.isna(unique_ref) and unique_ref != '':
             query_unique_ref = ' AND LOWER(TEXT(ref:{})) = LOWER(TEXT(:unique_ref))'.format(additional_ref_name)
             query_params.update({'unique_ref': unique_ref})
         else:
@@ -246,8 +246,8 @@ class POIBase:
             city_query = ''
         logging.debug('%s %s: %s, %s (NOT %s), %s %s %s (%s) [%s, %s, %s]', lon, lat, ptype, name, avoid_name, city,
                       street_name, housenumber, conscriptionnumber, distance_perfect, distance_safe, distance_unsafe)
-        if additional_ref_name is not None and additional_ref_name != '' \
-                and unique_ref is not None and unique_ref != '':
+        if additional_ref_name is not None and not pd.isna(additional_ref_name) and additional_ref_name != '' \
+                and unique_ref is not None and not pd.isna(unique_ref) and unique_ref != '':
             query_text = '''
             --- WITH ADDITIONAL REF
             --- The way selector with additional ref
