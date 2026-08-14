@@ -195,7 +195,7 @@ def online_poi_matching(args):
                         if osm_query.get('osm_timestamp') is None:
                             osm_query['osm_timestamp'] = data.at[i, 'osm_timestamp'] = None
                         else:
-                            osm_query['osm_timestamp'] =  data.at[i, 'osm_timestamp'] = pd.to_datetime(str((osm_query.get('osm_timestamp').values[0])))
+                            osm_query['osm_timestamp'] = data.at[i, 'osm_timestamp'] = pd.to_datetime(str((osm_query.get('osm_timestamp').values[0])), utc=True)
                     except Exception as err_row:
                         logging.exception('Exception occurred during OSM timestamp query: {}'.format(err_row))
                         logging.warning(traceback.format_exc())
