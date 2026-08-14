@@ -606,9 +606,9 @@ def generate_osm_xml(df, session=None):
                     if preserved_name is not None:
                         logging.debug('Add back "{}" preserved name instead of common name.'.format(preserved_name))
                         tags['name'] = preserved_name
-                    elif row.name is not None:
-                        logging.debug('Add "{}" individual name instead of common name.'.format(row.name))
-                        tags['name'] = row.name
+                    elif getattr(row, 'name', None) is not None:
+                        logging.debug('Add "{}" individual name instead of common name.'.format(getattr(row, 'name', None)))
+                        tags['name'] = getattr(row, 'name', None)
                 else:
                     # Use OSM live 'name' tag for bus_stops when possible
                     if osm_live_tags.get('name') is not None and osm_live_tags.get('name') != '':
@@ -617,7 +617,7 @@ def generate_osm_xml(df, session=None):
                         if preserved_name is not None:
                             tags['name'] = preserved_name
                         else:
-                            tags['name'] = row.name
+                            tags['name'] = getattr(row, 'name', None)
                 # Rewrite old contact tags to contact:* tag form
                 logging.debug('Rewrite old contact tags to contact:* tag form.')
                 tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax', 'mobile']
@@ -639,7 +639,14 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Add description OSM tag.')
-                if row.poi_description is not None and row.poi_description != '':
+                if (
+                    row.poi_description is not None
+                    and row.poi_description != ""
+                    and not (
+                        isinstance(row.poi_description, float)
+                        and math.isnan(row.poi_description)
+                    )
+                ):
                     tags['description'] = row.poi_description
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
@@ -664,7 +671,7 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 # This is a new POI - will add fix me tag to the new items.
-                if row.poi_new is not None and row.poi_new is True:
+                if getattr(row, 'poi_new', None) is not None and getattr(row, 'poi_new', None) is True:
                     logging.debug('Add "fixme:verify import" OSM tag for new item.')
                     tags['fixme'] = 'Ellenőrizni a meglétét és a pontos helyére tenni'
                 # Remove unwanted addr:country from file output as we discussed in Issue #33
