@@ -123,22 +123,22 @@ class hu_fire_station(DataProvider):
                         elif category == '3':
                             self.data.code = 'hufireusta'
                             try:
-                                self.data.name == poi_data.get('name').replace('ÖTP',
-                                                                               'Önkormányzati Tűzoltó-parancsnokság')
+                                self.data.name = poi_data.get('name').replace('ÖTP',
+                                                                              'Önkormányzati Tűzoltó-parancsnokság')
                             except Exception as err:
                                 continue
                         # Katasztrófavédelmi Őrs
                         elif category == '2':
                             self.data.code = 'hufirelsta'
                             try:
-                                self.data.name == poi_data.get('name').replace('KŐ', 'Katasztrófavédelmi Őrs')
+                                self.data.name = poi_data.get('name').replace('KŐ', 'Katasztrófavédelmi Őrs')
                             except Exception as err:
                                 continue
                         # Hivatásos Tűzoltó-parancsnokság
                         elif category == '1':
                             self.data.code = 'hufiremsta'
                             try:
-                                self.data.name == poi_data.get('name').replace('HTP', 'Hivatásos Tűzoltó-parancsnokság')
+                                self.data.name = poi_data.get('name').replace('HTP', 'Hivatásos Tűzoltó-parancsnokság')
                             except Exception as err:
                                 continue
                         else:
