@@ -362,9 +362,9 @@ def online_poi_matching(args):
                     # If there is more than one POI in a building this will try to do a different location and
                     # not only on center or not only on edge
                     ib = None
-                    if row.poi_name is not None:
+                    if pd.notna(row.poi_name):
                         ib = row.poi_name
-                    elif row.poi_common_name is not None:
+                    elif pd.notna(row.poi_common_name):
                         ib = row.poi_common_name
                     if ib is not None:
                         ibp = abs(1 - (((ord(ib[0]) // 16) + 1) / 17))
