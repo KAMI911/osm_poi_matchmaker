@@ -9,7 +9,7 @@ try:
     import re
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
-        clean_string, clean_phone_to_str
+        clean_string, clean_phone_to_str, clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHUUnAccented
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN
@@ -109,9 +109,10 @@ class hu_gls(DataProvider):
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(poi_data.get('contact').get('address'))
                         self.data.phone = clean_phone_to_str(poi_data.get('contact').get('phone'))
-                        self.data.email = clean_phone_to_str(poi_data.get('contact').get('email'))
-                        self.data.description = clean_string(poi_data.get('description')) if len('name'.split('|')) \
-                            <= 1 else clean_string(';'.join(poi_data.get('name').split('|')[1:]))
+                        self.data.email = clean_email(poi_data.get('contact').get('email'))
+                        self.data.description = clean_string(poi_data.get('description')) \
+                            if len((poi_data.get('name') or '').split('|')) <= 1 \
+                            else clean_string(';'.join(poi_data.get('name').split('|')[1:]))
                         opening = poi_data.get('hours')
                         for day in opening:
                             day_number = day[0]
