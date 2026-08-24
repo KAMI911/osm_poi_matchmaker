@@ -117,7 +117,15 @@ class hu_gls(DataProvider):
                             self.data.public_holiday_open = False
                             self.data.name = self.data.branch
                         else:
-                            logging.critical('Non matching poi code. Invalid state.')
+                            # Issue #140: falling through here without skipping left
+                            # self.data.code at its stale/None value from the previous
+                            # item (clear_all() resets it to None after each add()), so
+                            # the record got added with no resolvable poi_code and
+                            # silently vanished from its type-specific export instead of
+                            # being either included or cleanly skipped.
+                            logging.error('Unknown GLS locker type %r for %s, skipping.',
+                                         poi_data.get('type'), poi_data.get('id'))
+                            continue
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('location')[0], poi_data.get('location')[1])
                         self.data.postcode = clean_string(poi_data.get('contact').get('postalCode'))
