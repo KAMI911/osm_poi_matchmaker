@@ -28,8 +28,8 @@ PATTERN_HOUSENUMBER = re.compile(r'[0-9]{1,3}(/[A-Za-z]|-[0-9]{1,3}|)', re.IGNOR
 PATTERN_CONSCRIPTIONNUMBER = re.compile(
     r'(hrsz[.:]{0,2}\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?|\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?\s*hrsz[s.]?)',
     re.IGNORECASE)
-PATTERN_CONSCRIPTIONNUMBER_1 = re.compile(r'((?:belterület\s*)?hrsz[.:]{0,2}\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?)', re.IGNORECASE)
-PATTERN_CONSCRIPTIONNUMBER_2 = re.compile(r'(\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?\s*hrsz[s.]?)', re.IGNORECASE)
+PATTERN_CONSCRIPTIONNUMBER_1 = re.compile(r'((?:belterület\s*)?hrsz[.:]{0,2}\s*([0-9]{2,6}([/-][0-9]{1,6})?)[.]?)', re.IGNORECASE)
+PATTERN_CONSCRIPTIONNUMBER_2 = re.compile(r'(\s*([0-9]{2,6}([/-][0-9]{1,6})?)[.]?\s*hrsz[s.]?)', re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER_3 = re.compile(r'\d{4,}/\d+')  # treshold value (999+1) copied from https://github.com/vmiklos/osm-gimmisn/blob/9816d6eef7a06a53ee45b27ba3c504c72ac200e8/src/util.rs#L1116-L1117
 PATTERN_OPENING_HOURS = re.compile(r'0*[0-9]{1,2}:0*[0-9]{1,2}\s*-\s*0*[0-9]{1,2}:0*[0-9]{1,2}')
 PATTERN_PHONE = re.compile(r'[\/\\\(\)\-\+]')

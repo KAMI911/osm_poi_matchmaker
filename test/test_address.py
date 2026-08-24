@@ -59,6 +59,8 @@ class TestAddressResolver(unittest.TestCase):
              'conscriptionnumber': None}, #TODO Fix this
             {'original': 'Üllői út 129', 'street': 'Üllői út', 'housenumber': '129',
              'conscriptionnumber': None},
+            {'original': 'Szedresi utca 977-978 Hrsz', 'street': 'Szedresi utca', 'housenumber': None,
+             'conscriptionnumber': '977-978'},  # issue #169: nnn-mmm range hrsz
         ]
 
     def test_extract_street_housenumber_better_2(self):
