@@ -24,6 +24,7 @@ class hu_obi(DataProvider):
 
     def contains(self):
         self.link = 'https://www.obi.hu/storeLocatorRest/v1/stores/getAllByCountry/hu/hu?fields=name,address,phone,services,hours,storeNumber,path,email'
+        self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'}
         self.tags = {'shop': 'doityourself', 'brand': 'OBI', 'brand:wikidata': 'Q300518',
                      'brand:wikipedia': 'en:Obi (store)', 'operator': 'OBI Hungary Retail Kft.',
                      'operator:addr': '1097 Budapest, Könyves Kálmán körút 12-14',
@@ -47,7 +48,7 @@ class hu_obi(DataProvider):
     def process(self):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
+                                        self.filetype, verify=self.verify_link, headers=self.headers)
             if soup is not None:
                 text = json.loads(soup)
                 for poi_data in text.get('stores'):

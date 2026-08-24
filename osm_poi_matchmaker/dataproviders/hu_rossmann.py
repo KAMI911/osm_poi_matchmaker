@@ -7,8 +7,8 @@ try:
     import re
     import json
     import traceback
-    from bs4 import BeautifulSoup
-    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
+    import requests
+    from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
         clean_opening_hours, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
@@ -22,11 +22,32 @@ except ImportError as err:
 
     sys.exit(128)
 
+# The uzletkereso page used to embed the store list as Next.js page props, but the site (now on
+# shop.rossmann.hu) fetches it client-side from the storefront's own GraphQL API instead.
+GRAPHQL_URL = 'https://api.rossmann.hu/graphql'
+STORES_QUERY = '''
+query stores {
+    stores {
+        id
+        name
+        zip_code
+        city
+        lat
+        lng
+        street
+        address
+        openings
+        services
+        is_open
+    }
+}
+'''
+
 
 class hu_rossmann(DataProvider):
 
     def contains(self):
-        self.link = 'https://www.rossmann.hu/uzletkereso'
+        self.link = GRAPHQL_URL
         self.tags = {'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.',
                      'operator:addr': '2225 Üllő, Zsaróka út 8.', 'ref:HU:vatin': '11149769-2-44',
                      'ref:vatin': 'HU11149769', 'brand': 'Rossmann', 'brand:wikidata': 'Q316004',
@@ -35,7 +56,7 @@ class hu_rossmann(DataProvider):
                      'contact:facebook': 'https://www.facebook.com/Rossmann.hu',
                      'contact:youtube': 'https://www.youtube.com/channel/UCmUCPmvMLL3IaXRBtx7-J7Q',
                      'contact:instagram': 'https://www.instagram.com/rossmann_hu', 'air_conditioning': 'yes'}
-        self.filetype = FileType.html
+        self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
@@ -52,19 +73,25 @@ class hu_rossmann(DataProvider):
 
     def process(self):
         try:
-            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype, False, None, self.verify_link)
-            if soup is not None:
-                # parse the html using beautiful soap and store in variable `soup`
+            cache_file = os.path.join(self.download_cache, self.filename)
+            pois = None
+            if config.get_download_use_cached_data() is True and os.path.isfile(cache_file):
+                with open(cache_file, mode='r', encoding='utf-8') as file:
+                    pois = json.load(file)
+            else:
                 try:
-                    pois = json.loads(soup.find('script', {"type": "application/json"}).text).get('props')\
-                        .get('pageProps').get('stores')
+                    response = requests.post(GRAPHQL_URL, json={'query': STORES_QUERY}, timeout=60)
+                    response.raise_for_status()
+                    pois = response.json().get('data', {}).get('stores')
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
                     logging.exception(traceback.format_exc())
-                    logging.exception(pois)
-                if pois is None:
-                    return None
+                if pois is not None:
+                    if not os.path.exists(self.download_cache):
+                        os.makedirs(self.download_cache)
+                    with open(cache_file, mode='w', encoding='utf-8') as file:
+                        json.dump(pois, file)
+            if pois is not None:
                 for poi_data in pois:
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom

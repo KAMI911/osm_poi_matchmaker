@@ -27,6 +27,21 @@ except ImportError as err:
 
     sys.exit(128)
 
+
+def has_value(value) -> bool:
+    """True if value is a real, present value - not None and not a pandas/numpy NaN float.
+
+    A DataFrame column a data provider never set defaults to NaN, which is neither None
+    nor an empty string, so plain `is not None` / truthy checks let it through and it ends
+    up written out as the literal string 'nan' in OSM tags.
+    """
+    if value is None:
+        return False
+    if isinstance(value, float) and math.isnan(value):
+        return False
+    return True
+
+
 POI_TAGS = {'poi_common_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:postcode',
             'poi_addr_street': 'addr:street', 'poi_addr_housenumber': 'addr:housenumber',
             'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email'}
@@ -119,6 +134,9 @@ def save_csv_file(path: str, file: str, data, message: str):
         data (pd.DataFrame): Pandas dataframe to write
         message (str): Addtion information to display
     """
+    if data is None:
+        logging.warning('No data to save for %s', file)
+        return
     try:
         # Save file to CSV file
         logging.info('Saving %s to file: %s', message, file)
@@ -248,6 +266,8 @@ def generate_geojson(df):
     Returns:
         bytes: UTF-8 encoded GeoJSON FeatureCollection.
     """
+    if df is None:
+        return b'{"type": "FeatureCollection", "features": []}'
 
     def _valid(val):
         """Return True when *val* is a non-empty, non-NaN value."""
@@ -468,7 +488,7 @@ def generate_osm_xml(df, session=None):
                 # Overwriting with data from data providers
                 logging.debug('Overwrite item tags from common tags.')
                 for k, v in POI_TAGS.items():
-                    if getattr(row, k, None) is not None:
+                    if has_value(getattr(row, k, None)):
                         if k != 'poi_addr_housenumber':
                             tags[v] = getattr(row, k, None)
                         else:
@@ -555,12 +575,12 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
-                if row.poi_ref:
+                if has_value(row.poi_ref) and row.poi_ref:
                     tags['ref'] = row.poi_ref
                     logging.debug('Added ref tag.')
-                    
+
                 # If there is additional_ref_name then use it as key and poi_additional_ref as value
-                if row.additional_ref_name is not None and row.poi_additional_ref is not None:
+                if row.additional_ref_name is not None and has_value(row.poi_additional_ref):
                     tags['ref:{}'.format(row.additional_ref_name)] = row.poi_additional_ref
                     logging.debug('Add ref:{} tag with additional ref name.'.format(row.additional_ref_name))
             except Exception as e:
@@ -606,9 +626,9 @@ def generate_osm_xml(df, session=None):
                     if preserved_name is not None:
                         logging.debug('Add back "{}" preserved name instead of common name.'.format(preserved_name))
                         tags['name'] = preserved_name
-                    elif row.name is not None:
-                        logging.debug('Add "{}" individual name instead of common name.'.format(row.name))
-                        tags['name'] = row.name
+                    elif has_value(row.poi_name):
+                        logging.debug('Add "{}" individual name instead of common name.'.format(row.poi_name))
+                        tags['name'] = row.poi_name
                 else:
                     # Use OSM live 'name' tag for bus_stops when possible
                     if osm_live_tags.get('name') is not None and osm_live_tags.get('name') != '':
@@ -616,8 +636,8 @@ def generate_osm_xml(df, session=None):
                     else:
                         if preserved_name is not None:
                             tags['name'] = preserved_name
-                        else:
-                            tags['name'] = row.name
+                        elif has_value(row.poi_name):
+                            tags['name'] = row.poi_name
                 # Rewrite old contact tags to contact:* tag form
                 logging.debug('Rewrite old contact tags to contact:* tag form.')
                 tags_rewrite = ['website', 'phone', 'email', 'facebook', 'instagram', 'youtube', 'pinterest', 'fax', 'mobile']
@@ -639,7 +659,14 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Add description OSM tag.')
-                if row.poi_description is not None and row.poi_description != '':
+                if (
+                    row.poi_description is not None
+                    and row.poi_description != ""
+                    and not (
+                        isinstance(row.poi_description, float)
+                        and math.isnan(row.poi_description)
+                    )
+                ):
                     tags['description'] = row.poi_description
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
@@ -664,7 +691,7 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 # This is a new POI - will add fix me tag to the new items.
-                if row.poi_new is not None and row.poi_new is True:
+                if getattr(row, 'poi_new', None) is not None and getattr(row, 'poi_new', None) is True:
                     logging.debug('Add "fixme:verify import" OSM tag for new item.')
                     tags['fixme'] = 'Ellenőrizni a meglétét és a pontos helyére tenni'
                 # Remove unwanted addr:country from file output as we discussed in Issue #33

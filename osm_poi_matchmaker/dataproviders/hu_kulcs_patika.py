@@ -4,6 +4,7 @@ try:
     import logging
     import sys
     import os
+    import re
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
@@ -22,15 +23,11 @@ except ImportError as err:
 class hu_kulcs_patika(DataProvider):
 
     def contains(self):
-        self.link = 'https://kulcspatikak.hu/gykeress_feed.php'
+        self.link = 'https://kulcspatikak.hu/patikakereso'
         self.tags = {'amenity': 'pharmacy', 'brand': 'Kulcs Patikák',
                      'dispensing': 'yes', 'air_conditioning': 'yes'}
-        self.headers = {'Referer': 'https://kulcspatikak.hu/patikakereso',
-                        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0',
-                        'Accept': 'application/json, text/javascript, */*; q=0.01'}
-        self.post = {'megyeid': -1, 'quality_check': 0,
-                     'animal_check': 0, 'nonstop_check': 0, 'hetvege_check': 0}
-        self.filetype = FileType.json
+        self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'}
+        self.filetype = FileType.html
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)
 
@@ -50,27 +47,35 @@ class hu_kulcs_patika(DataProvider):
         try:
             if self.link:
                 soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache,
-                                            self.filename), self.filetype, False, post_data=self.post,
+                                            self.filename), self.filetype,
                                             verify=self.verify_link, headers=self.headers)
                 if soup is not None:
-                    text = json.loads(soup, strict=False)
+                    # The pharmacy list is embedded as a JSON attribute on the map container, not a
+                    # separate AJAX/API call.
+                    map_div = soup.find('div', class_='map')
+                    if map_div is None or map_div.get('data-markers') is None:
+                        logging.warning('Could not find pharmacy markers on the page.')
+                        return
+                    text = json.loads(map_div.get('data-markers'), strict=False)
                     logging.debug(text)
-                    for poi_data in text.get('patikaIdList'):
-                        poi_data_poi = poi_data.get('poi')
+                    for poi_data in text or []:
                         try:
-                            if 'Kulcs patika' not in poi_data_poi.get('patika'):
-                                self.data.name = clean_string(poi_data_poi.get('patika'))
+                            name = clean_string(poi_data.get('marker-title'))
+                            if name is not None and 'Kulcs patika' not in name:
+                                self.data.name = name
                                 self.data.branch = None
                             else:
-                                self.data.branch = clean_string(poi_data_poi.get('patika'))
+                                self.data.branch = name
                             self.data.code = 'hukulcspha'
-                            self.data.phone = clean_phone_to_str(poi_data_poi.get('phone'))
+                            address_part, _, phone_part = (poi_data.get('marker-desc') or '').partition('<br>')
+                            phone_match = re.search(r'Tel:\s*(.+)', phone_part)
+                            if phone_match is not None:
+                                self.data.phone = clean_phone_to_str(phone_match.group(1))
                             self.data.lat, self.data.lon = \
-                                check_hu_boundary(poi_data_poi.get('latitude'),
-                                                  poi_data_poi.get('longitude'))
+                                check_hu_boundary(poi_data.get('marker-lat'),
+                                                  poi_data.get('marker-lng'))
                             self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
-                                self.data.conscriptionnumber = extract_all_address_waxeye(
-                                    poi_data_poi.get('address'))
+                                self.data.conscriptionnumber = extract_all_address_waxeye(address_part)
                             self.data.public_holiday_open = False
                             self.data.add()
                         except Exception as e:

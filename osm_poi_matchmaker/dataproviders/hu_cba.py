@@ -25,6 +25,7 @@ class hu_cba(DataProvider):
 
     def contains(self):
         self.link = 'http://www.cba.hu/uzletlista'
+        self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'}
         self.tags = {}
         self.tags.update(POS_HU_GEN)
         self.tags.update(PAY_CASH)
@@ -64,7 +65,7 @@ class hu_cba(DataProvider):
     def process(self):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
+                                        self.filetype, verify=self.verify_link, headers=self.headers)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 text = json.loads(

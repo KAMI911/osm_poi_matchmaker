@@ -3,6 +3,7 @@
 try:
     import logging
     import sys
+    import os
     import json
     import traceback
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
@@ -54,11 +55,11 @@ class hu_kh_bank(DataProvider):
 
     def process(self):
         try:
-            if self.link:
+            if self.link and os.path.isfile(self.link):
                 with open(self.link, 'r') as f:
                     text = json.load(f)
                     data = POIDatasetRaw()
-                    for poi_data in text.get('results'):
+                    for poi_data in text.get('results', []):
                         first_element = next(iter(poi_data))
                         if self.name == 'K&H Bank':
                             data.code = 'hukhbank'
@@ -87,4 +88,4 @@ class hu_kh_bank(DataProvider):
             logging.exception('Exception occurred')
 
             logging.error(e)
-            logging.error(poi_data)
+            logging.error(locals().get('poi_data'))

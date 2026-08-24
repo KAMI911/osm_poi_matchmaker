@@ -51,6 +51,9 @@ class hu_penny_market(DataProvider):
 
     def process(self):
         try:
+            if not os.path.isfile(self.link):
+                logging.warning('Cache file not found: %s', self.link)
+                return
             # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
             #                            self.filetype)
             # if soup is not None:

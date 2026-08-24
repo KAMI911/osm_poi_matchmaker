@@ -7,14 +7,13 @@ try:
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
+    from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str, \
         clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_osm_city_name
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
-    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -22,11 +21,14 @@ except ImportError as err:
     sys.exit(128)
 
 
+WEEKDAY_INDEX = {'monday': 0, 'tuesday': 1, 'wednesday': 2, 'thursday': 3,
+                 'friday': 4, 'saturday': 5, 'sunday': 6}
+
+
 class hu_pepco(DataProvider):
 
     def contains(self):
-        # self.link = 'https://pepco.hu/uzleteink/uzletkereso/?type=1002&tx_pepco_mapplugin[action]=view&tx_pepco_mapplugin[controller]=Map&tx_pepco_mapplugin[loadall]=true'
-        self.link = os.path.join(config.get_directory_cache_url(), 'hu_pepco.json')
+        self.link = 'https://pepco.hu/api/stores?market=HU'
         self.tags = {'shop': 'clothes', 'brand': 'Pepco', 'brand:wikidata': 'Q11815580',
                      'brand:wikipedia': 'pl:Pepco', 'contact:facebook': 'https://www.facebook.com/pepcohu/',
                      'contact:website': 'https://pepco.hu/',
@@ -51,53 +53,52 @@ class hu_pepco(DataProvider):
 
     def process(self):
         try:
-            # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-            #                             self.filetype)
-            # if soup is not None:
-            #     text = json.loads(soup)
-            with open(self.link, 'r') as f:
-                text = json.load(f)
-                for poi_data in text.get('data'):
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
+            if soup is not None:
+                text = json.loads(soup)
+                features = text.get('globalStoreDataSet', {}).get('stores', {}).get('features', [])
+                for feature in features:
                     try:
-                        '''
-                        The Pepco dataset contains all European data. Since the program cannot handle POIs
-                        outside Hungary (so far) this will limit only for Hungarian POIs.
-                        In fact this depends on OSM extract but currently we use only Hungarian OSM extract.
-                        Select only Hungarian POIs.
-                        '''
-                        if 'city' in poi_data and (poi_data['city'] == '' or
-                                                query_osm_city_name(self.session, poi_data['city']) is None):
+                        properties = feature.get('properties', {})
+                        if properties.get('is_active') is False:
                             continue
-                        elif 'city' in poi_data:
-                            self.data.city = clean_city(poi_data['city'])
-                        else:
+                        '''
+                        The API is queried with market=HU, so the result already only contains
+                        Hungarian stores. Still validate the city against the OSM extract like other
+                        providers do, to filter out unmatched/invalid city names.
+                        '''
+                        city = properties.get('city')
+                        if not city or query_osm_city_name(self.session, city) is None:
                             continue
+                        self.data.city = clean_city(city)
                         self.data.code = 'hupepcoclo'
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber,
                         # conscriptionnumber, ref, geom
-                        self.data.lat, self.data.lon = \
-                            check_hu_boundary(
-                                poi_data['coordinates']['lat'], poi_data['coordinates']['lng'])
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                            extract_street_housenumber_better_2(
-                                poi_data.get('streetAddress'))
-                        self.data.original = clean_string(poi_data.get('streetAddress'))
-                        self.data.postcode = clean_string(poi_data.get('postalCode'))
-                        # self.data.city = query_osm_city_name_gpd(self.session, self.data.lat, self.data.lon)
+                        coordinates = feature.get('geometry', {}).get('coordinates') or [None, None]
+                        self.data.lat, self.data.lon = check_hu_boundary(coordinates[1], coordinates[0])
+                        self.data.street = clean_string(properties.get('street'))
+                        self.data.housenumber = clean_string(properties.get('street_number'))
+                        self.data.original = clean_string('{} {}'.format(
+                            properties.get('street') or '', properties.get('street_number') or '').strip())
+                        self.data.postcode = clean_string(properties.get('zip'))
                         # Assign opening_hours
-                        opening = poi_data['openingHours']
-                        for i in range(0, 7):
-                            if i in opening:
-                                self.data.day_open(i, opening[i]['from'])
-                                self.data.day_close(i, opening[i]['to'])
+                        for block in properties.get('opening_hours') or []:
+                            if block.get('closed'):
+                                continue
+                            for day_name in block.get('days') or []:
+                                day_index = WEEKDAY_INDEX.get(day_name)
+                                if day_index is not None:
+                                    self.data.day_open(day_index, block.get('from'))
+                                    self.data.day_close(day_index, block.get('to'))
                         # Assign additional information
-                        self.data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
+                        self.data.phone = clean_phone_to_str(properties.get('phone_number'))
                         self.data.public_holiday_open = False
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
                         logging.exception(traceback.format_exc())
-                        logging.exception(poi_data)
+                        logging.exception(feature)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
             logging.exception(traceback.format_exc())

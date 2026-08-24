@@ -41,7 +41,7 @@ def waxeye_process(ast_items):
                 except IndexError:
                     logging.warning("IndexError occurred while processing AST node: %s", ast_item)
                     continue
-            else:
+            elif not isinstance(ast_item, str):
                 processed[ast_item.type] = ''.join(ast_item)
         return processed
     except Exception as err_waxeye:

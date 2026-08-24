@@ -85,6 +85,9 @@ def export_grouped_poi_data(data):
 
 def export_new_poi_data(addr_data, postfix=''):
     """Export only new (unmatched) POIs — those with no osm_id — to XML and GeoJSON."""
+    if addr_data is None:
+        logging.warning('No addr_data provided to export_new_poi_data.')
+        return
     try:
         new_data = addr_data[addr_data['osm_id'].isna()]
         if len(new_data) == 0:
@@ -99,6 +102,9 @@ def export_new_poi_data(addr_data, postfix=''):
 
 def export_existing_poi_data(addr_data, postfix=''):
     """Export only existing (matched) POIs — those with an osm_id — to XML and GeoJSON."""
+    if addr_data is None:
+        logging.warning('No addr_data provided to export_existing_poi_data.')
+        return
     try:
         existing_data = addr_data[addr_data['osm_id'].notna()]
         if len(existing_data) == 0:

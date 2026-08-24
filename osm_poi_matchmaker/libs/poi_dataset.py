@@ -107,7 +107,7 @@ class POIDatasetRaw:
         self.__lat = None
         self.__lon = None
         self.__nonstop = None
-        self.__oh = pd.DataFrame(index=WeekDaysShort, columns=OpenClose)
+        self.__oh = pd.DataFrame(index=list(WeekDaysShort), columns=list(OpenClose))
         self.__lunch_break_start = None
         self.__lunch_break_stop = None
         self.__opening_hours = None
@@ -171,7 +171,7 @@ class POIDatasetRaw:
         self.__lat = None
         self.__lon = None
         self.__nonstop = None
-        self.__oh = pd.DataFrame(index=WeekDaysShort, columns=OpenClose)
+        self.__oh = pd.DataFrame(index=list(WeekDaysShort), columns=list(OpenClose))
         self.__lunch_break_start = None
         self.__lunch_break_stop = None
         self.__opening_hours = None
@@ -701,7 +701,7 @@ class POIDatasetRaw:
 
     @opening_hours_table.setter
     def opening_hours_table(self, data):
-        self.__oh = pd.DataFrame(data, index=WeekDaysShort, columns=OpenClose)
+        self.__oh = pd.DataFrame(data, index=list(WeekDaysShort), columns=list(OpenClose))
 
     @property
     def nonstop(self) -> bool:

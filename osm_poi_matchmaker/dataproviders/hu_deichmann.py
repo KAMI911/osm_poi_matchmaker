@@ -63,7 +63,7 @@ class hu_deichmann(DataProvider):
             with open(self.link, 'r') as f:
                 text = json.load(f)
                 # text = json.loads(soup)
-                for poi_data in text.get('shops'):
+                for poi_data in text.get('shops', []):
                     try:
                         self.data.code = 'hudeichsho'
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('geoPoint').get('latitude'),

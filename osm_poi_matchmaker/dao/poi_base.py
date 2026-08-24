@@ -38,8 +38,9 @@ class POIBase:
             self.db_filename = self.db_connection
         try:
             self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8',
-                                                   echo=config.get_database_enable_query_log(), pool_size=40,
-                                                   max_overflow=20, pool_pre_ping=True, pool_use_lifo=True)
+                                                   echo=config.get_database_enable_query_log(), pool_size=5,
+                                                   max_overflow=5, pool_pre_ping=True, pool_use_lifo=True,
+                                                   pool_recycle=300)
         except psycopg2.OperationalError as e:
             logging.error('Database error: %s', e)
             if reco >= self.db_retry_counter:
@@ -49,8 +50,9 @@ class POIBase:
                               self.db_retry_sleep, reco, self.db_retry_counter)
                 time.sleep(self.db_retry_sleep)
                 self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8',
-                                                       echo=config.get_database_enable_query_log(), pool_size=40,
-                                                       max_overflow=20, pool_pre_ping=True, pool_use_lifo=True)
+                                                       echo=config.get_database_enable_query_log(), pool_size=5,
+                                                       max_overflow=5, pool_pre_ping=True, pool_use_lifo=True,
+                                                       pool_recycle=300)
                 reco += 1
         Base.metadata.create_all(self.engine)
         self.one_connection = self.engine.connect()
@@ -221,8 +223,8 @@ class POIBase:
             query_params.update({'unique_name': unique_name})
         else:
             query_unique_name = ''
-        if additional_ref_name is not None and additional_ref_name != '' \
-                and unique_ref is not None and unique_ref != '':
+        if additional_ref_name is not None and not pd.isna(additional_ref_name) and additional_ref_name != '' \
+                and unique_ref is not None and not pd.isna(unique_ref) and unique_ref != '':
             query_unique_ref = ' AND LOWER(TEXT(ref:{})) = LOWER(TEXT(:unique_ref))'.format(additional_ref_name)
             query_params.update({'unique_ref': unique_ref})
         else:
@@ -253,8 +255,8 @@ class POIBase:
             city_query = ''
         logging.debug('%s %s: %s, %s (NOT %s), %s %s %s (%s) [%s, %s, %s]', lon, lat, ptype, name, avoid_name, city,
                       street_name, housenumber, conscriptionnumber, distance_perfect, distance_safe, distance_unsafe)
-        if additional_ref_name is not None and additional_ref_name != '' \
-                and unique_ref is not None and unique_ref != '':
+        if additional_ref_name is not None and not pd.isna(additional_ref_name) and additional_ref_name != '' \
+                and unique_ref is not None and not pd.isna(unique_ref) and unique_ref != '':
             query_text = '''
             --- WITH ADDITIONAL REF
             --- The way selector with additional ref
@@ -313,6 +315,7 @@ class POIBase:
                 logging.info('Found item with simple additional ref search.')
                 logging.debug(data.to_string())
                 logging.debug('Return with additional ref search data: {}'.format(data.iloc[[0]]))
+                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found with additional ref search.')
@@ -377,6 +380,7 @@ class POIBase:
                     logging.info('Found item with simple unique name search.')
                     logging.debug(data.to_string())
                     logging.debug('Return with additional unique name data: {}'.format(data.iloc[[0]]))
+                    conn.close()
                     return data.iloc[[0]]
             else:
                 logging.info('Item not found with unique name search.')
@@ -445,6 +449,7 @@ class POIBase:
                 logging.info('Found item with simple conscription number search.')
                 logging.debug(data.to_string())
                 logging.debug('Return with simple conscription number search data: {}'.format(data.iloc[[0]]))
+                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found with simple conscription number search.')
@@ -517,6 +522,7 @@ class POIBase:
                 logging.info('Found item with simple address search.')
                 logging.debug(data.to_string())
                 logging.debug('Return with simple address search data: {}'.format(data.iloc[[0]]))
+                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found with precise geometry search.')
@@ -787,6 +793,7 @@ class POIBase:
                 logging.info('Found item in {} stage without precise geometry search.'.format(stage))
                 logging.debug(data.to_string())
                 logging.debug('Return without precise geometry search data: {}'.format(data.iloc[[0]]))
+                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found in stage {}.'.format(stage))
@@ -797,6 +804,7 @@ class POIBase:
         except Exception as err:
             logging.warning('Exception occurred')
             logging.exception(err)
+        conn.close()
         return None
 
     def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='',
@@ -843,13 +851,14 @@ class POIBase:
             WHERE building <> '' AND osm_id > 0 AND ST_DistanceSphere(way, point.geom) < :distance
                 {street_query} {housenumber_query}
             ORDER BY distance ASC LIMIT 1'''.format(street_query=street_query, housenumber_query=housenumber_query))
-        data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way',
-                                             params={'lon': lon, 'lat': lat,
-                                                     'distance': distance,
-                                                     'buffer': buffer,
-                                                     'street_name': street_name,
-                                                     'housenumber': housenumber,
-                                                     'ibp': in_building_percentage})
+        with self.connection() as conn:
+            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way',
+                                                 params={'lon': lon, 'lat': lat,
+                                                         'distance': distance,
+                                                         'buffer': buffer,
+                                                         'street_name': street_name,
+                                                         'housenumber': housenumber,
+                                                         'ibp': in_building_percentage})
         if data.empty:
             return None
         else:
@@ -866,10 +875,11 @@ class POIBase:
               ORDER BY distance ASC LIMIT 1) AS geo
             WHERE geo.distance < :distance
               ''')
-            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way',
-                                                 params={'lon': lon,
-                                                         'lat': lat,
-                                                         'distance': distance})
+            with self.connection() as conn:
+                data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way',
+                                                     params={'lon': lon,
+                                                             'lat': lat,
+                                                             'distance': distance})
             return data
         except Exception as err:
             logging.warning('Exception occurred')
@@ -918,6 +928,7 @@ class POIBase:
         except Exception as err:
             logging.warning('Exception occurred')
             logging.exception(err)
+        data = None
         try:
             query = sqlalchemy.text('''
               SELECT * FROM
@@ -931,30 +942,23 @@ class POIBase:
               WHERE geo.distance < :distance
               LIMIT 5
               '''.format(metadata_fields=metadata_fields, name_query=name_query))
-            data = gpd.GeoDataFrame.from_postgis(
-                query,
-                self.one_connection,
-                geom_col="way",
-                params={
-                    "lon": lon,
-                    "lat": lat,
-                    "distance": distance,
-                    "name": name,
-                    "similarity_threshold": similarity_threshold,
-                    "levenshtein_threshold": levenshtein_threshold,
-                },
-            )
+            with self.connection() as conn:
+                data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way',
+                                                     params={'lon': lon, 'lat': lat, 'distance': distance,
+                                                             'name': name, 'similarity_threshold': similarity_threshold,
+                                                             'levenshtein_threshold': levenshtein_threshold})
         except Exception as err:
             logging.warning('Exception occurred')
             logging.exception(err)
-        try:
-            data.sort_values(by=['levenshtein'])
-        except Exception as err:
-            logging.warning('Exception occurred')
-            logging.exception(err)
-        logging.debug({'lon': lon, 'lat': lat, 'distance': distance, 'name': name,
-                       'similarity_threshold': similarity_threshold, 'levenshtein_threshold': levenshtein_threshold})
-        logging.debug(f'Returned data:')
-        logging.debug(f'{data.to_string()}')
+        if data is not None:
+            try:
+                data.sort_values(by=['levenshtein'])
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
+            logging.debug({'lon': lon, 'lat': lat, 'distance': distance, 'name': name,
+                           'similarity_threshold': similarity_threshold, 'levenshtein_threshold': levenshtein_threshold})
+            logging.debug(f'Returned data:')
+            logging.debug(f'{data.to_string()}')
 
         return data

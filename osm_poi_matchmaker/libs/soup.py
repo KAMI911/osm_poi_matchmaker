@@ -20,12 +20,22 @@ except ImportError as err:
 
 
 def download_content(link, verify_link=config.get_download_verify_link(), post_parm=None, headers=None,
-                     encoding='utf-8'):
+                     encoding='utf-8', json_body=False):
     try:
         if post_parm is None:
             logging.debug('Downloading without post parameters.')
             page = requests.get(link, verify=verify_link, headers=headers, timeout=500)
             logging.debug('Downloaded without post parameters.')
+            page.encoding = encoding
+        elif json_body is True:
+            logging.debug('Downloading with a JSON post body.')
+            headers_static = {"Content-Type": "application/json; charset=UTF-8"}
+            if headers is not None:
+                headers.update(headers_static)
+            else:
+                headers = headers_static
+            page = requests.post(link, verify=verify_link, json=post_parm, headers=headers, timeout=500)
+            logging.debug('Downloaded with a JSON post body.')
             page.encoding = encoding
         else:
             logging.debug('Downloading with post parameters.')
@@ -43,11 +53,12 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
+        return None
     etag = page.headers.get('ETag')
     if etag is not None:
         set_cached('etag:{}'.format(link), etag)
     else:
-        logging.warning("Can't save etag value of response: link={} headers={}".format(link, page.headers))
+        logging.debug("No ETag in response: link=%s", link)
 
     returned_status = http.HTTPStatus(page.status_code)
 
@@ -88,7 +99,7 @@ def is_downloaded(link: str, verify_link=config.get_download_verify_link(), head
 
 
 def save_downloaded_soup(link, file, filetype, skip_download=False, post_data=None, verify=config.get_download_verify_link(),
-                         headers=None):
+                         headers=None, json_body=False):
     logging.debug('save_downloaded_soup link={} file={} filetype={}'.format(link, file, filetype))
 
     if skip_download is True or (config.get_download_use_cached_data() is True and os.path.isfile(file)):
@@ -101,7 +112,7 @@ def save_downloaded_soup(link, file, filetype, skip_download=False, post_data=No
                 if filetype == FileType.zip:
                     return True
             else:
-                content = download_content(link, verify, post_data, headers)
+                content = download_content(link, verify, post_data, headers, json_body=json_body)
                 if content is not None:
                     logging.info('We got content, write to file.')
                     if not os.path.exists(config.get_directory_cache_url()):

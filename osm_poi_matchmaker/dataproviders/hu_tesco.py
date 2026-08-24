@@ -82,6 +82,9 @@ class hu_tesco(DataProvider):
 
     def process(self):
         try:
+            if not os.path.isfile(self.link):
+                logging.warning('Cache file not found: %s', self.link)
+                return
             # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
             #                             self.filetype)
             # if soup is not None:
@@ -90,7 +93,7 @@ class hu_tesco(DataProvider):
                 # parse the html using beautiful soap and store in variable `soup`
                 # script = soup.find('div', attrs={'data-stores':True})
                 # text = json.loads(str(soup))
-                for poi_data in text.get('stores'):
+                for poi_data in text.get('stores', []):
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber,
                         # conscriptionnumber, ref, geom

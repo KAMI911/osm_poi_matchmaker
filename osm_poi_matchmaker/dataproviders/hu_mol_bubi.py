@@ -22,7 +22,12 @@ except ImportError as err:
 class hu_mol_bubi(DataProvider):
     
     def contains(self):
-        self.link = 'https://maps.nextbike.net/maps/nextbike.json?domains=bh&list_cities=0&bikes=0'
+        self.link = ('https://core.urbansharing.com/public/api/v1/graphql'
+                     '?operationName=dockGroupsExtended'
+                     '&variables=%7B%22systemId%22%3A%22inurba-budapest%22%7D'
+                     '&extensions=%7B%22clientLibrary%22%3A%7B%22name%22%3A%22%40apollo%2Fclient%22%2C'
+                     '%22version%22%3A%224.1.3%22%7D%2C%22persistedQuery%22%3A%7B%22version%22%3A1%2C'
+                     '%22sha256Hash%22%3A%221ef5051c2702f0fa61818c67d38125034b5ab99e483ccf36580461070705359d%22%7D%7D')
         self.tags = {'amenity': 'bicycle_rental', 'brand': 'MOL Bubi', 'brand:wikidata': 'Q16971969',
                      'brand:wikipedia': 'hu:MOL Bubi', 'operator': 'BKK', 'operator:wikidata': 'Q608917',
                      'operator:wikipedia': 'hu:Budapesti Közlekedési Központ', 'operator:type': 'public',
@@ -53,46 +58,29 @@ class hu_mol_bubi(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
             if soup is not None:
+                poi_datas = []
                 try:
                     text = json.loads(soup)
-                    poi_datas = text.get('countries')[0].get('cities')[0].get('places')
-                except IndexError as e:
-                    logging.exception('Index Error Exception occurred: %s', e)
-                    logging.exception(traceback.format_exc())
-                    logging.error(soup)
+                    poi_datas = text.get('data', {}).get('dockGroups') or []
                 except Exception as e:
                     logging.exception('Exception occurred: %s', e)
                     logging.exception(traceback.format_exc())
                     logging.error(soup)
-                
+
                 for poi_data in poi_datas:
                     try:
+                        if poi_data.get('state') != 'active' or not poi_data.get('enabled'):
+                            continue
                         self.data.name = None
                         self.data.code = 'hububibir'
                         self.data.city = 'Budapest'
-                        if poi_data.get('name') is not None and poi_data.get('name') != '':
-                            try:
-                                if clean_string(poi_data.get('name')) is not None \
-                                        and len(clean_string(poi_data.get('name')).split('-')) > 1:
-                                    self.data.branch = clean_string(poi_data.get('name').split('-')[1])
-                            except IndexError as e:
-                                logging.exception('There is no branch data: Index Error Exception occurred: %s', e)
-                                logging.exception(traceback.format_exc())
-                            try:
-                                if clean_string(poi_data.get('name').split('-')[2]) is not None \
-                                        and len(clean_string(poi_data.get('name')).split('-')) > 2:
-                                    self.data.description = clean_string(poi_data.get('name').split('-')[2])
-                            except IndexError as e:
-                                logging.debug('There is no description data: Index Error occurred: %s', e)
-                            try:
-                                if clean_string(poi_data.get('name')) is not None:
-                                    self.data.ref = clean_string(poi_data.get('name').split('-')[0])
-                            except IndexError as e:
-                                logging.exception('There is no ref data: Index Error Exception occurred: %s', e)
-                                logging.exception(traceback.format_exc())
+                        title = poi_data.get('title')
+                        if title is not None and clean_string(title) is not None:
+                            self.data.ref = clean_string(title)
                         # self.data.capacity = clean_string(poi_data.get('bike_racks'))
                         self.data.nonstop = True
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
+                        coord = poi_data.get('coord') or {}
+                        self.data.lat, self.data.lon = check_hu_boundary(coord.get('lat'), coord.get('lng'))
                         self.data.postcode = None
                         self.data.public_holiday_open = True
                         self.data.add()
