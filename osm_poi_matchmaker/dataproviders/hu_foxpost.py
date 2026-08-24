@@ -106,22 +106,26 @@ class hu_foxpost(DataProvider):
             {'poi_code': 'hufoxpocso', 'poi_common_name': 'Foxpost A-BOX', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': hufoxpocso, 'poi_url_base': 'https://www.foxpost.hu', 'poi_search_name': 'foxpost',
              'poi_search_avoid_name': '(alzabox|alza|dpd|gls|pick pack|postapont|easybox|sameday|mpl|express one|z-box|z-pont)', 'export_poi_name': False,
+             'additional_ref_name': 'foxpost',
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
             {'poi_code': 'hufoxpzcso', 'poi_common_name': 'Foxpost Z-BOX', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': hufoxpzcso, 'poi_url_base': 'https://www.foxpost.hu', 'poi_search_name': 'foxpost',
              'poi_search_avoid_name': '(alzabox|alza|dpd|gls|pick pack|postapont|easybox|sameday|mpl|express one|a-box|z-pont)', 'export_poi_name': False,
+             'additional_ref_name': 'foxpost',
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
             {'poi_code': 'hupackecso', 'poi_common_name': 'Z-Box',
              'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': hupackecso, 'poi_url_base': 'https://www.packeta.hu/zbox', 'poi_search_name': 'Z-Box',
              'poi_search_avoid_name': '(alzabox|alza|foxpost|dpd|gls|pick pack|postapont|easybox|sameday|mpl|express one|a-box|z-pont)',
              'export_poi_name': False,
+             'additional_ref_name': 'foxpost',
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
             {'poi_code': 'hupacketpp', 'poi_common_name': 'Z-Box',
              'poi_type': 'post_partner',
              'poi_tags': hupacketpp, 'poi_url_base': 'https://www.packeta.hu/', 'poi_search_name': 'Z-Pont',
              'poi_search_avoid_name': '(alzabox|alza|foxpost|dpd|gls|pick pack|postapont|easybox|sameday|mpl|express one|a-box|z-box)',
              'export_poi_name': False,
+             'additional_ref_name': 'foxpost',
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 2},
         ]
         return self.__types
@@ -179,6 +183,11 @@ class hu_foxpost(DataProvider):
                             self.data.conscriptionnumber = extract_all_address_waxeye(poi_data.get('address'))
                         self.data.public_holiday_open = False
                         self.data.ref = clean_string(poi_data.get('operator_id'))
+                        # Issue #124: also feed the stable per-locker id into the
+                        # additional_ref_name-based exact-match search, so a locker like
+                        # HU164 (Príma) doesn't get confused with a different nearby one
+                        # (e.g. HU175 Spar) that's roughly equidistant from an existing node.
+                        self.data.poi_additional_ref = clean_string(poi_data.get('operator_id'))
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))

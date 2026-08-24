@@ -69,7 +69,12 @@ def online_poi_matching(args):
                                                       poi_type_by_common_id.get(row.poi_common_id),
                                                       row.poi_search_name,
                                                       row.poi_search_avoid_name, row.poi_name,
-                                                      row.additional_ref_name, row.poi_ref,
+                                                      # additional_ref_name pairs with poi_additional_ref (the
+                                                      # ref:{additional_ref_name} tag value), not the plain
+                                                      # poi_ref/"ref" tag - using poi_ref here meant this exact-
+                                                      # match search stage never fired for providers (e.g.
+                                                      # Volánbusz) that only set poi_additional_ref.
+                                                      row.additional_ref_name, row.poi_additional_ref,
                                                       row.poi_addr_street, row.poi_addr_housenumber,
                                                       row.poi_conscriptionnumber, row.poi_city,
                                                       row.osm_search_distance_perfect,
