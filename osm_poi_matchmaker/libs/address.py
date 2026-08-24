@@ -720,10 +720,21 @@ def clean_url(clearable):
     :param clearable: String that has to clean
     :return: Cleaned string
     """
-    clearable = clean_string(clearable)
     if clearable is None:
         return None
-    url_match = PATTERN_URL_SLASH.sub('/', str(clearable))
+    if not isinstance(clearable, str):
+        try:
+            clearable = str(clearable)
+        except Exception as e:
+            logging.error(e)
+            logging.exception('Exception occurred')
+            return None
+    # Don't reuse clean_string() here: its generic strip('-/, ') would eat a
+    # genuine single trailing slash instead of just collapsing repeated ones.
+    clearable = clearable.strip()
+    if clearable == '' or clearable.upper() in ['NONE', 'NAN', 'NULL', 'NULLNONE']:
+        return None
+    url_match = PATTERN_URL_SLASH.sub('/', clearable)
     return url_match.lower().strip()
 
 
