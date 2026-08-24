@@ -284,6 +284,8 @@ def main():
         logging.info('Starting STAGE 8 – Online POI matching.')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
+        if poi_addr_data is None:
+            raise RuntimeError('STAGE 8 – Online POI matching failed, aborting pipeline.')
         logging.info("STAGE 8 – Online POI matching finished successfully.")
 
         # insert_poi_dataframe(session, poi_addr_data, False)
