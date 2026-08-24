@@ -40,6 +40,7 @@ class POIDatasetRaw:
         """
         """
         self.insert_data = []
+        self.add_errors = 0
         self.__db = POIBase(
             '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                          config.get_database_writer_password(),
@@ -1143,6 +1144,7 @@ class POIDatasetRaw:
                  self.__public_holiday_open, self.__opening_hours, self.__lat, self.__lon])
             self.clear_all()
         except Exception as e:
+            self.add_errors += 1
             logging.error(e)
             logging.exception('Exception occurred')
 
@@ -1153,6 +1155,9 @@ class POIDatasetRaw:
 
     def length(self):
         return len(self.insert_data)
+
+    def stats(self):
+        return {'harvested': self.length(), 'harvest_errors': self.add_errors}
 
 
 class POIDataset(POIDatasetRaw):
@@ -1277,6 +1282,7 @@ class POIDataset(POIDatasetRaw):
                  self.__public_holiday_open, self.__opening_hours, self.__lat, self.__lon, self.__good, self.__bad])
             self.clear_all()
         except Exception as e:
+            self.add_errors += 1
             logging.error(e)
             logging.exception('Exception occurred')
 

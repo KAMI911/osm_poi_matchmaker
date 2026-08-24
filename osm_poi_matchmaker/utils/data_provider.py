@@ -46,7 +46,13 @@ class DataProvider:
         pass
 
     def export_list(self):
+        stats = {'harvested': 0, 'harvest_errors': 0, 'db_inserted': 0, 'db_errors': 0}
+        if self.data is not None:
+            stats.update(self.data.stats())
         if self.data is None or self.data.length() < 1:
             logging.warning('Resultset is empty. Skipping ...')
         else:
-            insert_poi_dataframe(self.session, self.data.process())
+            insert_stats = insert_poi_dataframe(self.session, self.data.process())
+            stats['db_inserted'] = insert_stats.get('inserted', 0)
+            stats['db_errors'] = insert_stats.get('errors', 0)
+        return stats

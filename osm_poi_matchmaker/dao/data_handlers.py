@@ -781,7 +781,7 @@ def search_for_postcode(session: Session, city_name: str) -> str | None:
         session.commit()
 
 
-def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = True) -> None:
+def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = True) -> dict:
     """
     Inserts POI data from a DataFrame into the appropriate POI_address table.
 
@@ -791,7 +791,7 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
         raw (bool): If True, inserts into POI_address_raw; else into POI_address.
 
     Returns:
-        None
+        dict: {'inserted': int, 'errors': int, 'skipped': int} row counts for this call.
     """
     if raw:
         poi_df.columns = POI_COLS_RAW
@@ -809,10 +809,15 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
     if db_count == df_count:
         logging.debug(f'poi address raw={raw} dataframe count same as db row count, skipping processing data')
         session.close()
-        return
+        return {'inserted': 0, 'errors': 0, 'skipped': df_count}
 
-    try:
-        for poi_data in poi_dict:
+    inserted = 0
+    errors = 0
+    # Each row is committed independently (via get_or_create_poi) so one bad row (e.g. a
+    # provider bug producing a too-long field) can't roll back and discard every other row
+    # in the same batch - it's just counted as a failure and processing continues.
+    for poi_data in poi_dict:
+        try:
             city_col = session.query(City.city_id)\
                 .filter(City.city_name == poi_data.get('poi_city'))\
                 .filter(City.city_post_code == poi_data.get('poi_postcode'))\
@@ -836,22 +841,22 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
                 logging.warning(f"poi_addr_city has invalid type/value: {poi_data['poi_addr_city']}, converting to None")
                 poi_data['poi_addr_city'] = None
             get_or_create_poi(session, model, **poi_data)
+            inserted += 1
+        except Exception as e:
+            errors += 1
+            logging.exception(f'Exception occurred: {e} row skipped: {traceback.format_exc()}')
 
+    try:
+        session.commit()
+        logging.info(f'Successfully added {inserted} POI items to the dataset ({errors} failed).')
     except Exception as e:
-        logging.exception(f'Exception occurred: {e} rolled back: {traceback.format_exc()}')
+        logging.exception(f'Exception occurred during commit: {e} rolled back: {traceback.format_exc()}')
         session.rollback()
         raise
-
-    else:
-        try:
-            session.commit()
-            logging.info(f'Successfully added {len(poi_dict)} POI items to the dataset.')
-        except Exception as e:
-            logging.exception(f'Exception occurred during commit: {e} rolled back: {traceback.format_exc()}')
-            session.rollback()
-            raise
     finally:
         session.close()
+
+    return {'inserted': inserted, 'errors': errors, 'skipped': 0}
 
 
 def insert_type(session, type_data):

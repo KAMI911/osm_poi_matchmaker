@@ -104,6 +104,10 @@ class WorkflowManager(object):
         self.NUMBER_OF_PROCESSES = multiprocessing.cpu_count()
         self.pool = None
         self.results = None
+        self.harvest_stats = []
+        self.harvest_duration = None
+        self.matcher_stats = {}
+        self.matcher_duration = None
 
     def _create_pool(self, process_divider=PROCESS_DIVIDER, initializer=None):
         if self.pool is not None:
@@ -143,6 +147,7 @@ class WorkflowManager(object):
                 self.pool = None
 
     def start_poi_harvest(self):
+        phase_timer = timing.Timing()
         try:
             logging.info('Starting processing POI harvest.')
             self._create_pool()
@@ -150,10 +155,12 @@ class WorkflowManager(object):
             # process_count = 1
             self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable(),)
             # chunksize=100)
-            self._wait_for_results('POI harvest')
+            self.harvest_stats = self._wait_for_results('POI harvest', return_results=True) or []
             logging.info('Finished processing POI harvest.')
         except Exception as e:
             logging.exception('Exception occurred', exc_info=True)
+        finally:
+            self.harvest_duration = phase_timer.end()
 
     def start_exporter(self, data: pd.DataFrame, postfix: str = '', to_do=export_grouped_poi_data,
                        infix: str = ''):
@@ -173,6 +180,7 @@ class WorkflowManager(object):
             logging.exception('Exception occurred', exc_info=True)
 
     def start_matcher(self, data: pd.DataFrame, comm_data: pd.DataFrame):
+        phase_timer = timing.Timing()
         try:
             # Start multiprocessing in case multiple cores
             logging.info('Starting processing matcher.')
@@ -184,9 +192,46 @@ class WorkflowManager(object):
                                                chunksize=16)
             result_chunks = self._wait_for_results('matcher', return_results=True, timeout=360000)
             combined_result = pd.concat(result_chunks, ignore_index=True, sort=False)
+            self.matcher_stats = {
+                'total': int(len(combined_result)),
+                'new': int((combined_result['poi_new'] == True).sum()) if 'poi_new' in combined_result else 0,
+                'matched': int((combined_result['poi_new'] == False).sum()) if 'poi_new' in combined_result else 0,
+                'errors': int((combined_result['match_error'] == True).sum()) if 'match_error' in combined_result else 0,
+            }
             return combined_result
         except Exception as e:
             logging.exception('Exception occurred', exc_info=True)
+        finally:
+            self.matcher_duration = phase_timer.end()
+
+    def log_summary(self):
+        """Log a final per-provider / per-phase statistics summary for this run."""
+        lines = ['==== Import statisztika ====']
+        if self.harvest_stats:
+            lines.append('-- STAGE 2: POI harvesting (időtartam: %s) --' % self.harvest_duration)
+            lines.append('{:<28} {:>10} {:>10} {:>10} {:>10}'.format(
+                'Provider', 'Harvested', 'HarvErr', 'DB-Insert', 'DB-Err'))
+            total = {'harvested': 0, 'harvest_errors': 0, 'db_inserted': 0, 'db_errors': 0}
+            failed_modules = []
+            for entry in sorted(self.harvest_stats, key=lambda e: e.get('module', '')):
+                if 'error' in entry:
+                    failed_modules.append(entry['module'])
+                    continue
+                lines.append('{:<28} {:>10} {:>10} {:>10} {:>10}'.format(
+                    entry.get('module', '?'), entry.get('harvested', 0), entry.get('harvest_errors', 0),
+                    entry.get('db_inserted', 0), entry.get('db_errors', 0)))
+                for key in total:
+                    total[key] += entry.get(key, 0)
+            lines.append('{:<28} {:>10} {:>10} {:>10} {:>10}'.format(
+                'ÖSSZESEN', total['harvested'], total['harvest_errors'], total['db_inserted'], total['db_errors']))
+            if failed_modules:
+                lines.append('Teljesen elhasalt modulok: %s' % ', '.join(failed_modules))
+        if self.matcher_stats:
+            lines.append('-- STAGE 8: Online POI matching (időtartam: %s) --' % self.matcher_duration)
+            lines.append('Összesen: {total}   Új: {new}   Már létező: {matched}   Hiba: {errors}'.format(
+                **self.matcher_stats))
+        lines.append('=============================')
+        logging.info('\n'.join(lines))
 
     def join(self):
         if self.pool is not None:
@@ -312,6 +357,8 @@ def main():
         manager.join()
         logging.info("STAGE 10 – Grouped POI exported successfully.")
         mem_info.log_top_memory_snapshot('STAGE 10')
+
+        manager.log_summary()
 
         logging.info('%s finished successfully.', __program__)
         return 0

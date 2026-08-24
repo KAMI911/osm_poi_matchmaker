@@ -68,7 +68,8 @@ class hu_posta_json(DataProvider):
              'poi_tags': hupostamp, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta'}]
         return data
 
-    def process(self):
+    def process(self) -> dict:
+        stats = {'harvested': 0, 'harvest_errors': 0, 'db_inserted': 0, 'db_errors': 0}
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                     self.filetype)
         if soup is not None:
@@ -101,7 +102,12 @@ class hu_posta_json(DataProvider):
                     poi_data['address'])
                 data.original = poi_data['address']
                 data.add()
+            stats['harvested'] = data.length()
+            stats['harvest_errors'] = data.add_errors
             if data is None or data.length() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:
-                insert_poi_dataframe(self.session, data.process())
+                insert_stats = insert_poi_dataframe(self.session, data.process())
+                stats['db_inserted'] = insert_stats.get('inserted', 0)
+                stats['db_errors'] = insert_stats.get('errors', 0)
+        return stats

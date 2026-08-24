@@ -52,6 +52,7 @@ def online_poi_matching(args):
     data, comm_data = args
     if 'osm_nodes' not in data.columns:
         data['osm_nodes'] = None
+    data['match_error'] = False
     db = _worker_db
     session = _worker_session
     osm_live_query = _worker_osm_live_query
@@ -410,6 +411,7 @@ def online_poi_matching(args):
             except Exception as e:
                 if isinstance(e, SQLAlchemyError):
                     session.rollback()
+                data.at[i, 'match_error'] = True
                 logging.error(e)
                 logging.error(row)
                 logging.exception('Exception occurred')

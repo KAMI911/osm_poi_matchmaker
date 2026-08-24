@@ -53,7 +53,8 @@ class hu_kh_bank(DataProvider):
         ]
         return self.__types
 
-    def process(self):
+    def process(self) -> dict:
+        stats = {'harvested': 0, 'harvest_errors': 0, 'db_inserted': 0, 'db_errors': 0}
         try:
             if self.link and os.path.isfile(self.link):
                 with open(self.link, 'r') as f:
@@ -80,12 +81,17 @@ class hu_kh_bank(DataProvider):
                             data.original = clean_string(poi_data.get(first_element)['address'])
                         data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
                         data.add()
+                    stats['harvested'] = data.length()
+                    stats['harvest_errors'] = data.add_errors
                     if data is None or data.length() < 1:
                         logging.warning('Resultset is empty. Skipping ...')
                     else:
-                        insert_poi_dataframe(self.session, data.process())
+                        insert_stats = insert_poi_dataframe(self.session, data.process())
+                        stats['db_inserted'] = insert_stats.get('inserted', 0)
+                        stats['db_errors'] = insert_stats.get('errors', 0)
         except Exception as e:
             logging.exception('Exception occurred')
 
             logging.error(e)
             logging.error(locals().get('poi_data'))
+        return stats
