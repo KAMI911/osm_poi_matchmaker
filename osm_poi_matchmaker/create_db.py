@@ -206,9 +206,9 @@ class WorkflowManager(object):
 
     def log_summary(self):
         """Log a final per-provider / per-phase statistics summary for this run."""
-        lines = ['==== Import statisztika ====']
+        lines = ['==== Import statistics ====']
         if self.harvest_stats:
-            lines.append('-- STAGE 2: POI harvesting (időtartam: %s) --' % self.harvest_duration)
+            lines.append('-- STAGE 2: POI harvesting (duration: %s) --' % self.harvest_duration)
             lines.append('{:<28} {:>10} {:>10} {:>10} {:>10}'.format(
                 'Provider', 'Harvested', 'HarvErr', 'DB-Insert', 'DB-Err'))
             total = {'harvested': 0, 'harvest_errors': 0, 'db_inserted': 0, 'db_errors': 0}
@@ -223,12 +223,12 @@ class WorkflowManager(object):
                 for key in total:
                     total[key] += entry.get(key, 0)
             lines.append('{:<28} {:>10} {:>10} {:>10} {:>10}'.format(
-                'ÖSSZESEN', total['harvested'], total['harvest_errors'], total['db_inserted'], total['db_errors']))
+                'TOTAL', total['harvested'], total['harvest_errors'], total['db_inserted'], total['db_errors']))
             if failed_modules:
-                lines.append('Teljesen elhasalt modulok: %s' % ', '.join(failed_modules))
+                lines.append('Completely failed modules: %s' % ', '.join(failed_modules))
         if self.matcher_stats:
-            lines.append('-- STAGE 8: Online POI matching (időtartam: %s) --' % self.matcher_duration)
-            lines.append('Összesen: {total}   Új: {new}   Már létező: {matched}   Hiba: {errors}'.format(
+            lines.append('-- STAGE 8: Online POI matching (duration: %s) --' % self.matcher_duration)
+            lines.append('Total: {total}   New: {new}   Existing: {matched}   Errors: {errors}'.format(
                 **self.matcher_stats))
         lines.append('=============================')
         logging.info('\n'.join(lines))
