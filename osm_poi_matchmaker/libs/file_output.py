@@ -575,6 +575,20 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
+                # Issue #205: some OSM nodes already carry a hand-written addr:full because
+                # their address doesn't fit street/housenumber (e.g. it's along a numbered
+                # highway route, not a real street). Don't fight that with a generated,
+                # often garbled structured address - leave addr:full as the only address tag.
+                if osm_live_tags.get('addr:full'):
+                    logging.debug('Node already has addr:full, skipping structured addr:* tags (#205).')
+                    tags_remove = ['addr:postcode', 'addr:city', 'addr:street', 'addr:housenumber',
+                                   'addr:conscriptionnumber']
+                    for tr in tags_remove:
+                        tags.pop(tr, None)
+            except Exception as e:
+                logging.exception('Exception occurred: {}'.format(e))
+                logging.exception(traceback.format_exc())
+            try:
                 if has_value(row.poi_ref) and row.poi_ref:
                     tags['ref'] = row.poi_ref
                     logging.debug('Added ref tag.')
