@@ -134,33 +134,33 @@ class hu_foxpost(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text:
                     try:
-                        variant = poi_data.get('variant')
-                        if not variant:
-                            continue
-                        variant_upper = variant.upper()
+                        # The feed no longer has a dedicated "variant" field; the box/pickup-point
+                        # type is only distinguishable from the name prefix now.
+                        name_upper = (poi_data.get('name') or '').upper()
                         variant_map = {
                             'FOXPOST A-BOX': 'hufoxpocso',
                             'FOXPOST Z-BOX': 'hufoxpzcso',
                             'PACKETA Z-PONT': 'hupacketpp',
                             'PACKETA Z-BOX': 'hupackecso'
                         }
-                        if variant_upper in variant_map:
-                            self.data.code = variant_map[variant_upper]
+                        matched_code = next((code for prefix, code in variant_map.items()
+                                            if name_upper.startswith(prefix)), None)
+                        if matched_code is None:
+                            continue
+                        self.data.code = matched_code
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('geolat'), poi_data.get('geolng'))
                         self.data.postcode = clean_string(poi_data.get('zip'))
                         self.data.city = clean_city(poi_data.get('city'))
                         self.data.branch = clean_string(poi_data.get('name'))
                         self.data.description = clean_string(poi_data.get('findme'))
-                        if len(poi_data.get('paymentOptions')) <= 1:
-                            payment_method = 'only'
-                        else:
-                            payment_method = 'yes'
-                        if poi_data.get('paymentOptions') and 'card' in poi_data.get('paymentOptions'):
+                        payment_options = poi_data.get('paymentOptions') or []
+                        payment_method = 'only' if len(payment_options) <= 1 else 'yes'
+                        if 'card' in payment_options:
                             self.tags.update(POS_HU_GEN)
-                        if poi_data.get('paymentOptions') and 'link' in poi_data.get('paymentOptions'):
+                        if 'link' in payment_options:
                             self.tags.update({'payment:link': payment_method})
-                        if poi_data.get('paymentOptions') and 'cash' in poi_data.get('paymentOptions'):
+                        if 'cash' in payment_options:
                             self.tags.update({'payment:cash': payment_method})
                         if self.data.description:
                             if 'kültéri' in self.data.description:
