@@ -126,15 +126,22 @@ class OpeningHours(object):
                     days = ','.join(same)
                 if self.__lunch_break_start is None and self.__lunch_break_stop is None:
                     # If open and close are equals we handles as closed
-                    if self.df_dup.at[k, 'open'] != self.df_dup.at[k, 'close']:
+                    if row.open != row.close:
                         oh_list.append(
-                            '{} {}-{}'.format(days.title(), self.df_dup.at[k, 'open'], self.df_dup.at[k, 'close']))
+                            "{} {}-{}".format(days.title(), row.open, row.close)
+                        )
                 else:
                     # If open and close are equals we handles as closed
-                    if self.df_dup.at[k, 'open'] != self.df_dup.at[k, 'close']:
+                    if row.open != row.close:
                         oh_list.append(
-                            '{} {}-{},{}-{}'.format(days.title(), self.df_dup.at[k, 'open'], self.__lunch_break_start,
-                                                    self.__lunch_break_stop, self.df_dup.at[k, 'close']))
+                            "{} {}-{},{}-{}".format(
+                                days.title(),
+                                row.open,
+                                self.__lunch_break_start,
+                                self.__lunch_break_stop,
+                                row.close,
+                            )
+                        )
                 oh = '; '.join(oh_list)
                 oh = oh + oh_ph
         if self.__non_stop is True or 'Mo-Su 00:00-24:00' in oh:

@@ -24,7 +24,7 @@ company_types = [' e.v.', ' ev.', ' kft.', ' KFT', ' bt.', ' bt']
 class hu_tom_market(DataProvider):
 
     def contains(self):
-        self.link = 'https://tommarket.hu/hu/?mod=partners&cla=partners&fun=getPartnerCoordinates&ajax=1'
+        self.link = 'https://tommarket.hu/wp-admin/admin-ajax.php?action=asl_load_stores&asl_lang=&lang=hu_HU&load_all=1&layout=1'
         self.tags = {'shop': 'convenience', 'name': 'Tom Market',
                      'contact:facebook': 'https://www.facebook.com/TOM.Market.Magyarorszag'}
         self.filetype = FileType.json
@@ -47,29 +47,27 @@ class hu_tom_market(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
             if soup is not None:
-                # parse the html using beautiful soap and store in variable `soup`
-                # script = soup.find('div', attrs={'data-stores':True})
+                # The store locator plugin returns a plain JSON array of stores (no wrapping object).
                 text = json.loads(str(soup))
-                for poi_data in text.get('partners'):
+                for poi_data in text or []:
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber,
                         # conscriptionnumber, ref, geom
                         self.data.code = 'hutommacon'
-                        self.data.city = poi_data.get('city')
-                        if poi_data.get('name') is not None and poi_data.get('name') != '':
+                        name = clean_string(poi_data.get('title'))
+                        if name is not None and name != '':
                             # Search list of multiple string fragments in a string
-                            if any(map(poi_data.get('name').__contains__, company_types)):
+                            if any(map(name.__contains__, company_types)):
                                 continue
-                                #self.data.operator = poi_data.get('name')
                             else:
-                                self.data.branch = poi_data.get('name')
+                                self.data.branch = name
                         self.data.website = None
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'), poi_data.get('lng'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber =\
-                            extract_street_housenumber_better_2(poi_data.get('address'))
+                            extract_street_housenumber_better_2(poi_data.get('street'))
                         self.data.city = clean_city(poi_data.get('city'))
-                        self.data.postcode = clean_string(poi_data.get('postcode'))
-                        self.data.original = poi_data.get('address')
+                        self.data.postcode = clean_string(poi_data.get('postal_code'))
+                        self.data.original = poi_data.get('street')
                         if clean_phone_to_str(poi_data.get('phone')) is not None:
                             self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                         self.data.public_holiday_open = False

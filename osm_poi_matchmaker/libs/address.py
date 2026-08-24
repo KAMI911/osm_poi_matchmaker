@@ -264,11 +264,11 @@ def extract_javascript_variable(input_soup, removable, use_replace=False):
 
 
 def extract_street_housenumber(clearable):
-    '''Try to separate street and house number from a Hungarian style address string
+    """Try to separate street and house number from a Hungarian style address string
 
     :param clearable: An input string with Hungarian style address string
     return: Separated street and housenumber
-    '''
+    """
     # Split and clean up house number
     housenumber = clearable.split('(')[0]
     housenumber = clean_string(housenumber)
@@ -516,11 +516,11 @@ def extract_phone_number(data: str) -> str:
 
 
 def clean_city(clearable: str) -> str:
-    '''Remove additional things from cityname
+    """Remove additional things from cityname
 
     :param clearable: Not clear cityname
     :return: Clear cityname
-    '''
+    """
     clearable = clean_string(clearable)
     if clearable is None:
         return None
@@ -675,12 +675,12 @@ def clean_email(email):
 
 
 def clean_string(clearable: str):
-    '''
+    """
     Remove whitespaces, extra spaces from strings and surrounding whitespace characters
     :param clearable: String that has to clean
     :return: Cleaned string
     Returns None if the string is empty or contains only whitespace characters
-    '''
+    """
     if clearable is None:
         return None
     if not isinstance(clearable, str):
@@ -700,7 +700,7 @@ def clean_string(clearable: str):
     if len(clearable_parts) == 0:
         return None
     clearable = ' '.join(clearable_parts)
-    clearable = clearable.strip()
+    clearable = clearable.strip('-/, ')
     if clearable is not None and clearable != '' and clearable != ' ' and clearable.upper() not in ['NONE', 'NAN', 'NULL', 'NULLNONE']:
         return clearable
     else:
@@ -715,11 +715,11 @@ def clean_postcode(clearable: str):
     return clearable
 
 def clean_url(clearable):
-    '''
+    """
     Remove extra slashes from URL strings and surrounding whitespace characters
     :param clearable: String that has to clean
     :return: Cleaned string
-    '''
+    """
     clearable = clean_string(clearable)
     if clearable is None:
         return None
@@ -728,11 +728,11 @@ def clean_url(clearable):
 
 
 def clean_street(clearable):
-    '''
+    """
 
     :param clearable:
     :return:
-    '''
+    """
     if clearable is None:
         return None
     clearable = str(clearable)
@@ -745,11 +745,11 @@ def clean_street(clearable):
 
 
 def clean_street_type(clearable):
-    '''
+    """
 
     :param clearable:
     :return:
-    '''
+    """
 
     street = clean_string(clearable)
     if street is None or clearable == '':
@@ -768,11 +768,11 @@ def clean_street_type(clearable):
 
 
 def clean_branch(clearable):
-    '''
+    """
 
     :param clearable:
     :return:
-    '''
+    """
     if clearable is not None and clearable != '':
         branch = clean_string(str(clearable))
         # branch = branch.title()

@@ -18,7 +18,7 @@ try:
     from osm_poi_matchmaker.utils import config, timing
     from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching
+    from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching, init_matcher_worker
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
     from osm_poi_matchmaker.libs.poi_patch import apply_poi_patches, load_poi_patches_from_db
     from osm_poi_matchmaker.libs.export import export_raw_poi_data, export_raw_poi_data_xml, \
@@ -106,7 +106,7 @@ class WorkflowManager(object):
         self.pool = None
         self.results = None
 
-    def _create_pool(self, process_divider=PROCESS_DIVIDER):
+    def _create_pool(self, process_divider=PROCESS_DIVIDER, initializer=None):
         if self.pool is not None:
             logging.warning('Existing pool found, closing it first.')
             self.pool.close()
@@ -114,7 +114,7 @@ class WorkflowManager(object):
             logging.info('Old pool closed.')
         process_count = (max(1, self.NUMBER_OF_PROCESSES // process_divider))
         logging.info('Creating new multiprocessing pool with %d processes.', process_count)
-        self.pool = multiprocessing.Pool(processes=process_count)
+        self.pool = multiprocessing.Pool(processes=process_count, initializer=initializer)
 
     def _wait_for_results(self, task_name: str, return_results=False, timeout=36000):
         """ Wait for async map to finish and handle errors."""
@@ -177,8 +177,9 @@ class WorkflowManager(object):
         try:
             # Start multiprocessing in case multiple cores
             logging.info('Starting processing matcher.')
-            self._create_pool()
-            split_data = np.array_split(data, self.NUMBER_OF_PROCESSES * 8)
+            self._create_pool(initializer=init_matcher_worker)
+            idx_chunks = np.array_split(np.arange(len(data)), self.NUMBER_OF_PROCESSES * 8)
+            split_data = [data.iloc[idx] for idx in idx_chunks]
             logging.info('Starting matcher on %d data chunks.', len(split_data))
             self.results = self.pool.map_async(online_poi_matching, [(chunk, comm_data) for chunk in split_data],
                                                chunksize=16)
@@ -267,7 +268,7 @@ def main():
         # --- STAGE 7 ---
         logging.info('Starting STAGE 7 – Adding OpenStreetMap metadata fields.')
         # New fields for OpenStreetMap data
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
         poi_addr_data['osm_id'] = None
         poi_addr_data['osm_node'] = None
         poi_addr_data['osm_version'] = None
@@ -291,6 +292,8 @@ def main():
         logging.info('Starting STAGE 9 – Online POI matching.')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
+        if poi_addr_data is None:
+            raise RuntimeError('STAGE 9 – Online POI matching failed, aborting pipeline.')
         logging.info("STAGE 9 – Online POI matching finished successfully.")
 
         # insert_poi_dataframe(session, poi_addr_data, False)

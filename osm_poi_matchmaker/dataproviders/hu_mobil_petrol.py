@@ -4,13 +4,13 @@ try:
     from builtins import Exception, ImportError, range
     import logging
     import sys
-    import json
+    import html
     import os
     import re
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import clean_city, extract_street_housenumber_better_2, clean_phone_to_str, \
-        extract_javascript_variable, clean_string, clean_url
+        clean_string, clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -25,12 +25,16 @@ except ImportError as err:
 class hu_mobil_petrol(DataProvider):
 
     def contains(self):
-        self.link = 'http://www.mpetrol.hu/'
+        # The homepage no longer embeds a totem_stations JS variable; the "Super Store Finder"
+        # plugin now serves the station list as this static XML feed instead (found via the
+        # browser's Network tab - it isn't reachable through admin-ajax.php, which this site
+        # firewalls off for every custom action).
+        self.link = 'https://mpetrol.hu/wp-content/plugins/superstorefinder-wp/ssf-wp-xml.php'
         self.tags = {'amenity': 'fuel', 'brand': 'Mobil Petrol', 'contact:email': 'info@mpetrol.hu',
                      'contact:facebook': 'https://www.facebook.com/mpetrolofficial/', 'name': 'Mobil Petrol',
                      'operator:addr': '1095 Budapest, Ipar utca 2.', 'operator': 'MPH Power Zrt.', 'fuel:diesel': 'yes',
                      'fuel:octane_95': 'yes'}
-        self.filetype = FileType.html
+        self.filetype = FileType.xml
         self.filename = '{}.{}'.format(
             self.__class__.__name__, self.filetype.name)
 
@@ -51,43 +55,40 @@ class hu_mobil_petrol(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
             if soup is not None:
-                # parse the html using beautiful soap and store in variable `soup`
-                text = json.loads(
-                    extract_javascript_variable(soup, 'totem_stations'))
-                for poi_data in text.values():
+                for poi_data in soup.findAll('item'):
                     try:
                         self.data.code = 'humobpefu'
-                        self.data.website = clean_url(poi_data.get('description'))
-                        self.data.city = clean_city(poi_data.get('city'))
-                        self.data.original = clean_string(poi_data.get('address'))
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('location').get('lat'),
-                                                                         poi_data.get('location').get('lng'))
-                        self.data.postcode = None
+                        city = clean_city(poi_data.location.get_text()) if poi_data.location is not None else None
+                        self.data.city = city
+                        # The feed bakes street+housenumber, city and zip into one combined string,
+                        # e.g. "Fő út 31.  Ajka,   8400" - split it back up using the (reliable)
+                        # city name and the zip after the last comma. Some records repeat the city
+                        # name right before the zip without a separating comma (e.g. "... Budapest,
+                        # Budapest 1097"), so pull out just the 4-digit zip instead of trusting the
+                        # whole tail - otherwise it overflows the postcode column.
+                        address_raw = poi_data.address.get_text() if poi_data.address is not None else ''
+                        self.data.original = clean_string(address_raw)
+                        street_and_city, _, postcode_tail = address_raw.rpartition(',')
+                        postcode_match = re.search(r'(\d{4})\s*$', postcode_tail)
+                        self.data.postcode = postcode_match.group(1) if postcode_match else clean_string(postcode_tail)
+                        street_part = street_and_city
+                        if city and street_and_city.strip().endswith(city):
+                            street_part = street_and_city.strip()[:-len(city)]
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                            extract_street_housenumber_better_2(poi_data.get('address'))
-                        self.data.phone = clean_phone_to_str(poi_data.get('phone'))
+                            extract_street_housenumber_better_2(street_part)
+                        self.data.lat, self.data.lon = check_hu_boundary(
+                            poi_data.latitude.get_text() if poi_data.latitude is not None else None,
+                            poi_data.longitude.get_text() if poi_data.longitude is not None else None)
+                        self.data.phone = clean_phone_to_str(
+                            poi_data.telephone.get_text()) if poi_data.telephone is not None else None
+                        website = poi_data.website.get_text() if poi_data.website is not None else None
+                        self.data.website = clean_url(website) if website else None
                         self.data.public_holiday_open = False
-                        if '0-24' in poi_data.get('services'):
+                        description = html.unescape(poi_data.description.get_text()) \
+                            if poi_data.description is not None else ''
+                        if re.search(r'H-V:\s*0[:.]00\s*[-\u2013]\s*24[:.]00', description):
                             self.data.nonstop = True
                             self.data.public_holiday_open = True
-                        else:
-                            if '6-22' in poi_data.get('services'):
-                                open_from = '06:00'
-                                open_to = '22:00'
-                            elif '6-21' in poi_data.get('services'):
-                                open_from = '06:00'
-                                open_to = '21:00'
-                            elif '5-22' in poi_data.get('services'):
-                                open_from = '05:00'
-                                open_to = '22:00'
-                            elif '6-18' in poi_data.get('services'):
-                                open_from = '06:00'
-                                open_to = '18:00'
-                            if 'open_from' in locals() and 'open_to' in locals():
-                                for i in range(0, 7):
-                                    self.data.day_open(i, open_from)
-                                    self.data.day_close(i, open_to)
-                            self.data.public_holiday_open = False
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))

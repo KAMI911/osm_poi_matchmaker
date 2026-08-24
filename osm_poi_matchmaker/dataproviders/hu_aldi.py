@@ -6,7 +6,8 @@ try:
     import os
     import json
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_string
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_string, \
+        clean_url
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -21,7 +22,14 @@ except ImportError as err:
 class hu_aldi(DataProvider):
 
     def contains(self):
-        self.link = 'https://www.aldi.hu/hu/hu/.get-stores-in-radius.json?latitude=47.162494&longitude=19.503304&radius=50000'
+        # The old storefront endpoint (www.aldi.hu/.../.get-stores-in-radius.json) is gone. The site
+        # now runs its store locator through Uberall (locations-as-a-service); this feed is richer than
+        # ALDI's own Spryker "Glue" commerce API (asl.api.aldi.hu) - it also carries per-day opening
+        # hours, phone and a store landing page URL that the Glue API doesn't expose at all.
+        self.link = 'https://locator.uberall.com/api/storefinders/rDCKKjdtbi2w0Qx3Cq1axERNtccFqZ/locations/all' \
+                   '?v=20260101&language=hu&fieldMask=id&fieldMask=lat&fieldMask=lng&fieldMask=country' \
+                   '&fieldMask=city&fieldMask=streetAndNumber&fieldMask=zip&fieldMask=phone' \
+                   '&fieldMask=openingHours&fieldMask=website'
         self.tags = {'operator': 'ALDI Magyarország Élelmiszer Bt.', 'operator:wikipedia': 'hu:Aldi_(Magyarország)',
                      'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi',
                      'ref:HU:vatin': '22234663-2-44', 'ref:vatin': 'HU22234663',
@@ -59,41 +67,27 @@ class hu_aldi(DataProvider):
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 text = json.loads(soup, strict=False)
-                for poi_data in text.get('stores'):
+                for poi_data in (text.get('response') or {}).get('locations') or []:
                     try:
-                        if poi_data.get('countryCode') == 'HU':
+                        if poi_data.get('country') == 'HU':
                             self.data.code = 'hualdisup'
                             # Assign: code, postcode, city, name, branch, website, original
                             #         street, housenumber, conscriptionnumber, ref, geom
-                            self.data.city = poi_data.get('city')
-                            self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'),
-                                                                             poi_data.get('longitude'))
+                            self.data.city = clean_city(poi_data.get('city'))
+                            self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('lat'),
+                                                                             poi_data.get('lng'))
                             self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                                extract_street_housenumber_better_2(poi_data.get('streetAddress'))
-                            self.data.postcode = clean_string(poi_data.get('postalCode'))
-                            self.data.original = clean_string(poi_data.get('streetAddress'))
+                                extract_street_housenumber_better_2(poi_data.get('streetAndNumber'))
+                            self.data.postcode = clean_string(poi_data.get('zip'))
+                            self.data.original = clean_string(poi_data.get('streetAndNumber'))
                             self.data.public_holiday_open = False
-                            self.data.phone = clean_string(poi_data.get('phoneNumber'))
-                            for i in range(7):
-                                mi = i + 1
-                                for opening_day in poi_data.get('openUntilSorted').get('openingHours'):
-                                    if mi > 6:
-                                        mi -= 7
-                                    if opening_day.get('dayIdx') == mi:
-                                        self.data.day_open(i, opening_day.get('open'))
-                                        self.data.day_close(i, opening_day.get('close'))
-                                        break
-                            '''
-                            self.data.description.
-                            'BAKEBOX', 'Helyben sütött pékáru'
-                            'CAR_PARKING_LOT', 'Parkolóhely'
-                            'COFFEE_TOGO', ''
-                            'POST_STATION', 'Csomagküldő automata'
-                            'GAS_STATION', 'Benzinkút'
-                            'ELECTRIC_CAR_CHARGER', 'E-töltőállomás'
-                            TODO: Wheelchair
-                            'WHEELCHAIR_ACCESS', 'Akadálymentesített'
-                            '''
+                            self.data.phone = clean_string(poi_data.get('phone'))
+                            self.data.website = clean_url(poi_data.get('website'))
+                            for opening_day in poi_data.get('openingHours') or []:
+                                day_of_week = opening_day.get('dayOfWeek')
+                                if day_of_week is not None:
+                                    self.data.day_open_close(day_of_week - 1, opening_day.get('from1'),
+                                                             opening_day.get('to1'))
                             self.data.add()
                     except Exception as e:
                         logging.error(e)

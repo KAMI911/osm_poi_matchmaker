@@ -49,6 +49,9 @@ class hu_mol_plugee_ev(DataProvider):
 
     def process(self):
         try:
+            if not os.path.isfile(self.link):
+                logging.warning('Cache file not found: %s', self.link)
+                return
             csv = pd.read_csv(self.link, encoding='UTF-8', sep=';', skiprows=1)
             if csv is not None:
                 poi_dict = csv.to_dict('records')

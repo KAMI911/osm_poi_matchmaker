@@ -25,6 +25,7 @@ def get_cached(key: str) -> dict | str | None:
 
 def set_cached(key: str, data: dict | str) -> None:
     file_path = get_cache_path(key)
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, "w") as file:
         json.dump(data, file)
 
