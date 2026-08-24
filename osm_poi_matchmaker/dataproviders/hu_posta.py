@@ -27,9 +27,9 @@ class hu_posta(DataProvider):
         self.link = 'https://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'
         self.tags = {'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614',
                      'contact:email': 'ugyfelszolgalat@posta.hu', 'contact:phone': '+36 1 767 8200',
-                     'contact:facebook': 'https://www.facebook.com/MagyarPosta',
+                     'contact:facebook': 'MagyarPosta',
                      'contact:youtube': 'https://www.youtube.com/user/magyarpostaofficial',
-                     'contact:instagram': 'https://www.instagram.com/magyar_posta_zrt', 'payment:cash': 'yes',
+                     'contact:instagram': 'magyar_posta_zrt', 'payment:cash': 'yes',
                      'payment:debit_cards': 'yes'}
         self.filetype = FileType.xml
         self.filename = '{}.{}'.format(

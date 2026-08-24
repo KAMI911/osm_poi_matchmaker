@@ -27,7 +27,7 @@ class hu_avia(DataProvider):
         self.link = 'https://www.avia.hu/kapcsolat/toltoallomasok'
         self.tags = {'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', 'fuel:diesel': 'yes',
                      'fuel:octane_95': 'yes', 'contact:email': 'avia@avia.hu',
-                     'contact:facebook': 'https://www.facebook.com/AVIAHungary',
+                     'contact:facebook': 'AVIAHungary',
                      'contact:youtube': 'https://www.youtube.com/channel/UCjvjkjf2RgmKBuTnKSXk-Rg', }
         self.tags.update(POS_HU_GEN)
         self.tags.update(PAY_CASH)

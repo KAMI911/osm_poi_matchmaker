@@ -30,8 +30,8 @@ class hu_penny_market(DataProvider):
                      'brand:wikidata': 'Q284688', 'brand:wikipedia': 'en:Penny (supermarket)',
                      'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'PENNY FREE WLAN',
                      'contact:email': 'ugyfelszolgalat@penny.hu',
-                     'contact:facebook': 'https://www.facebook.com/PennyMarketMagyarorszag',
-                     'contact:instagram': 'https://www.instagram.com/pennymarkethu',
+                     'contact:facebook': 'PennyMarketMagyarorszag',
+                     'contact:instagram': 'pennymarkethu',
                      'contact:youtube': 'https://www.youtube.com/channel/UCSy0KKUrDxVWkx8qicky_pQ',
                      'ref:HU:vatin': '10969629-2-44', 'ref:vatin': 'HU10969629'}
         self.filetype = FileType.json

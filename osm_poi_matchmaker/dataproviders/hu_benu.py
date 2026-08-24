@@ -44,7 +44,7 @@ class hu_benu(DataProvider):
     def contains(self):
         self.link = GRAPHQL_URL
         self.tags = {'brand': 'Benu gyógyszertár', 'dispensing': 'yes',
-                     'contact:facebook': 'https://www.facebook.com/BENUgyogyszertar',
+                     'contact:facebook': 'BENUgyogyszertar',
                      'contact:youtube': 'https://www.youtube.com/channel/UCBLjL10QMtRHdkak0h9exqg',
                      'air_conditioning': 'yes', }
         self.tags.update(POS_HU_GEN)

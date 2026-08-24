@@ -41,7 +41,7 @@ class hu_ofotert(DataProvider):
                      'operator:addr': '1113 Budapest, Bocskai út 134-146.', 'ref:HU:vatin': '12142143-2-44',
                      'ref:vatin': 'HU12142143', 'ref:HU:company': '01-09-468765', 'brand': 'Ofotért',
                      'contact:email': 'vevoszolgalat@ofotert.hu',
-                     'contact:facebook': 'https://www.facebook.com/ofotert',
+                     'contact:facebook': 'ofotert',
                      'contact:youtube': 'https://www.youtube.com/user/ofoterthu',
                      'air_conditioning': 'yes'}
         self.filetype = FileType.json

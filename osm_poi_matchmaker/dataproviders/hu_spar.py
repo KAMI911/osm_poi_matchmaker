@@ -30,9 +30,9 @@ class hu_spar(DataProvider):
         self.tags = {'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar',
                      'brand:wikipedia': 'hu:Spar', 'brand:wikidata': 'Q610492',
                      'contact:email': 'vevoszolgalat@spar.hu',
-                     'contact:phone': '+36 20 823 7727', 'contact:facebook': 'https://www.facebook.com/sparmagyarorszag',
+                     'contact:phone': '+36 20 823 7727', 'contact:facebook': 'sparmagyarorszag',
                      'contact:youtube': 'https://www.youtube.com/channel/UC9tu8COHiy4WkeTIN1k_Y8A',
-                     'contact:instagram': 'https://www.instagram.com/sparmagyarorszag'}
+                     'contact:instagram': 'sparmagyarorszag'}
         self.tags.update(POS_OTP)
         self.tags.update(PAY_CASH)
         self.filetype = FileType.json

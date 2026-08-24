@@ -34,8 +34,8 @@ class hu_tesco(DataProvider):
                      'brand:wikipedia': 'hu:Tesco',
                      'internet_access': 'wlan', 'internet_access:fee': 'no',
                      'internet_access:ssid': 'tesco-internet',
-                     'contact:facebook': 'https://www.facebook.com/tescoaruhazak',
-                     'contact:pinterest': 'https://www.pinterest.com/tescohungary/',
+                     'contact:facebook': 'tescoaruhazak',
+                     'contact:pinterest': 'tescohungary',
                      'contact:youtube': 'https://www.youtube.com/user/TescoMagyarorszag',
                      'loyalty_card': 'yes', 'payment:gift_card': 'yes', 'payment:wire_transfer': 'yes',
                      'air_conditioning': 'yes'}

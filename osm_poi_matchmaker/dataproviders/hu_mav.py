@@ -34,9 +34,9 @@ class hu_mav(DataProvider):
                      'ref:vatin': 'HU13834492', 'brand': 'MÁV-START', 'brand:wikidata': 'Q1180332',
                      'brand:wikipedia': 'hu:MÁV-START_Zrt.', 'contact:email': 'eszrevetel@mav-start.hu',
                      'contact:phone': '+36 1 349 4949',
-                     'contact:facebook': 'https://www.facebook.com/mavstarthungary',
+                     'contact:facebook': 'mavstarthungary',
                      'contact:youtube': 'https://www.youtube.com/channel/UCcc8H-ND98GVF5OM5jJphWw',
-                     'contact:instagram': 'https://www.instagram.com/mavstart'}
+                     'contact:instagram': 'mavstart'}
         self.filetype = FileType.zip
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 

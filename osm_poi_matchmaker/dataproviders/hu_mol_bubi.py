@@ -34,8 +34,8 @@ class hu_mol_bubi(DataProvider):
                      'operator:addr': '1075 Budapest Rumbach Sebestyén utca 19-21.', 'network': 'MOL Bubi',
                      'network:wikidata': 'Q16971969', 'network:wikipedia': 'hu:MOL Bubi',
                      'contact:phone': '+36 1 325 5255', 'contact:email': 'bkk@bkk.hu',
-                     'contact:instagram': 'https://www.instagram.com/molbubi/',
-                     'contact:facebook': 'https://www.facebook.com/molbubi',
+                     'contact:instagram': 'molbubi',
+                     'contact:facebook': 'molbubi',
                      'contact:youtube': 'https://www.youtube.com/user/bkkweb', 'contact:twitter': 'molbubi',
                      'fee': 'yes', 'payment:credit_cards': 'yes', 'payment:app': 'yes', 'charge': '50 HUF/minute'}
         

@@ -30,7 +30,7 @@ class hu_pepco(DataProvider):
     def contains(self):
         self.link = 'https://pepco.hu/api/stores?market=HU'
         self.tags = {'shop': 'clothes', 'brand': 'Pepco', 'brand:wikidata': 'Q11815580',
-                     'brand:wikipedia': 'pl:Pepco', 'contact:facebook': 'https://www.facebook.com/pepcohu/',
+                     'brand:wikipedia': 'pl:Pepco', 'contact:facebook': 'pepcohu',
                      'contact:website': 'https://pepco.hu/',
                      'contact:linkedin': 'https://www.linkedin.com/company/pepco-poland',
                      'contact:phone': '+36 1 701 0424', 'contact:email': 'ugyfelszolgalat@pepco.eu',

@@ -26,9 +26,9 @@ class hu_dm(DataProvider):
         self.link = 'https://store-data-service.services.dmtech.com/stores/bbox/49,16,45,23'
         self.tags = {'shop': 'chemist', 'operator': 'dm Kft.', 'brand': 'dm',
                      'brand:wikidata': 'Q266572', 'brand:wikipedia': 'en:Dm-drogerie markt',
-                     'contact:facebook': 'https://www.facebook.com/dm.Magyarorszag',
+                     'contact:facebook': 'dm.Magyarorszag',
                      'contact:youtube': 'https://www.youtube.com/user/dmMagyarorszag',
-                     'contact:instagram': 'https://www.instagram.com/dm_magyarorszag',
+                     'contact:instagram': 'dm_magyarorszag',
                      'ref:vatin': 'HU11181530', 'ref:HU:vatin': '11181530-2-44', 'ref:HU:company': '13-09-078006',
                      'air_conditioning': 'yes'}
         self.filetype = FileType.json

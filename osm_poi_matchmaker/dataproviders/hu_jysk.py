@@ -26,7 +26,7 @@ class hu_jysk(DataProvider):
     def contains(self):
         self.link = 'https://jysk.hu/aruhazak'
         self.tags = {'shop': 'furniture', 'brand:wikidata': 'Q138913', 'brand:wikipedia': 'hu:JYSK',
-                     'contact:facebook': 'https://www.facebook.com/JYSK.Magyarorszag/',
+                     'contact:facebook': 'JYSK.Magyarorszag',
                      'operator:addr': '1103 Budapest, Sibrik Miklós út 30.', 'operator': 'JYSK Kft.',
                      'ref:vatin': 'HU13353298', 'ref:HU:vatin': '13353298-2-44', 'ref:HU:company': '01-09-730940', }
         self.filetype = FileType.html
