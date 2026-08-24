@@ -27,6 +27,21 @@ except ImportError as err:
 
     sys.exit(128)
 
+
+def has_value(value) -> bool:
+    """True if value is a real, present value - not None and not a pandas/numpy NaN float.
+
+    A DataFrame column a data provider never set defaults to NaN, which is neither None
+    nor an empty string, so plain `is not None` / truthy checks let it through and it ends
+    up written out as the literal string 'nan' in OSM tags.
+    """
+    if value is None:
+        return False
+    if isinstance(value, float) and math.isnan(value):
+        return False
+    return True
+
+
 POI_TAGS = {'poi_common_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:postcode',
             'poi_addr_street': 'addr:street', 'poi_addr_housenumber': 'addr:housenumber',
             'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email'}
@@ -473,7 +488,7 @@ def generate_osm_xml(df, session=None):
                 # Overwriting with data from data providers
                 logging.debug('Overwrite item tags from common tags.')
                 for k, v in POI_TAGS.items():
-                    if getattr(row, k, None) is not None:
+                    if has_value(getattr(row, k, None)):
                         if k != 'poi_addr_housenumber':
                             tags[v] = getattr(row, k, None)
                         else:
@@ -560,12 +575,12 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
-                if row.poi_ref:
+                if has_value(row.poi_ref) and row.poi_ref:
                     tags['ref'] = row.poi_ref
                     logging.debug('Added ref tag.')
-                    
+
                 # If there is additional_ref_name then use it as key and poi_additional_ref as value
-                if row.additional_ref_name is not None and row.poi_additional_ref is not None:
+                if row.additional_ref_name is not None and has_value(row.poi_additional_ref):
                     tags['ref:{}'.format(row.additional_ref_name)] = row.poi_additional_ref
                     logging.debug('Add ref:{} tag with additional ref name.'.format(row.additional_ref_name))
             except Exception as e:
@@ -611,7 +626,7 @@ def generate_osm_xml(df, session=None):
                     if preserved_name is not None:
                         logging.debug('Add back "{}" preserved name instead of common name.'.format(preserved_name))
                         tags['name'] = preserved_name
-                    elif row.poi_name is not None:
+                    elif has_value(row.poi_name):
                         logging.debug('Add "{}" individual name instead of common name.'.format(row.poi_name))
                         tags['name'] = row.poi_name
                 else:
@@ -621,7 +636,7 @@ def generate_osm_xml(df, session=None):
                     else:
                         if preserved_name is not None:
                             tags['name'] = preserved_name
-                        else:
+                        elif has_value(row.poi_name):
                             tags['name'] = row.poi_name
                 # Rewrite old contact tags to contact:* tag form
                 logging.debug('Rewrite old contact tags to contact:* tag form.')
