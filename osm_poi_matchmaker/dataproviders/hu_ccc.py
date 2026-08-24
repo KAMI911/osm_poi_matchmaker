@@ -24,7 +24,11 @@ except ImportError as err:
 class hu_ccc(DataProvider):
     
     def contains(self):
-        self.link = 'https://ccc.eu/hu/sklepy'
+        # The old page (ccc.eu/hu/sklepy) redirects to ccc.eu/hu/hu/uzletek, an Angular SPA that no
+        # longer embeds a pos-list-json script; it fetches stores client-side from this JSON API
+        # instead. FrontendID=18 is CCC's per-market tenant id for Hungary (found by probing the
+        # endpoint - it 400s without one and 404s "Shops not found" for every other market's id).
+        self.link = 'https://ccc.eu/api/Configuration/GetShops?FrontendID=18'
         self.tags = {
             'shop': 'shoes',
             'operator': 'MODIVO HUNGARY Kft.',
@@ -43,7 +47,7 @@ class hu_ccc(DataProvider):
             'contact:instagram': 'https://www.instagram.com/cccshoesbags_hu/',
             'air_conditioning': 'yes'
         }
-        self.filetype = FileType.html
+        self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
     
     def types(self):
@@ -64,22 +68,19 @@ class hu_ccc(DataProvider):
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
             if soup is not None:
-                pos_list_element = soup.find('div', {"id": "pos-list-json"})
-                if pos_list_element is None:
-                    logging.warning('Could not find pos-list-json element in page.')
-                    return None
-                pois = json.loads(pos_list_element.text)
-                for poi_data in pois:
+                text = json.loads(soup)
+                for poi_data in text.get('data') or []:
                     try:
                         self.data.code = 'hucccsho'
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'), poi_data.get('longitude'))
-                        self.data.postcode = clean_string(poi_data.get('postcode'))
+                        self.data.postcode = clean_string(poi_data.get('postalCode'))
                         self.data.city = clean_city(poi_data.get('city'))
+                        full_street = '{} {}'.format(poi_data.get('street') or '',
+                                                     poi_data.get('buildingNumber') or '').strip()
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                            extract_street_housenumber_better_2(poi_data.get('street'))
-                        self.data.housenumber = clean_string(poi_data.get('house_number').replace('.', ''))
-                        opening_hours_raw = poi_data.get('openings')
-                        self.data.original = clean_string(poi_data.get('street'))
+                            extract_street_housenumber_better_2(full_street)
+                        self.data.original = clean_string(full_street)
+                        self.data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
                         self.data.public_holiday_open = False
                         self.data.add()
                     except Exception as e:
