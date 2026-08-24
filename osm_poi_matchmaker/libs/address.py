@@ -184,6 +184,7 @@ CLEAN_STREET_REPLS = (
     ('Mécs L.', 'Mécs László'),
     ('Nagyváthy J.', 'Nagyváthy János'),
     ('Szent I. kir.', 'Szent István király'),
+    ('Szent I. utca', 'Szent István út'),  # issue #168: this street is officially "út", not "utca"
     ('Szigethy A. u.', 'Szigethy Attila út'),
     ('Rákóczi F.', 'Rákóczi Ferenc'),
     ('Jókai M.', 'Jókai Mór'),
