@@ -225,10 +225,14 @@ class POIBase:
             query_unique_name = ''
         if additional_ref_name is not None and not pd.isna(additional_ref_name) and additional_ref_name != '' \
                 and unique_ref is not None and not pd.isna(unique_ref) and unique_ref != '':
-            query_unique_ref = ' AND LOWER(TEXT(ref:{})) = LOWER(TEXT(:unique_ref))'.format(additional_ref_name)
+            # Sentinel: additional_ref_name == 'ref' means match on the plain "ref" tag
+            # itself instead of a composite "ref:{additional_ref_name}" tag.
+            ref_column = 'ref' if additional_ref_name == 'ref' else '"ref:{}"'.format(additional_ref_name)
+            query_unique_ref = ' AND LOWER(TEXT({})) = LOWER(TEXT(:unique_ref))'.format(ref_column)
             query_params.update({'unique_ref': unique_ref})
         else:
             query_unique_ref = ''
+            ref_column = None
         if with_metadata is True:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
         else:
@@ -261,7 +265,7 @@ class POIBase:
             --- WITH ADDITIONAL REF
             --- The way selector with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'way' AS node,
-                   highway, "ref:{additional_ref_name}",
+                   highway, {ref_column},
                    '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
@@ -270,7 +274,7 @@ class POIBase:
             UNION ALL
             --- The node selector with with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'node' AS node,
-                   highway, "ref:{additional_ref_name}",
+                   highway, {ref_column},
                    '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
@@ -279,7 +283,7 @@ class POIBase:
             UNION ALL
             --- The relation selector with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'relation' AS node,
-                   highway, "ref:{additional_ref_name}",
+                   highway, {ref_column},
                    '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
@@ -288,7 +292,7 @@ class POIBase:
             '''
             query = sqlalchemy.text(query_text.format(query_type=query_type,
                                                       metadata_fields=metadata_fields,
-                                                      additional_ref_name=additional_ref_name,
+                                                      ref_column=ref_column,
                                                       query_unique_ref=query_unique_ref))
             logging.debug(str(query))
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
@@ -297,7 +301,7 @@ class POIBase:
                     perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' +
                                                  query_text.format(query_type=query_type,
                                                                    metadata_fields=metadata_fields,
-                                                                   additional_ref_name=additional_ref_name,
+                                                                   ref_column=ref_column,
                                                                    query_unique_ref=query_unique_ref))
                     perf = self.session.execute(perf_query, query_params)
                 except Exception as err:

@@ -617,10 +617,13 @@ def generate_osm_xml(df, session=None):
                     tags['ref'] = row.poi_ref
                     logging.debug('Added ref tag.')
 
-                # If there is additional_ref_name then use it as key and poi_additional_ref as value
+                # If there is additional_ref_name then use it as key and poi_additional_ref as value.
+                # Sentinel: additional_ref_name == 'ref' means write the plain "ref" tag itself
+                # instead of a composite "ref:{additional_ref_name}" tag.
                 if row.additional_ref_name is not None and has_value(row.poi_additional_ref):
-                    tags['ref:{}'.format(row.additional_ref_name)] = row.poi_additional_ref
-                    logging.debug('Add ref:{} tag with additional ref name.'.format(row.additional_ref_name))
+                    ref_tag = 'ref' if row.additional_ref_name == 'ref' else 'ref:{}'.format(row.additional_ref_name)
+                    tags[ref_tag] = row.poi_additional_ref
+                    logging.debug('Add %s tag with additional ref name.', ref_tag)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
