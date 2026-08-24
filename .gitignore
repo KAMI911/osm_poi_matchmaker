@@ -52,6 +52,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+*.log.malloc
 local_settings.py
 
 # Flask stuff:
