@@ -62,11 +62,15 @@ class hu_mobil_petrol(DataProvider):
                         self.data.city = city
                         # The feed bakes street+housenumber, city and zip into one combined string,
                         # e.g. "Fő út 31.  Ajka,   8400" - split it back up using the (reliable)
-                        # city name and the zip after the last comma.
+                        # city name and the zip after the last comma. Some records repeat the city
+                        # name right before the zip without a separating comma (e.g. "... Budapest,
+                        # Budapest 1097"), so pull out just the 4-digit zip instead of trusting the
+                        # whole tail - otherwise it overflows the postcode column.
                         address_raw = poi_data.address.get_text() if poi_data.address is not None else ''
                         self.data.original = clean_string(address_raw)
-                        street_and_city, _, postcode = address_raw.rpartition(',')
-                        self.data.postcode = clean_string(postcode)
+                        street_and_city, _, postcode_tail = address_raw.rpartition(',')
+                        postcode_match = re.search(r'(\d{4})\s*$', postcode_tail)
+                        self.data.postcode = postcode_match.group(1) if postcode_match else clean_string(postcode_tail)
                         street_part = street_and_city
                         if city and street_and_city.strip().endswith(city):
                             street_part = street_and_city.strip()[:-len(city)]
