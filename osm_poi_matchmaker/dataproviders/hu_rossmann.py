@@ -56,6 +56,7 @@ class hu_rossmann(DataProvider):
                                         self.filetype, False, None, self.verify_link)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
+                pois = None
                 try:
                     pois = json.loads(soup.find('script', {"type": "application/json"}).text).get('props')\
                         .get('pageProps').get('stores')
