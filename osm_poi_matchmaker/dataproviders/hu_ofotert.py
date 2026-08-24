@@ -10,7 +10,7 @@ try:
     from bs4 import BeautifulSoup
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
-        clean_string, clean_street, clean_opening_hours
+        clean_string, clean_street, clean_opening_hours, clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm import query_osm_city_name
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
@@ -100,6 +100,9 @@ class hu_ofotert(DataProvider):
                         poi_data.get('address_street'))
                     self.data.phone = clean_phone_to_str(';'.join(poi_data.get('phone_numbers') or []))
                     self.data.original = clean_string(poi_data.get('address_street'))
+                    if poi_data.get('path') and poi_data.get('id') is not None:
+                        self.data.website = clean_url('https://www.ofotert.hu/hu/uzletek/{}-{}'.format(
+                            poi_data.get('path'), poi_data.get('id')))
                     try:
                         # opening_times is Sunday-first (index 0 = Sunday, 1 = Monday, ... 6 =
                         # Saturday); our day index is Monday-first (0 = Monday ... 6 = Sunday).
