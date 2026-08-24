@@ -21,7 +21,11 @@ except ImportError as err:
 class hu_aldi(DataProvider):
 
     def contains(self):
-        self.link = 'https://www.aldi.hu/hu/hu/.get-stores-in-radius.json?latitude=47.162494&longitude=19.503304&radius=50000'
+        # The old storefront endpoint (www.aldi.hu/.../.get-stores-in-radius.json) is gone; the site
+        # is now a Nuxt SPA and fetches stores from the Spryker "Glue" commerce API instead. radius is
+        # in kilometers here (not meters); 300km from a central point covers all of Hungary in one call.
+        self.link = 'https://asl.api.aldi.hu/commerce/v2/service-points' \
+                   '?latitude=47.162494&longitude=19.503304&radius=300&limit=500&serviceType=walk-in'
         self.tags = {'operator': 'ALDI Magyarország Élelmiszer Bt.', 'operator:wikipedia': 'hu:Aldi_(Magyarország)',
                      'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi',
                      'ref:HU:vatin': '22234663-2-44', 'ref:vatin': 'HU22234663',
@@ -59,41 +63,24 @@ class hu_aldi(DataProvider):
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 text = json.loads(soup, strict=False)
-                for poi_data in text.get('stores'):
+                for poi_data in text.get('data') or []:
                     try:
-                        if poi_data.get('countryCode') == 'HU':
+                        address = poi_data.get('address') or {}
+                        if address.get('countryIsoCode') == 'HU':
                             self.data.code = 'hualdisup'
                             # Assign: code, postcode, city, name, branch, website, original
                             #         street, housenumber, conscriptionnumber, ref, geom
-                            self.data.city = poi_data.get('city')
-                            self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'),
-                                                                             poi_data.get('longitude'))
+                            self.data.city = clean_city(address.get('city'))
+                            self.data.lat, self.data.lon = check_hu_boundary(address.get('latitude'),
+                                                                             address.get('longitude'))
                             self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                                extract_street_housenumber_better_2(poi_data.get('streetAddress'))
-                            self.data.postcode = clean_string(poi_data.get('postalCode'))
-                            self.data.original = clean_string(poi_data.get('streetAddress'))
+                                extract_street_housenumber_better_2(address.get('address1'))
+                            self.data.postcode = clean_string(address.get('zipCode'))
+                            self.data.original = clean_string(address.get('address1'))
                             self.data.public_holiday_open = False
-                            self.data.phone = clean_string(poi_data.get('phoneNumber'))
-                            for i in range(7):
-                                mi = i + 1
-                                for opening_day in poi_data.get('openUntilSorted').get('openingHours'):
-                                    if mi > 6:
-                                        mi -= 7
-                                    if opening_day.get('dayIdx') == mi:
-                                        self.data.day_open(i, opening_day.get('open'))
-                                        self.data.day_close(i, opening_day.get('close'))
-                                        break
-                            '''
-                            self.data.description.
-                            'BAKEBOX', 'Helyben sütött pékáru'
-                            'CAR_PARKING_LOT', 'Parkolóhely'
-                            'COFFEE_TOGO', ''
-                            'POST_STATION', 'Csomagküldő automata'
-                            'GAS_STATION', 'Benzinkút'
-                            'ELECTRIC_CAR_CHARGER', 'E-töltőállomás'
-                            TODO: Wheelchair
-                            'WHEELCHAIR_ACCESS', 'Akadálymentesített'
-                            '''
+                            self.data.phone = clean_string(poi_data.get('publicPhoneNumber'))
+                            # The new API no longer exposes per-day opening hours or amenity facilities
+                            # (bakery, parking, fuel station, EV charger, wheelchair access, ...).
                             self.data.add()
                     except Exception as e:
                         logging.error(e)
