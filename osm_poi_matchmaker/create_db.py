@@ -177,7 +177,8 @@ class WorkflowManager(object):
             # Start multiprocessing in case multiple cores
             logging.info('Starting processing matcher.')
             self._create_pool()
-            split_data = np.array_split(data, self.NUMBER_OF_PROCESSES * 8)
+            idx_chunks = np.array_split(np.arange(len(data)), self.NUMBER_OF_PROCESSES * 8)
+            split_data = [data.iloc[idx] for idx in idx_chunks]
             logging.info('Starting matcher on %d data chunks.', len(split_data))
             self.results = self.pool.map_async(online_poi_matching, [(chunk, comm_data) for chunk in split_data],
                                                chunksize=16)
