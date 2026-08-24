@@ -478,6 +478,16 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
+                # Issue #188: Foxpost parcel lockers inside an Aldi store are black, not the
+                # usual red - drop the static colour=red tag rather than mistag them.
+                if row.poi_code in ('hufoxpocso', 'hufoxpzcso') and has_value(row.poi_branch) \
+                        and 'aldi' in row.poi_branch.lower():
+                    logging.debug('Foxpost locker in an Aldi, dropping colour tag (#188).')
+                    tags.pop('colour', None)
+            except Exception as e:
+                logging.exception('Exception occurred: {}'.format(e))
+                logging.exception(traceback.format_exc())
+            try:
                 # Save live name tags if preserve name is enabled
                 logging.debug('Preserve item name tag.')
                 if row.preserve_original_name is True and tags.get('name') is not None:
