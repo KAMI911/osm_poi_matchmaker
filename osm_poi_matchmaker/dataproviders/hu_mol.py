@@ -12,7 +12,6 @@ try:
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
-    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -26,8 +25,7 @@ POST_DATA = {'api': 'stations', 'input': 'HU',
 class hu_mol(DataProvider):
 
     def contains(self):
-        # self.link = 'https://toltoallomaskereso.mol.hu/api.php'
-        self.link = os.path.join(config.get_directory_cache_url(), 'hu_mol.json')
+        self.link = 'https://toltoallomaskereso.mol.hu/api.php'
         self.headers = {'Referer': 'https://toltoallomaskereso.mol.hu/hu',
                         'Origin': 'https://toltoallomaskereso.mol.hu',
                         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0',
@@ -79,45 +77,41 @@ class hu_mol(DataProvider):
 
     def process(self):
         try:
-            if not os.path.isfile(self.link):
-                logging.warning('Cache file not found: %s', self.link)
-                return
-            # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-            #                            self.filetype, False, post_data=POST_DATA, headers=self.headers)
-            # if soup is not None:
-            with open(self.link, 'r') as f:
-                text = json.load(f)
-                # text = json.loads(soup)
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype, False, post_data=POST_DATA, headers=self.headers, json_body=True)
+            if soup is not None:
+                text = json.loads(soup)
                 for poi_data in text or []:
                     try:
+                        # The API groups tags into separate facets: 'services', 'fuelsAndAdditives'
+                        # and 'gastroCategory', each shaped as {'values': [{'id': ..., 'name': ...}, ...]}.
+                        service_ids = [v.get('id') for v in (poi_data.get('services') or {}).get('values', [])]
+                        fuel_ids = [v.get('id') for v in (poi_data.get('fuelsAndAdditives') or {}).get('values', [])]
+                        gastro_ids = [v.get('id') for v in (poi_data.get('gastroCategory') or {}).get('values', [])]
+                        has_fresh_corner = any(g.startswith('FRESH_CORNER') for g in gastro_ids)
                         if ' Sziget ' in poi_data.get('name'):
                             self.data.code = 'humolwfu'
                         else:
-                            if 'FRESH_CORNER' in poi_data.get('services') and \
-                              not ('SHOP' in poi_data.get('services') or \
-                              ('AD_BLUE' in poi_data.get('services') or \
-                              ('TOLL_TERMINAL' in poi_data.get('services')))):
+                            if has_fresh_corner and \
+                              not ('SHOP' in service_ids or \
+                              ('AD_BLUE' in service_ids or \
+                              ('TOLL_TERMINAL' in service_ids))):
                                 self.data.code = 'humolfaf'
                             else:
                                 self.data.code = 'humolfu'
                         self.data.postcode = clean_string(poi_data.get('postcode'))
-                        self.data.city = clean_city(poi_data.get('city'))
+                        self.data.city = clean_city(poi_data.get('city_hu') or poi_data.get('city'))
                         self.data.original = clean_string(poi_data.get('address'))
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('gpsPosition').get('latitude'), poi_data.get('gpsPosition').get('longitude'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data['address'])
                         self.data.public_holiday_open = True
-                        self.data.truck = True if 'TRUCK_PARK' in poi_data.get(
-                            'services') else False
-                        self.data.food = True if 'FRESH_CORNER' in poi_data.get(
-                            'services') else False
-                        self.data.rent_lpg_bottles = True if 'CYLINDER_PB_GAS' in poi_data.get(
-                            'services') else False
-                        self.data.fuel_adblue = True if 'AD_BLUE' in poi_data.get(
-                            'services') else False
-                        self.data.fuel_lpg = True if 'LPG' in poi_data.get(
-                            'services') else False
+                        self.data.truck = True if 'TRUCK_PARK' in service_ids else False
+                        self.data.food = has_fresh_corner
+                        self.data.rent_lpg_bottles = True if 'CYLINDER_PB_GAS' in service_ids else False
+                        self.data.fuel_adblue = True if 'AD_BLUE' in service_ids else False
+                        self.data.fuel_lpg = True if 'LPG' in fuel_ids else False
                         self.data.fuel_octane_95 = True
                         self.data.fuel_diesel = True
                         self.data.fuel_octane_100 = True
