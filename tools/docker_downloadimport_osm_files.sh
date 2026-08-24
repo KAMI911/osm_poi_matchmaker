@@ -44,7 +44,7 @@ if [ -f "${OUTPUT_DIR}/do_osm_download" -a "${DOWNLOAD}" -eq "1" ]; then
   wget -O ${OUTPUT_DIR}/${FILE} ${DOWNLOAD_FILE}
   echo "  wget -O ${OUTPUT_DIR}/${FILE}.md5  ${DOWNLOAD_FILE}.md5"
   wget -O ${OUTPUT_DIR}/${FILE}.md5 ${DOWNLOAD_FILE}.md5
-  rm "${OUTPUT_DIR}/osm_download.lock"
+  rm -f "${OUTPUT_DIR}/osm_download.lock"
   echo "${CURRENT_DAYSTAMP}" >"${DOWNLOAD_DS_FILE}"
 fi
 if [ -f "${OUTPUT_DIR}/do_osm_import" -a "${IMPORT}" -eq "1" ]; then
@@ -60,7 +60,7 @@ if [ -f "${OUTPUT_DIR}/do_osm_import" -a "${IMPORT}" -eq "1" ]; then
       echo "ERROR occurred during OSM import!"
       exit 10
     else
-      rm "${OUTPUT_DIR}/osm_download.lock" "${OUTPUT_DIR}/osm_import.lock"
+      rm -f "${OUTPUT_DIR}/osm_download.lock" "${OUTPUT_DIR}/osm_import.lock"
       echo "${CURRENT_DAYSTAMP}" >"${IMPORT_DS_FILE}"
     fi
   else
@@ -69,6 +69,6 @@ if [ -f "${OUTPUT_DIR}/do_osm_import" -a "${IMPORT}" -eq "1" ]; then
   fi
 else
   echo "Skipping OSM import."
-  rm "${OUTPUT_DIR}/osm_download.lock" "${OUTPUT_DIR}/osm_import.lock"
+  rm -f "${OUTPUT_DIR}/osm_download.lock" "${OUTPUT_DIR}/osm_import.lock"
 fi
 exit 0

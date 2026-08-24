@@ -38,8 +38,9 @@ class POIBase:
             self.db_filename = self.db_connection
         try:
             self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8',
-                                                   echo=config.get_database_enable_query_log(), pool_size=40,
-                                                   max_overflow=20, pool_pre_ping=True, pool_use_lifo=True)
+                                                   echo=config.get_database_enable_query_log(), pool_size=5,
+                                                   max_overflow=5, pool_pre_ping=True, pool_use_lifo=True,
+                                                   pool_recycle=300)
         except psycopg2.OperationalError as e:
             logging.error('Database error: %s', e)
             if reco >= self.db_retry_counter:
@@ -49,8 +50,9 @@ class POIBase:
                               self.db_retry_sleep, reco, self.db_retry_counter)
                 time.sleep(self.db_retry_sleep)
                 self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8',
-                                                       echo=config.get_database_enable_query_log(), pool_size=40,
-                                                       max_overflow=20, pool_pre_ping=True, pool_use_lifo=True)
+                                                       echo=config.get_database_enable_query_log(), pool_size=5,
+                                                       max_overflow=5, pool_pre_ping=True, pool_use_lifo=True,
+                                                       pool_recycle=300)
                 reco += 1
         Base.metadata.create_all(self.engine)
         self.one_connection = self.engine.connect()
@@ -81,7 +83,8 @@ class POIBase:
         :param table: Name of table where POI data is stored
         :return: Full table read from SQL database table
         """
-        return pd.read_sql_table(table, self.connection())
+        with self.connection() as conn:
+            return pd.read_sql_table(table, conn)
 
     def query_all_gpd(self, table):
         """
@@ -90,7 +93,8 @@ class POIBase:
         :return: Full table with poi_lat and poi_long fields read from SQL database table
         """
         query = sqlalchemy.text('select * from {} where poi_geom is not NULL'.format(table))
-        data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='poi_geom')
+        with self.connection() as conn:
+            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='poi_geom')
         data['poi_lat'] = data['poi_geom'].x
         data['poi_lon'] = data['poi_geom'].y
         return data
@@ -105,7 +109,8 @@ class POIBase:
                                      WHERE poi_geom is not NULL
                                      ORDER BY poi_common_id ASC, poi_postcode ASC, poi_addr_street ASC,
                                        poi_addr_housenumber ASC'''.format(table))
-        data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='poi_geom')
+        with self.connection() as conn:
+            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='poi_geom')
         data['poi_lat'] = data['poi_geom'].x
         data['poi_lon'] = data['poi_geom'].y
         return data
@@ -117,15 +122,17 @@ class POIBase:
         :return: Full table with poi_lat and poi_long fields read from SQL database table
         """
         query = sqlalchemy.text('select count(*) from {} where poi_geom is not NULL'.format(table))
-        data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='poi_geom')
+        with self.connection() as conn:
+            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='poi_geom')
         return data
 
     def query_from_cache(self, node_id, object_type):
         if node_id > 0:
             query = sqlalchemy.text(
                 'select * from poi_osm_cache where osm_id = :node_id and osm_object_type = :object_type limit 1')
-            data = pd.read_sql(query, self.connection(),
-                               params={'node_id': int(node_id), 'object_type': object_type.name})
+            with self.connection() as conn:
+                data = pd.read_sql(query, conn,
+                                   params={'node_id': int(node_id), 'object_type': object_type.name})
             if data.empty:
                 return None
             else:
@@ -136,14 +143,16 @@ class POIBase:
     def query_ways_nodes(self, way_id):
         if way_id > 0:
             query = sqlalchemy.text('select nodes from planet_osm_ways where id = :way_id limit 1')
-            data = pd.read_sql(query, self.connection(), params={'way_id': int(way_id)})
+            with self.connection() as conn:
+                data = pd.read_sql(query, conn, params={'way_id': int(way_id)})
             return data.iloc[0, 0]
         else:
             return None
 
     def query_relation_nodes(self, relation_id):
         query = sqlalchemy.text('select members from planet_osm_rels where id = :relation_id limit 1')
-        data = pd.read_sql(query, self.connection(), params={'relation_id': int(abs(relation_id))})
+        with self.connection() as conn:
+            data = pd.read_sql(query, conn, params={'relation_id': int(abs(relation_id))})
         return data.iloc[0, 0]
 
     def query_osm_shop_poi_gpd(self, lon: float, lat: float, ptype: str = 'shop', name: str = None,
@@ -306,6 +315,7 @@ class POIBase:
                 logging.info('Found item with simple additional ref search.')
                 logging.debug(data.to_string())
                 logging.debug('Return with additional ref search data: {}'.format(data.iloc[[0]]))
+                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found with additional ref search.')
@@ -370,6 +380,7 @@ class POIBase:
                     logging.info('Found item with simple unique name search.')
                     logging.debug(data.to_string())
                     logging.debug('Return with additional unique name data: {}'.format(data.iloc[[0]]))
+                    conn.close()
                     return data.iloc[[0]]
             else:
                 logging.info('Item not found with unique name search.')
@@ -438,6 +449,7 @@ class POIBase:
                 logging.info('Found item with simple conscription number search.')
                 logging.debug(data.to_string())
                 logging.debug('Return with simple conscription number search data: {}'.format(data.iloc[[0]]))
+                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found with simple conscription number search.')
@@ -510,6 +522,7 @@ class POIBase:
                 logging.info('Found item with simple address search.')
                 logging.debug(data.to_string())
                 logging.debug('Return with simple address search data: {}'.format(data.iloc[[0]]))
+                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found with precise geometry search.')
@@ -780,6 +793,7 @@ class POIBase:
                 logging.info('Found item in {} stage without precise geometry search.'.format(stage))
                 logging.debug(data.to_string())
                 logging.debug('Return without precise geometry search data: {}'.format(data.iloc[[0]]))
+                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found in stage {}.'.format(stage))
@@ -790,6 +804,7 @@ class POIBase:
         except Exception as err:
             logging.warning('Exception occurred')
             logging.exception(err)
+        conn.close()
         return None
 
     def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='',
@@ -836,13 +851,14 @@ class POIBase:
             WHERE building <> '' AND osm_id > 0 AND ST_DistanceSphere(way, point.geom) < :distance
                 {street_query} {housenumber_query}
             ORDER BY distance ASC LIMIT 1'''.format(street_query=street_query, housenumber_query=housenumber_query))
-        data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way',
-                                             params={'lon': lon, 'lat': lat,
-                                                     'distance': distance,
-                                                     'buffer': buffer,
-                                                     'street_name': street_name,
-                                                     'housenumber': housenumber,
-                                                     'ibp': in_building_percentage})
+        with self.connection() as conn:
+            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way',
+                                                 params={'lon': lon, 'lat': lat,
+                                                         'distance': distance,
+                                                         'buffer': buffer,
+                                                         'street_name': street_name,
+                                                         'housenumber': housenumber,
+                                                         'ibp': in_building_percentage})
         if data.empty:
             return None
         else:
@@ -859,10 +875,11 @@ class POIBase:
               ORDER BY distance ASC LIMIT 1) AS geo
             WHERE geo.distance < :distance
               ''')
-            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way',
-                                                 params={'lon': lon,
-                                                         'lat': lat,
-                                                         'distance': distance})
+            with self.connection() as conn:
+                data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way',
+                                                     params={'lon': lon,
+                                                             'lat': lat,
+                                                             'distance': distance})
             return data
         except Exception as err:
             logging.warning('Exception occurred')
@@ -925,10 +942,11 @@ class POIBase:
               WHERE geo.distance < :distance
               LIMIT 5
               '''.format(metadata_fields=metadata_fields, name_query=name_query))
-            data = gpd.GeoDataFrame.from_postgis(query, self.connection(), geom_col='way',
-                                                 params={'lon': lon, 'lat': lat, 'distance': distance,
-                                                         'name': name, 'similarity_threshold': similarity_threshold,
-                                                         'levenshtein_threshold': levenshtein_threshold})
+            with self.connection() as conn:
+                data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way',
+                                                     params={'lon': lon, 'lat': lat, 'distance': distance,
+                                                             'name': name, 'similarity_threshold': similarity_threshold,
+                                                             'levenshtein_threshold': levenshtein_threshold})
         except Exception as err:
             logging.warning('Exception occurred')
             logging.exception(err)
