@@ -62,10 +62,13 @@ class hu_jysk(DataProvider):
                         shop_soup = save_downloaded_soup('{}?storeId={}'.format(self.link, internal_id),
                                                         os.path.join(self.download_cache,
                                                         '{}.{}.json'.format(self.filename, internal_id)), FileType.html)
-                        shop_soup_data = shop_soup.find('div', {'data-jysk-react-component': 'SecondaryNavigation'})['data-jysk-react-properties']
-                        json_shop_data = json.loads(shop_soup_data, strict=False)
+                        # The per-store detail used to live under the SecondaryNavigation component
+                        # (site nav only now); the actual store fields moved to currentStore inside
+                        # the same StoresLocatorLayout component the list page also uses.
+                        shop_soup_data = shop_soup.find('div', {'data-jysk-react-component': 'StoresLocatorLayout'})['data-jysk-react-properties']
+                        json_shop_data = json.loads(shop_soup_data, strict=False).get('currentStore') or {}
                         self.data.city = clean_city(json_shop_data.get('city'))
-                        self.data.postcode = clean_postcode(json_shop_data.get('zip'))
+                        self.data.postcode = clean_postcode(json_shop_data.get('zipcode'))
                         self.data.street = clean_street(json_shop_data.get('street'))
                         self.data.phone = clean_phone_to_str(json_shop_data.get('tel'))
                         self.data.housenumber = clean_string(json_shop_data.get('house'))
