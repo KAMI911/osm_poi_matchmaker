@@ -9,6 +9,7 @@ try:
     import traceback
     import pandas as pd
     from sqlalchemy.orm import scoped_session, sessionmaker
+    from sqlalchemy.exc import SQLAlchemyError
     from osmapi import OsmApi
     from osm_poi_matchmaker.dao.poi_base import POIBase
     from osm_poi_matchmaker.utils import config
@@ -25,22 +26,36 @@ except ImportError as err:
 
 RETRY = 3
 
+# Per-worker-process connection, created once by init_matcher_worker() and
+# reused across every chunk that worker handles, instead of opening a fresh
+# engine/session for every chunk.
+_worker_db = None
+_worker_session = None
+_worker_osm_live_query = None
+
+
+def init_matcher_worker():
+    """Pool(initializer=...) target: set up one DB connection per worker process."""
+    global _worker_db, _worker_session, _worker_osm_live_query
+    _worker_db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
+                                                       config.get_database_writer_password(),
+                                                       config.get_database_writer_host(),
+                                                       config.get_database_writer_port(),
+                                                       config.get_database_poi_database()))
+    session_factory = sessionmaker(_worker_db.pool)
+    session_object = scoped_session(session_factory)
+    _worker_session = session_object()
+    _worker_osm_live_query = OsmApi()
+
 
 def online_poi_matching(args):
     data, comm_data = args
     if 'osm_nodes' not in data.columns:
         data['osm_nodes'] = None
+    db = _worker_db
+    session = _worker_session
+    osm_live_query = _worker_osm_live_query
     try:
-        db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
-                                                  config.get_database_writer_password(),
-                                                  config.get_database_writer_host(),
-                                                  config.get_database_writer_port(),
-                                                  config.get_database_poi_database()))
-        pgsql_pool = db.pool
-        session_factory = sessionmaker(pgsql_pool)
-        session_object = scoped_session(session_factory)
-        session = session_object()
-        osm_live_query = OsmApi()
         # Pre-compute lookup so we avoid a full DataFrame scan on every iteration
         poi_type_by_common_id = comm_data.set_index('pc_id')['poi_type'].to_dict()
         for row in data.head(config.get_dataproviders_limit_elemets()).itertuples(index=True):
@@ -97,6 +112,8 @@ def online_poi_matching(args):
                                                                            session, lon, lat,
                                                                            row.poi_postcode, osm_postcode)
                                 except Exception as err:
+                                    if isinstance(err, SQLAlchemyError):
+                                        session.rollback()
                                     logging.exception('Exception occurred during postcode query (1): {}'.format(err))
                                     logging.exception(traceback.format_exc())
                                 force_postcode_change = False  # TODO: Has to be a setting in app.conf
@@ -125,6 +142,8 @@ def online_poi_matching(args):
                             else:
                                 logging.info('Preserving original postcode %s', row.poi_postcode)
                         except Exception as err_row:
+                            if isinstance(err_row, SQLAlchemyError):
+                                session.rollback()
                             logging.exception('Exception occurred during postcode query (2): {}'.format(err_row))
                             logging.warning(traceback.format_exc())
                         # Overwrite housenumber import data with OSM truth
@@ -324,6 +343,8 @@ def online_poi_matching(args):
                             logging.warning('Invalid state for live tags.')
 
                     except Exception as e:
+                        if isinstance(e, SQLAlchemyError):
+                            session.rollback()
                         logging.warning('There was an error during OSM request: %s.', e)
                         logging.exception('Exception occurred')
                         _cached = locals().get('cached_node') or locals().get('cached_way')
@@ -373,6 +394,8 @@ def online_poi_matching(args):
                                                                    data.at[i, 'poi_lon'], data.at[i, 'poi_lat'],
                                                                    row.poi_postcode, osm_postcode)
                         except Exception as e:
+                            if isinstance(e, SQLAlchemyError):
+                                session.rollback()
                             logging.exception('Exception occurred during postcode query (1): {}'.format(e))
                             logging.exception(traceback.format_exc())
                         if postcode is not None and postcode != row.poi_postcode:
@@ -385,6 +408,8 @@ def online_poi_matching(args):
                                  row.poi_city, row.poi_addr_street,
                                  row.poi_addr_housenumber, row.poi_conscriptionnumber)
             except Exception as e:
+                if isinstance(e, SQLAlchemyError):
+                    session.rollback()
                 logging.error(e)
                 logging.error(row)
                 logging.exception('Exception occurred')
@@ -392,9 +417,10 @@ def online_poi_matching(args):
                 session.commit()
         session.commit()
         logging.info("Finished online POI matching!")
-        session.close()
         return data
     except Exception as e:
+        if session is not None and isinstance(e, SQLAlchemyError):
+            session.rollback()
         logging.error(e)
         logging.exception('Exception occurred')
 
