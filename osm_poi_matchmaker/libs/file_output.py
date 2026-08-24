@@ -488,6 +488,20 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
+                # Issue #126: don't clobber a bus stop's existing operator tag when it
+                # already lists multiple operators, or already names a different single
+                # one - only fill it in when nothing conflicting is already there.
+                if row.poi_code == 'huvolantra' and osm_live_tags.get('operator'):
+                    existing_operator = osm_live_tags.get('operator')
+                    our_operator = tags.get('operator') or ''
+                    if ';' in existing_operator or our_operator.lower() not in existing_operator.lower():
+                        logging.debug('Keeping existing operator tag %r instead of overwriting (#126).',
+                                     existing_operator)
+                        tags['operator'] = existing_operator
+            except Exception as e:
+                logging.exception('Exception occurred: {}'.format(e))
+                logging.exception(traceback.format_exc())
+            try:
                 # Save live name tags if preserve name is enabled
                 logging.debug('Preserve item name tag.')
                 if row.preserve_original_name is True and tags.get('name') is not None:
