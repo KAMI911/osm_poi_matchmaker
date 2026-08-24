@@ -15,12 +15,11 @@ try:
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
-    
     sys.exit(128)
 
 
 class hu_mol_bubi(DataProvider):
-    
+
     def contains(self):
         self.link = ('https://core.urbansharing.com/public/api/v1/graphql'
                      '?operationName=dockGroupsExtended'
@@ -37,11 +36,11 @@ class hu_mol_bubi(DataProvider):
                      'contact:instagram': 'molbubi',
                      'contact:facebook': 'molbubi',
                      'contact:youtube': 'https://www.youtube.com/user/bkkweb', 'contact:twitter': 'molbubi',
-                     'fee': 'yes', 'payment:credit_cards': 'yes', 'payment:app': 'yes', 'charge': '50 HUF/minute'}
-        
+                     'fee': 'yes', 'payment:credit_cards': 'yes', 'payment:app': 'yes', 'charge': '60 HUF/minute'}
+
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
-    
+
     def types(self):
         hububibir = self.tags.copy()
         self.__types = [
