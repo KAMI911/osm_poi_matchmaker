@@ -7,6 +7,7 @@ try:
     import json
     import traceback
     import re
+    import datetime
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
         clean_string, clean_phone_to_str, clean_email
@@ -20,6 +21,10 @@ except ImportError as err:
     logging.exception('Exception occurred')
 
     sys.exit(128)
+
+# Issue #165: a "holiday" period longer than this means the locker is
+# effectively removed, not on a temporary break - skip importing it.
+HOLIDAY_PERMANENT_CLOSURE_DAYS = 182
 
 
 class hu_gls(DataProvider):
@@ -86,6 +91,19 @@ class hu_gls(DataProvider):
                 text = json.loads(soup, strict=False)
                 for poi_data in text.get('items', []):
                     try:
+                        holiday = poi_data.get('holiday')
+                        if holiday and holiday.get('start') and holiday.get('end'):
+                            try:
+                                holiday_days = (datetime.date.fromisoformat(holiday['end']) -
+                                                datetime.date.fromisoformat(holiday['start'])).days
+                                if holiday_days > HOLIDAY_PERMANENT_CLOSURE_DAYS:
+                                    logging.info(
+                                        'Skipping GLS locker %s: closed for %d days (%s to %s), likely removed.',
+                                        poi_data.get('externalId'), holiday_days, holiday['start'], holiday['end'])
+                                    continue
+                            except (ValueError, TypeError) as e:
+                                logging.warning('Could not parse holiday dates for GLS locker %s: %s',
+                                               poi_data.get('externalId'), e)
                         self.data.branch = clean_string(poi_data.get('name').split('|')[0])
                         self.data.branch = re.sub('^GLS automata', '', self.data.branch, flags=re.IGNORECASE)
                         self.data.branch = re.sub('\\(.*\\)', '', self.data.branch)
