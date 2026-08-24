@@ -262,7 +262,7 @@ def online_poi_matching(args):
                                 logging.info('Downloading OSM live tags to this way: %s.', osm_id)
                                 cached_way = db.query_from_cache(osm_id, osm_node)
                                 if cached_way is None:
-                                    live_tags_container = osm_live_query.WayGet(osm_id)
+                                    live_tags_container = osm_live_query.way_get(osm_id)
                                     if live_tags_container is not None:
                                         data.at[i, 'osm_live_tags'] = live_tags_container.get('tag')
                                         cache_row = {'osm_id': int(osm_id),
@@ -280,7 +280,7 @@ def online_poi_matching(args):
                                         # Batch-fetch all nodes of the way in a single API call
                                         node_ids = live_tags_container['nd']
                                         logging.debug('Batch fetching %d nodes for way %s', len(node_ids), osm_id)
-                                        live_tags_nodes = osm_live_query.NodesGet(node_ids)
+                                        live_tags_nodes = osm_live_query.nodes_get(node_ids)
                                         for way_node_id, live_tags_node in live_tags_nodes.items():
                                             cache_row = {'osm_id': int(way_node_id),
                                                          'osm_live_tags': live_tags_node.get('tag'),
@@ -307,7 +307,7 @@ def online_poi_matching(args):
                                 logging.info('Downloading OSM live tags to this node: %s.', osm_id)
                                 cached_node = db.query_from_cache(osm_id, osm_node)
                                 if cached_node is None:
-                                    live_tags_container = osm_live_query.NodeGet(osm_id)
+                                    live_tags_container = osm_live_query.node_get(osm_id)
                                     if live_tags_container is not None:
                                         data.at[i, 'osm_live_tags'] = live_tags_container.get('tag')
                                         cache_row = {'osm_id': int(osm_id),
@@ -332,7 +332,7 @@ def online_poi_matching(args):
                         elif osm_node == OSM_object_type.relation:
                             for rtc in range(0, RETRY):
                                 logging.info('Downloading OSM live tags to this relation: %s.', osm_id)
-                                live_tags_container = osm_live_query.RelationGet(abs(osm_id))
+                                live_tags_container = osm_live_query.relation_get(abs(osm_id))
                                 if live_tags_container is not None:
                                     data.at[i, 'osm_live_tags'] = live_tags_container.get('tag')
                                     break
