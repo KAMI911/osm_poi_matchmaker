@@ -116,6 +116,17 @@ def is_complex_opening_hours(oh_value):
     return False
 
 def ascii_numcoder(text):
+    """Intended to keep digit characters as-is and replace every other character
+    with its ordinal value, but `i in range(0, 10, 1)` compares a str against ints
+    and is therefore always False - every character (digits included) always goes
+    through the str(ord(i)) branch. Not called anywhere in this codebase.
+
+    Args:
+        text (str): Text to encode.
+
+    Returns:
+        str: Concatenated ord() values of every character in `text`.
+    """
     output = ''
     for i in text:
         if i in range(0, 10, 1):
