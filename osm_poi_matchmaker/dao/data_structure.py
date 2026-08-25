@@ -168,6 +168,11 @@ class POI_address_raw(Base):
     # order the live DB already has these appended in (ALTER TABLE ADD COLUMN always appends).
     poi_gtfs_parent_station = Column(Unicode(64))
     poi_gtfs_location_type = Column(Unicode(4))
+    # Generic (not GTFS-specific) OSM reference tags a provider may be able to source
+    # externally, e.g. hu_mav.py matching its GTFS stops against Wikidata by name/
+    # coordinate to find a UIC station code and the station's Wikidata item.
+    poi_uic_ref = Column(Unicode(16))
+    poi_wikidata = Column(Unicode(16))
 
     common = relationship('POI_common', primaryjoin='POI_address_raw.poi_common_id == POI_common.pc_id',
                           backref='poi_address_raw')
@@ -308,6 +313,8 @@ class POI_address(Base):
     poi_deleted = Column(DateTime(True))
     poi_gtfs_parent_station = Column(Unicode(64))
     poi_gtfs_location_type = Column(Unicode(4))
+    poi_uic_ref = Column(Unicode(16))
+    poi_wikidata = Column(Unicode(16))
     common = relationship('POI_common', primaryjoin='POI_address.poi_common_id == POI_common.pc_id',
                           backref='poi_address')
     city = relationship('City', primaryjoin='POI_address.poi_addr_city == City.city_id', backref='poi_address')

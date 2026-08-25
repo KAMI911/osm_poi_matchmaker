@@ -118,6 +118,8 @@ class POIDatasetRaw:
         self.__poi_additional_ref = None
         self.__gtfs_parent_station = None
         self.__gtfs_location_type = None
+        self.__uic_ref = None
+        self.__wikidata = None
         self.__phone = None
         self.__mobile = None
         self.__email = None
@@ -186,6 +188,8 @@ class POIDatasetRaw:
         self.__poi_additional_ref = None
         self.__gtfs_parent_station = None
         self.__gtfs_location_type = None
+        self.__uic_ref = None
+        self.__wikidata = None
         self.__phone = None
         self.__mobile = None
         self.__email = None
@@ -680,6 +684,22 @@ class POIDatasetRaw:
     @gtfs_location_type.setter
     def gtfs_location_type(self, data: str):
         self.__gtfs_location_type = clean_string(data)
+
+    @property
+    def uic_ref(self) -> str:
+        return self.__uic_ref
+
+    @uic_ref.setter
+    def uic_ref(self, data: str):
+        self.__uic_ref = clean_string(data)
+
+    @property
+    def wikidata(self) -> str:
+        return self.__wikidata
+
+    @wikidata.setter
+    def wikidata(self, data: str):
+        self.__wikidata = clean_string(data)
 
     @property
     def phone(self) -> str:
@@ -1182,6 +1202,7 @@ class POIDatasetRaw:
                  self.__manufacturer, self.__model,
                  self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
                  self.__ref, self.__poi_additional_ref, self.__gtfs_parent_station, self.__gtfs_location_type,
+                 self.__uic_ref, self.__wikidata,
                  self.__phone, self.__mobile, self.__email, self.__geom, self.__nonstop,
                  self.__oh.at[WeekDaysShort.mo, OpenClose.open],
                  self.__oh.at[WeekDaysShort.tu, OpenClose.open],

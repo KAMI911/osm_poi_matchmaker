@@ -648,6 +648,15 @@ def generate_osm_xml(df, session=None):
                     if has_value(row.poi_gtfs_location_type):
                         tags['gtfs:location_type:{}'.format(row.gtfs_feed_id)] = row.poi_gtfs_location_type
                     logging.debug('Add gtfs:parent_station/location_type tags for feed %s.', row.gtfs_feed_id)
+
+                # Generic (not GTFS-specific) reference tags, e.g. hu_mav.py's Wikidata-matched
+                # UIC station code/Wikidata item.
+                if has_value(row.poi_uic_ref):
+                    tags['uic_ref'] = row.poi_uic_ref
+                    logging.debug('Add uic_ref tag.')
+                if has_value(row.poi_wikidata):
+                    tags['wikidata'] = row.poi_wikidata
+                    logging.debug('Add wikidata tag.')
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
