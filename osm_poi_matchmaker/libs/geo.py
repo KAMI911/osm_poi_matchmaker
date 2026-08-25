@@ -16,6 +16,17 @@ PATTERN_COORDINATE = re.compile(r'[\d]{1,3}.[\d]{2,5}')
 
 
 def geom_point(latitude, longitude, projection):
+    """Build a GeoAlchemy2 WKT point element from raw coordinates.
+
+    Args:
+        latitude: Latitude value (used as the WKT point's Y ordinate).
+        longitude: Longitude value (used as the WKT point's X ordinate).
+        projection: SRID for the point, e.g. config.get_geo_default_projection().
+
+    Returns:
+        WKTElement | None: 'POINT(latitude longitude)' with the given SRID, or None
+        if either coordinate is missing.
+    """
     if latitude is not None and longitude is not None:
         return WKTElement('POINT({} {})'.format(latitude, longitude), srid=projection)
     else:
@@ -69,6 +80,23 @@ def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
 
 
 def check_hu_boundary(latitude, longitude):
+    """Sanity-check and auto-correct a coordinate pair for Hungary. Called by nearly
+    every data provider as `self.data.lat, self.data.lon = check_hu_boundary(...)`.
+
+    Handles two data-source quirks seen in the wild:
+      - Swapped lat/lon: Hungary's latitude is always < 50, longitude < 23, so if
+        latitude >= 44 doesn't hold, the two values are swapped.
+      - Missing decimal point: if a coordinate is > 200 (e.g. '473521' meant to be
+        '47.3521'), a decimal point is inserted after the first 2 digits.
+
+    Args:
+        latitude: Raw latitude value (str, int or float; '' and 0.0 count as missing).
+        longitude: Raw longitude value, same rules as latitude.
+
+    Returns:
+        tuple: (latitude, longitude) after any swap/decimal-point correction, or
+        (None, None) if either input was missing.
+    """
     if (latitude is not None and latitude != '' and latitude != 0.0) and (
             longitude is not None and longitude != '' and longitude != 0.0):
         # This is a workaround because original datasource may contains swapped lat / lon parameters

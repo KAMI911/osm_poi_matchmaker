@@ -49,6 +49,16 @@ def _normalize(value) -> str:
 
 
 def _orig_matches(poi_value, orig_value) -> bool:
+    """Check one column of a patch row's orig_* criteria against a POI's value.
+
+    Args:
+        poi_value: The POI dataframe's value for this column.
+        orig_value: The patch row's orig_* value for this column (WILDCARD matches
+            any poi_value).
+
+    Returns:
+        bool: True if orig_value is the wildcard, or the normalized values are equal.
+    """
     orig = _normalize(orig_value)
     if orig == WILDCARD:
         return True
@@ -56,6 +66,17 @@ def _orig_matches(poi_value, orig_value) -> bool:
 
 
 def _row_matches_patch(poi_row: dict, patch_row: dict) -> bool:
+    """Check whether every column of a patch row (poi_code plus each orig_* in
+    PATCH_FIELD_MAP) matches the given POI row.
+
+    Args:
+        poi_row (dict): One POI's data, keyed by dataframe column name.
+        patch_row (dict): One poi_patch row, keyed by patch table column name.
+
+    Returns:
+        bool: True only if poi_code matches (or is wildcarded) and every orig_*
+        column matches (or is wildcarded).
+    """
     patch_code = _normalize(patch_row.get('poi_code'))
     if patch_code != WILDCARD:
         if patch_code != _normalize(poi_row.get('poi_code')):
