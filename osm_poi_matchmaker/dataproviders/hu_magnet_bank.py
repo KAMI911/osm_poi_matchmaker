@@ -51,10 +51,12 @@ class hu_magnet_bank(DataProvider):
             {'poi_code': 'humagnbank', 'poi_common_name': 'MagNet Bank', 'poi_type': 'bank',
              'poi_tags': humagnbank, 'poi_url_base': 'https://www.magnetbank.hu',
              'poi_search_name': '(magnet bank|magnetbank)', 'osm_search_distance_perfect': 2000,
+             'additional_ref_name': 'ref',
              'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 10},
             {'poi_code': 'humagnatm', 'poi_common_name': 'MagNet Bank ATM', 'poi_type': 'atm',
              'poi_tags': humagnatm, 'poi_url_base': 'https://www.magnetbank.hu',
              'poi_search_name': '(magnet bank|magnetbank|magnet bank atm|magnet atm)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 10},
         ]
         return self.__types
@@ -75,6 +77,7 @@ class hu_magnet_bank(DataProvider):
                         self.data.email = clean_email(poi_data.get('email'))
                         self.data.phone = clean_phone_to_str(poi_data.get('telefonszam'))
                         self.data.ref = clean_string(poi_data.get('kod'))
+                        self.data.poi_additional_ref = clean_string(poi_data.get('kod'))
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
                             self.data.conscriptionnumber = extract_all_address_waxeye(
                                 poi_data.get('cim'))

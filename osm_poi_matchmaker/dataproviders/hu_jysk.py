@@ -40,6 +40,7 @@ class hu_jysk(DataProvider):
         self.__types = [
             {'poi_code': 'hujyskfur', 'poi_common_name': 'Jysk', 'poi_type': 'furniture',
              'poi_tags': hujyskfur, 'poi_url_base': 'https://jysk.hu', 'poi_search_name': 'jysk',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 800, 'osm_search_distance_safe': 300,
              'osm_search_distance_unsafe': 80},
         ]
@@ -59,6 +60,7 @@ class hu_jysk(DataProvider):
                         self.data.branch = shop.get('name')
                         internal_id = clean_string(shop.get('id'))
                         self.data.ref = internal_id
+                        self.data.poi_additional_ref = internal_id
                         shop_soup = save_downloaded_soup('{}?storeId={}'.format(self.link, internal_id),
                                                         os.path.join(self.download_cache,
                                                         '{}.{}.json'.format(self.filename, internal_id)), FileType.html)

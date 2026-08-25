@@ -47,6 +47,7 @@ class hu_mkb_bank(DataProvider):
              'poi_tags': humkbbank, 'poi_url_base': 'https://www.mkb.hu',
              'poi_search_name': '(mkb|mkb bank)',
              'poi_search_avoid_name': '(otpbank|otp|otp bank|raiffeisenbank|raiffeisen bank|kh bank|k&h|raiffeisen|budapest bank|takarék bank|takarék)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 40},
             {'poi_code': 'humkbatm', 'poi_common_name': 'MKB Bank ATM', 'poi_type': 'atm',
@@ -54,6 +55,7 @@ class hu_mkb_bank(DataProvider):
              'poi_url_base': 'https://www.mkb.hu',
              'poi_search_name': '(mkb|mkb bank|mkb bank atm|mkb atm)',
              'poi_search_avoid_name': '(otp atm|otp|raiffeisen|raiffeisen atm|kh bank|k&h|budapest bank|takarék bank|takarék)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10},
         ]
@@ -87,6 +89,7 @@ class hu_mkb_bank(DataProvider):
                         self.data.email = clean_email(poi_data.get('E-mail cím'))
                         self.data.website = clean_url(poi_data.get('Időpontfoglalás URL'))
                         self.data.ref = clean_string(poi_data.get('ATM / Fiók azonosítója'))
+                        self.data.poi_additional_ref = clean_string(poi_data.get('ATM / Fiók azonosítója'))
                         self.data.description = clean_string(poi_data.get('Megjegyzés'))
                         self.data.description = replace_html_newlines(self.data.description)
                         if 'Akadálymentesen' in self.data.description:

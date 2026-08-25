@@ -43,6 +43,7 @@ class hu_oil(DataProvider):
              'poi_tags': huoilfu, 'poi_url_base': 'https://www.oil-benzinkutak.hu',
              'poi_search_name': '(oil|oil!|oil benzinkutak|oil-benzinkutak)',
              'poi_search_avoid_name': '(mol|shell|m. petrol|avia|lukoil|hunoil)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 450,
              'osm_search_distance_unsafe': 60},
         ]
@@ -68,6 +69,7 @@ class hu_oil(DataProvider):
                         self.data.fuel_octane_95 = True
                         self.data.fuel_diesel = True
                         self.data.ref = clean_string(poi_data.get('id').strip())
+                        self.data.poi_additional_ref = self.data.ref
                         if poi_data.get('url') is not None and poi_data.get('url') != '':
                             self.data.website = poi_data.get('url').strip()
                         else:

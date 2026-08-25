@@ -42,6 +42,7 @@ class hu_dm(DataProvider):
         self.__types = [
             {'poi_code': 'hudmche', 'poi_common_name': 'dm', 'poi_type': 'chemist',
              'poi_tags': hudmche, 'poi_url_base': 'https://www.dm.hu', 'poi_search_name': 'dm',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 15},
         ]
@@ -73,6 +74,7 @@ class hu_dm(DataProvider):
                                     street_tmp.title())
                             self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                             self.data.ref = clean_string(poi_data.get('storeNumber').strip())
+                            self.data.poi_additional_ref = self.data.ref
                             opening = poi_data.get('openingHours')
                             try:
                                 for i, d in enumerate(opening):

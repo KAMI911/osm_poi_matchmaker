@@ -41,6 +41,7 @@ class hu_obi(DataProvider):
         self.__types = [
             {'poi_code': 'huobidiy', 'poi_common_name': 'OBI', 'poi_type': 'doityourself',
              'poi_tags': huobidiy, 'poi_url_base': 'https://www.obi.hu', 'poi_search_name': 'obi',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
         ]
         return self.__types
@@ -64,6 +65,7 @@ class hu_obi(DataProvider):
                         if 'phone' in poi_data and poi_data.get('phone') != '':
                             self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                         self.data.ref = clean_string(poi_data.get('storeNumber'))
+                        self.data.poi_additional_ref = clean_string(poi_data.get('storeNumber'))
                         self.data.email = clean_email(poi_data.get('email'))
                         if 'path' in poi_data and poi_data.get('path') != '':
                             self.data.website = clean_url(poi_data.get('path'))

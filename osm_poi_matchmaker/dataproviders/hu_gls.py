@@ -68,11 +68,13 @@ class hu_gls(DataProvider):
             {'poi_code': 'huglscso', 'poi_common_name': 'GLS', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': huglscso, 'poi_url_base': 'https://gls-group.com', 'poi_search_name': 'gls',
              'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost|mpl|express one|z-box)', 'export_poi_name': False,
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 250, 'osm_search_distance_unsafe': 2},
             {'poi_code': 'huglspp', 'poi_common_name': 'GLS', 'poi_type': 'post_partner',
              'poi_tags': huglspp, 'poi_url_base': 'https://gls-group.com', 'poi_search_name': 'gls',
              'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost|mpl|express one|z-box)',
              'export_poi_name': False,
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 250, 'osm_search_distance_unsafe': 2},
         ]
         return self.__types
@@ -131,6 +133,7 @@ class hu_gls(DataProvider):
                         self.data.postcode = clean_string(poi_data.get('contact').get('postalCode'))
                         self.data.city = clean_city(poi_data.get('contact').get('city'))
                         self.data.ref = poi_data.get('externalId')
+                        self.data.poi_additional_ref = poi_data.get('externalId')
                         self.data.original = poi_data.get('contact').get('address')
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(poi_data.get('contact').get('address'))

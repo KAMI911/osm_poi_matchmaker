@@ -41,6 +41,7 @@ class hu_mobiliti_ev(DataProvider):
             {'poi_code': 'humobilchs', 'poi_common_name': 'Mobiliti', 'poi_type': 'charging_station',
              'poi_tags': self.tags, 'poi_url_base': 'https://www.mobiliti.hu',
              'poi_search_name': '(mobility|e-mobi|emobi|e-töltőpont)', 'poi_search_avoid_name': '(tesla|supercharger|plugee)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 400,
              'osm_search_distance_safe': 150, 'osm_search_distance_unsafe': 10},
         ]
@@ -58,6 +59,7 @@ class hu_mobiliti_ev(DataProvider):
                         self.data.code = 'humobilchs'
                         try:
                             self.data.ref = clean_string(poi_data.get('id'))
+                            self.data.poi_additional_ref = clean_string(poi_data.get('id'))
                         except Exception as e:
                             logging.exception('Exception occurred: {}'.format(e))
                             logging.exception(traceback.format_exc())

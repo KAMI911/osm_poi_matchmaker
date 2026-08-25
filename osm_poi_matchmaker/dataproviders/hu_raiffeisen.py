@@ -61,11 +61,13 @@ class hu_raiffeisen(DataProvider):
         self.__types = [
             {'poi_code': 'huraiffbank', 'poi_common_name': 'Raiffeisen Bank', 'poi_type': 'bank',
              'poi_tags': huraiffbank, 'poi_url_base': 'https://www.raiffeisen.hu', 'poi_search_name': 'raiffeisen',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 40},
             {'poi_code': 'huraiffatm', 'poi_common_name': 'Raiffeisen Bank ATM', 'poi_type': 'atm',
              'poi_tags': huraiffatm, 'poi_url_base': 'https://www.raiffeisen.hu',
              'poi_search_name': '(raiffeisen atm|raiffeisen)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 100, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10},
         ]
@@ -110,6 +112,7 @@ class hu_raiffeisen(DataProvider):
                 self._set_address(address_span.get_text().strip())
                 self.data.lat, self.data.lon = check_hu_boundary(entry.get('lat'), entry.get('lng'))
                 self.data.ref = clean_string(branch_id)
+                self.data.poi_additional_ref = self.data.ref
                 self.data.public_holiday_open = False
 
                 phone_label = detail_soup.find('td', class_='contacts-list-type',
@@ -180,6 +183,7 @@ class hu_raiffeisen(DataProvider):
                 self._set_address(address_text.strip())
                 self.data.lat, self.data.lon = check_hu_boundary(entry.get('lat'), entry.get('lng'))
                 self.data.ref = clean_string(atm_id)
+                self.data.poi_additional_ref = self.data.ref
                 self.data.nonstop = True
                 self.data.add()
             except Exception as e:

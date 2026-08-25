@@ -56,6 +56,7 @@ class hu_ofotert(DataProvider):
             {'poi_code': 'ofoteopt', 'poi_common_name': 'Ofotért', 'poi_type': 'optician',
              'poi_tags': huofoteopt, 'poi_url_base': 'https://www.ofotert.hu', 'poi_search_name': 'ofotért',
              'poi_search_avoid_name': '(vision)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 50},
         ]
@@ -118,6 +119,7 @@ class hu_ofotert(DataProvider):
                         logging.exception(traceback.format_exc())
                     self.data.public_holiday_open = False
                     self.data.ref = clean_string(poi_data.get('gv_id'))
+                    self.data.poi_additional_ref = clean_string(poi_data.get('gv_id'))
                     self.data.add()
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
