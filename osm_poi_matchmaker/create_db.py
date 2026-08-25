@@ -46,10 +46,20 @@ PROCESS_DIVIDER = 1
 
 
 def init_log():
+    """Configure the logging subsystem from the 'log.conf' file in the current working directory."""
     logging.config.fileConfig('log.conf')
 
 
 def import_basic_data(session):
+    """Import the static reference datasets (patches, countries, cities, street types) needed before harvesting.
+
+    Runs once at the start of the pipeline (STAGE 0) to populate lookup tables from local
+    TSV files (poi_patch.tsv, country.tsv) and remote Hungarian Post XML feeds (zip codes,
+    street types) via the hu_generic dataproviders.
+
+    Args:
+        session: SQLAlchemy session used by the underlying dataprovider import jobs.
+    """
     logging.info('Importing patch table…')
     from osm_poi_matchmaker.dataproviders.hu_generic import poi_patch_from_csv
     work = poi_patch_from_csv(session, 'poi_patch.tsv')
@@ -75,6 +85,22 @@ def import_basic_data(session):
 
 
 def load_poi_data(database, table='poi_address_raw', raw=True):
+    """Load a POI table from the database into a DataFrame and normalize its columns.
+
+    Ensures the configured output/cache directories exist, then queries the table and
+    assigns the appropriate column names (raw vs. processed schema). Also collapses
+    NaN values in poi_addr_city/poi_postcode to None, since downstream code expects
+    None rather than NaN for "missing".
+
+    Args:
+        database: POIBase (or compatible) database wrapper exposing query_all_gpd_in_order().
+        table (str): Name of the table to load. Defaults to 'poi_address_raw'.
+        raw (bool): If True, use the raw-schema column names (POI_COLS_RAW); otherwise use
+            the processed-schema column names (POI_COLS). Defaults to True.
+
+    Returns:
+        pandas.DataFrame: The loaded POI data with normalized columns.
+    """
     logging.info('Loading {} table from database…'.format(table))
     if not os.path.exists(config.get_directory_output()):
         os.makedirs(config.get_directory_output())
@@ -93,13 +119,30 @@ def load_poi_data(database, table='poi_address_raw', raw=True):
 
 
 def load_common_data(database):
+    """Load the 'poi_common' table (shared POI type/tag definitions) from the database.
+
+    Args:
+        database: POIBase (or compatible) database wrapper exposing query_all_pd().
+
+    Returns:
+        pandas.DataFrame: The poi_common table contents.
+    """
     logging.info('Loading common data from database…')
     return database.query_all_pd('poi_common')
 
 
 class WorkflowManager(object):
+    """Owns the multiprocessing.Pool used to run each pipeline phase (harvest, export, matcher) in parallel.
+
+    Only one phase runs at a time: each start_*() method creates a fresh pool sized to the
+    host's CPU count (divided by process_divider), dispatches work with map_async(), waits
+    for the results via _wait_for_results(), and tears the pool down again. join() can be
+    used to force an early pool shutdown between phases. Also accumulates per-phase timing
+    and statistics (harvest_stats, matcher_stats) for the final log_summary() report.
+    """
 
     def __init__(self):
+        """Initialize the manager, its shared Queue, and empty pool/stats state."""
         self.manager = multiprocessing.Manager()
         self.queue = self.manager.Queue()
         self.NUMBER_OF_PROCESSES = multiprocessing.cpu_count()
@@ -111,6 +154,14 @@ class WorkflowManager(object):
         self.matcher_duration = None
 
     def _create_pool(self, process_divider=PROCESS_DIVIDER, initializer=None):
+        """Create a new multiprocessing.Pool, closing any pre-existing pool first.
+
+        Args:
+            process_divider (int): Divides the host's CPU count to determine the pool size
+                (at least 1 process). Defaults to PROCESS_DIVIDER (1, i.e. use all CPUs).
+            initializer (callable, optional): Function run once in each worker process on
+                startup, e.g. init_matcher_worker to set up a per-worker DB connection.
+        """
         if self.pool is not None:
             logging.warning('Existing pool found, closing it first.')
             self.pool.close()
@@ -137,6 +188,7 @@ class WorkflowManager(object):
             self._cleanup_pool()
 
     def _cleanup_pool(self):
+        """Close and join the current pool (if any), then clear self.pool. Never raises."""
         if self.pool is not None:
             try:
                 self.pool.close()
@@ -148,6 +200,13 @@ class WorkflowManager(object):
                 self.pool = None
 
     def start_poi_harvest(self):
+        """Run every enabled dataprovider module in parallel (STAGE 2) and collect their harvest stats.
+
+        Creates a pool, dispatches config.get_dataproviders_modules_enable() to
+        import_poi_data_module() via map_async(), and stores the returned per-module
+        stats dicts in self.harvest_stats. Exceptions are logged, not re-raised, so a
+        harvest failure leaves harvest_stats as an empty list rather than aborting main().
+        """
         phase_timer = timing.Timing()
         try:
             logging.info('Starting processing POI harvest.')
@@ -165,6 +224,16 @@ class WorkflowManager(object):
 
     def start_exporter(self, data: pd.DataFrame, postfix: str = '', to_do=export_grouped_poi_data,
                        infix: str = ''):
+        """Export data in parallel, split into one job per distinct poi_code (STAGE 8/10/11).
+
+        Args:
+            data (pandas.DataFrame): POI data to export; must contain a 'poi_code' column.
+            postfix (str): Suffix appended to output filenames (e.g. 'merge_'). Defaults to ''.
+            to_do (callable): Worker function each pool process runs on one poi_code's slice
+                of data. Defaults to export_grouped_poi_data.
+            infix (str): Additional filename segment inserted between postfix and poi_code
+                (e.g. 'new_', 'existing_'). Defaults to ''.
+        """
         logging.debug(data.to_string())
         logging.info('Preparing export jobs…')
         poi_codes = data['poi_code'].unique()
@@ -181,6 +250,21 @@ class WorkflowManager(object):
             logging.exception('Exception occurred', exc_info=True)
 
     def start_matcher(self, data: pd.DataFrame, comm_data: pd.DataFrame):
+        """Match harvested POIs against live OSM data in parallel (STAGE 9) and aggregate the results.
+
+        Splits data into NUMBER_OF_PROCESSES * 8 chunks, runs online_poi_matching() on each
+        chunk via a pool created with the per-worker init_matcher_worker initializer (so each
+        worker reuses one DB connection instead of opening one per chunk), then concatenates
+        the returned chunks back into a single DataFrame and computes summary counts.
+
+        Args:
+            data (pandas.DataFrame): POI data to match, split row-wise across worker processes.
+            comm_data (pandas.DataFrame): Shared poi_common reference data passed to every worker.
+
+        Returns:
+            pandas.DataFrame: The matched POI data (all chunks concatenated), or None if an
+            exception occurred before the result could be assembled.
+        """
         phase_timer = timing.Timing()
         try:
             # Start multiprocessing in case multiple cores
@@ -235,6 +319,7 @@ class WorkflowManager(object):
         logging.info('\n'.join(lines))
 
     def join(self):
+        """Force an early join/shutdown of the current pool, if one is still active."""
         if self.pool is not None:
             try:
                 self.pool.join()
@@ -248,6 +333,18 @@ class WorkflowManager(object):
 
 
 def main():
+    """Run the full POI import pipeline end to end (STAGE 0 through STAGE 11).
+
+    Connects to the database, then sequentially: imports basic reference data, indexes
+    OSM data, harvests POIs from all dataproviders, loads and merges the harvested/common
+    data, applies patch overrides, adds OSM metadata fields, exports raw data, runs the
+    online OSM matcher, and exports the matched/grouped result sets. Logs a final summary
+    via WorkflowManager.log_summary() on success.
+
+    Returns:
+        int: 0 on success, 1 if interrupted (KeyboardInterrupt/SystemExit), 2 if an
+        unhandled exception occurred during the pipeline.
+    """
     logging.info('Starting %s …', __program__)
     mem_info = MemoryInfo()
 
