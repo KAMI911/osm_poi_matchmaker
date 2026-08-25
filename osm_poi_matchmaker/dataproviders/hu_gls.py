@@ -9,8 +9,8 @@ try:
     import re
     import datetime
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
-        clean_string, clean_phone_to_str, clean_email
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address_waxeye, \
+        clean_city, clean_opening_hours, clean_string, clean_phone_to_str, clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHUUnAccented
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN
@@ -134,9 +134,19 @@ class hu_gls(DataProvider):
                         self.data.postcode = clean_string(poi_data.get('contact').get('postalCode'))
                         self.data.city = clean_city(poi_data.get('contact').get('city'))
                         self.data.ref = poi_data.get('externalId')
-                        self.data.original = poi_data.get('contact').get('address')
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                            extract_street_housenumber_better_2(poi_data.get('contact').get('address'))
+                        address = poi_data.get('contact').get('address')
+                        self.data.original = address
+                        if address and re.match(r'^\d{4}', address):
+                            # Issue #167: a full address starting with a postcode (e.g.
+                            # '8330 Sümeg, 84-es főút') isn't handled by the simpler
+                            # regex-based extractor below - route it through the waxeye
+                            # grammar parser instead. Its postcode/city are discarded since
+                            # those are already set above from the separate contact fields.
+                            _, _, self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                                extract_all_address_waxeye(address)
+                        else:
+                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                                extract_street_housenumber_better_2(address)
                         self.data.phone = clean_phone_to_str(poi_data.get('contact').get('phone'))
                         self.data.email = clean_email(poi_data.get('contact').get('email'))
                         self.data.description = clean_string(poi_data.get('description')) \
