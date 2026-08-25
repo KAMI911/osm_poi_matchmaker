@@ -52,6 +52,24 @@ MOBILE_HU_PHONE_NUMBERS = ('20', '30', '31', '50', '70',
 # instead of being recreated on every function call.
 CLEAN_CITY_REPLS = (('Mikolc', 'Miskolc'), ('Iinárcs', 'Inárcs'))
 
+# Issue #93: former independent towns/villages annexed into Greater Budapest in 1950
+# still show up as the "city" in source data (or OSM addr:city) instead of "Budapest",
+# which is what the Hungarian OSM community expects there. Unlike a typo (handled by
+# query_city_name_external's fuzzy City-table lookup), these are valid historical place
+# names, so they need an explicit mapping rather than fuzzy matching.
+BUDAPEST_DISTRICT_REPLS = (
+    ('Óbuda', 'Budapest'), ('Békásmegyer', 'Budapest'), ('Újpest', 'Budapest'),
+    ('Kőbánya', 'Budapest'), ('Zugló', 'Budapest'),
+    ('Rákospalota', 'Budapest'), ('Pestújhely', 'Budapest'), ('Újpalota', 'Budapest'),
+    ('Cinkota', 'Budapest'), ('Mátyásföld', 'Budapest'), ('Sashalom', 'Budapest'),
+    ('Rákosszentmihály', 'Budapest'),
+    ('Rákoskeresztúr', 'Budapest'), ('Rákoscsaba', 'Budapest'), ('Rákosliget', 'Budapest'),
+    ('Rákoshegy', 'Budapest'),
+    ('Pestszentlőrinc', 'Budapest'), ('Pestszentimre', 'Budapest'),
+    ('Kispest', 'Budapest'), ('Pesterzsébet', 'Budapest'), ('Csepel', 'Budapest'),
+    ('Budafok', 'Budapest'), ('Nagytétény', 'Budapest'), ('Soroksár', 'Budapest'),
+)
+
 # Replacement table for clean_street():
 CLEAN_STREET_REPLS = (
     ('Nyúl 82. sz. főút', 'Kossuth Lajos út'),
@@ -529,6 +547,7 @@ def clean_city(clearable: str) -> str:
     city = clean_string(clearable)
     city = re.sub(PATTERN_CITY, '', city)
     city = reduce(lambda a, kv: a.replace(*kv), CLEAN_CITY_REPLS, city)
+    city = reduce(lambda a, kv: a.replace(*kv), BUDAPEST_DISTRICT_REPLS, city)
     city = city.split('-')[0]
     city = city.split(',')[0]
     city = city.split('/')[0]
