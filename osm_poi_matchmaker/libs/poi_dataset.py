@@ -33,12 +33,27 @@ INTEGER_GEO = 100000
 
 
 class POIDatasetRaw:
-    """Contains all handled OSM tags
+    """Accumulator every data provider writes into: set a POI's fields one at a time
+    via the many @property setters below (poi_name, poi_postcode, lat/lon, day_open()/
+    day_close() for opening hours, etc.), then call add() to append it as a row and
+    reset the fields for the next POI. Once every POI is added, process() returns the
+    whole batch as a DataFrame.
+
+    This is the class actually used everywhere - see utils/data_provider.py's
+    DataProvider.__init__ (`self.data = POIDatasetRaw()`), which every hu_* provider
+    inherits from. The properties themselves aren't individually documented here:
+    each is a plain get/set pair for one POI_address_raw column (see
+    dao/data_structure.py), named to match.
+
+    Contrast with the POIDataset subclass below, which adds per-POI quality checks
+    (POIQC) and an inline street-name lookup on every `street =` assignment (instead
+    of the lookup happening in process_street(), called from add()) - but that
+    subclass is never actually instantiated anywhere in this codebase.
     """
 
     def __init__(self):
-        """
-        """
+        """Open a dedicated DB connection/session (used by process_street() for
+        nearby-road lookups) and initialize every POI field to None/empty."""
         self.insert_data = []
         self.add_errors = 0
         self.__db = POIBase(
@@ -115,6 +130,8 @@ class POIDatasetRaw:
         self.__public_holiday_open = None
 
     def clear_all(self):
+        """Reset every POI field to None/empty, ready for the next POI. Called
+        automatically at the end of add()."""
         self.__code = None
         self.__postcode = None
         self.__city = None
@@ -694,6 +711,8 @@ class POIDatasetRaw:
         self.__lon = lon
 
     def process_geom(self):
+        """Build self.geom (a WKT point) from the current lat/lon via
+        libs/geo.check_geom(). Called from add()."""
         self.geom = check_geom(self.__lat, self.__lon)
 
     @property
@@ -953,22 +972,35 @@ class POIDatasetRaw:
         self.__lunch_break_stop = data
 
     def day_open(self, day, data):
+        """Set one weekday's regular opening time.
+
+        Args:
+            day (int): Weekday index, 0 (Monday) - 6 (Sunday) - see WeekDaysShort.
+            data (str): Time string, e.g. '08:00'.
+        """
         self.__oh.at[WeekDaysShort(day), OpenClose.open] = data
 
     def day_close(self, day, data):
+        """Set one weekday's regular closing time. Args as day_open()."""
         self.__oh.at[WeekDaysShort(day), OpenClose.close] = data
 
     def day_summer_open(self, day, data):
+        """Set one weekday's summer-season opening time. Args as day_open()."""
         self.__oh.at[WeekDaysShort(day), OpenClose.summer_open] = data
 
     def day_summer_close(self, day, data):
+        """Set one weekday's summer-season closing time. Args as day_open()."""
         self.__oh.at[WeekDaysShort(day), OpenClose.summer_close] = data
 
     def day_open_close(self, day, opening, closing):
+        """Set one weekday's regular open and close time in one call. Args as
+        day_open(), plus closing (str): close time."""
         self.__oh.at[WeekDaysShort(day), OpenClose.open] = opening
         self.__oh.at[WeekDaysShort(day), OpenClose.close] = closing
 
     def day_summer_open_close(self, day, opening, closing):
+        """Set one weekday's summer-season open and close time in one call. Args as
+        day_open_close()."""
         self.__oh.at[WeekDaysShort(day), OpenClose.summer_open] = opening
         self.__oh.at[WeekDaysShort(day), OpenClose.summer_close] = closing
 
@@ -989,6 +1021,9 @@ class POIDatasetRaw:
         self.__public_holiday_open = data
 
     def process_opening_hours(self):
+        """Build the final opening_hours string from every day_open()/day_close()/etc.
+        call made so far, via libs/opening_hours.OpeningHours, and store it as
+        self.opening_hours. Called from add()."""
         self.__oh = self.__oh.where((pd.notna(self.__oh)), None)
         t = OpeningHours(self.__nonstop, self.__oh.at[WeekDaysShort.mo, OpenClose.open],
                          self.__oh.at[WeekDaysShort.tu, OpenClose.open],
@@ -1023,9 +1058,14 @@ class POIDatasetRaw:
         self.__opening_hours = t.process()
 
     def dump_opening_hours(self):
+        """Debug helper: print the current processed opening_hours string."""
         print(self.__opening_hours)
 
     def process_street(self):
+        """Validate/correct the street name against nearby OSM roads (exact match,
+        falling back to metaphone/phonetic match), caching the result per
+        lat/lon/street-name. Leaves self.street unchanged if no coordinates are set.
+        Called from add()."""
         cache_key = None
         data = clean_string(self.__street)
         if data is not None and data != 'None' and data != '':
@@ -1087,6 +1127,16 @@ class POIDatasetRaw:
 
 
     def add(self):
+        """Finalize the currently-set POI fields (process opening hours, geometry,
+        street, postcode and city) and append them as one row, then reset all
+        fields via clear_all() for the next POI. Every dataprovider's process() loop
+        calls this once per harvested POI.
+
+        On any exception, increments add_errors and logs, without re-raising (so one
+        bad POI doesn't abort the whole batch) - but note fields are NOT reset in
+        that case, so a failed add() can leak partial data into the next POI unless
+        the caller's field-setting code always sets every field it needs.
+        """
         try:
             self.process_opening_hours()
             self.process_geom()
@@ -1149,24 +1199,44 @@ class POIDatasetRaw:
             logging.exception('Exception occurred')
 
     def process(self):
+        """Turn every row appended by add() into a DataFrame with POI_COLS_RAW
+        column names, ready for dao/data_handlers.insert_poi_dataframe().
+
+        Returns:
+            pd.DataFrame: One row per successfully-added POI, NaN replaced by None.
+        """
         df = pd.DataFrame(self.insert_data)
         df.columns = POI_COLS_RAW
         return df.replace({np.nan: None})
 
     def length(self):
+        """Return how many POIs have been added so far (via add())."""
         return len(self.insert_data)
 
     def stats(self):
+        """Return this instance's harvest stats.
+
+        Returns:
+            dict: {'harvested': number of POIs added, 'harvest_errors': number of
+            add() calls that raised}.
+        """
         return {'harvested': self.length(), 'harvest_errors': self.add_errors}
 
 
 class POIDataset(POIDatasetRaw):
-    """Contains all handled OSM tags
+    """POIDatasetRaw plus per-POI data-quality checks (POIQC - in_water, street
+    exists nearby, custom opening hours) and, unlike the base class, an inline
+    street-name/nearby-road lookup performed immediately when `street = ...` is set
+    (rather than deferred to process_street() inside add()).
+
+    Not instantiated anywhere in this codebase currently - every provider uses the
+    base POIDatasetRaw via DataProvider.data instead, so the extra quality-check
+    columns (good/bad) this class's add() produces are unused.
     """
 
     def __init__(self):
-        """
-        """
+        """Same as POIDatasetRaw.__init__(), plus its own DB connection and empty
+        good/bad quality-check lists."""
         POIDatasetRaw.__init__(self)
         self.__db = POIBase(
             '{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
@@ -1182,6 +1252,7 @@ class POIDataset(POIDatasetRaw):
         self.__bad = []
 
     def clear_all(self):
+        """POIDatasetRaw.clear_all() plus resetting the good/bad quality-check lists."""
         POIDatasetRaw.clear_all(self)
         self.__good = []
         self.__bad = []
@@ -1226,6 +1297,12 @@ class POIDataset(POIDatasetRaw):
                 logging.exception('Exception occurred')
 
     def add(self):
+        """Like POIDatasetRaw.add(), but also runs POIQC against the current POI and
+        appends its good/bad labels as two extra columns (POI_COLS instead of
+        POI_COLS_RAW). Unlike the base class, this does NOT call process_street()
+        (handled inline by this subclass's `street` property setter instead) nor
+        process_postcode()/process_city() at all - postcode/city are stored exactly
+        as set, with no OSM-based lookup/refinement in this subclass."""
         try:
             self.process_opening_hours()
             self.process_geom()
@@ -1287,6 +1364,12 @@ class POIDataset(POIDatasetRaw):
             logging.exception('Exception occurred')
 
     def process(self):
+        """Like POIDatasetRaw.process(), but with POI_COLS (includes the good/bad
+        quality-check columns this subclass's add() appends) instead of POI_COLS_RAW.
+
+        Returns:
+            pd.DataFrame: One row per successfully-added POI, NaN replaced by None.
+        """
         df = pd.DataFrame(self.insert_data)
         df.columns = POI_COLS
         return df.where((pd.notna(df)), None)
