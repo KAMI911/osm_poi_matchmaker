@@ -13,7 +13,6 @@ try:
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
-    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -21,11 +20,13 @@ except ImportError as err:
     sys.exit(128)
 
 
+PENNY_DAY_INDEX = {'HÉ': 0, 'KE': 1, 'SZE': 2, 'CSÜT': 3, 'PÉ': 4, 'SZO': 5, 'VAS': 6}
+
+
 class hu_penny_market(DataProvider):
 
     def contains(self):
-        # self.link = 'https://www.penny.hu/uzleteim'
-        self.link = os.path.join(config.get_directory_cache_url(), 'hu_penny_market.json')
+        self.link = 'https://www.penny.hu/api/stores'
         self.tags = {'shop': 'supermarket', 'operator': 'Penny Market Kft.', 'brand': 'Penny Market',
                      'brand:wikidata': 'Q284688', 'brand:wikipedia': 'en:Penny (supermarket)',
                      'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'PENNY FREE WLAN',
@@ -51,30 +52,30 @@ class hu_penny_market(DataProvider):
 
     def process(self):
         try:
-            if not os.path.isfile(self.link):
-                logging.warning('Cache file not found: %s', self.link)
-                return
-            # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-            #                            self.filetype)
-            # if soup is not None:
-            #     text = json.loads(soup)
-            with open(self.link, 'r') as f:
-                text = json.load(f)
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype)
+            if soup is not None:
+                text = json.loads(soup)
                 for poi_data in text:
                     try:
                         self.data.code = 'hupennysup'
-                        self.data.postcode = clean_string(poi_data.get('address')['zip'])
-                        street_tmp = clean_string(poi_data.get('address')['street'].split(',')[0])
-                        self.data.city = clean_city(poi_data['address']['city'])
-                        self.data.original = clean_string(poi_data.get('address')['street'])
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data['address']['latitude'],
-                                                                        poi_data['address']['longitude'])
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                            street_tmp.title())
+                        self.data.postcode = clean_string(poi_data.get('zip'))
+                        street_tmp = clean_string((poi_data.get('street') or '').split(',')[0])
+                        self.data.city = clean_city(poi_data.get('city'))
+                        self.data.original = clean_string(poi_data.get('street'))
+                        position = poi_data.get('position') or {}
+                        self.data.lat, self.data.lon = check_hu_boundary(position.get('lat'), position.get('lng'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_street_housenumber_better_2(street_tmp)
                         self.data.phone = clean_phone_to_str(poi_data.get('phone'))
-                        self.data.ref = clean_string(poi_data.get('id'))
+                        self.data.ref = clean_string(poi_data.get('storeId'))
                         self.data.public_holiday_open = False
-                        # TODO: Parsing opening_hours from datasource
+                        for block in poi_data.get('openingTimes') or []:
+                            day_index = PENNY_DAY_INDEX.get(block.get('dayOfWeek'))
+                            times = block.get('times') or []
+                            if day_index is not None and len(times) >= 2:
+                                self.data.day_open(day_index, times[0])
+                                self.data.day_close(day_index, times[1])
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
