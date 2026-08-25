@@ -221,5 +221,59 @@ class TestApplyPoiPatches(unittest.TestCase):
         self.assertEqual(result.at[1, 'poi_addr_street'], 'Untouched')
 
 
+class TestRealPatchFile(unittest.TestCase):
+    """Load the real data/poi_patch.tsv the same way save_downloaded_pd() does in
+    production, and confirm specific corrections (issue #94, plus a few rows
+    restored from the pre-TSV poi_patch.csv that the TSV rewrite had dropped)
+    actually apply to a POI row shaped like real imported data.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        import os
+        patch_path = os.path.join(os.path.dirname(__file__), '..',
+                                  'osm_poi_matchmaker', 'data', 'poi_patch.tsv')
+        cls.patch_df = pd.read_csv(patch_path, encoding='UTF-8', sep='\t', skiprows=0)
+        cls.patch_df = cls.patch_df.where(pd.notna(cls.patch_df), None)
+
+    def _apply(self, poi_code, postcode, city, street, housenumber):
+        poi = pd.DataFrame([make_poi(
+            poi_code=poi_code, poi_postcode=postcode, poi_city=city,
+            poi_addr_street=street, poi_addr_housenumber=housenumber,
+        )])
+        return apply_poi_patches(poi, self.patch_df).iloc[0]
+
+    def test_issue_94_boconad(self):
+        row = self._apply('hupostapo', '3368', 'Boconád', 'Ságvári Endre utca', '5')
+        self.assertEqual(row['poi_addr_street'], 'Kossuth Lajos út')
+        self.assertEqual(row['poi_addr_housenumber'], '12')
+
+    def test_issue_94_sap(self):
+        row = self._apply('hupostapo', '4176', 'Sáp', 'Derkovits Gy utca', '1')
+        self.assertEqual(row['poi_addr_street'], 'Fő utca')
+        self.assertEqual(row['poi_addr_housenumber'], '9')
+
+    def test_issue_94_jeke(self):
+        row = self._apply('hupostapo', '4611', 'Jéke', 'Ifjusági út', '3')
+        self.assertEqual(row['poi_addr_street'], 'Dózsa György utca')
+        self.assertEqual(row['poi_addr_housenumber'], '18')
+
+    def test_restored_row_bajcsy_zsilinszky_gyor(self):
+        # From the pre-TSV poi_patch.csv, dropped by the TSV rewrite; restored.
+        row = self._apply('hupostapo', '9001', 'Győr', 'Bajcsy-Zsilinszky út', '46')
+        self.assertEqual(row['poi_addr_street'], 'Bajcsy-Zsilinszky utca')
+
+    def test_restored_row_oceanarok_wildcard(self):
+        row = self._apply('*', '1048', 'Budapest', 'Óceánárok utca', '7')
+        self.assertEqual(row['poi_addr_street'], 'Óceán-árok utca')
+        # new_housenumber is '*' for this rule, meaning "keep the original".
+        self.assertEqual(row['poi_addr_housenumber'], '7')
+
+    def test_unrelated_address_still_untouched(self):
+        row = self._apply('hupostapo', '1234', 'Sehol', 'Semmi utca', '1')
+        self.assertEqual(row['poi_addr_street'], 'Semmi utca')
+        self.assertEqual(row['poi_addr_housenumber'], '1')
+
+
 if __name__ == '__main__':
     unittest.main()
