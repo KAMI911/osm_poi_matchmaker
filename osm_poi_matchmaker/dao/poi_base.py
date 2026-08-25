@@ -2,6 +2,7 @@
 try:
     import logging
     import sys
+    import multiprocessing
     import geopandas as gpd
     import pandas as pd
     import sqlalchemy
@@ -17,6 +18,12 @@ except ImportError as err:
     logging.exception('Exception occurred')
 
     sys.exit(128)
+
+# Sized to match create_db.py's NUMBER_OF_PROCESSES (also multiprocessing.cpu_count()):
+# each matcher worker process opens its own POIBase/engine, but should normally only ever
+# need one connection checked out at a time, so this is generous headroom rather than an
+# expected working set - see issue with QueuePool exhaustion during STAGE 9 matching.
+_DB_POOL_SIZE = multiprocessing.cpu_count()
 
 
 class POIBase:
@@ -48,8 +55,8 @@ class POIBase:
             self.db_filename = self.db_connection
         try:
             self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8',
-                                                   echo=config.get_database_enable_query_log(), pool_size=5,
-                                                   max_overflow=5, pool_pre_ping=True, pool_use_lifo=True,
+                                                   echo=config.get_database_enable_query_log(), pool_size=_DB_POOL_SIZE,
+                                                   max_overflow=_DB_POOL_SIZE, pool_pre_ping=True, pool_use_lifo=True,
                                                    pool_recycle=300)
         except psycopg2.OperationalError as e:
             logging.error('Database error: %s', e)
@@ -60,8 +67,8 @@ class POIBase:
                               self.db_retry_sleep, reco, self.db_retry_counter)
                 time.sleep(self.db_retry_sleep)
                 self.engine = sqlalchemy.create_engine(self.db_connection, client_encoding='utf8',
-                                                       echo=config.get_database_enable_query_log(), pool_size=5,
-                                                       max_overflow=5, pool_pre_ping=True, pool_use_lifo=True,
+                                                       echo=config.get_database_enable_query_log(), pool_size=_DB_POOL_SIZE,
+                                                       max_overflow=_DB_POOL_SIZE, pool_pre_ping=True, pool_use_lifo=True,
                                                        pool_recycle=300)
                 reco += 1
         Base.metadata.create_all(self.engine)
@@ -349,6 +356,7 @@ class POIBase:
                 # logging.critical(perf.mappings().all())
                 perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
+            data = gpd.GeoDataFrame()
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
             except Exception as err:
@@ -411,6 +419,7 @@ class POIBase:
                 # logging.critical(perf.mappings().all())
                 perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
+            data = gpd.GeoDataFrame()
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
             except Exception as err:
@@ -483,6 +492,7 @@ class POIBase:
                 # logging.critical(perf.mappings().all())
                 perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
+            data = gpd.GeoDataFrame()
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
             except Exception as err:
@@ -556,6 +566,7 @@ class POIBase:
                 logging.critical(perf.mappings().all())
                 perf_rows = [str(row.values()) for row in perf]
                 logging.debug('\n'.join(perf_rows))
+            data = gpd.GeoDataFrame()
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
             except Exception as err:
@@ -826,6 +837,7 @@ class POIBase:
                 # logging.critical(perf.mappings().all())
                 perf_rows = [str(row.values()) for row in perf.mappings().all()]
                 logging.debug('\n'.join(perf_rows))
+            data = gpd.GeoDataFrame()
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
             except Exception as err:
