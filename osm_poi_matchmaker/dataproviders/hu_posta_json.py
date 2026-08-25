@@ -25,6 +25,7 @@ POI_POSTA_PONT = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/
 
 
 class hu_posta_json(DataProvider):
+    """Imports Magyar Posta locations (post offices, cheque machines, parcel machines, Posta Pont) from posta.hu's JSON REST API."""
 
     def __init__(self, session, link, download_cache, filename='hu_posta.json'):
         self.session = session

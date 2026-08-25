@@ -22,6 +22,7 @@ except ImportError as err:
 
 
 class hu_mol_plugee_ev(DataProvider):
+    """Imports MOL Plugee EV charging station locations in Hungary from a locally cached CSV file."""
 
     def contains(self):
         self.link = os.path.join(

@@ -21,6 +21,7 @@ except ImportError as err:
 
 
 class hu_oil(DataProvider):
+    """Imports OIL! fuel station locations in Hungary from oil-benzinkutak.hu's WordPress store-search AJAX endpoint."""
 
     def contains(self):
         self.link = 'http://www.oil-benzinkutak.hu/wp-admin/admin-ajax.php?action=store_search&lat=47.162494&lng=19.5033041&max_results=1&search_radius=50&autoload=1'

@@ -22,6 +22,7 @@ except ImportError as err:
 
 
 class hu_posta(DataProvider):
+    """Imports Magyar Posta post office locations in Hungary from Hungarian Post's PostInfo.xml feed."""
 
     def contains(self):
         self.link = 'https://httpmegosztas.posta.hu/PartnerExtra/OUT/PostInfo.xml'

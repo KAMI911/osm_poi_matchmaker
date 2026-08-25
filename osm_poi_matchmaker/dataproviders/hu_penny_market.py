@@ -24,6 +24,7 @@ PENNY_DAY_INDEX = {'HÉ': 0, 'KE': 1, 'SZE': 2, 'CSÜT': 3, 'PÉ': 4, 'SZO': 5, 
 
 
 class hu_penny_market(DataProvider):
+    """Imports Penny Market supermarket locations in Hungary from penny.hu's stores API."""
 
     def contains(self):
         self.link = 'https://www.penny.hu/api/stores'

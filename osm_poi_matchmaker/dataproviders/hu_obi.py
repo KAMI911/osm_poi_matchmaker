@@ -21,6 +21,7 @@ except ImportError as err:
 
 
 class hu_obi(DataProvider):
+    """Imports OBI DIY store locations in Hungary from OBI's store-locator REST API."""
 
     def contains(self):
         self.link = 'https://www.obi.hu/storeLocatorRest/v1/stores/getAllByCountry/hu/hu?fields=name,address,phone,services,hours,storeNumber,path,email'

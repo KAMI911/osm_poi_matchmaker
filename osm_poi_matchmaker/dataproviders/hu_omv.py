@@ -21,6 +21,7 @@ except ImportError as err:
 
 
 class hu_omv(DataProvider):
+    """Imports OMV fuel station locations in Hungary from OMV's Wigeogis-hosted station finder."""
 
     def contains(self):
         self.link = 'https://app.wigeogis.com/kunden/omv/data/getresults.php'

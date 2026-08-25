@@ -24,6 +24,7 @@ except ImportError as err:
 
 
 class hu_pingvin_patika(DataProvider):
+    """Imports Pingvin Patika pharmacy locations in Hungary, scraped from pingvinpatika.hu's pharmacy listing page."""
 
     def contains(self):
         self.link = 'https://pingvinpatika.hu/patikak'

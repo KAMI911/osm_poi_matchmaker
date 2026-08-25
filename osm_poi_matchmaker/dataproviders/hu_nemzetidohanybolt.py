@@ -19,6 +19,11 @@ except ImportError as err:
 
 
 class hu_mol(DataProvider):
+    """Imports Nemzeti Dohánybolt (national tobacco shop) locations in Hungary from a JSONP feed.
+
+    Note: the class name is a copy-paste artifact from hu_mol.py and does not reflect this
+    provider's brand; the module name/filename (hu_nemzetidohanybolt) is the actual identifier.
+    """
 
     def contains(self):
         self.link = 'http://trafikok.nemzetidohany.hu/mind.jsonp'

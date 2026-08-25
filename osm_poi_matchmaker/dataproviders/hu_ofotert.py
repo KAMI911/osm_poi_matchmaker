@@ -33,6 +33,7 @@ API_URL = 'https://www.ofotert.hu/hu/api/store-locator'
 
 
 class hu_ofotert(DataProvider):
+    """Imports Ofotért optician store locations in Hungary from Ofotért's store API."""
 
 
     def contains(self):
