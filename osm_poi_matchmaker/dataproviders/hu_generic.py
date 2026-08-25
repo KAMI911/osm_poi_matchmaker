@@ -22,6 +22,7 @@ POI_COLS_STREET_TYPE = ['street_type']
 
 
 class hu_city_postcode():
+    """Imports Hungarian city/postcode data from an Excel workbook (used for initial seeding, superseded by hu_city_postcode_from_xml)."""
 
     def __init__(self, session, link):
         self.session = session
@@ -49,6 +50,7 @@ class hu_city_postcode():
 
 
 class hu_city_postcode_from_xml():
+    """Imports Hungarian city/postcode data from Hungarian Post's ZipCodes.xml feed into the city table."""
 
     def __init__(self, session, link, download_cache, filename='hu_city_postcode.xml'):
         self.session = session
@@ -77,6 +79,7 @@ class hu_city_postcode_from_xml():
 
 
 class hu_street_types_from_xml():
+    """Imports the list of valid Hungarian street-type suffixes from Hungarian Post's StreetTypes.xml feed."""
 
     def __init__(self, session, link, download_cache, filename='hu_street_types.xml'):
         self.session = session

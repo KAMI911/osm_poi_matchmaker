@@ -40,6 +40,7 @@ query fetchPharmacies($cursor: String) {
 
 
 class hu_benu(DataProvider):
+    """Imports Benu pharmacy locations in Hungary from Benu's GraphQL API."""
 
     def contains(self):
         self.link = GRAPHQL_URL

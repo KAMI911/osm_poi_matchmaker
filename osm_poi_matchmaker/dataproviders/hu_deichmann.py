@@ -23,6 +23,12 @@ except ImportError as err:
 
 
 class hu_deichmann(DataProvider):
+    """Imports Deichmann shoe store locations in Hungary from a locally cached JSON file.
+
+    Live fetching from Deichmann's storefinder API is disabled (see the commented-out
+    self.link below) because that endpoint is behind Akamai bot protection that this
+    project's plain HTTP client cannot pass; a manually-saved snapshot is read instead.
+    """
 
     def contains(self):
         # self.link = 'https://www.deichmann.com/hu-hu/rest/v2/deichmann-hu/mosaic/stores?latitude=47.6874569&longitude=17.6503974&pageSize=10000&radius=1000000&fields=FULL&format=json&lang=hu_HU'

@@ -19,6 +19,7 @@ except ImportError as err:
 
 
 class hu_cib_bank(DataProvider):
+    """Imports CIB Bank branch/ATM locations in Hungary from CIB's branch-finder feed."""
 
     def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
         self.session = session

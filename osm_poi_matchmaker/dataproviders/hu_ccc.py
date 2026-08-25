@@ -22,6 +22,7 @@ except ImportError as err:
 
 
 class hu_ccc(DataProvider):
+    """Imports CCC shoe store locations in Hungary from CCC's store-configuration API."""
     
     def contains(self):
         # The old page (ccc.eu/hu/sklepy) redirects to ccc.eu/hu/hu/uzletek, an Angular SPA that no

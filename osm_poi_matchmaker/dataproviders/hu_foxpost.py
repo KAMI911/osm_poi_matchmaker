@@ -24,6 +24,7 @@ except ImportError as err:
 PATTERN_REF = re.compile('([A-Z]{2}\d{2,4})')
 
 class hu_foxpost(DataProvider):
+    """Imports Foxpost A-BOX parcel locker locations in Hungary from Foxpost's public terminal JSON feed."""
 
     def contains(self):
         self.link = 'https://cdn.foxpost.hu/foxpost_terminals_extended_v3.json'

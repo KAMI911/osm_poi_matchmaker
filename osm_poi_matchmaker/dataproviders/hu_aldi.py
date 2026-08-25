@@ -20,6 +20,7 @@ except ImportError as err:
 
 
 class hu_aldi(DataProvider):
+    """Imports Aldi supermarket locations in Hungary from the Uberall store-finder API."""
 
     def contains(self):
         # The old storefront endpoint (www.aldi.hu/.../.get-stores-in-radius.json) is gone. The site

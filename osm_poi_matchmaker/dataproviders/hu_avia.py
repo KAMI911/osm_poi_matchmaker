@@ -22,6 +22,7 @@ except ImportError as err:
 
 
 class hu_avia(DataProvider):
+    """Imports Avia fuel station locations in Hungary, scraped from the Avia contact page."""
 
     def contains(self):
         self.link = 'https://www.avia.hu/kapcsolat/toltoallomasok'

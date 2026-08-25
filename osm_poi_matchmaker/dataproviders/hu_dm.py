@@ -21,6 +21,7 @@ except ImportError as err:
 
 
 class hu_dm(DataProvider):
+    """Imports dm drugstore locations in Hungary from dmTECH's store-data bounding-box API."""
 
     def contains(self):
         self.link = 'https://store-data-service.services.dmtech.com/stores/bbox/49,16,45,23'
