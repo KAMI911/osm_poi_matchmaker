@@ -262,9 +262,11 @@ class POIBase:
             query_unique_name = ''
         if additional_ref_name is not None and not pd.isna(additional_ref_name) and additional_ref_name != '' \
                 and unique_ref is not None and not pd.isna(unique_ref) and unique_ref != '':
-            # Sentinel: additional_ref_name == 'ref' means match on the plain "ref" tag
-            # itself instead of a composite "ref:{additional_ref_name}" tag.
-            ref_column = 'ref' if additional_ref_name == 'ref' else '"ref:{}"'.format(additional_ref_name)
+            # additional_ref_name is the literal OSM tag key to match on, except the bare
+            # 'ref' sentinel (matches the plain "ref" tag). A composite key like a real
+            # ref:mav or a GTFS-conflation gtfs:stop_id:HU-VOLAN tag must be spelled out in
+            # full by the caller - it's no longer auto-prefixed with "ref:".
+            ref_column = 'ref' if additional_ref_name == 'ref' else '"{}"'.format(additional_ref_name)
             query_unique_ref = ' AND LOWER(TEXT({})) = LOWER(TEXT(:unique_ref))'.format(ref_column)
             query_params.update({'unique_ref': unique_ref})
         else:

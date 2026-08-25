@@ -628,16 +628,16 @@ def generate_osm_xml(df, session=None):
                     tags['ref'] = row.poi_ref
                     logging.debug('Added ref tag.')
 
-                # A composite ref:{additional_ref_name} tag (e.g. Volánbusz's ref:gtfs:stop_id) is
+                # additional_ref_name is the literal tag key to write poi_additional_ref under
+                # (e.g. a real ref:mav, or a GTFS-conflation gtfs:stop_id:HU-VOLAN tag) - it's
                 # separate from the plain "ref" tag above. The additional_ref_name == 'ref'
                 # sentinel needs no extra write here - the plain ref tag was already set from
                 # poi_ref above (see also query_osm_shop_poi_gpd()/online_poi_matching.py, which
                 # use poi_ref directly as the search value for that same sentinel).
                 if row.additional_ref_name is not None and row.additional_ref_name != 'ref' \
                         and has_value(row.poi_additional_ref):
-                    ref_tag = 'ref:{}'.format(row.additional_ref_name)
-                    tags[ref_tag] = row.poi_additional_ref
-                    logging.debug('Add %s tag with additional ref name.', ref_tag)
+                    tags[row.additional_ref_name] = row.poi_additional_ref
+                    logging.debug('Add %s tag with additional ref name.', row.additional_ref_name)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
