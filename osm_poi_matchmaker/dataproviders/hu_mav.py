@@ -26,6 +26,7 @@ except ImportError as err:
 
 
 class hu_mav(DataProvider):
+    """Imports MÁV-START railway station locations in Hungary from MÁV's GTFS feed."""
 
     def contains(self):
         self.link = 'https://www.mavcsoport.hu/gtfs/gtfsMavMenetrend.zip'

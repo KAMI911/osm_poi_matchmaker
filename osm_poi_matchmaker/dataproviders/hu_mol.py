@@ -23,6 +23,7 @@ POST_DATA = {'api': 'stations', 'input': 'HU',
 
 
 class hu_mol(DataProvider):
+    """Imports MOL fuel station locations in Hungary from MOL's station-finder API."""
 
     def contains(self):
         self.link = 'https://toltoallomaskereso.mol.hu/api.php'

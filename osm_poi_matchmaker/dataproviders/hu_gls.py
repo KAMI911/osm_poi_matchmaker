@@ -28,6 +28,7 @@ HOLIDAY_PERMANENT_CLOSURE_DAYS = 182
 
 
 class hu_gls(DataProvider):
+    """Imports GLS parcel locker (CsomagPont) locations in Hungary from GLS's delivery-points JSON feed."""
 
     def contains(self):
         self.link = 'https://map.gls-hungary.com/data/deliveryPoints/hu.json'

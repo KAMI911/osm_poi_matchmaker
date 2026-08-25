@@ -23,6 +23,7 @@ except ImportError as err:
 
 
 class hu_mobil_petrol(DataProvider):
+    """Imports Mobil Petrol fuel station locations in Hungary from its SuperStoreFinder WordPress plugin XML feed."""
 
     def contains(self):
         # The homepage no longer embeds a totem_stations JS variable; the "Super Store Finder"

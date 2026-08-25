@@ -20,6 +20,12 @@ except ImportError as err:
 
 
 class hu_kh_bank(DataProvider):
+    """Imports K&H Bank branch/ATM locations in Hungary from a locally cached JSON file.
+
+    Live fetching is not implemented because K&H's branch-finder site is behind Akamai
+    bot protection that this project's plain HTTP client cannot pass; a manually-saved
+    snapshot (self.link) is read instead when present.
+    """
 
     def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
         super().__init__(session, download_cache)

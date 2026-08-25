@@ -24,6 +24,7 @@ except ImportError as err:
 
 
 class hu_mkb_bank(DataProvider):
+    """Imports MKB Bank branch locations in Hungary from a locally cached CSV file (hu_mkb_bank.csv)."""
 
     def contains(self):
         self.link = os.path.join(

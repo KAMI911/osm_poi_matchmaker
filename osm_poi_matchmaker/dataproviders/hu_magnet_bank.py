@@ -29,6 +29,7 @@ DAY_CODE_TO_INDEX = {'H': 0, 'K': 1, 'SZ': 2, 'CS': 3, 'P': 4}
 
 
 class hu_magnet_bank(DataProvider):
+    """Imports MagNet Bank branch locations in Hungary from MagNet's API."""
 
     def contains(self):
         self.link = API_URL

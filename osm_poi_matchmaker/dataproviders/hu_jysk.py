@@ -22,6 +22,7 @@ except ImportError as err:
 
 
 class hu_jysk(DataProvider):
+    """Imports Jysk furniture store locations in Hungary, scraped from jysk.hu's store listing page."""
 
     def contains(self):
         self.link = 'https://jysk.hu/aruhazak'

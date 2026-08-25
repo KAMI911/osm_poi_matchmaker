@@ -24,6 +24,7 @@ except ImportError as err:
 
 
 class hu_mobiliti_ev(DataProvider):
+    """Imports Mobiliti EV charging station locations in Hungary from Mobiliti's OCPI locations API."""
 
     def contains(self):
         self.link = 'https://api.mobiliti.hu/ocpi-location/api/v1/own-and-foreign-locations'

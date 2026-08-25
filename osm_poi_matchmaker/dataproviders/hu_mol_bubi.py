@@ -19,6 +19,7 @@ except ImportError as err:
 
 
 class hu_mol_bubi(DataProvider):
+    """Imports MOL Bubi bicycle-rental station locations in Hungary from Urban Sharing's public GraphQL API."""
 
     def contains(self):
         self.link = ('https://core.urbansharing.com/public/api/v1/graphql'

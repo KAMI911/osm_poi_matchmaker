@@ -21,6 +21,7 @@ except ImportError as err:
 
 
 class hu_kulcs_patika(DataProvider):
+    """Imports Kulcs Patika pharmacy locations in Hungary, scraped from kulcspatikak.hu's pharmacy finder."""
 
     def contains(self):
         self.link = 'https://kulcspatikak.hu/patikakereso'
