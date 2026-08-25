@@ -35,6 +35,9 @@ def import_poi_data_module(module: str) -> dict:
     stats = {'harvested': 0, 'harvest_errors': 0, 'db_inserted': 0, 'db_errors': 0}
 
     def _add(one: dict):
+        """Accumulate one sub-call's stats dict into the outer `stats` total (used
+        for the special-cased providers below that run process() more than once,
+        e.g. hu_kh_bank's separate bank/ATM passes)."""
         for key in stats:
             stats[key] += one.get(key, 0)
 
@@ -97,6 +100,17 @@ def import_poi_data_module(module: str) -> dict:
 
 
 def delete_poi_tables(db: POIBase) -> None:
+    """Drop the POI-related tables so they get recreated from scratch (see
+    POIBase.__init__'s Base.metadata.create_all()). Called from
+    import_poi_data_module() when db.start.drop.poi_tables is True.
+
+    Note: City, Street_type and Country are intentionally not in this list, so
+    reference data imported by import_basic_data() (create_db.py) survives a run
+    that drops and recreates the POI tables.
+
+    Args:
+        db (POIBase): Database wrapper whose engine is used to run the DROP TABLEs.
+    """
     bases_to_drop = [
         POI_address,
         POI_address_raw,
