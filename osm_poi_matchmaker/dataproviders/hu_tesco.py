@@ -8,7 +8,7 @@ try:
     import time
     import random
     import traceback
-    import requests
+    from curl_cffi import requests
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
         clean_phone_to_str, clean_string
@@ -24,16 +24,21 @@ except ImportError as err:
 
 # The old tesco.hu/Ajax bounds-search endpoint is gone (site rebuilt); the current store locator
 # (a Yext-powered widget at /aruhazak/) exposes this instead. It needs the X-Requested-With header
-# below or it silently returns an empty 200 body. Unlike the old endpoint it isn't bounds-based -
-# it always returns the nearest stores to the given point within a fixed ~25 km radius that no
-# query parameter (radius=/distance=/searchRadius= all tried, none had any effect) can widen. So
-# covering the whole country means querying a grid of points spaced closely enough that every
-# store falls within 25 km of at least one of them, then deduplicating by the stable c_bRANCH_NO2
-# branch id (confirmed present on every entity; distinct from the old feed's "goldid").
+# below or it silently returns an empty 200 body. Akamai also blocks it by TLS fingerprint: plain
+# `requests`/urllib3 gets a 403 "Access Denied" regardless of IP or headers (confirmed both from
+# this project's own network and from inside the app container), while a real browser gets
+# through - so this uses curl_cffi with Firefox TLS/HTTP2 impersonation instead of plain requests.
+# Unlike the old endpoint this one isn't bounds-based - it always returns the nearest stores to the
+# given point within a fixed ~25 km radius that no query parameter (radius=/distance=/searchRadius=
+# all tried, none had any effect) can widen. So covering the whole country means querying a grid of
+# points spaced closely enough that every store falls within 25 km of at least one of them, then
+# deduplicating by the stable c_bRANCH_NO2 branch id (confirmed present on every entity; distinct
+# from the old feed's "goldid").
 SEARCH_URL = 'https://www.tesco.hu/aruhazak/searchapi'
 HU_BBOX = ((45.7, 16.0), (48.6, 22.9))  # (lat, lon) sw, ne - same country box as hu_shell.py
 GRID_STEP_LAT = 0.3   # ~33 km
 GRID_STEP_LON = 0.45  # ~33 km at this latitude
+IMPERSONATE = 'firefox135'
 # Be polite (and avoid tripping Akamai bot detection with a request burst): pause between
 # grid-point requests instead of hammering the endpoint 160 times back-to-back. Jittered so the
 # pacing doesn't look like an obvious bot pattern either.
@@ -42,8 +47,6 @@ REQUEST_DELAY_MAX_SECONDS = 1.1
 REQUEST_HEADERS = {
     'Accept': 'application/json, text/javascript, */*; q=0.01',
     'X-Requested-With': 'XMLHttpRequest',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/120.0 Safari/537.36',
 }
 STORE_TYPE_TO_CODE = {'Express': 'hutescoexp', 'Hypermarket': 'hutescoext', 'Supermarket': 'hutescosup'}
 DAY_ORDER = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
@@ -127,7 +130,7 @@ class hu_tesco(DataProvider):
         the stable c_bRANCH_NO2 branch id (a single query only returns stores within a fixed
         ~25 km radius of the given point, see module docstring)."""
         stores = {}
-        session = requests.Session()
+        session = requests.Session(impersonate=IMPERSONATE)
         session.headers.update(REQUEST_HEADERS)
         grid = list(self.__grid_points())
         for i, (lat, lon) in enumerate(grid):
