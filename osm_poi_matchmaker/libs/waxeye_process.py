@@ -13,6 +13,20 @@ except ImportError as err:
 
 
 def waxeye_process(ast_items):
+    """Flatten a waxeye-generated address-grammar parse tree (see libs/waxeye.py and
+    hu_address_parser) into a flat {node_type: string_value} dict.
+
+    Used by libs/address.py's extract_all_address_waxeye() to turn a parsed Hungarian
+    address into its component fields (postcode, cTown, cStreet, houseNumber, ...).
+
+    Args:
+        ast_items: The AST (or Exception, e.g. a ParseError) returned by the waxeye
+            parser's parse() method.
+
+    Returns:
+        dict | None: Flattened {node type name: joined string value} for every leaf
+        node found, or None if ast_items was an Exception or processing failed.
+    """
     try:
         if isinstance(ast_items, Exception):  # For example ParseError
             logging.error("ParseError detected: %s", ast_items)

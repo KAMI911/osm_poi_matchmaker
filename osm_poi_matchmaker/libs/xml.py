@@ -15,6 +15,16 @@ except ImportError as err:
 
 
 def download_xml(link, verify_link=config.get_download_verify_link()):
+    """Download an XML document over HTTP.
+
+    Args:
+        link (str): URL to fetch.
+        verify_link (bool): Whether to verify TLS certificates.
+
+    Returns:
+        bytes | None: Raw response body on HTTP 200, or None on a connection error
+        or a non-200 status.
+    """
     try:
         page = requests.get(link, verify=verify_link)
     except requests.exceptions.ConnectionError as e:
@@ -24,6 +34,22 @@ def download_xml(link, verify_link=config.get_download_verify_link()):
 
 
 def save_downloaded_xml(link, file, verify=config.get_download_verify_link()):
+    """Download an XML document and cache it to disk, or reuse the cached copy.
+
+    Simpler, XML-only predecessor of libs/soup.py's save_downloaded_soup() (no ETag
+    check - if download.use.cached.data is True and the file exists, it's used as-is
+    regardless of freshness). Used by dataproviders/hu_generic.py for Magyar Posta's
+    ZipCodes.xml and StreetTypes.xml.
+
+    Args:
+        link (str): URL to fetch.
+        file (str): Local cache file path.
+        verify (bool): Whether to verify TLS certificates.
+
+    Returns:
+        str | bytes | None: The XML content (str if read from cache, bytes if freshly
+        downloaded), or None if the download failed and no cache file exists.
+    """
     if config.get_download_use_cached_data() is True and os.path.isfile(file):
         with open(file, 'r', encoding='utf-8') as content_file:
             page = content_file.read()
