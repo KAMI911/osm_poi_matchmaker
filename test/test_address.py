@@ -205,6 +205,8 @@ class TestPhoneCleanerStr(unittest.TestCase):
              'converted': '+36 20 508 9009'},
             {'original': '  ', 'converted': None},
             {'original': '+36303035698', 'converted': '+36 30 303 5698'},
+            {'original': '(+36) 20 3406 618', 'converted': '+36 20 340 6618'},  # issue #115
+            {'original': '(+36) 20 385 6118', 'converted': '+36 20 385 6118'},  # issue #115
         ]
 
     def test_clean_phone(self):

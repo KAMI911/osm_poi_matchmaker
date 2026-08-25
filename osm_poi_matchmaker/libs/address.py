@@ -572,7 +572,12 @@ def clean_phone(phone):
         return None
     # Remove all whitespaces
     original = phone
-    if '(' in phone:
+    # Truncate at a trailing "(annotation)" like "... (ügyfélszolgálat)", but not
+    # when the string starts with '(' - that's a parenthesized country code like
+    # "(+36) 20 3406 618" (issue #115), which split('(')[0] used to reduce to ''
+    # before it ever reached the parser. Parens themselves are stripped per-number
+    # below regardless (either in the ';'-split loop or the else branch).
+    if '(' in phone and not phone.startswith('('):
         phone = phone.split('(')[0]
     phone = phone.replace('-', ' ')
     if ',' in phone:
