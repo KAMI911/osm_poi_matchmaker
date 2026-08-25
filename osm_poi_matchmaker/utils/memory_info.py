@@ -15,8 +15,11 @@ except ImportError as err:
 
 
 class MemoryInfo(object):
+    """Thin wrapper around tracemalloc for logging peak memory allocations between
+    pipeline stages. A no-op unless memory.enable.tracing=True in app.conf."""
 
     def __init__(self):
+        """Start tracemalloc tracing if enabled via config; otherwise leave it off."""
         self.info = tracemalloc
         self.enabled = get_memory_enable_tracing()
         if self.enabled:
@@ -29,6 +32,15 @@ class MemoryInfo(object):
             logging.debug('Memory tracing disabled (memory.enable.tracing=False).')
 
     def log_top_memory_snapshot(self, stage_name, top_n=10):
+        """Log the top memory-allocating lines and their total size at this point in time.
+
+        No-op if tracing is disabled. Intended to be called right after a pipeline
+        stage finishes, to see which stage is responsible for memory growth.
+
+        Args:
+            stage_name (str): Label for the current pipeline stage, used in the log line.
+            top_n (int): How many top allocation sites to log (default 10).
+        """
         if not self.enabled:
             return
         if not self.info.is_tracing():
