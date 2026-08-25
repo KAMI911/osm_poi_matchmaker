@@ -95,17 +95,17 @@ def online_poi_matching(args):
         # for i, row in data[data['poi_code'].str.contains('ping')].iterrows():
             logging.info("Starting online POI matching…")
             try:
+                # additional_ref_name == 'ref' means match on the plain "ref" tag (poi_ref, set
+                # by most providers already for the GeoJSON export) - anything else is a real
+                # composite ref:{additional_ref_name} tag (e.g. Volánbusz's ref:gtfs:stop_id),
+                # which pairs with poi_additional_ref instead. See query_osm_shop_poi_gpd().
+                unique_ref = row.poi_ref if row.additional_ref_name == 'ref' else row.poi_additional_ref
                 # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
                 osm_query = db.query_osm_shop_poi_gpd(row.poi_lon, row.poi_lat,
                                                       poi_type_by_common_id.get(row.poi_common_id),
                                                       row.poi_search_name,
                                                       row.poi_search_avoid_name, row.poi_name,
-                                                      # additional_ref_name pairs with poi_additional_ref (the
-                                                      # ref:{additional_ref_name} tag value), not the plain
-                                                      # poi_ref/"ref" tag - using poi_ref here meant this exact-
-                                                      # match search stage never fired for providers (e.g.
-                                                      # Volánbusz) that only set poi_additional_ref.
-                                                      row.additional_ref_name, row.poi_additional_ref,
+                                                      row.additional_ref_name, unique_ref,
                                                       row.poi_addr_street, row.poi_addr_housenumber,
                                                       row.poi_conscriptionnumber, row.poi_city,
                                                       row.osm_search_distance_perfect,

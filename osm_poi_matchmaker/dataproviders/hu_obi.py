@@ -65,7 +65,6 @@ class hu_obi(DataProvider):
                         if 'phone' in poi_data and poi_data.get('phone') != '':
                             self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                         self.data.ref = clean_string(poi_data.get('storeNumber'))
-                        self.data.poi_additional_ref = clean_string(poi_data.get('storeNumber'))
                         self.data.email = clean_email(poi_data.get('email'))
                         if 'path' in poi_data and poi_data.get('path') != '':
                             self.data.website = clean_url(poi_data.get('path'))

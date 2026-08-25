@@ -63,7 +63,6 @@ class hu_avia(DataProvider):
                             self.data.city = poi_data['title']
                         self.data.ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' \
                             else None
-                        self.data.poi_additional_ref = self.data.ref
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data['lat'], poi_data['lng'])
                         if poi_data['cim'] is not None and poi_data['cim'] != '':

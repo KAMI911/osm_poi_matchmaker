@@ -59,7 +59,6 @@ class hu_mobiliti_ev(DataProvider):
                         self.data.code = 'humobilchs'
                         try:
                             self.data.ref = clean_string(poi_data.get('id'))
-                            self.data.poi_additional_ref = clean_string(poi_data.get('id'))
                         except Exception as e:
                             logging.exception('Exception occurred: {}'.format(e))
                             logging.exception(traceback.format_exc())

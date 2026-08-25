@@ -182,12 +182,11 @@ class hu_foxpost(DataProvider):
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
                             self.data.conscriptionnumber = extract_all_address_waxeye(poi_data.get('address'))
                         self.data.public_holiday_open = False
+                        # Issue #124: additional_ref_name='ref' (in types()) makes this stable
+                        # per-locker id an exact-match search key, so a locker like HU164 (Príma)
+                        # doesn't get confused with a different nearby one (e.g. HU175 Spar)
+                        # that's roughly equidistant from an existing node.
                         self.data.ref = clean_string(poi_data.get('operator_id'))
-                        # Issue #124: also feed the stable per-locker id into the
-                        # additional_ref_name-based exact-match search, so a locker like
-                        # HU164 (Príma) doesn't get confused with a different nearby one
-                        # (e.g. HU175 Spar) that's roughly equidistant from an existing node.
-                        self.data.poi_additional_ref = clean_string(poi_data.get('operator_id'))
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))

@@ -89,7 +89,6 @@ class hu_mkb_bank(DataProvider):
                         self.data.email = clean_email(poi_data.get('E-mail cím'))
                         self.data.website = clean_url(poi_data.get('Időpontfoglalás URL'))
                         self.data.ref = clean_string(poi_data.get('ATM / Fiók azonosítója'))
-                        self.data.poi_additional_ref = clean_string(poi_data.get('ATM / Fiók azonosítója'))
                         self.data.description = clean_string(poi_data.get('Megjegyzés'))
                         self.data.description = replace_html_newlines(self.data.description)
                         if 'Akadálymentesen' in self.data.description:

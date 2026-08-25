@@ -119,7 +119,6 @@ class hu_ofotert(DataProvider):
                         logging.exception(traceback.format_exc())
                     self.data.public_holiday_open = False
                     self.data.ref = clean_string(poi_data.get('gv_id'))
-                    self.data.poi_additional_ref = clean_string(poi_data.get('gv_id'))
                     self.data.add()
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))

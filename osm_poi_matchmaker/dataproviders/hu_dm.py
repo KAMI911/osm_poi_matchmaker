@@ -74,7 +74,6 @@ class hu_dm(DataProvider):
                                     street_tmp.title())
                             self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                             self.data.ref = clean_string(poi_data.get('storeNumber').strip())
-                            self.data.poi_additional_ref = self.data.ref
                             opening = poi_data.get('openingHours')
                             try:
                                 for i, d in enumerate(opening):

@@ -112,7 +112,6 @@ class hu_raiffeisen(DataProvider):
                 self._set_address(address_span.get_text().strip())
                 self.data.lat, self.data.lon = check_hu_boundary(entry.get('lat'), entry.get('lng'))
                 self.data.ref = clean_string(branch_id)
-                self.data.poi_additional_ref = self.data.ref
                 self.data.public_holiday_open = False
 
                 phone_label = detail_soup.find('td', class_='contacts-list-type',
@@ -183,7 +182,6 @@ class hu_raiffeisen(DataProvider):
                 self._set_address(address_text.strip())
                 self.data.lat, self.data.lon = check_hu_boundary(entry.get('lat'), entry.get('lng'))
                 self.data.ref = clean_string(atm_id)
-                self.data.poi_additional_ref = self.data.ref
                 self.data.nonstop = True
                 self.data.add()
             except Exception as e:

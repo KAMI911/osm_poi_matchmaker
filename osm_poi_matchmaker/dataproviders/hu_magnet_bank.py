@@ -77,7 +77,6 @@ class hu_magnet_bank(DataProvider):
                         self.data.email = clean_email(poi_data.get('email'))
                         self.data.phone = clean_phone_to_str(poi_data.get('telefonszam'))
                         self.data.ref = clean_string(poi_data.get('kod'))
-                        self.data.poi_additional_ref = clean_string(poi_data.get('kod'))
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
                             self.data.conscriptionnumber = extract_all_address_waxeye(
                                 poi_data.get('cim'))

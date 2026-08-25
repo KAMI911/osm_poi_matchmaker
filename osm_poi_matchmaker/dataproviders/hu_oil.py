@@ -69,7 +69,6 @@ class hu_oil(DataProvider):
                         self.data.fuel_octane_95 = True
                         self.data.fuel_diesel = True
                         self.data.ref = clean_string(poi_data.get('id').strip())
-                        self.data.poi_additional_ref = self.data.ref
                         if poi_data.get('url') is not None and poi_data.get('url') != '':
                             self.data.website = poi_data.get('url').strip()
                         else:

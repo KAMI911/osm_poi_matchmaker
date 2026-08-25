@@ -60,7 +60,6 @@ class hu_jysk(DataProvider):
                         self.data.branch = shop.get('name')
                         internal_id = clean_string(shop.get('id'))
                         self.data.ref = internal_id
-                        self.data.poi_additional_ref = internal_id
                         shop_soup = save_downloaded_soup('{}?storeId={}'.format(self.link, internal_id),
                                                         os.path.join(self.download_cache,
                                                         '{}.{}.json'.format(self.filename, internal_id)), FileType.html)

@@ -70,7 +70,6 @@ class hu_penny_market(DataProvider):
                             extract_street_housenumber_better_2(street_tmp)
                         self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                         self.data.ref = clean_string(poi_data.get('storeId'))
-                        self.data.poi_additional_ref = clean_string(poi_data.get('storeId'))
                         self.data.public_holiday_open = False
                         for block in poi_data.get('openingTimes') or []:
                             day_index = PENNY_DAY_INDEX.get(block.get('dayOfWeek'))

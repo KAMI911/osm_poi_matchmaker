@@ -133,7 +133,6 @@ class hu_gls(DataProvider):
                         self.data.postcode = clean_string(poi_data.get('contact').get('postalCode'))
                         self.data.city = clean_city(poi_data.get('contact').get('city'))
                         self.data.ref = poi_data.get('externalId')
-                        self.data.poi_additional_ref = poi_data.get('externalId')
                         self.data.original = poi_data.get('contact').get('address')
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(poi_data.get('contact').get('address'))
