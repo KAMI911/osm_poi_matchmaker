@@ -411,8 +411,8 @@ def online_poi_matching(args):
                         logging.info('Preserving original postcode %s', row.poi_postcode)
                     logging.info('New %s (not %s) type: %s POI: %s %s, %s %s (%s)', row.poi_search_name,
                                  row.poi_search_avoid_name, row.poi_type, row.poi_postcode,
-                                 row.poi_city, row.poi_addr_street,
-                                 row.poi_addr_housenumber, row.poi_conscriptionnumber)
+                                 row.poi_city, row.poi_addr_street, row.poi_addr_housenumber,
+                                 row.poi_conscriptionnumber if pd.notna(row.poi_conscriptionnumber) else '')
             except Exception as e:
                 if isinstance(e, SQLAlchemyError):
                     session.rollback()
