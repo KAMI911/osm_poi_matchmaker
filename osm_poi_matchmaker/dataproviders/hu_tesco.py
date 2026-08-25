@@ -5,6 +5,7 @@ try:
     import sys
     import os
     import json
+    import time
     import traceback
     import requests
     from osm_poi_matchmaker.utils import config
@@ -32,6 +33,9 @@ SEARCH_URL = 'https://www.tesco.hu/aruhazak/searchapi'
 HU_BBOX = ((45.7, 16.0), (48.6, 22.9))  # (lat, lon) sw, ne - same country box as hu_shell.py
 GRID_STEP_LAT = 0.3   # ~33 km
 GRID_STEP_LON = 0.45  # ~33 km at this latitude
+# Be polite (and avoid tripping Akamai bot detection with a request burst): pause between
+# grid-point requests instead of hammering the endpoint 160 times back-to-back.
+REQUEST_DELAY_SECONDS = 0.5
 REQUEST_HEADERS = {
     'Accept': 'application/json, text/javascript, */*; q=0.01',
     'X-Requested-With': 'XMLHttpRequest',
@@ -120,10 +124,13 @@ class hu_tesco(DataProvider):
         the stable c_bRANCH_NO2 branch id (a single query only returns stores within a fixed
         ~25 km radius of the given point, see module docstring)."""
         stores = {}
-        for lat, lon in self.__grid_points():
+        session = requests.Session()
+        session.headers.update(REQUEST_HEADERS)
+        grid = list(self.__grid_points())
+        for i, (lat, lon) in enumerate(grid):
             try:
-                response = requests.get(SEARCH_URL, params={'q': '{},{}'.format(lat, lon), 'l': 'hu'},
-                                        headers=REQUEST_HEADERS, timeout=30)
+                response = session.get(SEARCH_URL, params={'q': '{},{}'.format(lat, lon), 'l': 'hu'},
+                                       timeout=30)
                 response.raise_for_status()
                 data = response.json()
                 for entity in (data.get('response') or {}).get('entities') or []:
@@ -134,6 +141,8 @@ class hu_tesco(DataProvider):
             except Exception as e:
                 logging.exception('Exception occurred while fetching Tesco grid point %s,%s: %s', lat, lon, e)
                 logging.exception(traceback.format_exc())
+            if i < len(grid) - 1:
+                time.sleep(REQUEST_DELAY_SECONDS)
         return list(stores.values())
 
     def process(self):
