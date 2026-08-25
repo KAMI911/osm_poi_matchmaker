@@ -26,6 +26,7 @@ except ImportError as err:
 
 
 class hu_volanbusz(DataProvider):
+    """Imports Volánbusz bus stop locations in Hungary from Volánbusz's GTFS feed."""
 
     def contains(self):
         self.link = 'https://gtfs.kti.hu/public-gtfs/volanbusz_gtfs.zip'

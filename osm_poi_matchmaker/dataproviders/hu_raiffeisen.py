@@ -42,6 +42,7 @@ RAIFFEISEN_KERULET_RE = re.compile(r'\s+[IVXLCDM]+\.\s*ker[üu]let,?', re.IGNORE
 
 
 class hu_raiffeisen(DataProvider):
+    """Imports Raiffeisen Bank branch and ATM locations in Hungary from Raiffeisen's Liferay portlet backend."""
 
     def contains(self):
         self.link = RAIFFEISEN_ADDRESSES_URL.format('BRANCH')

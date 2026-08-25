@@ -24,6 +24,7 @@ PATTERN_SPAR_REF = re.compile('\((.*?)\)')
 
 
 class hu_spar(DataProvider):
+    """Imports Spar Expressz convenience store locations in Hungary from spar.hu's store JSON feed."""
 
     def contains(self):
         self.link = 'https://www.spar.hu/uzletek/_jcr_content.stores.v2'

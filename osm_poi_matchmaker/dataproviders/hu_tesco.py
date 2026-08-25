@@ -53,6 +53,13 @@ DAY_ORDER = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY',
 
 
 class hu_tesco(DataProvider):
+    """Imports Tesco Expressz/Hypermarket/Supermarket locations in Hungary from Tesco's Yext-powered store search API.
+
+    Uses curl_cffi with Firefox TLS/HTTP2 impersonation to get past Akamai's TLS-fingerprint
+    block (plain requests/urllib3 gets a 403 regardless of headers or IP). The search API is
+    always nearest-point-within-~25km rather than bounds-based, so process() queries a grid of
+    points covering Hungary and deduplicates results by branch id.
+    """
 
     def contains(self):
         self.link = SEARCH_URL

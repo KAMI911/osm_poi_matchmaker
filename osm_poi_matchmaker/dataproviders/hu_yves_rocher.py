@@ -21,6 +21,11 @@ except ImportError as err:
 
 
 class hu_yves_rocher(DataProvider):
+    """Imports Yves Rocher cosmetics store locations in Hungary.
+
+    Currently disabled: self.link is left empty (see the commented-out storelocator URL
+    below), so process() has no data source to fetch.
+    """
 
     def contains(self):
         self.link = '' # 'https://storelocator.yves-rocher.eu/api/v1/map/stores'

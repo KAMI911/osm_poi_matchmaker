@@ -31,6 +31,7 @@ MAX_SPLIT_DEPTH = 6
 
 
 class hu_shell(DataProvider):
+    """Imports Shell fuel station locations in Hungary from Shell's station-locator API."""
 
     def contains(self):
         self.link = BASE_URL

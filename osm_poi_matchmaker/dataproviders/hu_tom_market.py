@@ -22,6 +22,7 @@ except ImportError as err:
 company_types = [' e.v.', ' ev.', ' kft.', ' KFT', ' bt.', ' bt']
 
 class hu_tom_market(DataProvider):
+    """Imports Tom Market convenience store locations in Hungary from tommarket.hu's WP Store Locator AJAX endpoint."""
 
     def contains(self):
         self.link = 'https://tommarket.hu/wp-admin/admin-ajax.php?action=asl_load_stores&asl_lang=&lang=hu_HU&load_all=1&layout=1'

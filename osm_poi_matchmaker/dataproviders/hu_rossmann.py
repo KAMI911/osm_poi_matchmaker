@@ -45,6 +45,7 @@ query stores {
 
 
 class hu_rossmann(DataProvider):
+    """Imports Rossmann drugstore locations in Hungary from Rossmann's GraphQL API."""
 
     def contains(self):
         self.link = GRAPHQL_URL
