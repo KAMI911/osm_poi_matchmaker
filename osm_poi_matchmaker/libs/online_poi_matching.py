@@ -49,6 +49,37 @@ def init_matcher_worker():
 
 
 def online_poi_matching(args):
+    """STAGE 8's per-chunk matcher worker: for every harvested POI in `data`, search
+    the local OSM database for an existing match and either enrich the row with that
+    OSM element's data, or (if nothing matched) mark it as a new POI. Runs as one
+    multiprocessing.Pool task per chunk - see create_db.py's start_matcher(), which
+    splits the full dataset into NUMBER_OF_PROCESSES * 8 chunks and creates the pool
+    with init_matcher_worker() so each worker process reuses one DB connection
+    across every chunk it's given, rather than opening a new one per chunk.
+
+    Per row, roughly:
+      1. db.query_osm_shop_poi_gpd() searches for a matching OSM POI by
+         name/type/address/distance thresholds from row.osm_search_distance_*.
+      2. If found: copy the OSM element's id/coordinates/version/etc. onto the row,
+         refine the postcode/housenumber/city/street from OSM data where allowed
+         (see smart_postcode_check()), and download the element's live tags from the
+         OSM API (way_get/node_get/relation_get), caching them in POI_OSM_cache.
+      3. If not found: mark the row as poi_new=True, try to snap its coordinates
+         onto a nearby building with the same address
+         (db.query_osm_building_poi_gpd()), and resolve its postcode the same way.
+      4. Any row-level exception sets data['match_error'] and is logged, without
+         aborting the rest of the chunk.
+
+    Args:
+        args (tuple[pd.DataFrame, pd.DataFrame]): (data, comm_data) - the chunk of
+            harvested POI rows to match, and the full poi_common table (for looking
+            up each row's poi_type by poi_common_id).
+
+    Returns:
+        pd.DataFrame | None: `data`, mutated in place with match results (osm_id,
+        osm_node, poi_new, match_error, refined address fields, ...), or None if an
+        exception escaped the per-row try/except (logged either way).
+    """
     data, comm_data = args
     if 'osm_nodes' not in data.columns:
         data['osm_nodes'] = None
@@ -492,6 +523,19 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
 
 
 def ordered_postcode_check(postcode_list) -> str:
+    """Return the first usable (non-None, non-zero) postcode from a priority-ordered
+    list. Used by smart_postcode_check() to pick between the OSM DB postcode, the
+    live OSM query postcode and the data provider's postcode, in that preference
+    order.
+
+    Args:
+        postcode_list: Candidates in priority order, e.g.
+            [osm_db_postcode, osm_query_postcode, current_postcode].
+
+    Returns:
+        str | None: The first candidate that isn't None, 0 or '0', stringified; None
+        if every candidate was unusable.
+    """
     for postcode in postcode_list:
         if postcode is not None and postcode != 0 and postcode != '0':
             return str(postcode)
