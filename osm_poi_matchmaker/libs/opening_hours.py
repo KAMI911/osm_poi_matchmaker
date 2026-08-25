@@ -13,11 +13,26 @@ except ImportError as err:
 
 
 class OpeningHours(object):
+    """Turn 28 per-day open/close (+ optional summer open/close) time values into a
+    single OSM opening_hours string, merging consecutive days with identical hours
+    into ranges (e.g. 'Mo-Fr 08:00-18:00; Sa 08:00-12:00')."""
 
     def __init__(self, non_stop, mo_o, tu_o, we_o, th_o, fr_o, sa_o, su_o, mo_c, tu_c, we_c, th_c,
                  fr_c, sa_c, su_c, summer_mo_o, summer_tu_o, summer_we_o, summer_th_o, summer_fr_o,
                  summer_sa_o, summer_su_o, summer_mo_c, summer_tu_c, summer_we_c, summer_th_c,
                  summer_fr_c, summer_sa_c, summer_su_c, lb_start, lb_stop, public_holiday_open=None):
+        """Build the internal per-weekday table used by process().
+
+        Args:
+            non_stop (bool): If True, process() always returns '24/7' (+ PH suffix).
+            mo_o..su_c (str | None): Regular open/close time per weekday, e.g. '08:00'.
+            summer_mo_o..summer_su_c (str | None): Summer-season open/close per
+                weekday (currently stored but not read by process()).
+            lb_start (str | None): Lunch break start time, e.g. '12:00'.
+            lb_stop (str | None): Lunch break end time, e.g. '12:30'.
+            public_holiday_open (bool | None): True appends '; PH open', False
+                appends '; PH off', None omits any PH suffix.
+        """
         self.__non_stop = non_stop
         self.opening_hours = {'mo': [mo_o, mo_c, summer_mo_o, summer_mo_c, 0],
                               'tu': [tu_o, tu_c, summer_tu_o, summer_tu_c, 1],
@@ -44,6 +59,8 @@ class OpeningHours(object):
 
     @property
     def nonstop(self):
+        """bool: Whether process() should short-circuit to '24/7' regardless of the
+        per-day table."""
         return self.__non_stop
 
     @nonstop.setter
@@ -52,6 +69,8 @@ class OpeningHours(object):
 
     @property
     def public_holiday_open(self):
+        """bool | None: PH suffix mode for process() - True='; PH open',
+        False='; PH off', None=no suffix."""
         return self.__public_holiday_open
 
     @public_holiday_open.setter
@@ -95,6 +114,17 @@ class OpeningHours(object):
         self.__lunch_break_stop = value
 
     def process(self):
+        """Build the OSM opening_hours string from the per-day table set up in
+        __init__: groups consecutive weekdays with identical open/close times into
+        day ranges (e.g. 'Mo-Fr'), lists non-consecutive matches comma-separated,
+        inserts the lunch-break split if lunch_break_start/stop are set, and appends
+        the public-holiday suffix.
+
+        Returns:
+            str | None: '24/7' (+ PH suffix) if nonstop is True or every day resolves
+            to Mo-Su 00:00-24:00; the built opening_hours string; or None if no day
+            had both an open and a close time set.
+        """
         oh = ''
         oh_list = []
         for row in self.df_dup.itertuples():
