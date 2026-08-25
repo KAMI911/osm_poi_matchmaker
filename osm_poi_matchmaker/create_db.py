@@ -31,6 +31,7 @@ try:
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.libs.osm_prepare import index_osm_data
     from osm_poi_matchmaker.utils.memory_info import MemoryInfo
+    from osm_poi_matchmaker.utils.log_context import ProviderLogFilter
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -46,8 +47,15 @@ PROCESS_DIVIDER = 1
 
 
 def init_log():
-    """Configure the logging subsystem from the 'log.conf' file in the current working directory."""
+    """Configure the logging subsystem from the 'log.conf' file in the current working directory.
+
+    Also attaches ProviderLogFilter to the root logger, so every log line (including
+    ones from shared library code called on a provider's behalf) can be tagged with
+    the data provider currently being harvested - see log.conf's %(provider)s and
+    utils/log_context.py. This must happen before start_poi_harvest() creates its
+    multiprocessing.Pool, so forked workers inherit the filter."""
     logging.config.fileConfig('log.conf')
+    logging.getLogger().addFilter(ProviderLogFilter())
 
 
 def import_basic_data(session):

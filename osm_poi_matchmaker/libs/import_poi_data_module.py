@@ -14,6 +14,7 @@ try:
         POI_patch
     from osm_poi_matchmaker.utils import config, dataproviders_loader
     from osm_poi_matchmaker.dao.data_handlers import insert_type, get_or_create
+    from osm_poi_matchmaker.utils.log_context import set_current_provider, clear_current_provider
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -42,6 +43,7 @@ def import_poi_data_module(module: str) -> dict:
             stats[key] += one.get(key, 0)
 
     try:
+        set_current_provider(module.strip())
         db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                                   config.get_database_writer_password(),
                                                   config.get_database_writer_host(),
@@ -97,6 +99,8 @@ def import_poi_data_module(module: str) -> dict:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
         return {'module': module, 'error': str(e), **stats}
+    finally:
+        clear_current_provider()
 
 
 def delete_poi_tables(db: POIBase) -> None:

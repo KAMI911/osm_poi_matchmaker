@@ -121,8 +121,14 @@ def get_config_list(key):
 
 
 def init_log():
-    """Configure the logging module from log.conf (fileConfig-style)."""
+    """Configure the logging module from log.conf (fileConfig-style).
+
+    Also attaches ProviderLogFilter to the root logger - see log.conf's
+    %(provider)s and utils/log_context.py - so log lines can be tagged with
+    the data provider currently being harvested."""
+    from osm_poi_matchmaker.utils.log_context import ProviderLogFilter
     logging.config.fileConfig("log.conf")
+    logging.getLogger().addFilter(ProviderLogFilter())
 
 
 # The get_*() functions below all follow the same pattern: read the setting from
