@@ -27,6 +27,16 @@ class POIBase:
     """
 
     def __init__(self, db_connection, retry_counter=100, retry_sleep=30):
+        """Open the SQLAlchemy engine/session, retrying once after retry_sleep seconds
+        if the initial connection attempt raises a psycopg2.OperationalError, and
+        create any missing tables declared in dao/data_structure.py's Base metadata.
+
+        :param db_connection: Either a SQLAlchemy database URL, or a bare filename
+            (which gets wrapped as 'sqlite:///<filename>').
+        :param retry_counter: Max number of reconnect attempts (not currently looped;
+            only one retry is actually performed, see the code below).
+        :param retry_sleep: Seconds to sleep before the single retry attempt.
+        """
         reco = 0  # Actual retry counter
         self.db_retry_counter = retry_counter
         self.db_retry_sleep = retry_sleep
@@ -62,16 +72,22 @@ class POIBase:
 
     @property
     def pool(self):
+        """The underlying SQLAlchemy engine (also usable as a connection pool)."""
         return self.engine
 
     @property
     def session(self):
+        """A new scoped session bound to this engine. Prefer this (or connection())
+        over reusing self.one_session directly."""
         return self.session_object()
 
     def connection(self):
+        """Open a new raw SQLAlchemy connection. Callers are expected to use this in
+        a `with` block so the connection is closed automatically."""
         return self.engine.connect()
 
     def __del__(self):
+        """Close the session and dispose of the engine's connection pool on GC."""
         if self.one_session:
             self.one_session.close()
             self.engine.dispose()
@@ -127,6 +143,14 @@ class POIBase:
         return data
 
     def query_from_cache(self, node_id, object_type):
+        """Look up a previously cached OSM live-tag record for this element (see
+        dao/data_structure.py's POI_OSM_cache), avoiding a redundant osmapi call.
+
+        :param node_id: OSM element id. IDs <= 0 (locally-assigned negative ids for
+            new/unmatched POIs) always return None.
+        :param object_type: OSM_object_type enum member (node/way/relation).
+        :return: The cached row as a dict, or None if nothing is cached for this element.
+        """
         if node_id > 0:
             query = sqlalchemy.text(
                 'select * from poi_osm_cache where osm_id = :node_id and osm_object_type = :object_type limit 1')
@@ -141,6 +165,12 @@ class POIBase:
             return None
 
     def query_ways_nodes(self, way_id):
+        """Look up the ordered node id list of an OSM way from the osm2pgsql-imported
+        planet_osm_ways table.
+
+        :param way_id: OSM way id. IDs <= 0 always return None.
+        :return: The way's 'nodes' array (list of node ids), or None if way_id <= 0.
+        """
         if way_id > 0:
             query = sqlalchemy.text('select nodes from planet_osm_ways where id = :way_id limit 1')
             with self.connection() as conn:
@@ -150,6 +180,13 @@ class POIBase:
             return None
 
     def query_relation_nodes(self, relation_id):
+        """Look up the member list of an OSM relation from the osm2pgsql-imported
+        planet_osm_rels table.
+
+        :param relation_id: OSM relation id. abs() is applied, so negative
+            (locally-assigned) ids are also accepted.
+        :return: The relation's 'members' array.
+        """
         query = sqlalchemy.text('select members from planet_osm_rels where id = :relation_id limit 1')
         with self.connection() as conn:
             data = pd.read_sql(query, conn, params={'relation_id': int(abs(relation_id))})
@@ -869,6 +906,15 @@ class POIBase:
             return data
 
     def query_poi_in_water(self, lon, lat):
+        """Check whether a point falls on (or within 1m of) an OSM water/waterway
+        polygon - used to catch POIs whose coordinates were placed in a river/lake
+        by mistake.
+
+        :param lon: Longitude of the point to check.
+        :param lat: Latitude of the point to check.
+        :return: A one-row GeoDataFrame of the matching water polygon if the point is
+            in water, an empty GeoDataFrame if not, or None if the query raised.
+        """
         distance = 1
         try:
             query = sqlalchemy.text('''
