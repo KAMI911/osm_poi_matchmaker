@@ -6,6 +6,7 @@ try:
     import os
     import json
     import time
+    import random
     import traceback
     import requests
     from osm_poi_matchmaker.utils import config
@@ -34,8 +35,10 @@ HU_BBOX = ((45.7, 16.0), (48.6, 22.9))  # (lat, lon) sw, ne - same country box a
 GRID_STEP_LAT = 0.3   # ~33 km
 GRID_STEP_LON = 0.45  # ~33 km at this latitude
 # Be polite (and avoid tripping Akamai bot detection with a request burst): pause between
-# grid-point requests instead of hammering the endpoint 160 times back-to-back.
-REQUEST_DELAY_SECONDS = 0.5
+# grid-point requests instead of hammering the endpoint 160 times back-to-back. Jittered so the
+# pacing doesn't look like an obvious bot pattern either.
+REQUEST_DELAY_MIN_SECONDS = 0.4
+REQUEST_DELAY_MAX_SECONDS = 1.1
 REQUEST_HEADERS = {
     'Accept': 'application/json, text/javascript, */*; q=0.01',
     'X-Requested-With': 'XMLHttpRequest',
@@ -142,7 +145,7 @@ class hu_tesco(DataProvider):
                 logging.exception('Exception occurred while fetching Tesco grid point %s,%s: %s', lat, lon, e)
                 logging.exception(traceback.format_exc())
             if i < len(grid) - 1:
-                time.sleep(REQUEST_DELAY_SECONDS)
+                time.sleep(random.uniform(REQUEST_DELAY_MIN_SECONDS, REQUEST_DELAY_MAX_SECONDS))
         return list(stores.values())
 
     def process(self):
