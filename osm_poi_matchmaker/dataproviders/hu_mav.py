@@ -7,6 +7,7 @@ try:
     import re
     import json
     import traceback
+    import pandas as pd
     from timeit import default_timer as timer
     from datetime import timedelta
     from bs4 import BeautifulSoup
@@ -48,7 +49,7 @@ class hu_mav(DataProvider):
              'poi_tags': humavstart, 'poi_url_base': 'https://www.mavcsoport.hu',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 10, 'preserve_original_name': True, 'additional_ref_name': 'ref:mav',
-             'do_not_export_addr_tags': True },
+             'gtfs_feed_id': 'HU-MAV', 'do_not_export_addr_tags': True },
         ]
         return self.__types
 
@@ -90,6 +91,13 @@ class hu_mav(DataProvider):
                     self.data.name = stop.stop_name.strip()
                     self.data.code = 'humavstart'
                     self.data.poi_additional_ref = clean_string(stop.stop_id)
+                    # As of the current MAV GTFS feed every stop has location_type=0 and no
+                    # parent_station (no station/platform hierarchy), so this is currently a
+                    # no-op - kept for when/if that changes, mirroring hu_volanbusz.py.
+                    if pd.notna(stop.parent_station):
+                        self.data.gtfs_parent_station = clean_string(stop.parent_station)
+                        self.data.gtfs_location_type = clean_string(stop.location_type) \
+                            if pd.notna(stop.location_type) else '0'
                     self.data.lat, self.data.lon = check_hu_boundary(stop.stop_lat, stop.stop_lon)
                     self.data.original = clean_string('id={} lat={} lon={} name={}'.format(
                         stop.stop_id,

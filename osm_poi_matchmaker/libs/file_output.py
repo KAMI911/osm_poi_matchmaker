@@ -638,6 +638,16 @@ def generate_osm_xml(df, session=None):
                         and has_value(row.poi_additional_ref):
                     tags[row.additional_ref_name] = row.poi_additional_ref
                     logging.debug('Add %s tag with additional ref name.', row.additional_ref_name)
+
+                # GTFS conflation extras (parent stop/platform hierarchy) - only meaningful
+                # together with a feed id (POI_common.gtfs_feed_id, e.g. 'HU-VOLAN'); real OSM
+                # data only carries these on child platform stops (i.e. where a parent_station
+                # is set), not on the parent station itself.
+                if has_value(row.gtfs_feed_id) and has_value(row.poi_gtfs_parent_station):
+                    tags['gtfs:parent_station:{}'.format(row.gtfs_feed_id)] = row.poi_gtfs_parent_station
+                    if has_value(row.poi_gtfs_location_type):
+                        tags['gtfs:location_type:{}'.format(row.gtfs_feed_id)] = row.poi_gtfs_location_type
+                    logging.debug('Add gtfs:parent_station/location_type tags for feed %s.', row.gtfs_feed_id)
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())

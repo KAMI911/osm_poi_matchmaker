@@ -162,6 +162,12 @@ class POI_address_raw(Base):
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_updated = Column(DateTime(True))
     poi_deleted = Column(DateTime(True))
+    # GTFS conflation extras (e.g. Volanbusz's parent_station/location_type stop hierarchy)
+    # written as gtfs:parent_station:<feed>/gtfs:location_type:<feed> tags - see POI_common's
+    # gtfs_feed_id, which supplies the <feed> part. Declared last to match the physical column
+    # order the live DB already has these appended in (ALTER TABLE ADD COLUMN always appends).
+    poi_gtfs_parent_station = Column(Unicode(64))
+    poi_gtfs_location_type = Column(Unicode(4))
 
     common = relationship('POI_common', primaryjoin='POI_address_raw.poi_common_id == POI_common.pc_id',
                           backref='poi_address_raw')
@@ -300,6 +306,8 @@ class POI_address(Base):
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_updated = Column(DateTime(True))
     poi_deleted = Column(DateTime(True))
+    poi_gtfs_parent_station = Column(Unicode(64))
+    poi_gtfs_location_type = Column(Unicode(4))
     common = relationship('POI_common', primaryjoin='POI_address.poi_common_id == POI_common.pc_id',
                           backref='poi_address')
     city = relationship('City', primaryjoin='POI_address.poi_addr_city == City.city_id', backref='poi_address')
@@ -348,7 +356,11 @@ class POI_common(Base):
     osm_search_distance_perfect = Column(Integer, nullable=True, index=False)
     osm_search_distance_safe = Column(Integer, nullable=True, index=False)
     osm_search_distance_unsafe = Column(Integer, nullable=True, index=False)
-    additional_ref_name = Column(Unicode(16), nullable=True, index=False)
+    additional_ref_name = Column(Unicode(32), nullable=True, index=False)
+    # GTFS feed id (e.g. 'HU-VOLAN') used to compose gtfs:parent_station:<feed> and
+    # gtfs:location_type:<feed> tags from poi_gtfs_parent_station/poi_gtfs_location_type
+    # (POI_address_raw) at export time - see file_output.py.
+    gtfs_feed_id = Column(Unicode(16), nullable=True, index=False)
 
     def __repr__(self):
         return '<POI common {}: {}>'.format(self.pc_id, self.poi_common_name)
