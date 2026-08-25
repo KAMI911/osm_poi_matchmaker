@@ -22,6 +22,7 @@ except ImportError as err:
 
 
 class hu_ccc(DataProvider):
+    """Imports CCC shoe store locations in Hungary from CCC's store-configuration API."""
     
     def contains(self):
         # The old page (ccc.eu/hu/sklepy) redirects to ccc.eu/hu/hu/uzletek, an Angular SPA that no
@@ -42,9 +43,9 @@ class hu_ccc(DataProvider):
             'contact:email': 'info.hu@ccc.eu',
             'contact:phone': '+36 1 445 3701',
             'contact:linkedin': 'https://www.linkedin.com/company/cccsa',
-            'contact:facebook': 'https://www.facebook.com/CCC.Hungary/',
+            'contact:facebook': 'CCC.Hungary',
             'contact:youtube': 'https://www.youtube.com/channel/UCVscWDmL_2JddDdGuku7f2w',
-            'contact:instagram': 'https://www.instagram.com/cccshoesbags_hu/',
+            'contact:instagram': 'cccshoesbags_hu',
             'air_conditioning': 'yes'
         }
         self.filetype = FileType.json

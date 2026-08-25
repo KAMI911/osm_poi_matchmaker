@@ -23,6 +23,9 @@ def _write_osm_and_geojson(output_dir, filename, rows):
 
 
 def export_raw_poi_data(addr_data, comm_data, postfix=''):
+    """Save the full (ungrouped) POI and common-type dataframes as CSV files
+    (poi_address{postfix}.csv, poi_common{postfix}.csv) - not filtered by
+    matched/new status, unlike export_new_poi_data()/export_existing_poi_data()."""
     try:
         logging.info('Exporting CSV files ...')
         # And merge and them into one Dataframe and save it to a CSV file
@@ -34,6 +37,8 @@ def export_raw_poi_data(addr_data, comm_data, postfix=''):
 
 
 def export_raw_poi_data_xml(addr_data, postfix=''):
+    """Save the full (ungrouped) POI dataframe as one OSM XML file
+    (poi_address{postfix}.osm)."""
     try:
         with open(os.path.join(config.get_directory_output(), 'poi_address{}.osm'.format(postfix)), 'wb') as oxf:
             oxf.write(generate_osm_xml(addr_data))
@@ -43,6 +48,8 @@ def export_raw_poi_data_xml(addr_data, postfix=''):
 
 
 def export_raw_poi_data_geojson(addr_data, postfix=''):
+    """Save the full (ungrouped) POI dataframe as one GeoJSON file
+    (poi_address{postfix}.geojson)."""
     try:
         geojson_path = os.path.join(config.get_directory_output(), 'poi_address{}.geojson'.format(postfix))
         logging.info('Saving GeoJSON to file: poi_address%s.geojson', postfix)
@@ -55,6 +62,14 @@ def export_raw_poi_data_geojson(addr_data, postfix=''):
 
 
 def export_grouped_poi_data(data):
+    """Save one poi_code's rows as CSV, OSM XML and GeoJSON files. Used as the
+    per-group worker function for the multiprocessing pool in
+    create_db.py's WorkflowManager.start_exporter().
+
+    Args:
+        data (list): [output_dir, filename (without extension), rows (DataFrame),
+            table name to log (e.g. 'poi_address')].
+    """
     try:
         # Generating CSV, OSM XML and GeoJSON files grouped by poi_code
         output_dir = data[0]
@@ -148,6 +163,14 @@ def export_grouped_poi_data_existing(data):
 
 
 def export_grouped_poi_data_with_postcode_groups(data):
+    """Split one poi_code's rows (pre-sorted by postcode) into postcode-ordered
+    chunks and save each as its own OSM XML file, so no single file gets too large
+    for e.g. manual JOSM review. Only runs if there are more than 100 rows total.
+
+    Args:
+        data (list): [output_dir, filename prefix (without extension), rows
+            (DataFrame with a poi_postcode column)].
+    """
     try:
         # Generating CSV files group by poi_code and postcode
         output_dir = data[0]

@@ -22,6 +22,7 @@ except ImportError as err:
 
 
 class hu_fire_station(DataProvider):
+    """Imports professional fire station locations in Hungary, scraped from the National Directorate for Disaster Management site."""
 
     def contains(self):
         self.link = 'https://www.katasztrofavedelem.hu/33856/tuzoltosagok-elhelyezkedese'

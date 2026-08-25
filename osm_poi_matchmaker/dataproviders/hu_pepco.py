@@ -26,11 +26,12 @@ WEEKDAY_INDEX = {'monday': 0, 'tuesday': 1, 'wednesday': 2, 'thursday': 3,
 
 
 class hu_pepco(DataProvider):
+    """Imports Pepco clothing store locations in Hungary from pepco.hu's stores API."""
 
     def contains(self):
         self.link = 'https://pepco.hu/api/stores?market=HU'
         self.tags = {'shop': 'clothes', 'brand': 'Pepco', 'brand:wikidata': 'Q11815580',
-                     'brand:wikipedia': 'pl:Pepco', 'contact:facebook': 'https://www.facebook.com/pepcohu/',
+                     'brand:wikipedia': 'pl:Pepco', 'contact:facebook': 'pepcohu',
                      'contact:website': 'https://pepco.hu/',
                      'contact:linkedin': 'https://www.linkedin.com/company/pepco-poland',
                      'contact:phone': '+36 1 701 0424', 'contact:email': 'ugyfelszolgalat@pepco.eu',

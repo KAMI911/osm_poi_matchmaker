@@ -21,6 +21,7 @@ except ImportError as err:
 
 
 class hu_omv(DataProvider):
+    """Imports OMV fuel station locations in Hungary from OMV's Wigeogis-hosted station finder."""
 
     def contains(self):
         self.link = 'https://app.wigeogis.com/kunden/omv/data/getresults.php'
@@ -30,10 +31,10 @@ class hu_omv(DataProvider):
                      'brand:operator:addr': '1117 Budapest, Október huszonharmadika utca 6-10 5. emelet 5/A.',
                      'ref:HU:vatin': '10542925-2-44', 'ref:vatin': 'HU10542925',
                      'ref:HU:company': '01-09-071584', 'contact:email': 'info.hungary@omv.com',
-                     'contact:facebook': 'https://www.facebook.com/omvmagyarorszag',
+                     'contact:facebook': 'omvmagyarorszag',
                      'contact:fax': '+36 1 381 9899', 'contact:twitter': 'omv',
                      'contact:linkedin': 'https://www.linkedin.com/company/omv',
-                     'contact:instagram': 'https://www.instagram.com/omv/',
+                     'contact:instagram': 'omv',
                      'contact:youtube': 'https://www.youtube.com/user/omvofficial'}
         self.post = {'BRAND': 'OMV', 'CTRISO': 'HUN', 'MODE': 'NEXTDOOR', 'ANZ': '5',
                      'HASH': '23126a64295e2cf2a5e41f33fd4b0c416e09b0b8', 'TS': '1583951283'}

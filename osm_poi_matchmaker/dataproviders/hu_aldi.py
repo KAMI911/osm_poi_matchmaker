@@ -20,6 +20,7 @@ except ImportError as err:
 
 
 class hu_aldi(DataProvider):
+    """Imports Aldi supermarket locations in Hungary from the Uberall store-finder API."""
 
     def contains(self):
         # The old storefront endpoint (www.aldi.hu/.../.get-stores-in-radius.json) is gone. The site
@@ -35,9 +36,9 @@ class hu_aldi(DataProvider):
                      'ref:HU:vatin': '22234663-2-44', 'ref:vatin': 'HU22234663',
                      'ref:HU:company': '13-06-058506',
                      'brand:wikipedia': 'hu:Aldi', 'brand:wikidata': 'Q41171672', 'operator:wikidata': 'Q61299364',
-                     'contact:facebook': 'https://www.facebook.com/ALDI.Magyarorszag',
+                     'contact:facebook': 'ALDI.Magyarorszag',
                      'contact:youtube': 'https://www.youtube.com/user/ALDIMagyarorszag',
-                     'contact:instagram': 'https://www.instagram.com/aldi.magyarorszag',
+                     'contact:instagram': 'aldi.magyarorszag',
                      'air_conditioning': 'yes', }
         self.tags.update(POS_HU_GEN)
         self.tags.update(PAY_CASH)

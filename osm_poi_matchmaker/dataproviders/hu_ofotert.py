@@ -33,6 +33,7 @@ API_URL = 'https://www.ofotert.hu/hu/api/store-locator'
 
 
 class hu_ofotert(DataProvider):
+    """Imports Ofotért optician store locations in Hungary from Ofotért's store API."""
 
 
     def contains(self):
@@ -41,7 +42,7 @@ class hu_ofotert(DataProvider):
                      'operator:addr': '1113 Budapest, Bocskai út 134-146.', 'ref:HU:vatin': '12142143-2-44',
                      'ref:vatin': 'HU12142143', 'ref:HU:company': '01-09-468765', 'brand': 'Ofotért',
                      'contact:email': 'vevoszolgalat@ofotert.hu',
-                     'contact:facebook': 'https://www.facebook.com/ofotert',
+                     'contact:facebook': 'ofotert',
                      'contact:youtube': 'https://www.youtube.com/user/ofoterthu',
                      'air_conditioning': 'yes'}
         self.filetype = FileType.json
@@ -56,6 +57,7 @@ class hu_ofotert(DataProvider):
             {'poi_code': 'ofoteopt', 'poi_common_name': 'Ofotért', 'poi_type': 'optician',
              'poi_tags': huofoteopt, 'poi_url_base': 'https://www.ofotert.hu', 'poi_search_name': 'ofotért',
              'poi_search_avoid_name': '(vision)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 50},
         ]

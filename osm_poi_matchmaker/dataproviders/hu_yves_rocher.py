@@ -21,15 +21,20 @@ except ImportError as err:
 
 
 class hu_yves_rocher(DataProvider):
+    """Imports Yves Rocher cosmetics store locations in Hungary.
+
+    Currently disabled: self.link is left empty (see the commented-out storelocator URL
+    below), so process() has no data source to fetch.
+    """
 
     def contains(self):
         self.link = '' # 'https://storelocator.yves-rocher.eu/api/v1/map/stores'
         self.tags = {'shop': 'cosmetics', 'operator': 'Yves Rocher Hungary Kft. ',
                      'brand': 'Yves Rocher', 'brand:wikidata': 'Q28496595',
                      'brand:wikipedia': 'en:Yves Rocher (company)', 'contact:email': 'vevoszolgalat@yrnet.com',
-                     'contact:facebook': 'https://www.facebook.com/YvesRocherHungary/',
+                     'contact:facebook': 'YvesRocherHungary',
                      'contact:youtube': 'https://www.youtube.com/channel/UC6GA7lucPWgbNlC_MoomB9g',
-                     'contact:instagram': 'https://www.instagram.com/yves_rocher_magyarorszag/',
+                     'contact:instagram': 'yves_rocher_magyarorszag',
                      'operator:addr': '1132 Budapest, Váci út 20-26.', 'ref:vatin': 'HU10618646',
                      'ref:HU:vatin': '10618646-2-41', 'ref:HU:company': '01-09-079930', 'air_conditioning': 'yes'}
         self.filetype = FileType.json

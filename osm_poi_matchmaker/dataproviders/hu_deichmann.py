@@ -23,6 +23,12 @@ except ImportError as err:
 
 
 class hu_deichmann(DataProvider):
+    """Imports Deichmann shoe store locations in Hungary from a locally cached JSON file.
+
+    Live fetching from Deichmann's storefinder API is disabled (see the commented-out
+    self.link below) because that endpoint is behind Akamai bot protection that this
+    project's plain HTTP client cannot pass; a manually-saved snapshot is read instead.
+    """
 
     def contains(self):
         # self.link = 'https://www.deichmann.com/hu-hu/rest/v2/deichmann-hu/mosaic/stores?latitude=47.6874569&longitude=17.6503974&pageSize=10000&radius=1000000&fields=FULL&format=json&lang=hu_HU'
@@ -32,9 +38,9 @@ class hu_deichmann(DataProvider):
                      'ref:vatin': 'HU12583083', 'ref:HU:company': '01-09-693582', 'brand': 'Deichmann', 'brand:wikidata': 'Q11788344',
                      'brand:wikipedia': 'hu:Deichmann', 'contact:email': 'ugyfelszolgalat@deichmann.com',
                      'contact:phone': '+36 80 840 840',
-                     'contact:facebook': 'https://www.facebook.com/Deichmann.HU/',
+                     'contact:facebook': 'Deichmann.HU',
                      'contact:youtube': 'https://www.youtube.com/user/Deichmann/',
-                     'contact:instagram': 'https://www.instagram.com/deichmannhu/',
+                     'contact:instagram': 'deichmannhu',
                      'contact:tiktok': 'https://www.tiktok.com/@deichmann',
                      'contact:pinterest': 'https://www.pinterest.de/deichmannde/',
                      'contact:linkedin': 'https://de.linkedin.com/company/deichmann',

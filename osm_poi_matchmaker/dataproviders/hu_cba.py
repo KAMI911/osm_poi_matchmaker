@@ -22,6 +22,7 @@ except ImportError as err:
 
 
 class hu_cba(DataProvider):
+    """Imports CBA convenience store locations in Hungary, scraped from cba.hu's store listing page."""
 
     def contains(self):
         self.link = 'http://www.cba.hu/uzletlista'

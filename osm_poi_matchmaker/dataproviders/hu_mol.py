@@ -23,6 +23,7 @@ POST_DATA = {'api': 'stations', 'input': 'HU',
 
 
 class hu_mol(DataProvider):
+    """Imports MOL fuel station locations in Hungary from MOL's station-finder API."""
 
     def contains(self):
         self.link = 'https://toltoallomaskereso.mol.hu/api.php'
@@ -34,9 +35,9 @@ class hu_mol(DataProvider):
         self.tags = {'brand': 'MOL', 'operator': 'MOL Nyrt.',
                      'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.',
                      'ref:HU:vatin': '10625790-4-44',
-                     'contact:facebook': 'https://www.facebook.com/mol.magyarorszag/',
+                     'contact:facebook': 'mol.magyarorszag',
                      'contact:youtube': 'https://www.youtube.com/user/molgrouptv',
-                     'contact:instagram': 'https://www.instagram.com/mol.magyarorszag/',
+                     'contact:instagram': 'mol.magyarorszag',
                      'brand:wikipedia': 'hu:MOL Magyar Olaj- és Gázipari Nyrt.', 'brand:wikidata': 'Q549181',
                      'ref:HU:company': '01-10-041683'}
         self.waterway_fuel = {'waterway': 'fuel'}

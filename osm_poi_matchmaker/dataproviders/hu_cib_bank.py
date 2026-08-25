@@ -19,6 +19,7 @@ except ImportError as err:
 
 
 class hu_cib_bank(DataProvider):
+    """Imports CIB Bank branch/ATM locations in Hungary from CIB's branch-finder feed."""
 
     def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
         self.session = session
@@ -54,7 +55,8 @@ class hu_cib_bank(DataProvider):
         ]
         return data
 
-    def process(self):
+    def process(self) -> dict:
+        stats = {'harvested': 0, 'harvest_errors': 0, 'db_inserted': 0, 'db_errors': 0}
         try:
             if self.link:
                 with open(self.link, 'r') as f:
@@ -81,13 +83,19 @@ class hu_cib_bank(DataProvider):
                                 data.original = clean_string(poi_data.get('fullAddress'))
                                 data.add()
                         except Exception as e:
+                            data.add_errors += 1
                             logging.exception('Exception occurred: {}'.format(e))
                             logging.exception(traceback.format_exc())
                             logging.exception(poi_data)
+                    stats['harvested'] = data.length()
+                    stats['harvest_errors'] = data.add_errors
                 if data is None or data.length() < 1:
                     logging.warning('Result set is empty. Skipping ...')
                 else:
-                    insert_poi_dataframe(self.session, data.process())
+                    insert_stats = insert_poi_dataframe(self.session, data.process())
+                    stats['db_inserted'] = insert_stats.get('inserted', 0)
+                    stats['db_errors'] = insert_stats.get('errors', 0)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
             logging.exception(traceback.format_exc())
+        return stats

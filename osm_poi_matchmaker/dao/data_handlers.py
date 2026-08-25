@@ -35,6 +35,15 @@ INTEGER_FIELDS = [
 ]
 
 def count(session, model):
+    """Count how many rows exist for a mapped model.
+
+    Args:
+        session: SQLAlchemy session.
+        model: A dao.data_structure ORM model class (must have an 'id' column/synonym).
+
+    Returns:
+        int: Row count.
+    """
     return session.query(model.id).count()
 
 
@@ -154,6 +163,17 @@ def normalize_geometry(geom):
 
 
 def sanitize_kwargs(kwargs):
+    """Replace NaN-like values (float NaN, or the literal string 'nan') with None.
+
+    Used before passing column values to SQLAlchemy, which would otherwise happily
+    write a literal NaN/'nan' into the database instead of a proper NULL.
+
+    Args:
+        kwargs (dict): Column name -> value mapping.
+
+    Returns:
+        dict: Same keys, with any NaN-like value replaced by None.
+    """
     clean = {}
     for key, value in kwargs.items():
         if value is None:
@@ -313,6 +333,26 @@ def get_or_create_poi(session, model, **kwargs):
 
 
 def search_poi_patch(session, model, **kwargs):
+    """Get or create a POI_patch row matching every given column exactly.
+
+    Not called anywhere in this codebase; poi_patch.tsv rows are matched against POI
+    data directly in libs/poi_patch.py instead, which has its own '*' wildcard
+    handling. The poi_common_id == '*' branch below sets kwargs['valami'] ('valami'
+    means 'something' in Hungarian) but nothing reads that key afterwards, so even if
+    called, it wouldn't actually treat '*' as a wildcard.
+
+    Args:
+        session: SQLAlchemy session.
+        model: Should be dao.data_structure.POI_patch.
+        **kwargs: Must include poi_common_id, poi_addr_city, poi_addr_street,
+            poi_addr_housenumber, poi_conscriptionnumber and poi_branch.
+
+    Returns:
+        The matching instance, or a newly created one if none matched.
+
+    Raises:
+        Exception: Re-raised if creating the new row fails.
+    """
     if kwargs.get('poi_common_id') == "*":
         kwargs['valami'] = "%"
 
@@ -630,6 +670,16 @@ def insert_street_type_dataframe(session: Session, street_df: pd.DataFrame):
 
 
 def insert_patch_data_dataframe(session: Session, patch_df: pd.DataFrame):
+    """Bulk-insert the poi_patch.tsv contents into the POI_patch table, skipping the
+    work entirely if the table already has as many rows as the dataframe (a cheap
+    'already imported' check rather than per-row dedup).
+
+    Args:
+        session: SQLAlchemy session.
+        patch_df (pd.DataFrame): Patch rows with 13 columns in the fixed order this
+            function assigns them (poi_code, orig_*, new_*) - see the column
+            assignment below.
+    """
     db_count = count(session, POI_patch)
     df_count = len(patch_df)
     logging.debug('poi patch db_count={} patch_count={}'.format(db_count, df_count))
@@ -723,6 +773,17 @@ def insert_country_data_dataframe(session: Session, country_df: pd.DataFrame) ->
 
 
 def insert_common_dataframe(session, common_df):
+    """Bulk-insert new POI_common rows from a dataframe, skipping any poi_code that
+    already exists.
+
+    Not called anywhere in this codebase; POI_common rows are created one at a time
+    instead, via insert_type() -> get_or_create_common().
+
+    Args:
+        session: SQLAlchemy session.
+        common_df: DataFrame with 4 columns in order: poi_common_name, poi_tags,
+            poi_url_base, poi_code.
+    """
     common_df.columns = ['poi_common_name', 'poi_tags', 'poi_url_base', 'poi_code']
     try:
         existing = {r.poi_code for r in session.query(POI_common.poi_code).all()}
@@ -781,7 +842,7 @@ def search_for_postcode(session: Session, city_name: str) -> str | None:
         session.commit()
 
 
-def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = True) -> None:
+def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = True) -> dict:
     """
     Inserts POI data from a DataFrame into the appropriate POI_address table.
 
@@ -791,7 +852,7 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
         raw (bool): If True, inserts into POI_address_raw; else into POI_address.
 
     Returns:
-        None
+        dict: {'inserted': int, 'errors': int, 'skipped': int} row counts for this call.
     """
     if raw:
         poi_df.columns = POI_COLS_RAW
@@ -809,10 +870,15 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
     if db_count == df_count:
         logging.debug(f'poi address raw={raw} dataframe count same as db row count, skipping processing data')
         session.close()
-        return
+        return {'inserted': 0, 'errors': 0, 'skipped': df_count}
 
-    try:
-        for poi_data in poi_dict:
+    inserted = 0
+    errors = 0
+    # Each row is committed independently (via get_or_create_poi) so one bad row (e.g. a
+    # provider bug producing a too-long field) can't roll back and discard every other row
+    # in the same batch - it's just counted as a failure and processing continues.
+    for poi_data in poi_dict:
+        try:
             city_col = session.query(City.city_id)\
                 .filter(City.city_name == poi_data.get('poi_city'))\
                 .filter(City.city_post_code == poi_data.get('poi_postcode'))\
@@ -836,25 +902,36 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
                 logging.warning(f"poi_addr_city has invalid type/value: {poi_data['poi_addr_city']}, converting to None")
                 poi_data['poi_addr_city'] = None
             get_or_create_poi(session, model, **poi_data)
+            inserted += 1
+        except Exception as e:
+            errors += 1
+            logging.exception(f'Exception occurred: {e} row skipped: {traceback.format_exc()}')
 
+    try:
+        session.commit()
+        logging.info(f'Successfully added {inserted} POI items to the dataset ({errors} failed).')
     except Exception as e:
-        logging.exception(f'Exception occurred: {e} rolled back: {traceback.format_exc()}')
+        logging.exception(f'Exception occurred during commit: {e} rolled back: {traceback.format_exc()}')
         session.rollback()
         raise
-
-    else:
-        try:
-            session.commit()
-            logging.info(f'Successfully added {len(poi_dict)} POI items to the dataset.')
-        except Exception as e:
-            logging.exception(f'Exception occurred during commit: {e} rolled back: {traceback.format_exc()}')
-            session.rollback()
-            raise
     finally:
         session.close()
 
+    return {'inserted': inserted, 'errors': errors, 'skipped': 0}
+
 
 def insert_type(session, type_data):
+    """Get-or-create a POI_common row for each POI type a provider declares.
+
+    Called once per provider, right after harvesting starts, as
+    `insert_type(session, work.types())` - see utils/data_provider.py and
+    libs/import_poi_data_module.py.
+
+    Args:
+        session: SQLAlchemy session.
+        type_data: List of poi type dicts, each unpacked as kwargs into
+            get_or_create_common() (see DataProvider.types() for the expected keys).
+    """
     try:
         for i in type_data:
             get_or_create_common(session, POI_common, **i)
@@ -872,6 +949,19 @@ def insert_type(session, type_data):
 
 
 def insert(session, **kwargs):
+    """Resolve a POI's city/common-type foreign keys, compute its dedup hash, and
+    get-or-create the resulting POI_address row.
+
+    Not called anywhere in this codebase; the actual harvest path
+    (insert_poi_dataframe() -> get_or_create_poi()) writes rows directly instead.
+
+    Args:
+        session: SQLAlchemy session.
+        **kwargs: POI_address column values. Must include poi_city, poi_postcode,
+            poi_code (removed before the insert - POI_address has no such column),
+            poi_addr_street, poi_addr_housenumber and poi_conscriptionnumber (used to
+            compute poi_hash).
+    """
     try:
         city_col = session.query(City.city_id).filter(City.city_name == kwargs['poi_city']).filter(
             City.city_post_code == kwargs['poi_postcode']).first()

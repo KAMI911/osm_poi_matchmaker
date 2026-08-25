@@ -28,8 +28,8 @@ PATTERN_HOUSENUMBER = re.compile(r'[0-9]{1,3}(/[A-Za-z]|-[0-9]{1,3}|)', re.IGNOR
 PATTERN_CONSCRIPTIONNUMBER = re.compile(
     r'(hrsz[.:]{0,2}\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?|\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?\s*hrsz[s.]?)',
     re.IGNORECASE)
-PATTERN_CONSCRIPTIONNUMBER_1 = re.compile(r'((?:belterület\s*)?hrsz[.:]{0,2}\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?)', re.IGNORECASE)
-PATTERN_CONSCRIPTIONNUMBER_2 = re.compile(r'(\s*([0-9]{2,6}(/[0-9]{1,3})?)[.]?\s*hrsz[s.]?)', re.IGNORECASE)
+PATTERN_CONSCRIPTIONNUMBER_1 = re.compile(r'((?:belterület\s*)?hrsz[.:]{0,2}\s*([0-9]{2,6}([/-][0-9]{1,6})?)[.]?)', re.IGNORECASE)
+PATTERN_CONSCRIPTIONNUMBER_2 = re.compile(r'(\s*([0-9]{2,6}([/-][0-9]{1,6})?)[.]?\s*hrsz[s.]?)', re.IGNORECASE)
 PATTERN_CONSCRIPTIONNUMBER_3 = re.compile(r'\d{4,}/\d+')  # treshold value (999+1) copied from https://github.com/vmiklos/osm-gimmisn/blob/9816d6eef7a06a53ee45b27ba3c504c72ac200e8/src/util.rs#L1116-L1117
 PATTERN_OPENING_HOURS = re.compile(r'0*[0-9]{1,2}:0*[0-9]{1,2}\s*-\s*0*[0-9]{1,2}:0*[0-9]{1,2}')
 PATTERN_PHONE = re.compile(r'[\/\\\(\)\-\+]')
@@ -51,6 +51,24 @@ MOBILE_HU_PHONE_NUMBERS = ('20', '30', '31', '50', '70',
 # Replacement tables defined at module level so they are built only once
 # instead of being recreated on every function call.
 CLEAN_CITY_REPLS = (('Mikolc', 'Miskolc'), ('Iinárcs', 'Inárcs'))
+
+# Issue #93: former independent towns/villages annexed into Greater Budapest in 1950
+# still show up as the "city" in source data (or OSM addr:city) instead of "Budapest",
+# which is what the Hungarian OSM community expects there. Unlike a typo (handled by
+# query_city_name_external's fuzzy City-table lookup), these are valid historical place
+# names, so they need an explicit mapping rather than fuzzy matching.
+BUDAPEST_DISTRICT_REPLS = (
+    ('Óbuda', 'Budapest'), ('Békásmegyer', 'Budapest'), ('Újpest', 'Budapest'),
+    ('Kőbánya', 'Budapest'), ('Zugló', 'Budapest'),
+    ('Rákospalota', 'Budapest'), ('Pestújhely', 'Budapest'), ('Újpalota', 'Budapest'),
+    ('Cinkota', 'Budapest'), ('Mátyásföld', 'Budapest'), ('Sashalom', 'Budapest'),
+    ('Rákosszentmihály', 'Budapest'),
+    ('Rákoskeresztúr', 'Budapest'), ('Rákoscsaba', 'Budapest'), ('Rákosliget', 'Budapest'),
+    ('Rákoshegy', 'Budapest'),
+    ('Pestszentlőrinc', 'Budapest'), ('Pestszentimre', 'Budapest'),
+    ('Kispest', 'Budapest'), ('Pesterzsébet', 'Budapest'), ('Csepel', 'Budapest'),
+    ('Budafok', 'Budapest'), ('Nagytétény', 'Budapest'), ('Soroksár', 'Budapest'),
+)
 
 # Replacement table for clean_street():
 CLEAN_STREET_REPLS = (
@@ -184,6 +202,7 @@ CLEAN_STREET_REPLS = (
     ('Mécs L.', 'Mécs László'),
     ('Nagyváthy J.', 'Nagyváthy János'),
     ('Szent I. kir.', 'Szent István király'),
+    ('Szent I. utca', 'Szent István út'),  # issue #168: this street is officially "út", not "utca"
     ('Szigethy A. u.', 'Szigethy Attila út'),
     ('Rákóczi F.', 'Rákóczi Ferenc'),
     ('Jókai M.', 'Jókai Mór'),
@@ -289,6 +308,20 @@ def extract_street_housenumber(clearable):
 
 
 def extract_all_address(clearable):
+    """Parse a "POSTCODE CITY, STREET HOUSENUMBER" style combined address string
+    using regex (PATTERN_POSTCODE_CITY for the postcode+city prefix, then
+    extract_street_housenumber_better_2() on the rest). Simpler, regex-only
+    fallback used by extract_all_address_waxeye() when the grammar-based waxeye
+    parser fails.
+
+    Args:
+        clearable (str): Combined address string, e.g.
+            '1011 Budapest, Fő utca 12.' or (without a comma) '1011 Budapest Fő utca 12.'.
+
+    Returns:
+        tuple[str | None, str | None, str | None, str | None, str | None]:
+        (postcode, city, street, housenumber, conscriptionnumber).
+    """
     if clearable is not None and clearable != '':
         clearable = clean_string(clearable)
         pc_match = PATTERN_POSTCODE_CITY.search(clearable)
@@ -313,6 +346,27 @@ def extract_all_address(clearable):
 
 
 def extract_all_address_waxeye(clearable):
+    """Parse a combined Hungarian address string into its components using the
+    waxeye-generated grammar parser (hu_address_parser), falling back to the
+    simpler regex-based extract_all_address() if the grammar parse raises.
+
+    This is the preferred/most robust address-splitting function in this module -
+    most dataproviders that receive a single combined address string use this one.
+
+    Note: addresses containing a Budapest district clause ('Budapest <roman
+    numeral>. kerület, ...') are not recognized by the grammar and typically come
+    back with city/street/etc. as None; strip that clause before calling this if
+    your source data includes it (see dataproviders/hu_raiffeisen.py for an example).
+
+    Args:
+        clearable (str): Combined Hungarian address string.
+
+    Returns:
+        tuple[str | None, str | None, str | None, str | None, str | None]:
+        (postcode, city, street, housenumber, conscriptionnumber). All None if
+        clearable is empty; any individual field can be None if the parser
+        (grammar or fallback) couldn't determine it.
+    """
     postcode, city, street, housenumber, conscriptionnumber = None, None, None, None, None
     clearable = clean_string(clearable)
     if clearable is not None and clearable != '':
@@ -357,6 +411,18 @@ def extract_all_address_waxeye(clearable):
 
 
 def extract_city_street_housenumber_address(clearable):
+    """Parse a "CITY, STREET HOUSENUMBER" style combined address string (no leading
+    postcode, unlike extract_all_address()) via PATTERN_CITY_ADDRESS plus
+    extract_street_housenumber_better_2().
+
+    Args:
+        clearable (str): Combined address string starting with the city name, e.g.
+            'Budapest, Fő utca 12.'.
+
+    Returns:
+        tuple[str | None, str | None, str | None, str | None]:
+        (city, street, housenumber, conscriptionnumber).
+    """
     if clearable is None:
         return None, None, None, None, None
     if clearable is not None and clearable != '':
@@ -465,6 +531,15 @@ def extract_street_housenumber_better_2(clearable: str) -> tuple[str | None, str
 
 
 def replace_html_newlines(clearable: str) -> str:
+    """Replace HTML line-break markup (<br>, </br>, <br />) with '; ', and collapse
+    a stray ' ;' into ';'.
+
+    Args:
+        clearable (str): Text possibly containing HTML line breaks.
+
+    Returns:
+        str | None: Cleaned text, or None if clearable is None.
+    """
     repls = ('<br>', '; '), \
             ('</br>', '; '), \
             ('< br />', '; '), \
@@ -528,6 +603,7 @@ def clean_city(clearable: str) -> str:
     city = clean_string(clearable)
     city = re.sub(PATTERN_CITY, '', city)
     city = reduce(lambda a, kv: a.replace(*kv), CLEAN_CITY_REPLS, city)
+    city = reduce(lambda a, kv: a.replace(*kv), BUDAPEST_DISTRICT_REPLS, city)
     city = city.split('-')[0]
     city = city.split(',')[0]
     city = city.split('/')[0]
@@ -538,6 +614,18 @@ def clean_city(clearable: str) -> str:
 
 
 def clean_opening_hours(oh_from_to):
+    """Extract and normalize a 'HH:MM-HH:MM'-shaped opening-hours range out of a
+    (possibly noisier) source string, zero-padding each side to 5 characters
+    ('9:40' -> '09:40').
+
+    Args:
+        oh_from_to (str): Text expected to contain a from-to time range.
+
+    Returns:
+        tuple[str | None, str | None]: (open time, close time), or (None, None) if
+        no range-shaped match was found, or the match didn't split into exactly two
+        '-'-separated parts.
+    """
     oh_match = PATTERN_OPENING_HOURS.search(oh_from_to)
     if oh_match is not None:
         tmp = oh_match.group(0)
@@ -556,6 +644,15 @@ def clean_opening_hours(oh_from_to):
 
 
 def clean_opening_hours_2(oh):
+    """Format a compact numeric time (e.g. '900' or '1730') as 'HH:MM'.
+
+    Args:
+        oh (str): Numeric time string, zero-padded to 4 digits before splitting;
+            the special value '-1' means "no time set".
+
+    Returns:
+        str | None: 'HH:MM', or None if oh is '-1'.
+    """
     if oh == '-1':
         return None
     else:
@@ -565,13 +662,30 @@ def clean_opening_hours_2(oh):
 
 
 def clean_phone(phone):
+    """Parse one or more Hungarian phone numbers out of a raw string (';' or
+    ','-separated for multiple numbers) into a list of internationally-formatted
+    numbers, dropping any that don't parse as valid Hungarian numbers.
+
+    Args:
+        phone (str): Raw phone number text, e.g. '(26) 501-400' or
+            '+36 20 123 4567; 06 1 234 5678'.
+
+    Returns:
+        list[str] | None: Internationally-formatted numbers (phonenumbers'
+        PhoneNumberFormat.INTERNATIONAL), or None if phone is empty.
+    """
     phone = clean_string(str(phone))
     pn = []
     if phone is None or phone == '':
         return None
     # Remove all whitespaces
     original = phone
-    if '(' in phone:
+    # Truncate at a trailing "(annotation)" like "... (ügyfélszolgálat)", but not
+    # when the string starts with '(' - that's a parenthesized country code like
+    # "(+36) 20 3406 618" (issue #115), which split('(')[0] used to reduce to ''
+    # before it ever reached the parser. Parens themselves are stripped per-number
+    # below regardless (either in the ';'-split loop or the else branch).
+    if '(' in phone and not phone.startswith('('):
         phone = phone.split('(')[0]
     phone = phone.replace('-', ' ')
     if ',' in phone:
@@ -604,6 +718,15 @@ def clean_phone(phone):
 
 
 def clean_phone_to_json(phone):
+    """Like clean_phone(), but JSON-encode the resulting list instead of returning
+    it directly.
+
+    Args:
+        phone (str): Raw phone number text.
+
+    Returns:
+        str | None: JSON array string of formatted numbers, or None if empty/unparseable.
+    """
     if phone is None:
         return None
     phone = clean_string(phone)
@@ -615,6 +738,16 @@ def clean_phone_to_json(phone):
 
 
 def clean_phone_to_str(phone):
+    """Like clean_phone(), but join the resulting list into a single ';'-separated
+    string (the format contact:phone/contact:mobile OSM tags use for multiple
+    numbers). This is the phone-cleaning function most dataproviders call directly.
+
+    Args:
+        phone (str): Raw phone number text.
+
+    Returns:
+        str | None: ';'-joined formatted numbers, or None if empty/unparseable.
+    """
     if phone is None:
         return None
     phone = clean_string(phone)
@@ -626,6 +759,21 @@ def clean_phone_to_str(phone):
 
 
 def clean_phone_and_mobile_to_str(phone, mobile=None):
+    """Clean and merge a phone and a mobile field, then re-split the combined,
+    parsed numbers back into separate phone/mobile strings based on Hungarian
+    mobile number prefixes (MOBILE_HU_PHONE_NUMBERS) - useful when a source mixes
+    landline and mobile numbers in either field.
+
+    Args:
+        phone (str): Raw phone number text (landline expected, but may contain
+            mobile numbers too).
+        mobile (str | None): Raw mobile number text.
+
+    Returns:
+        tuple[str | None, str | None]: (';'-joined landline numbers, ';'-joined
+        mobile numbers), each None if that category ended up empty. (None, None) if
+        both phone and mobile were falsy.
+    """
     phone_numbers = []
     mobile_numbers = []
 
@@ -656,6 +804,15 @@ def clean_phone_and_mobile_to_str(phone, mobile=None):
 
 
 def clean_email(email):
+    """Lowercase and normalize one or more email addresses into a single
+    ';'-separated string (accepting whitespace, ',' or ';' as the original separator).
+
+    Args:
+        email (str): Raw email text, possibly containing multiple addresses.
+
+    Returns:
+        str | None: ';'-joined lowercase email addresses, or None if empty.
+    """
     if email is None:
         return None
     email = clean_string(email)
@@ -707,6 +864,14 @@ def clean_string(clearable: str):
         return None
 
 def clean_postcode(clearable: str):
+    """Normalize a postcode value, treating '' and '0' as "no postcode".
+
+    Args:
+        clearable (str): Raw postcode value.
+
+    Returns:
+        str | None: The cleaned postcode, or None if it was empty/'0'.
+    """
     clearable = clean_string(clearable)
     if clearable is None:
         return None
@@ -720,10 +885,21 @@ def clean_url(clearable):
     :param clearable: String that has to clean
     :return: Cleaned string
     """
-    clearable = clean_string(clearable)
     if clearable is None:
         return None
-    url_match = PATTERN_URL_SLASH.sub('/', str(clearable))
+    if not isinstance(clearable, str):
+        try:
+            clearable = str(clearable)
+        except Exception as e:
+            logging.error(e)
+            logging.exception('Exception occurred')
+            return None
+    # Don't reuse clean_string() here: its generic strip('-/, ') would eat a
+    # genuine single trailing slash instead of just collapsing repeated ones.
+    clearable = clearable.strip()
+    if clearable == '' or clearable.upper() in ['NONE', 'NAN', 'NULL', 'NULLNONE']:
+        return None
+    url_match = PATTERN_URL_SLASH.sub('/', clearable)
     return url_match.lower().strip()
 
 

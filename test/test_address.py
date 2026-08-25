@@ -59,6 +59,8 @@ class TestAddressResolver(unittest.TestCase):
              'conscriptionnumber': None}, #TODO Fix this
             {'original': 'Üllői út 129', 'street': 'Üllői út', 'housenumber': '129',
              'conscriptionnumber': None},
+            {'original': 'Szedresi utca 977-978 Hrsz', 'street': 'Szedresi utca', 'housenumber': None,
+             'conscriptionnumber': '977-978'},  # issue #169: nnn-mmm range hrsz
         ]
 
     def test_extract_street_housenumber_better_2(self):
@@ -203,6 +205,8 @@ class TestPhoneCleanerStr(unittest.TestCase):
              'converted': '+36 20 508 9009'},
             {'original': '  ', 'converted': None},
             {'original': '+36303035698', 'converted': '+36 30 303 5698'},
+            {'original': '(+36) 20 3406 618', 'converted': '+36 20 340 6618'},  # issue #115
+            {'original': '(+36) 20 385 6118', 'converted': '+36 20 385 6118'},  # issue #115
         ]
 
     def test_clean_phone(self):
@@ -285,6 +289,9 @@ class TestCityCleaner(unittest.TestCase):
             {'original': 'Budapest Xxiii. Kerület', 'city': 'Budapest'},
             {'original': 'Mikolc', 'city': 'Miskolc'},
             {'original': 'Iinárcs', 'city': 'Inárcs'},
+            {'original': 'Budafok', 'city': 'Budapest'},  # issue #93
+            {'original': 'Csepel', 'city': 'Budapest'},
+            {'original': 'Kőbánya', 'city': 'Budapest'},
         ]
 
     def test_clean_city(self):

@@ -21,6 +21,7 @@ except ImportError as err:
 
 
 class hu_obi(DataProvider):
+    """Imports OBI DIY store locations in Hungary from OBI's store-locator REST API."""
 
     def contains(self):
         self.link = 'https://www.obi.hu/storeLocatorRest/v1/stores/getAllByCountry/hu/hu?fields=name,address,phone,services,hours,storeNumber,path,email'
@@ -41,6 +42,7 @@ class hu_obi(DataProvider):
         self.__types = [
             {'poi_code': 'huobidiy', 'poi_common_name': 'OBI', 'poi_type': 'doityourself',
              'poi_tags': huobidiy, 'poi_url_base': 'https://www.obi.hu', 'poi_search_name': 'obi',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
         ]
         return self.__types

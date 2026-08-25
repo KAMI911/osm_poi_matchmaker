@@ -7,6 +7,7 @@ try:
     import re
     import json
     import traceback
+    import pandas as pd
     from timeit import default_timer as timer
     from datetime import timedelta
     from bs4 import BeautifulSoup
@@ -26,6 +27,7 @@ except ImportError as err:
 
 
 class hu_volanbusz(DataProvider):
+    """Imports Volánbusz bus stop locations in Hungary from Volánbusz's GTFS feed."""
 
     def contains(self):
         self.link = 'https://gtfs.kti.hu/public-gtfs/volanbusz_gtfs.zip'
@@ -43,7 +45,8 @@ class hu_volanbusz(DataProvider):
             {'poi_code': 'huvolantra', 'poi_common_name': 'Volánbusz', 'poi_type': 'bus_stop',
              'poi_tags': huvolantra, 'poi_url_base': 'https://www.volanbusz.hu', 'poi_search_name': 'volanbusz',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
-             'osm_search_distance_unsafe': 10, 'preserve_original_name': True, 'additional_ref_name': 'gtfs:stop_id',
+             'osm_search_distance_unsafe': 10, 'preserve_original_name': True,
+             'additional_ref_name': 'gtfs:stop_id:HU-VOLAN', 'gtfs_feed_id': 'HU-VOLAN',
              'do_not_export_addr_tags': True},
         ]
         return self.__types
@@ -81,6 +84,14 @@ class hu_volanbusz(DataProvider):
                     self.data.name = stop.stop_name.strip()
                     self.data.code = 'huvolantra'
                     self.data.poi_additional_ref = clean_string(stop.stop_id)
+                    # Real OSM data only carries gtfs:parent_station/location_type on child
+                    # platform stops (i.e. where a parent_station is set), not on the parent
+                    # station itself - see hu_volanbusz.py module discussion. A blank GTFS
+                    # location_type means the spec default of 0 (stop/platform).
+                    if pd.notna(stop.parent_station):
+                        self.data.gtfs_parent_station = clean_string(stop.parent_station)
+                        self.data.gtfs_location_type = clean_string(stop.location_type) \
+                            if pd.notna(stop.location_type) else '0'
                     self.data.lat, self.data.lon = check_hu_boundary(stop.stop_lat, stop.stop_lon)
                     self.data.original = clean_string('id={} lat={} lon={} name={}'.format(
                         stop.stop_id,

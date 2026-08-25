@@ -45,6 +45,7 @@ query stores {
 
 
 class hu_rossmann(DataProvider):
+    """Imports Rossmann drugstore locations in Hungary from Rossmann's GraphQL API."""
 
     def contains(self):
         self.link = GRAPHQL_URL
@@ -53,9 +54,9 @@ class hu_rossmann(DataProvider):
                      'ref:vatin': 'HU11149769', 'brand': 'Rossmann', 'brand:wikidata': 'Q316004',
                      'brand:wikipedia': 'de:Dirk Rossmann GmbH', 'contact:email': 'ugyfelszolgalat@rossmann.hu',
                      'contact:phone': '+36 29 889 800', 'contact:mobile': '+36 70 469 2800',
-                     'contact:facebook': 'https://www.facebook.com/Rossmann.hu',
+                     'contact:facebook': 'Rossmann.hu',
                      'contact:youtube': 'https://www.youtube.com/channel/UCmUCPmvMLL3IaXRBtx7-J7Q',
-                     'contact:instagram': 'https://www.instagram.com/rossmann_hu', 'air_conditioning': 'yes'}
+                     'contact:instagram': 'rossmann_hu', 'air_conditioning': 'yes'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 

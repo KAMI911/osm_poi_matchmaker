@@ -22,12 +22,13 @@ except ImportError as err:
 
 
 class hu_avia(DataProvider):
+    """Imports Avia fuel station locations in Hungary, scraped from the Avia contact page."""
 
     def contains(self):
         self.link = 'https://www.avia.hu/kapcsolat/toltoallomasok'
         self.tags = {'brand': 'Avia', 'operator': 'AVIA Hungária Kft.', 'fuel:diesel': 'yes',
                      'fuel:octane_95': 'yes', 'contact:email': 'avia@avia.hu',
-                     'contact:facebook': 'https://www.facebook.com/AVIAHungary',
+                     'contact:facebook': 'AVIAHungary',
                      'contact:youtube': 'https://www.youtube.com/channel/UCjvjkjf2RgmKBuTnKSXk-Rg', }
         self.tags.update(POS_HU_GEN)
         self.tags.update(PAY_CASH)
@@ -42,6 +43,7 @@ class hu_avia(DataProvider):
             {'poi_code': 'huaviafu', 'poi_common_name': 'Avia', 'poi_type': 'fuel', 'poi_tags': huaviafu,
              'poi_url_base': 'https://www.avia.hu', 'poi_search_name': 'avia',
              'poi_search_avoid_name': '(mol|shell|m. petrol|lukoil|hunoil)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 30000,
              'osm_search_distance_safe': 800, 'osm_search_distance_unsafe': 110},
         ]

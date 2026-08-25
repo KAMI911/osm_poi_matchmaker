@@ -23,6 +23,7 @@ except ImportError as err:
 
 
 class hu_mobil_petrol(DataProvider):
+    """Imports Mobil Petrol fuel station locations in Hungary from its SuperStoreFinder WordPress plugin XML feed."""
 
     def contains(self):
         # The homepage no longer embeds a totem_stations JS variable; the "Super Store Finder"
@@ -31,7 +32,7 @@ class hu_mobil_petrol(DataProvider):
         # firewalls off for every custom action).
         self.link = 'https://mpetrol.hu/wp-content/plugins/superstorefinder-wp/ssf-wp-xml.php'
         self.tags = {'amenity': 'fuel', 'brand': 'Mobil Petrol', 'contact:email': 'info@mpetrol.hu',
-                     'contact:facebook': 'https://www.facebook.com/mpetrolofficial/', 'name': 'Mobil Petrol',
+                     'contact:facebook': 'mpetrolofficial', 'name': 'Mobil Petrol',
                      'operator:addr': '1095 Budapest, Ipar utca 2.', 'operator': 'MPH Power Zrt.', 'fuel:diesel': 'yes',
                      'fuel:octane_95': 'yes'}
         self.filetype = FileType.xml

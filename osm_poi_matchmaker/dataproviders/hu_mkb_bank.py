@@ -24,6 +24,7 @@ except ImportError as err:
 
 
 class hu_mkb_bank(DataProvider):
+    """Imports MKB Bank branch locations in Hungary from a locally cached CSV file (hu_mkb_bank.csv)."""
 
     def contains(self):
         self.link = os.path.join(
@@ -47,6 +48,7 @@ class hu_mkb_bank(DataProvider):
              'poi_tags': humkbbank, 'poi_url_base': 'https://www.mkb.hu',
              'poi_search_name': '(mkb|mkb bank)',
              'poi_search_avoid_name': '(otpbank|otp|otp bank|raiffeisenbank|raiffeisen bank|kh bank|k&h|raiffeisen|budapest bank|takarék bank|takarék)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 40},
             {'poi_code': 'humkbatm', 'poi_common_name': 'MKB Bank ATM', 'poi_type': 'atm',
@@ -54,6 +56,7 @@ class hu_mkb_bank(DataProvider):
              'poi_url_base': 'https://www.mkb.hu',
              'poi_search_name': '(mkb|mkb bank|mkb bank atm|mkb atm)',
              'poi_search_avoid_name': '(otp atm|otp|raiffeisen|raiffeisen atm|kh bank|k&h|budapest bank|takarék bank|takarék)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10},
         ]

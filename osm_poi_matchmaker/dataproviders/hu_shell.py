@@ -31,6 +31,7 @@ MAX_SPLIT_DEPTH = 6
 
 
 class hu_shell(DataProvider):
+    """Imports Shell fuel station locations in Hungary from Shell's station-locator API."""
 
     def contains(self):
         self.link = BASE_URL
@@ -46,7 +47,7 @@ class hu_shell(DataProvider):
         hushellfu = self.tags.copy()
         hushellfu.update({'brand': 'Shell', 'contact:phone': '+36 1 480 1114',
                           'contact:fax': '+36 1 999 8673', 'contact:website': 'https://shell.hu/',
-                          'contact:facebook': 'https://www.facebook.com/ShellMagyarorszag/', 'contact:twitter': 'shell',
+                          'contact:facebook': 'ShellMagyarorszag', 'contact:twitter': 'shell',
                           'brand:wikidata': 'Q154950', 'brand:wikipedia': 'hu:Royal Dutch Shell',
                           'air_conditioning': 'yes'})
         self.__types = [

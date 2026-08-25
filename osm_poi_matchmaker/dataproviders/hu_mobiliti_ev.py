@@ -24,6 +24,7 @@ except ImportError as err:
 
 
 class hu_mobiliti_ev(DataProvider):
+    """Imports Mobiliti EV charging station locations in Hungary from Mobiliti's OCPI locations API."""
 
     def contains(self):
         self.link = 'https://api.mobiliti.hu/ocpi-location/api/v1/own-and-foreign-locations'
@@ -41,6 +42,7 @@ class hu_mobiliti_ev(DataProvider):
             {'poi_code': 'humobilchs', 'poi_common_name': 'Mobiliti', 'poi_type': 'charging_station',
              'poi_tags': self.tags, 'poi_url_base': 'https://www.mobiliti.hu',
              'poi_search_name': '(mobility|e-mobi|emobi|e-töltőpont)', 'poi_search_avoid_name': '(tesla|supercharger|plugee)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 400,
              'osm_search_distance_safe': 150, 'osm_search_distance_unsafe': 10},
         ]

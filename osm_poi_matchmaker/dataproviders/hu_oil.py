@@ -21,6 +21,7 @@ except ImportError as err:
 
 
 class hu_oil(DataProvider):
+    """Imports OIL! fuel station locations in Hungary from oil-benzinkutak.hu's WordPress store-search AJAX endpoint."""
 
     def contains(self):
         self.link = 'http://www.oil-benzinkutak.hu/wp-admin/admin-ajax.php?action=store_search&lat=47.162494&lng=19.5033041&max_results=1&search_radius=50&autoload=1'
@@ -30,7 +31,7 @@ class hu_oil(DataProvider):
                      'operator:addr': '1016 Budapest, Mészáros utca 58/B',
                      'ref:HU:vatin': '12700226-2-44', 'ref:vatin': 'HU12700226',
                      'ref:HU:company': '01-09-699184',
-                     'contact:facebook': 'https://www.facebook.com/OILHungary/', }
+                     'contact:facebook': 'OILHungary', }
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
@@ -43,6 +44,7 @@ class hu_oil(DataProvider):
              'poi_tags': huoilfu, 'poi_url_base': 'https://www.oil-benzinkutak.hu',
              'poi_search_name': '(oil|oil!|oil benzinkutak|oil-benzinkutak)',
              'poi_search_avoid_name': '(mol|shell|m. petrol|avia|lukoil|hunoil)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 450,
              'osm_search_distance_unsafe': 60},
         ]

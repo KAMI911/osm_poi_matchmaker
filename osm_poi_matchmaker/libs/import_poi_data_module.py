@@ -14,6 +14,7 @@ try:
         POI_patch
     from osm_poi_matchmaker.utils import config, dataproviders_loader
     from osm_poi_matchmaker.dao.data_handlers import insert_type, get_or_create
+    from osm_poi_matchmaker.utils.log_context import set_current_provider, clear_current_provider
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -21,13 +22,28 @@ except ImportError as err:
     sys.exit(128)
 
 
-def import_poi_data_module(module: str):
+def import_poi_data_module(module: str) -> dict:
     """Process all data provider modules enabled in app.conf and write to the database
 
     Args:
         module (str): Name of module to run
+
+    Returns:
+        dict: Per-module stats: {'module': str, 'harvested': int, 'harvest_errors': int,
+              'db_inserted': int, 'db_errors': int} or {'module': str, 'error': str} if the
+              module failed outright before/without producing any stats.
     """
+    stats = {'harvested': 0, 'harvest_errors': 0, 'db_inserted': 0, 'db_errors': 0}
+
+    def _add(one: dict):
+        """Accumulate one sub-call's stats dict into the outer `stats` total (used
+        for the special-cased providers below that run process() more than once,
+        e.g. hu_kh_bank's separate bank/ATM passes)."""
+        for key in stats:
+            stats[key] += one.get(key, 0)
+
     try:
+        set_current_provider(module.strip())
         db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                                   config.get_database_writer_password(),
                                                   config.get_database_writer_host(),
@@ -46,19 +62,19 @@ def import_poi_data_module(module: str):
             work = hu_kh_bank(session_object(), config.get_directory_cache_url(), True,
                               os.path.join(config.get_directory_cache_url(), 'hu_kh_bank.json'), 'K&H Bank')
             insert_type(session_object(), work.types())
-            work.process()
+            _add(work.process() or {})
             work = hu_kh_bank(session_object(), config.get_directory_cache_url(), True,
                               os.path.join(config.get_directory_cache_url(), 'hu_kh_atm.json'), 'K&H Bank ATM')
-            work.process()
+            _add(work.process() or {})
         elif module == 'hu_cib_bank':
             from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
             work = hu_cib_bank(session_object(), config.get_directory_cache_url(), True,
                                os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.json'), 'CIB Bank')
             insert_type(session_object(), work.types())
-            work.process()
+            _add(work.process() or {})
             work = hu_cib_bank(session_object(), config.get_directory_cache_url(), True,
                                os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.json'), 'CIB Bank ATM')
-            work.process()
+            _add(work.process() or {})
         elif module == 'hu_posta_json':
             # Old code that uses JSON files
             from osm_poi_matchmaker.dataproviders.hu_posta_json import hu_posta_json
@@ -66,25 +82,39 @@ def import_poi_data_module(module: str):
             work = hu_posta_json(session_object(),
                                  'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
                                  config.get_directory_cache_url(), 'hu_postacsekkautomata.json')
-            work.process()
+            _add(work.process() or {})
         else:
             mo = dataproviders_loader.import_module('dataproviders.{0}'.format(module), module)
             work = mo(session_object(), config.get_directory_cache_url())
             insert_type(session_object(), work.types())
             work.process()
-            work.export_list()
+            _add(work.export_list())
         logging.debug('Removing session scope for %s module…', module)
         session_object.remove()
         logging.debug('Closing one session for %s module…', module)
         one_session.close()
         logging.info('Finished processing %s module…', module)
-        return None
+        return {'module': module, **stats}
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
+        return {'module': module, 'error': str(e), **stats}
+    finally:
+        clear_current_provider()
 
 
 def delete_poi_tables(db: POIBase) -> None:
+    """Drop the POI-related tables so they get recreated from scratch (see
+    POIBase.__init__'s Base.metadata.create_all()). Called from
+    import_poi_data_module() when db.start.drop.poi_tables is True.
+
+    Note: City, Street_type and Country are intentionally not in this list, so
+    reference data imported by import_basic_data() (create_db.py) survives a run
+    that drops and recreates the POI tables.
+
+    Args:
+        db (POIBase): Database wrapper whose engine is used to run the DROP TABLEs.
+    """
     bases_to_drop = [
         POI_address,
         POI_address_raw,

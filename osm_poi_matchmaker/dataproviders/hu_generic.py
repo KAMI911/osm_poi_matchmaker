@@ -22,6 +22,7 @@ POI_COLS_STREET_TYPE = ['street_type']
 
 
 class hu_city_postcode():
+    """Imports Hungarian city/postcode data from an Excel workbook (used for initial seeding, superseded by hu_city_postcode_from_xml)."""
 
     def __init__(self, session, link):
         self.session = session
@@ -49,6 +50,7 @@ class hu_city_postcode():
 
 
 class hu_city_postcode_from_xml():
+    """Imports Hungarian city/postcode data from Hungarian Post's ZipCodes.xml feed into the city table."""
 
     def __init__(self, session, link, download_cache, filename='hu_city_postcode.xml'):
         self.session = session
@@ -77,6 +79,7 @@ class hu_city_postcode_from_xml():
 
 
 class hu_street_types_from_xml():
+    """Imports the list of valid Hungarian street-type suffixes from Hungarian Post's StreetTypes.xml feed."""
 
     def __init__(self, session, link, download_cache, filename='hu_street_types.xml'):
         self.session = session
@@ -107,12 +110,12 @@ class poi_patch_from_csv():
     """Insert CVS patch data into database poi_patch table
     """
 
-    def __init__(self, session, filename: str = 'poi_patch.csv'):
+    def __init__(self, session, filename: str = 'poi_patch.tsv'):
         """[summary]
 
         Args:
             session ([type]): [description]
-            filename (str, optional): Filename of CSV file to import. Defaults to 'poi_patch.csv'.
+            filename (str, optional): Filename of CSV file to import. Defaults to 'poi_patch.tsv'.
         """
         self.session = session
         self.filename = filename
@@ -127,12 +130,12 @@ class poi_country_from_csv():
     """Insert CVS country data into database country table
     """
 
-    def __init__(self, session, filename: str = 'country.csv'):
+    def __init__(self, session, filename: str = 'country.tsv'):
         """[summary]
 
         Args:
             session ([type]): [description]
-            filename (str, optional): Filename of CSV file to import. Defaults to 'country.csv'.
+            filename (str, optional): Filename of CSV file to import. Defaults to 'country.tsv'.
         """
         self.session = session
         self.filename = filename

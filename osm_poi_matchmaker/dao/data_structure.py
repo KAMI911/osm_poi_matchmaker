@@ -21,12 +21,15 @@ Base = declarative_base()
 
 
 class OSM_object_type(enum.Enum):
+    """OSM element kind a POI was matched to (or created as): node, way or relation."""
     node = 0
     way = 1
     relation = 2
 
 
 class POI_type(enum.Enum):
+    """Supported POI categories; each value corresponds to a ptype string accepted
+    by utils/poitypes.py's getPOITypes()."""
     shop = 0
     fuel = 1
     bank = 2
@@ -58,6 +61,9 @@ class POI_type(enum.Enum):
 
 
 class POI_address_raw(Base):
+    """Staging table: one row per POI as harvested from a data provider, before it has
+    been matched against (or merged with) any existing OSM data. Populated by
+    dao/data_handlers.py's insert_poi_dataframe() during STAGE 2 (POI harvesting)."""
     __tablename__ = 'poi_address_raw'
     _plural_name_ = 'poi_address_raw'
     pa_id = Column(Integer, primary_key=True, index=True)
@@ -156,6 +162,17 @@ class POI_address_raw(Base):
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_updated = Column(DateTime(True))
     poi_deleted = Column(DateTime(True))
+    # GTFS conflation extras (e.g. Volanbusz's parent_station/location_type stop hierarchy)
+    # written as gtfs:parent_station:<feed>/gtfs:location_type:<feed> tags - see POI_common's
+    # gtfs_feed_id, which supplies the <feed> part. Declared last to match the physical column
+    # order the live DB already has these appended in (ALTER TABLE ADD COLUMN always appends).
+    poi_gtfs_parent_station = Column(Unicode(64))
+    poi_gtfs_location_type = Column(Unicode(4))
+    # Generic (not GTFS-specific) OSM reference tags a provider may be able to source
+    # externally, e.g. hu_mav.py matching its GTFS stops against Wikidata by name/
+    # coordinate to find a UIC station code and the station's Wikidata item.
+    poi_uic_ref = Column(Unicode(16))
+    poi_wikidata = Column(Unicode(16))
 
     common = relationship('POI_common', primaryjoin='POI_address_raw.poi_common_id == POI_common.pc_id',
                           backref='poi_address_raw')
@@ -173,6 +190,9 @@ class POI_address_raw(Base):
 
 
 class POI_address(Base):
+    """Same shape as POI_address_raw, plus OSM enrichment columns (osm_id, osm_node,
+    osm_version, osm_live_tags, poi_good/poi_bad, ...) added once the online matcher
+    (STAGE 8) has run. This is the table the final OSM XML/GeoJSON export reads from."""
     __tablename__ = 'poi_address'
     _plural_name_ = 'poi_address'
     pa_id = Column(Integer, primary_key=True, index=True)
@@ -291,6 +311,10 @@ class POI_address(Base):
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_updated = Column(DateTime(True))
     poi_deleted = Column(DateTime(True))
+    poi_gtfs_parent_station = Column(Unicode(64))
+    poi_gtfs_location_type = Column(Unicode(4))
+    poi_uic_ref = Column(Unicode(16))
+    poi_wikidata = Column(Unicode(16))
     common = relationship('POI_common', primaryjoin='POI_address.poi_common_id == POI_common.pc_id',
                           backref='poi_address')
     city = relationship('City', primaryjoin='POI_address.poi_addr_city == City.city_id', backref='poi_address')
@@ -317,6 +341,10 @@ class POI_address(Base):
 
 
 class POI_common(Base):
+    """One row per POI type a provider declares in its types() (e.g. 'hualdisup' for
+    Aldi supermarkets): the shared OSM tags, search name/distance thresholds and
+    other settings common to every POI of that type. Referenced by
+    POI_address(_raw).poi_common_id."""
     __tablename__ = 'poi_common'
     _plural_name_ = 'poi_common'
     pc_id = Column(Integer, primary_key=True, index=True)
@@ -335,13 +363,20 @@ class POI_common(Base):
     osm_search_distance_perfect = Column(Integer, nullable=True, index=False)
     osm_search_distance_safe = Column(Integer, nullable=True, index=False)
     osm_search_distance_unsafe = Column(Integer, nullable=True, index=False)
-    additional_ref_name = Column(Unicode(16), nullable=True, index=False)
+    additional_ref_name = Column(Unicode(32), nullable=True, index=False)
+    # GTFS feed id (e.g. 'HU-VOLAN') used to compose gtfs:parent_station:<feed> and
+    # gtfs:location_type:<feed> tags from poi_gtfs_parent_station/poi_gtfs_location_type
+    # (POI_address_raw) at export time - see file_output.py.
+    gtfs_feed_id = Column(Unicode(16), nullable=True, index=False)
 
     def __repr__(self):
         return '<POI common {}: {}>'.format(self.pc_id, self.poi_common_name)
 
 
 class POI_OSM_cache(Base):
+    """Cache of OSM live-tag lookups (osmapi node_get/way_get/relation_get results),
+    keyed by osm_id, so the matcher doesn't re-fetch the same element's live tags on
+    every run. See libs/online_poi_matching.py and dao/data_handlers.get_or_create_cache()."""
     __tablename__ = 'poi_osm_cache'
     _plural_name_ = 'poi_osm_cache'
     poc_id = Column(Integer, primary_key=True, index=True)
@@ -362,6 +397,9 @@ class POI_OSM_cache(Base):
 
 
 class City(Base):
+    """Lookup table of Hungarian city names and their postcode(s), imported from
+    Magyar Posta's ZipCodes.xml (see dataproviders/hu_generic.py). Used to validate/
+    normalize city names during address processing."""
     __tablename__ = 'city'
     _plural_name_ = 'city'
     city_id = Column(Integer, primary_key=True, index=True)
@@ -376,6 +414,9 @@ class City(Base):
 
 
 class Street_type(Base):
+    """Lookup table of Hungarian street-type suffixes (utca, út, tér, körút, ...),
+    imported from Magyar Posta's StreetTypes.xml, used by libs/address.py's
+    clean_street_type() to normalize/validate street type words."""
     __tablename__ = 'street_type'
     _plural_name_ = 'street_type'
     st_id = Column(Integer, primary_key=True, index=True)
@@ -387,6 +428,10 @@ class Street_type(Base):
 
 
 class POI_osm(Base):
+    """Table for hash+geometry hints per OSM element (poi_osm_id/poi_osm_object_type,
+    poi_hash, geom_hint). Currently only created/dropped alongside the other POI
+    tables (see import_poi_data_module.py); nothing in this codebase writes to or
+    queries it yet."""
     __tablename__ = 'poi_osm'
     _plural_name_ = 'poi_osm'
     po_id = Column(Integer, primary_key=True, index=True)
@@ -400,10 +445,11 @@ class POI_osm(Base):
 
 
 class POI_patch(Base):
-    """ This is database modell for patch table
-    ph_id or id: primary key id
-    poi
-    """
+    """Manual address corrections keyed by poi_code: if a POI's harvested address
+    (orig_*) matches a row here, it gets overwritten with the corrected address
+    (new_*) before matching. Loaded from poi_patch.tsv via
+    dataproviders/hu_generic.py's poi_patch_from_csv and applied in
+    libs/poi_patch.py."""
     __tablename__ = 'poi_patch'
     _plural_name_ = 'poi_patch'
     ph_id = Column(Integer, primary_key=True, index=True)
@@ -427,10 +473,8 @@ class POI_patch(Base):
 
 
 class Country(Base):
-    """ This is database modell for country table
-    ph_id or id: primary key id
-    poi
-    """
+    """Reference table of countries (ISO code, name, continent, etc.), imported from
+    country.tsv via dataproviders/hu_generic.py's poi_country_from_csv."""
     __tablename__ = 'country'
     _plural_name_ = 'country'
     cy_id = Column(Integer, primary_key=True, index=True)

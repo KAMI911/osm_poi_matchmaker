@@ -21,6 +21,10 @@ except ImportError as err:
 
 
 class hu_takko(DataProvider):
+    """Imports Takko clothing store locations in Hungary.
+
+    Currently disabled: self.link is left empty, so process() has no data source to fetch.
+    """
 
     def contains(self):
         self.link = ''

@@ -116,6 +116,17 @@ def is_complex_opening_hours(oh_value):
     return False
 
 def ascii_numcoder(text):
+    """Intended to keep digit characters as-is and replace every other character
+    with its ordinal value, but `i in range(0, 10, 1)` compares a str against ints
+    and is therefore always False - every character (digits included) always goes
+    through the str(ord(i)) branch. Not called anywhere in this codebase.
+
+    Args:
+        text (str): Text to encode.
+
+    Returns:
+        str: Concatenated ord() values of every character in `text`.
+    """
     output = ''
     for i in text:
         if i in range(0, 10, 1):
@@ -478,6 +489,30 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
+                # Issue #188: Foxpost parcel lockers inside an Aldi store are black, not the
+                # usual red - drop the static colour=red tag rather than mistag them.
+                if row.poi_code in ('hufoxpocso', 'hufoxpzcso') and has_value(row.poi_branch) \
+                        and 'aldi' in row.poi_branch.lower():
+                    logging.debug('Foxpost locker in an Aldi, dropping colour tag (#188).')
+                    tags.pop('colour', None)
+            except Exception as e:
+                logging.exception('Exception occurred: {}'.format(e))
+                logging.exception(traceback.format_exc())
+            try:
+                # Issue #126: don't clobber a bus stop's existing operator tag when it
+                # already lists multiple operators, or already names a different single
+                # one - only fill it in when nothing conflicting is already there.
+                if row.poi_code == 'huvolantra' and osm_live_tags.get('operator'):
+                    existing_operator = osm_live_tags.get('operator')
+                    our_operator = tags.get('operator') or ''
+                    if ';' in existing_operator or our_operator.lower() not in existing_operator.lower():
+                        logging.debug('Keeping existing operator tag %r instead of overwriting (#126).',
+                                     existing_operator)
+                        tags['operator'] = existing_operator
+            except Exception as e:
+                logging.exception('Exception occurred: {}'.format(e))
+                logging.exception(traceback.format_exc())
+            try:
                 # Save live name tags if preserve name is enabled
                 logging.debug('Preserve item name tag.')
                 if row.preserve_original_name is True and tags.get('name') is not None:
@@ -575,14 +610,53 @@ def generate_osm_xml(df, session=None):
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
             try:
+                # Issue #205: some OSM nodes already carry a hand-written addr:full because
+                # their address doesn't fit street/housenumber (e.g. it's along a numbered
+                # highway route, not a real street). Don't fight that with a generated,
+                # often garbled structured address - leave addr:full as the only address tag.
+                if osm_live_tags.get('addr:full'):
+                    logging.debug('Node already has addr:full, skipping structured addr:* tags (#205).')
+                    tags_remove = ['addr:postcode', 'addr:city', 'addr:street', 'addr:housenumber',
+                                   'addr:conscriptionnumber']
+                    for tr in tags_remove:
+                        tags.pop(tr, None)
+            except Exception as e:
+                logging.exception('Exception occurred: {}'.format(e))
+                logging.exception(traceback.format_exc())
+            try:
                 if has_value(row.poi_ref) and row.poi_ref:
                     tags['ref'] = row.poi_ref
                     logging.debug('Added ref tag.')
 
-                # If there is additional_ref_name then use it as key and poi_additional_ref as value
-                if row.additional_ref_name is not None and has_value(row.poi_additional_ref):
-                    tags['ref:{}'.format(row.additional_ref_name)] = row.poi_additional_ref
-                    logging.debug('Add ref:{} tag with additional ref name.'.format(row.additional_ref_name))
+                # additional_ref_name is the literal tag key to write poi_additional_ref under
+                # (e.g. a real ref:mav, or a GTFS-conflation gtfs:stop_id:HU-VOLAN tag) - it's
+                # separate from the plain "ref" tag above. The additional_ref_name == 'ref'
+                # sentinel needs no extra write here - the plain ref tag was already set from
+                # poi_ref above (see also query_osm_shop_poi_gpd()/online_poi_matching.py, which
+                # use poi_ref directly as the search value for that same sentinel).
+                if row.additional_ref_name is not None and row.additional_ref_name != 'ref' \
+                        and has_value(row.poi_additional_ref):
+                    tags[row.additional_ref_name] = row.poi_additional_ref
+                    logging.debug('Add %s tag with additional ref name.', row.additional_ref_name)
+
+                # GTFS conflation extras (parent stop/platform hierarchy) - only meaningful
+                # together with a feed id (POI_common.gtfs_feed_id, e.g. 'HU-VOLAN'); real OSM
+                # data only carries these on child platform stops (i.e. where a parent_station
+                # is set), not on the parent station itself.
+                if has_value(row.gtfs_feed_id) and has_value(row.poi_gtfs_parent_station):
+                    tags['gtfs:parent_station:{}'.format(row.gtfs_feed_id)] = row.poi_gtfs_parent_station
+                    if has_value(row.poi_gtfs_location_type):
+                        tags['gtfs:location_type:{}'.format(row.gtfs_feed_id)] = row.poi_gtfs_location_type
+                    logging.debug('Add gtfs:parent_station/location_type tags for feed %s.', row.gtfs_feed_id)
+
+                # Generic (not GTFS-specific) reference tags, e.g. hu_mav.py's Wikidata-matched
+                # UIC station code/Wikidata item.
+                if has_value(row.poi_uic_ref):
+                    tags['uic_ref'] = row.poi_uic_ref
+                    logging.debug('Add uic_ref tag.')
+                if has_value(row.poi_wikidata):
+                    tags['wikidata'] = row.poi_wikidata
+                    logging.debug('Add wikidata tag.')
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())

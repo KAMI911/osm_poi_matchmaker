@@ -22,11 +22,12 @@ except ImportError as err:
 
 
 class hu_jysk(DataProvider):
+    """Imports Jysk furniture store locations in Hungary, scraped from jysk.hu's store listing page."""
 
     def contains(self):
         self.link = 'https://jysk.hu/aruhazak'
         self.tags = {'shop': 'furniture', 'brand:wikidata': 'Q138913', 'brand:wikipedia': 'hu:JYSK',
-                     'contact:facebook': 'https://www.facebook.com/JYSK.Magyarorszag/',
+                     'contact:facebook': 'JYSK.Magyarorszag',
                      'operator:addr': '1103 Budapest, Sibrik Miklós út 30.', 'operator': 'JYSK Kft.',
                      'ref:vatin': 'HU13353298', 'ref:HU:vatin': '13353298-2-44', 'ref:HU:company': '01-09-730940', }
         self.filetype = FileType.html
@@ -40,6 +41,7 @@ class hu_jysk(DataProvider):
         self.__types = [
             {'poi_code': 'hujyskfur', 'poi_common_name': 'Jysk', 'poi_type': 'furniture',
              'poi_tags': hujyskfur, 'poi_url_base': 'https://jysk.hu', 'poi_search_name': 'jysk',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 800, 'osm_search_distance_safe': 300,
              'osm_search_distance_unsafe': 80},
         ]

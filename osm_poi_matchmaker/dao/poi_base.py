@@ -27,6 +27,16 @@ class POIBase:
     """
 
     def __init__(self, db_connection, retry_counter=100, retry_sleep=30):
+        """Open the SQLAlchemy engine/session, retrying once after retry_sleep seconds
+        if the initial connection attempt raises a psycopg2.OperationalError, and
+        create any missing tables declared in dao/data_structure.py's Base metadata.
+
+        :param db_connection: Either a SQLAlchemy database URL, or a bare filename
+            (which gets wrapped as 'sqlite:///<filename>').
+        :param retry_counter: Max number of reconnect attempts (not currently looped;
+            only one retry is actually performed, see the code below).
+        :param retry_sleep: Seconds to sleep before the single retry attempt.
+        """
         reco = 0  # Actual retry counter
         self.db_retry_counter = retry_counter
         self.db_retry_sleep = retry_sleep
@@ -62,16 +72,22 @@ class POIBase:
 
     @property
     def pool(self):
+        """The underlying SQLAlchemy engine (also usable as a connection pool)."""
         return self.engine
 
     @property
     def session(self):
+        """A new scoped session bound to this engine. Prefer this (or connection())
+        over reusing self.one_session directly."""
         return self.session_object()
 
     def connection(self):
+        """Open a new raw SQLAlchemy connection. Callers are expected to use this in
+        a `with` block so the connection is closed automatically."""
         return self.engine.connect()
 
     def __del__(self):
+        """Close the session and dispose of the engine's connection pool on GC."""
         if self.one_session:
             self.one_session.close()
             self.engine.dispose()
@@ -127,6 +143,14 @@ class POIBase:
         return data
 
     def query_from_cache(self, node_id, object_type):
+        """Look up a previously cached OSM live-tag record for this element (see
+        dao/data_structure.py's POI_OSM_cache), avoiding a redundant osmapi call.
+
+        :param node_id: OSM element id. IDs <= 0 (locally-assigned negative ids for
+            new/unmatched POIs) always return None.
+        :param object_type: OSM_object_type enum member (node/way/relation).
+        :return: The cached row as a dict, or None if nothing is cached for this element.
+        """
         if node_id > 0:
             query = sqlalchemy.text(
                 'select * from poi_osm_cache where osm_id = :node_id and osm_object_type = :object_type limit 1')
@@ -141,6 +165,12 @@ class POIBase:
             return None
 
     def query_ways_nodes(self, way_id):
+        """Look up the ordered node id list of an OSM way from the osm2pgsql-imported
+        planet_osm_ways table.
+
+        :param way_id: OSM way id. IDs <= 0 always return None.
+        :return: The way's 'nodes' array (list of node ids), or None if way_id <= 0.
+        """
         if way_id > 0:
             query = sqlalchemy.text('select nodes from planet_osm_ways where id = :way_id limit 1')
             with self.connection() as conn:
@@ -150,6 +180,13 @@ class POIBase:
             return None
 
     def query_relation_nodes(self, relation_id):
+        """Look up the member list of an OSM relation from the osm2pgsql-imported
+        planet_osm_rels table.
+
+        :param relation_id: OSM relation id. abs() is applied, so negative
+            (locally-assigned) ids are also accepted.
+        :return: The relation's 'members' array.
+        """
         query = sqlalchemy.text('select members from planet_osm_rels where id = :relation_id limit 1')
         with self.connection() as conn:
             data = pd.read_sql(query, conn, params={'relation_id': int(abs(relation_id))})
@@ -225,10 +262,16 @@ class POIBase:
             query_unique_name = ''
         if additional_ref_name is not None and not pd.isna(additional_ref_name) and additional_ref_name != '' \
                 and unique_ref is not None and not pd.isna(unique_ref) and unique_ref != '':
-            query_unique_ref = ' AND LOWER(TEXT(ref:{})) = LOWER(TEXT(:unique_ref))'.format(additional_ref_name)
+            # additional_ref_name is the literal OSM tag key to match on, except the bare
+            # 'ref' sentinel (matches the plain "ref" tag). A composite key like a real
+            # ref:mav or a GTFS-conflation gtfs:stop_id:HU-VOLAN tag must be spelled out in
+            # full by the caller - it's no longer auto-prefixed with "ref:".
+            ref_column = 'ref' if additional_ref_name == 'ref' else '"{}"'.format(additional_ref_name)
+            query_unique_ref = ' AND LOWER(TEXT({})) = LOWER(TEXT(:unique_ref))'.format(ref_column)
             query_params.update({'unique_ref': unique_ref})
         else:
             query_unique_ref = ''
+            ref_column = None
         if with_metadata is True:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
         else:
@@ -261,7 +304,7 @@ class POIBase:
             --- WITH ADDITIONAL REF
             --- The way selector with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'way' AS node,
-                   highway, "ref:{additional_ref_name}",
+                   highway, {ref_column},
                    '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
@@ -270,7 +313,7 @@ class POIBase:
             UNION ALL
             --- The node selector with with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'node' AS node,
-                   highway, "ref:{additional_ref_name}",
+                   highway, {ref_column},
                    '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
@@ -279,7 +322,7 @@ class POIBase:
             UNION ALL
             --- The relation selector with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'relation' AS node,
-                   highway, "ref:{additional_ref_name}",
+                   highway, {ref_column},
                    '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
@@ -288,7 +331,7 @@ class POIBase:
             '''
             query = sqlalchemy.text(query_text.format(query_type=query_type,
                                                       metadata_fields=metadata_fields,
-                                                      additional_ref_name=additional_ref_name,
+                                                      ref_column=ref_column,
                                                       query_unique_ref=query_unique_ref))
             logging.debug(str(query))
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
@@ -297,7 +340,7 @@ class POIBase:
                     perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' +
                                                  query_text.format(query_type=query_type,
                                                                    metadata_fields=metadata_fields,
-                                                                   additional_ref_name=additional_ref_name,
+                                                                   ref_column=ref_column,
                                                                    query_unique_ref=query_unique_ref))
                     perf = self.session.execute(perf_query, query_params)
                 except Exception as err:
@@ -865,6 +908,15 @@ class POIBase:
             return data
 
     def query_poi_in_water(self, lon, lat):
+        """Check whether a point falls on (or within 1m of) an OSM water/waterway
+        polygon - used to catch POIs whose coordinates were placed in a river/lake
+        by mistake.
+
+        :param lon: Longitude of the point to check.
+        :param lat: Latitude of the point to check.
+        :return: A one-row GeoDataFrame of the matching water polygon if the point is
+            in water, an empty GeoDataFrame if not, or None if the query raised.
+        """
         distance = 1
         try:
             query = sqlalchemy.text('''

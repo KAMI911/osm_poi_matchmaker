@@ -13,6 +13,17 @@ except ImportError as err:
 
 
 def getPOITypes(ptype):
+    """Map a poi_type string (as used in dataproviders' types()) to a PostGIS/osm2pgsql
+    WHERE-clause fragment matching that OSM tag combination, plus a default search
+    distance in meters for the matcher.
+
+    Args:
+        ptype (str): POI type key, e.g. 'shop', 'fuel', 'bank', 'vending_machine_parcel_locker'.
+
+    Returns:
+        tuple[str | None, float]: (SQL WHERE fragment, search distance in meters).
+        (None, 0) if ptype is not one of the known types.
+    """
     distance = config.get_geo_default_poi_distance()
     if ptype == 'shop':
         query_type = "shop='convenience' OR shop='supermarket'"

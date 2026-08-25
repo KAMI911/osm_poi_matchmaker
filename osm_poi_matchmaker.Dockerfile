@@ -26,7 +26,7 @@ COPY ./osm_poi_matchmaker /opm/osm_poi_matchmaker
 ENV PYTHONPATH=/opm/
 
 HEALTHCHECK --interval=5m --timeout=3s \
-  CMD nc opm_db 5432 || exit 1
+  CMD python3 -c "import socket; socket.create_connection(('opm_db', 5432), timeout=3)" || exit 1
 
 CMD ["python3"]
 WORKDIR /opm/osm_poi_matchmaker

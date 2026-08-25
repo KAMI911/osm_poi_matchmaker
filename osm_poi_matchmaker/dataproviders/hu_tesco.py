@@ -5,28 +5,64 @@ try:
     import sys
     import os
     import json
+    import time
+    import random
     import traceback
-    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
-        clean_url, clean_string
+    from curl_cffi import requests
+    from osm_poi_matchmaker.utils import config
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
+        clean_phone_to_str, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
-    from osm_poi_matchmaker.libs.osm import query_osm_city_name_gpd
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_OTP, PAY_CASH
     from osm_poi_matchmaker.utils.enums import FileType
-    from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
 
     sys.exit(128)
 
+# The old tesco.hu/Ajax bounds-search endpoint is gone (site rebuilt); the current store locator
+# (a Yext-powered widget at /aruhazak/) exposes this instead. It needs the X-Requested-With header
+# below or it silently returns an empty 200 body. Akamai also blocks it by TLS fingerprint: plain
+# `requests`/urllib3 gets a 403 "Access Denied" regardless of IP or headers (confirmed both from
+# this project's own network and from inside the app container), while a real browser gets
+# through - so this uses curl_cffi with Firefox TLS/HTTP2 impersonation instead of plain requests.
+# Unlike the old endpoint this one isn't bounds-based - it always returns the nearest stores to the
+# given point within a fixed ~25 km radius that no query parameter (radius=/distance=/searchRadius=
+# all tried, none had any effect) can widen. So covering the whole country means querying a grid of
+# points spaced closely enough that every store falls within 25 km of at least one of them, then
+# deduplicating by the stable c_bRANCH_NO2 branch id (confirmed present on every entity; distinct
+# from the old feed's "goldid").
+SEARCH_URL = 'https://www.tesco.hu/aruhazak/searchapi'
+HU_BBOX = ((45.7, 16.0), (48.6, 22.9))  # (lat, lon) sw, ne - same country box as hu_shell.py
+GRID_STEP_LAT = 0.3   # ~33 km
+GRID_STEP_LON = 0.45  # ~33 km at this latitude
+IMPERSONATE = 'firefox135'
+# Be polite (and avoid tripping Akamai bot detection with a request burst): pause between
+# grid-point requests instead of hammering the endpoint 160 times back-to-back. Jittered so the
+# pacing doesn't look like an obvious bot pattern either.
+REQUEST_DELAY_MIN_SECONDS = 0.4
+REQUEST_DELAY_MAX_SECONDS = 1.1
+REQUEST_HEADERS = {
+    'Accept': 'application/json, text/javascript, */*; q=0.01',
+    'X-Requested-With': 'XMLHttpRequest',
+}
+STORE_TYPE_TO_CODE = {'Express': 'hutescoexp', 'Hypermarket': 'hutescoext', 'Supermarket': 'hutescosup'}
+DAY_ORDER = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
+
 
 class hu_tesco(DataProvider):
+    """Imports Tesco Expressz/Hypermarket/Supermarket locations in Hungary from Tesco's Yext-powered store search API.
+
+    Uses curl_cffi with Firefox TLS/HTTP2 impersonation to get past Akamai's TLS-fingerprint
+    block (plain requests/urllib3 gets a 403 regardless of headers or IP). The search API is
+    always nearest-point-within-~25km rather than bounds-based, so process() queries a grid of
+    points covering Hungary and deduplicates results by branch id.
+    """
 
     def contains(self):
-        # self.link = 'https://tesco.hu/Ajax?type=fetch-stores-for-area&reduceBy%5Btab%5D=all&bounds%5Bnw%5D%5Blat%5D=49.631214952216425&bounds%5Bnw%5D%5Blng%5D=11.727758183593778&bounds%5Bne%5D%5Blat%5D=49.631214952216425&bounds%5Bne%5D%5Blng%5D=27.004247441406278&bounds%5Bsw%5D%5Blat%5D=38.45256463471463&bounds%5Bsw%5D%5Blng%5D=11.727758183593778&bounds%5Bse%5D%5Blat%5D=38.45256463471463&bounds%5Bse%5D%5Blng%5D=27.004247441406278&currentCoords%5Blat%5D=44.30719090363816&currentCoords%5Blng%5D=19.366002812500028&instanceUUID=b5c4aa5f-9819-47d9-9e5a-d631e931c007'
-        self.link = os.path.join(config.get_directory_cache_url(), 'hu_tesco.json')
+        self.link = SEARCH_URL
         self.tags = {'operator': 'TESCO-GLOBAL Áruházak Zrt.',
                      'operator:addr': '2040 Budaörs, Kinizsi út 1-3.',
                      'ref:HU:company': '13-10-040628', 'ref:HU:vatin': '10307078-2-44',
@@ -34,8 +70,8 @@ class hu_tesco(DataProvider):
                      'brand:wikipedia': 'hu:Tesco',
                      'internet_access': 'wlan', 'internet_access:fee': 'no',
                      'internet_access:ssid': 'tesco-internet',
-                     'contact:facebook': 'https://www.facebook.com/tescoaruhazak',
-                     'contact:pinterest': 'https://www.pinterest.com/tescohungary/',
+                     'contact:facebook': 'tescoaruhazak',
+                     'contact:pinterest': 'tescohungary',
                      'contact:youtube': 'https://www.youtube.com/user/TescoMagyarorszag',
                      'loyalty_card': 'yes', 'payment:gift_card': 'yes', 'payment:wire_transfer': 'yes',
                      'air_conditioning': 'yes'}
@@ -46,7 +82,7 @@ class hu_tesco(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hutescoexp = {'shop': 'convenience', 'brand:wikidata': 'Q98456772'}
+        hutescoexp = {'shop': 'convenience', 'brand:wikidata': 'Q98456772', 'additional_ref_name': 'ref'}
         hutescoexp.update(self.tags)
         hutescoext = {'shop': 'supermarket',
                       'wheelchair': 'yes', 'source:wheelchair': 'website', 'brand:wikidata': 'Q25172225'}
@@ -62,83 +98,138 @@ class hu_tesco(DataProvider):
         self.__types = [
             {'poi_code': 'hutescoexp', 'poi_common_name': 'Tesco Expressz', 'poi_type': 'shop',
              'poi_tags': hutescoexp, 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
             {'poi_code': 'hutescoext', 'poi_common_name': 'Tesco Extra', 'poi_type': 'shop',
              'poi_tags': hutescoext, 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100},
             {'poi_code': 'hutescosup', 'poi_common_name': 'Tesco', 'poi_type': 'shop',
              'poi_tags': hutescosup, 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100},
             {'poi_code': 'husmrktexp', 'poi_common_name': 'S-Market', 'poi_type': 'shop',
              'poi_tags': husmrktexp, 'poi_url_base': 'https://tesco.hu',
              'poi_search_name': '(tesco|smarket|s-market|s market)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
             {'poi_code': 'husmrktsup', 'poi_common_name': 'S-Market', 'poi_type': 'shop',
              'poi_tags': husmrktsup, 'poi_url_base': 'https://tesco.hu',
              'poi_search_name': '(tesco|smarket|s-market|s market)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
         ]
         return self.__types
 
+    @staticmethod
+    def __grid_points():
+        (sw_lat, sw_lon), (ne_lat, ne_lon) = HU_BBOX
+        lat = sw_lat
+        while lat <= ne_lat:
+            lon = sw_lon
+            while lon <= ne_lon:
+                yield round(lat, 4), round(lon, 4)
+                lon += GRID_STEP_LON
+            lat += GRID_STEP_LAT
+
+    def __fetch_stores(self):
+        """Query a grid of points covering Hungary and merge the results, deduplicated by
+        the stable c_bRANCH_NO2 branch id (a single query only returns stores within a fixed
+        ~25 km radius of the given point, see module docstring)."""
+        stores = {}
+        session = requests.Session(impersonate=IMPERSONATE)
+        session.headers.update(REQUEST_HEADERS)
+        grid = list(self.__grid_points())
+        for i, (lat, lon) in enumerate(grid):
+            try:
+                response = session.get(SEARCH_URL, params={'q': '{},{}'.format(lat, lon), 'l': 'hu'},
+                                       timeout=30)
+                response.raise_for_status()
+                data = response.json()
+                for entity in (data.get('response') or {}).get('entities') or []:
+                    profile = entity.get('profile') or {}
+                    branch_id = profile.get('c_bRANCH_NO2')
+                    if branch_id and branch_id not in stores:
+                        stores[branch_id] = profile
+            except Exception as e:
+                logging.exception('Exception occurred while fetching Tesco grid point %s,%s: %s', lat, lon, e)
+                logging.exception(traceback.format_exc())
+            if i < len(grid) - 1:
+                time.sleep(random.uniform(REQUEST_DELAY_MIN_SECONDS, REQUEST_DELAY_MAX_SECONDS))
+        return list(stores.values())
+
     def process(self):
         try:
-            if not os.path.isfile(self.link):
-                logging.warning('Cache file not found: %s', self.link)
-                return
-            # soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-            #                             self.filetype)
-            # if soup is not None:
-            with open(self.link, 'r') as f:
-                text = json.load(f)
-                # parse the html using beautiful soap and store in variable `soup`
-                # script = soup.find('div', attrs={'data-stores':True})
-                # text = json.loads(str(soup))
-                for poi_data in text.get('stores', []):
-                    try:
-                        # Assign: code, postcode, city, name, branch, website, original, street, housenumber,
-                        # conscriptionnumber, ref, geom
-                        self.data.branch = clean_string(poi_data.get('store_name'))
-                        self.data.ref = clean_string(poi_data.get('goldid'))
-                        if clean_url(poi_data.get('urlname')) is not None:
-                            self.data.website = 'https://tesco.hu/aruhazak/aruhaz/{}/'.format(clean_url(poi_data.get('urlname')))
-                        opening = json.loads(poi_data.get('opening'))
-                        for i in range(0, 7):
-                            ind = str(i + 1) if i != 6 else '0'
-                            if ind in opening:
-                                self.data.day_open(i, opening[ind][0])
-                                self.data.day_close(i, opening[ind][1])
-                        self.data.lat, self.data.lon = check_hu_boundary(
-                            poi_data.get('gpslat'), poi_data.get('gpslng'))
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                            extract_street_housenumber_better_2(
-                                poi_data.get('address'))
-                        self.data.postcode = clean_string(poi_data.get('zipcode'))
-                        self.data.city = clean_city(query_osm_city_name_gpd(
-                            self.session, self.data.lat, self.data.lon))
-                        if 'xpres' in poi_data.get('name'):
-                            if self.data.city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:
-                                self.data.code = 'hutescoexp'
-                            else:
-                                self.data.code = 'husmrktexp'
-                        elif 'xtra' in poi_data.get('name'):
-                            self.data.code = 'hutescoext'
+            cache_file = os.path.join(self.download_cache, self.filename)
+            if config.get_download_use_cached_data() is True and os.path.isfile(cache_file):
+                with open(cache_file, mode='r', encoding='utf-8') as file:
+                    stores = json.load(file)
+            else:
+                stores = self.__fetch_stores()
+                if not os.path.exists(self.download_cache):
+                    os.makedirs(self.download_cache)
+                with open(cache_file, mode='w', encoding='utf-8') as file:
+                    json.dump(stores, file)
+            for profile in stores:
+                try:
+                    name = profile.get('name') or ''
+                    address = profile.get('address') or {}
+                    city = clean_city(address.get('city'))
+                    store_types = profile.get('c_sTORE_TYPE') or []
+                    store_type = store_types[0] if store_types else None
+
+                    if store_type == 'Express':
+                        if city not in ['Győr', 'Sopron', 'Mosonmagyaróvár', 'Levél']:
+                            self.data.code = 'hutescoexp'
                         else:
-                            if self.data.city not in ['Levél']:
-                                self.data.code = 'hutescosup'
-                            else:
-                                self.data.code = 'husmrktsup'
-                        self.data.original = poi_data.get('address')
-                        if poi_data.get('phone') is not None and poi_data.get('phone') != '':
-                            self.data.phone = clean_phone_to_str(
-                                poi_data.get('phone'))
-                        if poi_data.get('goldid') is not None and poi_data.get('goldid') != '':
-                            self.data.ref = poi_data.get('goldid').strip()
-                        self.data.public_holiday_open = False
-                        self.data.add()
-                    except Exception as e:
-                        logging.exception('Exception occurred: {}'.format(e))
-                        logging.exception(traceback.format_exc())
-                        logging.exception(poi_data)
+                            self.data.code = 'husmrktexp'
+                    elif store_type == 'Hypermarket':
+                        self.data.code = 'hutescoext'
+                    else:
+                        if city not in ['Levél']:
+                            self.data.code = 'hutescosup'
+                        else:
+                            self.data.code = 'husmrktsup'
+
+                    self.data.branch = clean_string(name)
+                    self.data.ref = clean_string(profile.get('c_bRANCH_NO2'))
+                    website = profile.get('c_mainStorePageURL') or profile.get('websiteUrl')
+                    if website:
+                        self.data.website = website
+
+                    coord = profile.get('geocodedCoordinate') or {}
+                    self.data.lat, self.data.lon = check_hu_boundary(coord.get('lat'), coord.get('long'))
+
+                    line1 = address.get('line1')
+                    self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                        extract_street_housenumber_better_2(line1)
+                    self.data.postcode = clean_string(address.get('postalCode'))
+                    self.data.city = city
+                    self.data.original = line1
+
+                    phone = (profile.get('mainPhone') or {}).get('number')
+                    if phone:
+                        self.data.phone = clean_phone_to_str(phone)
+
+                    def hhmm(value):
+                        return '{:02d}:{:02d}'.format(value // 100, value % 100)
+
+                    normal_hours = {h.get('day'): h for h in (profile.get('hours') or {}).get('normalHours') or []}
+                    for i, day_name in enumerate(DAY_ORDER):
+                        day = normal_hours.get(day_name)
+                        if day and not day.get('isClosed') and day.get('intervals'):
+                            first = day['intervals'][0]
+                            self.data.day_open(i, hhmm(first['start']))
+                            self.data.day_close(i, hhmm(first['end']))
+                        else:
+                            self.data.day_open_close(i, None, None)
+
+                    self.data.public_holiday_open = False
+                    self.data.add()
+                except Exception as e:
+                    logging.exception('Exception occurred: {}'.format(e))
+                    logging.exception(traceback.format_exc())
+                    logging.exception(profile)
         except Exception as e:
             logging.exception('Exception occurred: {}'.format(e))
             logging.exception(traceback.format_exc())

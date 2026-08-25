@@ -20,6 +20,12 @@ except ImportError as err:
 
 
 class hu_kh_bank(DataProvider):
+    """Imports K&H Bank branch/ATM locations in Hungary from a locally cached JSON file.
+
+    Live fetching is not implemented because K&H's branch-finder site is behind Akamai
+    bot protection that this project's plain HTTP client cannot pass; a manually-saved
+    snapshot (self.link) is read instead when present.
+    """
 
     def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
         super().__init__(session, download_cache)
@@ -53,7 +59,8 @@ class hu_kh_bank(DataProvider):
         ]
         return self.__types
 
-    def process(self):
+    def process(self) -> dict:
+        stats = {'harvested': 0, 'harvest_errors': 0, 'db_inserted': 0, 'db_errors': 0}
         try:
             if self.link and os.path.isfile(self.link):
                 with open(self.link, 'r') as f:
@@ -80,12 +87,17 @@ class hu_kh_bank(DataProvider):
                             data.original = clean_string(poi_data.get(first_element)['address'])
                         data.phone = clean_phone_to_str(poi_data.get('phoneNumber'))
                         data.add()
+                    stats['harvested'] = data.length()
+                    stats['harvest_errors'] = data.add_errors
                     if data is None or data.length() < 1:
                         logging.warning('Resultset is empty. Skipping ...')
                     else:
-                        insert_poi_dataframe(self.session, data.process())
+                        insert_stats = insert_poi_dataframe(self.session, data.process())
+                        stats['db_inserted'] = insert_stats.get('inserted', 0)
+                        stats['db_errors'] = insert_stats.get('errors', 0)
         except Exception as e:
             logging.exception('Exception occurred')
 
             logging.error(e)
             logging.error(locals().get('poi_data'))
+        return stats

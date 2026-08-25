@@ -83,6 +83,7 @@ class TestCleanStreet(unittest.TestCase):
             {'original': 'Petőfi ltp. B épület', 'expected': 'Petőfi lakótelep B épület'},
             {'original': 'Bajcsy Zs.u. 7.', 'expected': 'Bajcsy-Zsilinszky utca 7.'},
             {'original': 'Kossuth L. utca 1.', 'expected': 'Kossuth Lajos utca 1.'},
+            {'original': 'Szent I. utca 12.', 'expected': 'Szent István út 12.'},  # issue #168
         ]
 
     def test_clean_street(self):

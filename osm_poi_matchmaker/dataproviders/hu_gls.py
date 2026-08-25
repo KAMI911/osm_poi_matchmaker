@@ -7,9 +7,10 @@ try:
     import json
     import traceback
     import re
+    import datetime
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
-        clean_string, clean_phone_to_str, clean_email
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, extract_all_address_waxeye, \
+        clean_city, clean_opening_hours, clean_string, clean_phone_to_str, clean_email
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHUUnAccented
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN
@@ -21,15 +22,20 @@ except ImportError as err:
 
     sys.exit(128)
 
+# Issue #165: a "holiday" period longer than this means the locker is
+# effectively removed, not on a temporary break - skip importing it.
+HOLIDAY_PERMANENT_CLOSURE_DAYS = 182
+
 
 class hu_gls(DataProvider):
+    """Imports GLS parcel locker (CsomagPont) locations in Hungary from GLS's delivery-points JSON feed."""
 
     def contains(self):
         self.link = 'https://map.gls-hungary.com/data/deliveryPoints/hu.json'
         self.tags = {'brand': 'GLS', 'operator': 'GLS General Logistics Systems Hungary Kft.',
                      'operator:addr': '2351 Alsónémedi, Európa utca 2.', 'ref:vatin': 'HU12369410',
                      'ref:HU:vatin': '12369410-2-44', 'ref:HU:company': '13-09-111755',
-                     'contact:facebook': 'https://www.facebook.com/GLSHungaryKft/',
+                     'contact:facebook': 'GLSHungaryKft',
                      'contact:youtube': 'https://www.youtube.com/channel/UC-Lv4AkW50HM80ZZQEq8Sqw/',
                      'contact:email': 'info@gls-hungary.com', 'contact:phone': '+36 29 886 700',
                      'contact:mobile': '+36 20 890 0660', }
@@ -63,11 +69,13 @@ class hu_gls(DataProvider):
             {'poi_code': 'huglscso', 'poi_common_name': 'GLS', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': huglscso, 'poi_url_base': 'https://gls-group.com', 'poi_search_name': 'gls',
              'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost|mpl|express one|z-box)', 'export_poi_name': False,
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 250, 'osm_search_distance_unsafe': 2},
             {'poi_code': 'huglspp', 'poi_common_name': 'GLS', 'poi_type': 'post_partner',
              'poi_tags': huglspp, 'poi_url_base': 'https://gls-group.com', 'poi_search_name': 'gls',
              'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost|mpl|express one|z-box)',
              'export_poi_name': False,
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 250, 'osm_search_distance_unsafe': 2},
         ]
         return self.__types
@@ -86,6 +94,19 @@ class hu_gls(DataProvider):
                 text = json.loads(soup, strict=False)
                 for poi_data in text.get('items', []):
                     try:
+                        holiday = poi_data.get('holiday')
+                        if holiday and holiday.get('start') and holiday.get('end'):
+                            try:
+                                holiday_days = (datetime.date.fromisoformat(holiday['end']) -
+                                                datetime.date.fromisoformat(holiday['start'])).days
+                                if holiday_days > HOLIDAY_PERMANENT_CLOSURE_DAYS:
+                                    logging.info(
+                                        'Skipping GLS locker %s: closed for %d days (%s to %s), likely removed.',
+                                        poi_data.get('externalId'), holiday_days, holiday['start'], holiday['end'])
+                                    continue
+                            except (ValueError, TypeError) as e:
+                                logging.warning('Could not parse holiday dates for GLS locker %s: %s',
+                                               poi_data.get('externalId'), e)
                         self.data.branch = clean_string(poi_data.get('name').split('|')[0])
                         self.data.branch = re.sub('^GLS automata', '', self.data.branch, flags=re.IGNORECASE)
                         self.data.branch = re.sub('\\(.*\\)', '', self.data.branch)
@@ -99,15 +120,33 @@ class hu_gls(DataProvider):
                             self.data.public_holiday_open = False
                             self.data.name = self.data.branch
                         else:
-                            logging.critical('Non matching poi code. Invalid state.')
+                            # Issue #140: falling through here without skipping left
+                            # self.data.code at its stale/None value from the previous
+                            # item (clear_all() resets it to None after each add()), so
+                            # the record got added with no resolvable poi_code and
+                            # silently vanished from its type-specific export instead of
+                            # being either included or cleanly skipped.
+                            logging.error('Unknown GLS locker type %r for %s, skipping.',
+                                         poi_data.get('type'), poi_data.get('id'))
+                            continue
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('location')[0], poi_data.get('location')[1])
                         self.data.postcode = clean_string(poi_data.get('contact').get('postalCode'))
                         self.data.city = clean_city(poi_data.get('contact').get('city'))
                         self.data.ref = poi_data.get('externalId')
-                        self.data.original = poi_data.get('contact').get('address')
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                            extract_street_housenumber_better_2(poi_data.get('contact').get('address'))
+                        address = poi_data.get('contact').get('address')
+                        self.data.original = address
+                        if address and re.match(r'^\d{4}', address):
+                            # Issue #167: a full address starting with a postcode (e.g.
+                            # '8330 Sümeg, 84-es főút') isn't handled by the simpler
+                            # regex-based extractor below - route it through the waxeye
+                            # grammar parser instead. Its postcode/city are discarded since
+                            # those are already set above from the separate contact fields.
+                            _, _, self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                                extract_all_address_waxeye(address)
+                        else:
+                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                                extract_street_housenumber_better_2(address)
                         self.data.phone = clean_phone_to_str(poi_data.get('contact').get('phone'))
                         self.data.email = clean_email(poi_data.get('contact').get('email'))
                         self.data.description = clean_string(poi_data.get('description')) \

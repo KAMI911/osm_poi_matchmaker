@@ -25,6 +25,7 @@ POI_POSTA_PONT = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/
 
 
 class hu_posta_json(DataProvider):
+    """Imports Magyar Posta locations (post offices, cheque machines, parcel machines, Posta Pont) from posta.hu's JSON REST API."""
 
     def __init__(self, session, link, download_cache, filename='hu_posta.json'):
         self.session = session
@@ -32,9 +33,9 @@ class hu_posta_json(DataProvider):
         self.tags = {'brand': 'Magyar Posta', 'operator': 'Magyar Posta Zrt.', 'ref:HU:vatin': '10901232-2-44',
                      'ref:vatin': 'HU10901232', 'brand:wikipedia': 'hu:Magyar Posta Zrt.', 'brand:wikidata': 'Q145614',
                      'contact:email': 'ugyfelszolgalat@posta.hu', 'contact:phone': '+36 1 767 8200',
-                     'contact:facebook': 'https://www.facebook.com/MagyarPosta',
+                     'contact:facebook': 'MagyarPosta',
                      'contact:youtube': 'https://www.youtube.com/user/magyarpostaofficial',
-                     'contact:instagram': 'https://www.instagram.com/magyar_posta_zrt/',
+                     'contact:instagram': 'magyar_posta_zrt',
                      'payment:cash': 'yes', 'payment:debit_cards': 'yes'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(
@@ -68,7 +69,8 @@ class hu_posta_json(DataProvider):
              'poi_tags': hupostamp, 'poi_url_base': 'https://www.posta.hu', 'poi_search_name': 'posta'}]
         return data
 
-    def process(self):
+    def process(self) -> dict:
+        stats = {'harvested': 0, 'harvest_errors': 0, 'db_inserted': 0, 'db_errors': 0}
         soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                     self.filetype)
         if soup is not None:
@@ -101,7 +103,12 @@ class hu_posta_json(DataProvider):
                     poi_data['address'])
                 data.original = poi_data['address']
                 data.add()
+            stats['harvested'] = data.length()
+            stats['harvest_errors'] = data.add_errors
             if data is None or data.length() < 1:
                 logging.warning('Resultset is empty. Skipping ...')
             else:
-                insert_poi_dataframe(self.session, data.process())
+                insert_stats = insert_poi_dataframe(self.session, data.process())
+                stats['db_inserted'] = insert_stats.get('inserted', 0)
+                stats['db_errors'] = insert_stats.get('errors', 0)
+        return stats

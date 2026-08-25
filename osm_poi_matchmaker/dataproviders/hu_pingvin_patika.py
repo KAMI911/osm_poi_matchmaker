@@ -24,16 +24,17 @@ except ImportError as err:
 
 
 class hu_pingvin_patika(DataProvider):
+    """Imports Pingvin Patika pharmacy locations in Hungary, scraped from pingvinpatika.hu's pharmacy listing page."""
 
     def contains(self):
         self.link = 'https://pingvinpatika.hu/patikak'
 
         self.tags = {'brand': 'Pingvin Patika', 'dispensing': 'yes',
-                     'contact:facebook': 'https://www.facebook.com/pingvinpatika/',
+                     'contact:facebook': 'pingvinpatika',
                      'contact:youtube': 'https://www.youtube.com/channel/UCYw0X4BHJg9ba8Xz1UGj8Vw',
                      'contact:email': 'webaruhaz@pingvinpatika.hu',
-                     'contact:instagram': 'https://www.instagram.com/pingvinpatikak',
-                     'contact:pinterest': 'https://www.pinterest.com/pingvinpatika/',
+                     'contact:instagram': 'pingvinpatikak',
+                     'contact:pinterest': 'pingvinpatika',
                      'operator': 'Pingvin Napfény Zrt.', 'operator:addr': '6720 Szeged, Széchenyi tér 17.',
                      'ref:vatin': 'HU24700450', 'ref:HU:vatin': '24700450-2-06',
                      'ref:HU:company': '06-10-000456', 'air_conditioning': 'yes', }

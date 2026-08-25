@@ -12,6 +12,20 @@ except ImportError as err:
 
 
 def index_osm_data(session):
+    """Create (if missing) every index the matcher's spatial/text queries rely on for
+    reasonable performance against the osm2pgsql-imported planet_osm_point/line/polygon
+    tables, plus street_type. Called once at STAGE 1 (see create_db.py).
+
+    Safe to call repeatedly: every statement uses CREATE INDEX IF NOT EXISTS and
+    the whole batch runs as one transaction (rolled back on any failure).
+
+    Args:
+        session: SQLAlchemy session.
+
+    Returns:
+        The CursorResult from executing the index-creation batch, or None if it
+        failed (in which case the transaction was rolled back).
+    """
     try:
         query = sqlalchemy.text('''
 
