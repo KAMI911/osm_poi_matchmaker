@@ -597,8 +597,8 @@ def generate_osm_xml(df, session=None):
                     logging.debug('Removing address tags based on common file settings')
                     tags_remove = ['addr:postcode', 'addr:city', 'addr:street', 'addr:housenumber',
                                    'addr:conscriptionnumber']
+                    tr_removed = []
                     for tr in tags_remove:
-                        tr_removed = []
                         if tr in tags:
                             tags.pop(tr, None)
                             tr_removed.append(tr)

@@ -54,6 +54,7 @@ class hu_jysk(DataProvider):
                 soup_data = soup.find('div', {'data-jysk-react-component': 'StoresLocatorLayout'})['data-jysk-react-properties']
                 json_data = json.loads(soup_data, strict=False)
                 for shop in json_data.get('storesCoordinates'):
+                    shop_soup = None
                     try:
                         self.data.code = 'hujyskfur'
                         self.data.lat, self.data.lon = check_hu_boundary(
