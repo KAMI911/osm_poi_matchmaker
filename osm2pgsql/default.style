@@ -92,6 +92,12 @@ node,way   addr:housenumber       text  linear
 node,way   addr:conscriptionnumber  text  linear
 node,way   addr:interpolation     text  linear
 node,way   addr:housename         text  linear
+node,way   gtfs:stop_id                  text  linear
+node,way   gtfs:stop_id:HU-VOLAN         text  linear
+node,way   gtfs:parent_station           text  linear
+node,way   gtfs:parent_station:HU-VOLAN  text  linear
+node,way   gtfs:location_type            text  linear
+node,way   gtfs:location_type:HU-VOLAN   text  linear
 node,way   opening_hours          text  linear
 node,way   admin_level  text         linear
 node,way   aerialway    text         linear
