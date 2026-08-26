@@ -68,12 +68,16 @@ def import_poi_data_module(module: str) -> dict:
             _add(work.process() or {})
         elif module == 'hu_cib_bank':
             from osm_poi_matchmaker.dataproviders.hu_cib_bank import hu_cib_bank
+            # Same endpoint the map widget on https://www.cib.hu/Maganszemelyek/leave-message/branch.html
+            # calls (POST body's locationType picks BRANCH vs ATM - see hu_cib_bank.process()).
+            cib_locator_url = ('https://www.cib.hu/digitalServicesServlet/?operation=searchLocations'
+                               '&headers=lbsHeader&endpointName=searchLocations&locale=en&bank=CIB')
             work = hu_cib_bank(session_object(), config.get_directory_cache_url(), True,
-                               os.path.join(config.get_directory_cache_url(), 'hu_cib_bank.json'), 'CIB Bank')
+                               cib_locator_url, 'CIB Bank')
             insert_type(session_object(), work.types())
             _add(work.process() or {})
             work = hu_cib_bank(session_object(), config.get_directory_cache_url(), True,
-                               os.path.join(config.get_directory_cache_url(), 'hu_cib_atm.json'), 'CIB Bank ATM')
+                               cib_locator_url, 'CIB Bank ATM')
             _add(work.process() or {})
         elif module == 'hu_posta_json':
             # Old code that uses JSON files

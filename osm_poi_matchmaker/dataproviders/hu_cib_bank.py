@@ -3,8 +3,10 @@
 try:
     import logging
     import sys
+    import os
     import json
     import traceback
+    from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.address import clean_city, clean_phone_to_str, clean_email, clean_string, clean_street
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
@@ -19,7 +21,9 @@ except ImportError as err:
 
 
 class hu_cib_bank(DataProvider):
-    """Imports CIB Bank branch/ATM locations in Hungary from CIB's branch-finder feed."""
+    """Imports CIB Bank branch/ATM locations in Hungary from CIB's branch-locator API
+    (the same endpoint https://www.cib.hu/Maganszemelyek/leave-message/branch.html's
+    map widget uses), one instance per locationType (BRANCH/ATM - see self.name)."""
 
     def __init__(self, session, download_cache, prefer_osm_postcode, link, name):
         self.session = session
@@ -32,8 +36,9 @@ class hu_cib_bank(DataProvider):
         self.prefer_osm_postcode = prefer_osm_postcode
         self.name = name
         self.filetype = FileType.json
-        self.filename = '{}.{}'.format(
-            self.__class__.__name__, self.filetype.name)
+        # Separate cache files per locationType, since both calls share the same
+        # class/link and would otherwise overwrite each other's cached response.
+        self.filename = 'hu_cib_bank.json' if name == 'CIB Bank' else 'hu_cib_atm.json'
 
     def types(self):
         hucibbank = {'amenity': 'bank', 'atm': 'yes',
@@ -58,37 +63,41 @@ class hu_cib_bank(DataProvider):
     def process(self) -> dict:
         stats = {'harvested': 0, 'harvest_errors': 0, 'db_inserted': 0, 'db_errors': 0}
         try:
-            if self.link:
-                with open(self.link, 'r') as f:
-                    text = json.load(f)
-                    data = POIDatasetRaw()
-                    for poi_data in text['availableLocations']:
-                        try:
-                            if 'locationStatus' in poi_data and poi_data['locationStatus'] == 'IN_SERVICE':
-                                if self.name == 'CIB Bank':
-                                    data.code = 'hucibbank'
-                                    data.public_holiday_open = False
-                                else:
-                                    data.code = 'hucibatm'
-                                    data.public_holiday_open = True
-                                data.lat, data.lon = check_hu_boundary(poi_data['location']['lat'],
-                                                                       poi_data['location']['lon'])
-                                data.city = clean_city(poi_data.get('city'))
-                                data.postcode = clean_string(poi_data.get('zip'))
-                                data.housenumber = clean_string(poi_data.get('streetNo'))
-                                data.street = clean_street(poi_data.get('streetName'))
-                                data.branch = clean_string(poi_data.get('name'))
-                                data.phone = clean_phone_to_str(poi_data.get('phone'))
-                                data.email = clean_email(poi_data.get('email'))
-                                data.original = clean_string(poi_data.get('fullAddress'))
-                                data.add()
-                        except Exception as e:
-                            data.add_errors += 1
-                            logging.exception('Exception occurred: {}'.format(e))
-                            logging.exception(traceback.format_exc())
-                            logging.exception(poi_data)
-                    stats['harvested'] = data.length()
-                    stats['harvest_errors'] = data.add_errors
+            location_type = 'BRANCH' if self.name == 'CIB Bank' else 'ATM'
+            post_data = {'search': {'locationType': location_type, 'size': 1000, 'start': 0}}
+            soup = save_downloaded_soup(
+                self.link, os.path.join(self.download_cache, self.filename), self.filetype,
+                False, post_data=post_data, json_body=True)
+            if soup is not None:
+                text = json.loads(soup)
+                data = POIDatasetRaw()
+                for poi_data in text.get('availableLocations', []):
+                    try:
+                        if 'locationStatus' in poi_data and poi_data['locationStatus'] == 'IN_SERVICE':
+                            if self.name == 'CIB Bank':
+                                data.code = 'hucibbank'
+                                data.public_holiday_open = False
+                            else:
+                                data.code = 'hucibatm'
+                                data.public_holiday_open = True
+                            data.lat, data.lon = check_hu_boundary(poi_data['location']['lat'],
+                                                                   poi_data['location']['lon'])
+                            data.city = clean_city(poi_data.get('city'))
+                            data.postcode = clean_string(poi_data.get('zip'))
+                            data.housenumber = clean_string(poi_data.get('streetNo'))
+                            data.street = clean_street(poi_data.get('streetName'))
+                            data.branch = clean_string(poi_data.get('name'))
+                            data.phone = clean_phone_to_str(poi_data.get('phone'))
+                            data.email = clean_email(poi_data.get('email'))
+                            data.original = clean_string(poi_data.get('fullAddress'))
+                            data.add()
+                    except Exception as e:
+                        data.add_errors += 1
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.format_exc())
+                        logging.exception(poi_data)
+                stats['harvested'] = data.length()
+                stats['harvest_errors'] = data.add_errors
                 if data is None or data.length() < 1:
                     logging.warning('Result set is empty. Skipping ...')
                 else:
