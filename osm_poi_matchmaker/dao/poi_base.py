@@ -225,10 +225,27 @@ class POIBase:
         :param with_metadata:
         :return:
         """
+        # Thin wrapper: `with` guarantees conn is closed on every exit path (normal
+        # return or exception), unlike the previous manual conn.close() calls
+        # scattered through the (long) implementation below, which an uncaught
+        # exception could skip - see the query-pool exhaustion this caused.
+        with self.connection() as conn:
+            return self._query_osm_shop_poi_gpd_impl(
+                conn, lon, lat, ptype, name, avoid_name, unique_name, additional_ref_name, unique_ref,
+                street_name, housenumber, conscriptionnumber, city, distance_perfect, distance_safe,
+                distance_unsafe, with_metadata)
+
+    def _query_osm_shop_poi_gpd_impl(self, conn, lon: float, lat: float, ptype: str = 'shop', name: str = None,
+                                     avoid_name: str = None, unique_name: str = None,
+                                     additional_ref_name: str = None, unique_ref: str = None,
+                                     street_name: str = None, housenumber: str = None,
+                                     conscriptionnumber: str = None,
+                                     city: str = None, distance_perfect: int = None, distance_safe: int = None,
+                                     distance_unsafe: int = None, with_metadata: bool = True):
+        """Implementation body for query_osm_shop_poi_gpd(), run inside its `with self.connection()` block."""
         buffer = 10
         query_arr = []
         query_params = {}
-        conn = self.connection()
         query_type, distance = poitypes.getPOITypes(ptype)
         # If we have PO common defined unsafe search radius distance, then use it (or use defaults specified above)
         if distance_unsafe is None or distance_unsafe == '' or math.isnan(distance_unsafe):
@@ -366,7 +383,6 @@ class POIBase:
                 logging.info('Found item with simple additional ref search.')
                 logging.debug(data.to_string())
                 logging.debug('Return with additional ref search data: {}'.format(data.iloc[[0]]))
-                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found with additional ref search.')
@@ -432,7 +448,6 @@ class POIBase:
                     logging.info('Found item with simple unique name search.')
                     logging.debug(data.to_string())
                     logging.debug('Return with additional unique name data: {}'.format(data.iloc[[0]]))
-                    conn.close()
                     return data.iloc[[0]]
             else:
                 logging.info('Item not found with unique name search.')
@@ -502,7 +517,6 @@ class POIBase:
                 logging.info('Found item with simple conscription number search.')
                 logging.debug(data.to_string())
                 logging.debug('Return with simple conscription number search data: {}'.format(data.iloc[[0]]))
-                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found with simple conscription number search.')
@@ -576,7 +590,6 @@ class POIBase:
                 logging.info('Found item with simple address search.')
                 logging.debug(data.to_string())
                 logging.debug('Return with simple address search data: {}'.format(data.iloc[[0]]))
-                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found with precise geometry search.')
@@ -848,7 +861,6 @@ class POIBase:
                 logging.info('Found item in {} stage without precise geometry search.'.format(stage))
                 logging.debug(data.to_string())
                 logging.debug('Return without precise geometry search data: {}'.format(data.iloc[[0]]))
-                conn.close()
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found in stage {}.'.format(stage))
@@ -859,7 +871,6 @@ class POIBase:
         except Exception as err:
             logging.warning('Exception occurred')
             logging.exception(err)
-        conn.close()
         return None
 
     def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='',
