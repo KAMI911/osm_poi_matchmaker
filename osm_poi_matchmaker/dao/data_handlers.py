@@ -872,6 +872,19 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
         session.close()
         return {'inserted': 0, 'errors': 0, 'skipped': df_count}
 
+    # City/POI_common are fully populated by STAGE 0/1 before any harvesting starts and
+    # aren't written to again here, so it's safe to load each as a single in-memory dict
+    # instead of re-querying them for every POI row below (previously 2 of the 3 SELECTs
+    # per row - see the hu_mav.py stations_by_name dict for the same pattern).
+    city_lookup = {
+        (row.city_name, row.city_post_code): row.city_id
+        for row in session.query(City.city_name, City.city_post_code, City.city_id)
+    }
+    common_lookup = {
+        row.poi_code: row.pc_id
+        for row in session.query(POI_common.poi_code, POI_common.pc_id)
+    }
+
     inserted = 0
     errors = 0
     # Each row is committed independently (via get_or_create_poi) so one bad row (e.g. a
@@ -879,20 +892,15 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
     # in the same batch - it's just counted as a failure and processing continues.
     for poi_data in poi_dict:
         try:
-            city_col = session.query(City.city_id)\
-                .filter(City.city_name == poi_data.get('poi_city'))\
-                .filter(City.city_post_code == poi_data.get('poi_postcode'))\
-                .first()
-            common_col = session.query(POI_common.pc_id)\
-                .filter(POI_common.poi_code == poi_data.get('poi_code'))\
-                .first()
+            city_id = city_lookup.get((poi_data.get('poi_city'), poi_data.get('poi_postcode')))
+            common_id = common_lookup.get(poi_data.get('poi_code'))
 
-            if city_col is not None:
-                poi_data['poi_addr_city'] = int(float(city_col[0]))
+            if city_id is not None:
+                poi_data['poi_addr_city'] = int(float(city_id))
             elif isinstance(poi_data.get('poi_addr_city'), (float, str)) and str(poi_data['poi_addr_city']).replace('.', '', 1).isdigit():
                 poi_data['poi_addr_city'] = int(float(poi_data['poi_addr_city']))
-            if common_col is not None:
-                poi_data['poi_common_id'] = int(float(common_col[0]))
+            if common_id is not None:
+                poi_data['poi_common_id'] = int(float(common_id))
 
             logging.debug(f"POI Name is {poi_data.get('poi_name')}")
 
