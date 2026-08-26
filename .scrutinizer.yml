@@ -2,3 +2,8 @@ build:
   environment:
     python:
       version: 3.12
+
+filter:
+  excluded_paths:
+    - '*/test/*'
+    - '*/dataproviders/attic/*'
