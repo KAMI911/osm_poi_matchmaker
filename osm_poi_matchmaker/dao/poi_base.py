@@ -265,7 +265,7 @@ class POIBase:
             query_params.update({'lat': lat})
         query_params.update({'buffer': buffer})
         # Do not match with other specified names, brand names, network names
-        if name is not None and name != '':
+        if name is not None and not pd.isna(name) and name != '':
             query_name = 'AND (LOWER(TEXT(name)) ~* LOWER(TEXT(:name)) ' \
                          'OR LOWER(TEXT(brand)) ~* LOWER(TEXT(:name)) ' \
                          'OR LOWER(TEXT(network)) ~* LOWER(TEXT(:name))) '
@@ -277,14 +277,14 @@ class POIBase:
         else:
             query_name = ''
         # Do not match with other specified names, brand names, network names
-        if avoid_name is not None and avoid_name != '':
+        if avoid_name is not None and not pd.isna(avoid_name) and avoid_name != '':
             query_avoid_name = 'AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) ' \
                                'AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)) ' \
                                'AND LOWER(TEXT(network)) !~* LOWER(TEXT(:avoid_name))) '
             query_params.update({'avoid_name': '.*{}.*'.format(avoid_name)})
         else:
             query_avoid_name = ''
-        if unique_name is not None and unique_name != '':
+        if unique_name is not None and not pd.isna(unique_name) and unique_name != '':
             query_unique_name = ' AND LOWER(TEXT(name)) = LOWER(TEXT(:unique_name))'
             query_params.update({'unique_name': unique_name})
         else:
@@ -305,22 +305,22 @@ class POIBase:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
         else:
             metadata_fields = ''
-        if street_name is not None and street_name != '':
+        if street_name is not None and not pd.isna(street_name) and street_name != '':
             street_query = ' AND LOWER(TEXT("addr:street")) = LOWER(TEXT(:street_name))'
             query_params.update({'street_name': street_name})
         else:
             street_query = ''
-        if housenumber is not None and housenumber != '':
+        if housenumber is not None and not pd.isna(housenumber) and housenumber != '':
             housenumber_query = ' AND LOWER(TEXT("addr:housenumber")) = LOWER(TEXT(:housenumber))'
             query_params.update({'housenumber': housenumber})
         else:
             housenumber_query = ''
-        if conscriptionnumber is not None and conscriptionnumber != '':
+        if conscriptionnumber is not None and not pd.isna(conscriptionnumber) and conscriptionnumber != '':
             conscriptionnumber_query = ' AND LOWER(TEXT("addr:conscriptionnumber")) = LOWER(TEXT(:conscriptionnumber))'
             query_params.update({'conscriptionnumber': conscriptionnumber})
         else:
             conscriptionnumber_query = ''
-        if city is not None and city != '':
+        if city is not None and not pd.isna(city) and city != '':
             city_query = ' AND LOWER(TEXT("addr:city")) = LOWER(TEXT(:city))'
             query_params.update({'city': city})
         else:
@@ -384,6 +384,11 @@ class POIBase:
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)
+                # Roll back to recover the connection - a failed statement leaves
+                # Postgres in an aborted-transaction state where every later query on
+                # this same conn (i.e. every remaining fallback stage below) would
+                # fail with InFailedSqlTransaction otherwise, not just this one.
+                conn.rollback()
             if not data.empty:
                 logging.info('Found item with simple additional ref search.')
                 logging.debug(data.to_string())
@@ -391,7 +396,7 @@ class POIBase:
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found with additional ref search.')
-        if unique_name is not None and unique_name != '':
+        if unique_name is not None and not pd.isna(unique_name) and unique_name != '':
             query_text = '''
             --- WITH UNIQUE NAME
             --- The way selector with unique name
@@ -446,6 +451,11 @@ class POIBase:
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)
+                # Roll back to recover the connection - a failed statement leaves
+                # Postgres in an aborted-transaction state where every later query on
+                # this same conn (i.e. every remaining fallback stage below) would
+                # fail with InFailedSqlTransaction otherwise, not just this one.
+                conn.rollback()
             if not data.empty:
                 if len(data) > 1:
                     logging.info('Multiple items found with simple unique name search. Skipping this method ...')
@@ -518,6 +528,11 @@ class POIBase:
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)
+                # Roll back to recover the connection - a failed statement leaves
+                # Postgres in an aborted-transaction state where every later query on
+                # this same conn (i.e. every remaining fallback stage below) would
+                # fail with InFailedSqlTransaction otherwise, not just this one.
+                conn.rollback()
             if not data.empty:
                 logging.info('Found item with simple conscription number search.')
                 logging.debug(data.to_string())
@@ -591,6 +606,11 @@ class POIBase:
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)
+                # Roll back to recover the connection - a failed statement leaves
+                # Postgres in an aborted-transaction state where every later query on
+                # this same conn (i.e. every remaining fallback stage below) would
+                # fail with InFailedSqlTransaction otherwise, not just this one.
+                conn.rollback()
             if not data.empty:
                 logging.info('Found item with simple address search.')
                 logging.debug(data.to_string())
@@ -861,6 +881,11 @@ class POIBase:
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)
+                # Roll back to recover the connection - a failed statement leaves
+                # Postgres in an aborted-transaction state where every later query on
+                # this same conn (i.e. every remaining fallback stage below) would
+                # fail with InFailedSqlTransaction otherwise, not just this one.
+                conn.rollback()
             logging.debug(str(query))
             if not data.empty:
                 logging.info('Found item in {} stage without precise geometry search.'.format(stage))
