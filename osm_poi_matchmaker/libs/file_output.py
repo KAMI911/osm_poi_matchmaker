@@ -474,13 +474,11 @@ def generate_osm_xml(df, session=None):
                 logging.debug('Add OSM live tags.')
                 if row.osm_live_tags is not None:
                     logging.debug('Add OSM live tags.')
-                    tags_keys = list(osm_live_tags.keys())
-                    for tk in tags_keys:
-                        if tk.startswith('socket:'):
-                            osm_live_tags.pop(tk)
+                    filtered_live_tags = {k: v for k, v in row.osm_live_tags.items()
+                                          if not k.startswith('socket:')}
                     logging.info('Additional live tags: {}'.format(row.osm_live_tags))
-                    tags.update(row.osm_live_tags.copy())
-                    osm_live_tags.update(row.osm_live_tags.copy())
+                    tags.update(filtered_live_tags)
+                    osm_live_tags.update(filtered_live_tags)
                 # Adding POI common tags
                 logging.debug('Add POI common tags.')
                 if row.poi_tags is not None:
