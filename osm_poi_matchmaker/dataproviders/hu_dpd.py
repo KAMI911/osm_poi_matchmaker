@@ -151,7 +151,14 @@ class hu_dpd(DataProvider):
             return
         for shop in page:
             shop_id = shop.get('id')
-            if shop_id and shop_id not in stores:
+            # Hungary borders 7 countries and this is a plain "nearest 10" search with no
+            # country filter, so a grid point near/across a border returns genuine foreign
+            # DPD shops too (confirmed: ~55% of a full-country crawl's raw results were
+            # SK/AT/HR/RO/SI, not HU) - keep only Hungary's own. Still counted towards
+            # max_distance below (not filtered out of `page`), since the subdivision
+            # decision is about how densely packed the search actually was, regardless of
+            # which country the results happen to be in.
+            if shop_id and shop_id not in stores and (shop.get('address') or {}).get('country') == 'HU':
                 stores[shop_id] = shop
         if not page or depth >= MAX_SUBDIVISION_DEPTH:
             return
