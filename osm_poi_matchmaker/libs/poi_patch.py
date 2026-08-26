@@ -12,6 +12,7 @@ the original POI value; an empty/None ``new_*`` sets the POI value to
 
 try:
     import logging
+    import numpy as np
     import pandas as pd
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -48,47 +49,9 @@ def _normalize(value) -> str:
     return text
 
 
-def _orig_matches(poi_value, orig_value) -> bool:
-    """Check one column of a patch row's orig_* criteria against a POI's value.
-
-    Args:
-        poi_value: The POI dataframe's value for this column.
-        orig_value: The patch row's orig_* value for this column (WILDCARD matches
-            any poi_value).
-
-    Returns:
-        bool: True if orig_value is the wildcard, or the normalized values are equal.
-    """
-    orig = _normalize(orig_value)
-    if orig == WILDCARD:
-        return True
-    return _normalize(poi_value) == orig
-
-
-def _row_matches_patch(poi_row: dict, patch_row: dict) -> bool:
-    """Check whether every column of a patch row (poi_code plus each orig_* in
-    PATCH_FIELD_MAP) matches the given POI row.
-
-    Args:
-        poi_row (dict): One POI's data, keyed by dataframe column name.
-        patch_row (dict): One poi_patch row, keyed by patch table column name.
-
-    Returns:
-        bool: True only if poi_code matches (or is wildcarded) and every orig_*
-        column matches (or is wildcarded).
-    """
-    patch_code = _normalize(patch_row.get('poi_code'))
-    if patch_code != WILDCARD:
-        if patch_code != _normalize(poi_row.get('poi_code')):
-            return False
-    for poi_col, (orig_col, _) in PATCH_FIELD_MAP.items():
-        if not _orig_matches(poi_row.get(poi_col), patch_row.get(orig_col)):
-            return False
-    return True
-
-
-def _resolve_new_value(original, new_value):
-    """Resolve a patch ``new_*`` value against the POI's original value."""
+def _resolve_new_value(new_value):
+    """Resolve a patch ``new_*`` value: None if it's empty/missing, else the
+    stripped string. Callers treat WILDCARD (kept as-is) separately."""
     if new_value is None:
         return None
     try:
@@ -97,11 +60,22 @@ def _resolve_new_value(original, new_value):
     except (TypeError, ValueError):
         pass
     text = str(new_value).strip()
-    if text == WILDCARD:
-        return original
     if text.lower() in _EMPTY_STRINGS:
         return None
     return text
+
+
+def _normalized_column(df, col) -> pd.Series:
+    """Vectorized equivalent of calling _normalize() on every value of one
+    column: stripped string, with missing/None/'none'/'nan'/'null' collapsed
+    to ''. If `col` isn't a column of `df`, returns an all-'' Series, matching
+    what _normalize() on a missing value would give for every row.
+    """
+    if col not in df.columns:
+        return pd.Series([''] * len(df), index=df.index)
+    s = df[col].astype('string').str.strip()
+    s = s.mask(s.str.lower().isin(_EMPTY_STRINGS), '')
+    return s.fillna('')
 
 
 def apply_poi_patches(poi_df, patch_df):
@@ -110,6 +84,15 @@ def apply_poi_patches(poi_df, patch_df):
     Only the first matching patch row is applied to each POI. The POI
     dataframe must have a ``poi_code`` column plus the address columns
     listed in :data:`PATCH_FIELD_MAP`; missing columns are ignored.
+
+    Vectorized over POI rows: instead of testing every (POI, patch) pair in
+    a Python-level double loop - O(len(poi_df)) * O(len(patch_df)), which
+    dominates STAGE 6's runtime on realistic data (tens of thousands of POIs
+    against thousands of patch rows) - this normalizes each relevant POI
+    column once, then for every patch row (a much smaller set) builds one
+    vectorized boolean mask over all still-unpatched POI rows and writes the
+    new_* values in a single indexed assignment. An `unpatched` mask carried
+    across patch rows preserves "first matching patch wins".
     """
     if poi_df is None or len(poi_df) == 0:
         return poi_df
@@ -117,21 +100,40 @@ def apply_poi_patches(poi_df, patch_df):
         return poi_df
 
     result = poi_df.copy()
-    patch_records = patch_df.to_dict('records')
+    norm_cols = {
+        'poi_code': _normalized_column(result, 'poi_code'),
+        **{poi_col: _normalized_column(result, poi_col) for poi_col in PATCH_FIELD_MAP},
+    }
+    unpatched = np.ones(len(result), dtype=bool)
     patched = 0
 
-    for idx in result.index:
-        poi_row = result.loc[idx].to_dict()
-        for patch_row in patch_records:
-            if not _row_matches_patch(poi_row, patch_row):
+    for patch_row in patch_df.to_dict('records'):
+        mask = unpatched
+        patch_code = _normalize(patch_row.get('poi_code'))
+        if patch_code != WILDCARD:
+            mask = mask & (norm_cols['poi_code'].to_numpy() == patch_code)
+            if not mask.any():
                 continue
-            for poi_col, (_, new_col) in PATCH_FIELD_MAP.items():
-                if poi_col not in result.columns:
-                    continue
-                resolved = _resolve_new_value(poi_row.get(poi_col), patch_row.get(new_col))
-                result.at[idx, poi_col] = resolved
-            patched += 1
-            break
+        for poi_col, (orig_col, _) in PATCH_FIELD_MAP.items():
+            orig = _normalize(patch_row.get(orig_col))
+            if orig == WILDCARD:
+                continue
+            mask = mask & (norm_cols[poi_col].to_numpy() == orig)
+            if not mask.any():
+                break
+        if not mask.any():
+            continue
+
+        for poi_col, (_, new_col) in PATCH_FIELD_MAP.items():
+            if poi_col not in result.columns:
+                continue
+            new_value = patch_row.get(new_col)
+            if _normalize(new_value) == WILDCARD:
+                continue  # keep the POI's existing value
+            result.loc[mask, poi_col] = _resolve_new_value(new_value)
+
+        patched += int(mask.sum())
+        unpatched = unpatched & ~mask
 
     if patched:
         logging.info('Applied %d POI patch update(s).', patched)

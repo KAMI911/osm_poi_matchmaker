@@ -220,6 +220,51 @@ class TestApplyPoiPatches(unittest.TestCase):
         self.assertEqual(result.at[0, 'poi_addr_street'], 'Bar')
         self.assertEqual(result.at[1, 'poi_addr_street'], 'Untouched')
 
+    def test_multiple_rows_matched_by_different_patches(self):
+        # Each row should be matched and updated by its own patch rule in a
+        # single apply_poi_patches() call, independently of the others.
+        poi = pd.DataFrame([
+            make_poi(poi_code='c', poi_postcode='1011', poi_city='Budapest',
+                     poi_addr_street='Foo'),
+            make_poi(poi_code='c', poi_postcode='2000', poi_city='Szentendre',
+                     poi_addr_street='Bar'),
+            make_poi(poi_code='c', poi_postcode='3000', poi_city='Hatvan',
+                     poi_addr_street='Baz'),
+        ])
+        patch = pd.DataFrame([
+            make_patch(orig_postcode='1011', orig_city='Budapest',
+                       orig_street='Foo', orig_housenumber='*', new_street='Foo Fixed'),
+            make_patch(orig_postcode='3000', orig_city='Hatvan',
+                       orig_street='Baz', orig_housenumber='*', new_street='Baz Fixed'),
+        ])
+        result = apply_poi_patches(poi, patch)
+        self.assertEqual(result.at[0, 'poi_addr_street'], 'Foo Fixed')
+        self.assertEqual(result.at[1, 'poi_addr_street'], 'Bar')
+        self.assertEqual(result.at[2, 'poi_addr_street'], 'Baz Fixed')
+
+    def test_missing_poi_column_only_matches_wildcard_or_empty_orig(self):
+        # poi_conscriptionnumber is intentionally left out of the POI dataframe.
+        columns = [c for c in POI_COLUMNS if c != 'poi_conscriptionnumber']
+        poi = pd.DataFrame([{
+            'poi_code': 'c', 'poi_postcode': '1011', 'poi_city': 'Budapest',
+            'poi_addr_street': 'Foo', 'poi_addr_housenumber': '5', 'poi_name': None,
+        }], columns=columns)
+        patch_specific = pd.DataFrame([make_patch(
+            orig_postcode='1011', orig_city='Budapest', orig_street='Foo',
+            orig_housenumber='5', orig_conscriptionnumber='123',
+            new_street='Should not apply',
+        )])
+        result = apply_poi_patches(poi, patch_specific)
+        self.assertEqual(result.at[0, 'poi_addr_street'], 'Foo')
+
+        patch_wildcard = pd.DataFrame([make_patch(
+            orig_postcode='1011', orig_city='Budapest', orig_street='Foo',
+            orig_housenumber='5', orig_conscriptionnumber='*',
+            new_street='Applied',
+        )])
+        result = apply_poi_patches(poi, patch_wildcard)
+        self.assertEqual(result.at[0, 'poi_addr_street'], 'Applied')
+
 
 class TestRealPatchFile(unittest.TestCase):
     """Load the real data/poi_patch.tsv the same way save_downloaded_pd() does in
