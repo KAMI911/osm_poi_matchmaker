@@ -35,6 +35,7 @@ class hu_volanbusz(DataProvider):
                      'bus': 'yes', 'operator': 'MÁV Személyszállítási Zrt.',
                      'operator:wikidata': 'Q1180332',
                      'network': 'Volán',
+                     'departures_board': 'timetable',
                      }
         self.filetype = FileType.zip
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
