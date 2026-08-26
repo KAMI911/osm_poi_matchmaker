@@ -26,6 +26,9 @@ except ImportError as err:
 
 POI_COLS = poi_array_structure.POI_COLS
 POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
+# insert_poi_dataframe() commits this many rows at a time instead of once per row;
+# each row still gets its own SAVEPOINT so a bad row can't affect the rest of the batch.
+INSERT_BATCH_COMMIT_SIZE = 500
 INTEGER_FIELDS = [
     'poi_capacity', 'poi_socket_chademo', 'poi_socket_chademo_current', 'poi_socket_chademo_voltage',
     'poi_socket_type2_combo', 'poi_socket_type2_combo_current', 'poi_socket_type2_combo_voltage',
@@ -237,7 +240,7 @@ def get_or_create(session: Session, model, **kwargs):
         raise
 
 
-def get_or_create_poi(session, model, **kwargs):
+def get_or_create_poi(session, model, commit=True, **kwargs):
     """
     Retrieve or create a Point of Interest (POI) record in the database.
 
@@ -245,11 +248,16 @@ def get_or_create_poi(session, model, **kwargs):
     information. If `poi_additional_ref` is present, it performs a lookup using that field.
     Otherwise, it tries to identify the POI based on address components such as city,
     street, house number, conscription number, and branch. If no matching record is found,
-    it creates a new one and commits it to the database.
+    it creates a new one.
 
     Args:
         session (sqlalchemy.orm.Session): The active SQLAlchemy session for querying and committing.
         model (Base): The SQLAlchemy ORM model representing the POI table.
+        commit (bool): If True (the default), commit the new instance and roll back the
+            session on any error - the original, one-transaction-per-call behavior. If
+            False, only add()/raise: the caller owns the transaction (commit, or roll back
+            just its own savepoint on error) - see insert_poi_dataframe()'s batched commits
+            with a per-row SAVEPOINT for why this matters.
         **kwargs: Named keyword arguments that include fields like:
             - poi_common_id (str): Unique identifier shared across related POIs.
             - poi_addr_city (str): City name.
@@ -315,18 +323,21 @@ def get_or_create_poi(session, model, **kwargs):
         # No existing instance, create new one
         instance = model(**kwargs)
         session.add(instance)
-        session.commit()
+        if commit:
+            session.commit()
         logging.debug('Created new instance: %s', instance)
         return instance
 
     except SQLAlchemyError as e:
-        session.rollback()
+        if commit:
+            session.rollback()
         logging.error('Database error during get_or_create_poi: %s', e)
         logging.exception('SQLAlchemy exception occurred')
         raise
 
     except Exception as e:
-        session.rollback()
+        if commit:
+            session.rollback()
         logging.error('Unexpected error during get_or_create_poi: %s', e)
         logging.exception('General exception occurred')
         raise
@@ -887,10 +898,14 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
 
     inserted = 0
     errors = 0
-    # Each row is committed independently (via get_or_create_poi) so one bad row (e.g. a
-    # provider bug producing a too-long field) can't roll back and discard every other row
-    # in the same batch - it's just counted as a failure and processing continues.
-    for poi_data in poi_dict:
+    # Each row gets its own SAVEPOINT (session.begin_nested()) so one bad row (e.g. a
+    # provider bug producing a too-long field) can't discard any other row: on failure
+    # only that row's savepoint is rolled back, not the whole pending transaction. The
+    # actual commit (the expensive part - an fsync-bound round trip) is batched every
+    # INSERT_BATCH_COMMIT_SIZE rows instead of once per row, while keeping the same
+    # per-row fault isolation the previous per-row-commit design had.
+    for i, poi_data in enumerate(poi_dict):
+        savepoint = session.begin_nested()
         try:
             city_id = city_lookup.get((poi_data.get('poi_city'), poi_data.get('poi_postcode')))
             common_id = common_lookup.get(poi_data.get('poi_code'))
@@ -909,11 +924,25 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
             if isinstance(poi_data.get('poi_addr_city'), str) and not poi_data['poi_addr_city'].isdigit():
                 logging.warning(f"poi_addr_city has invalid type/value: {poi_data['poi_addr_city']}, converting to None")
                 poi_data['poi_addr_city'] = None
-            get_or_create_poi(session, model, **poi_data)
+            get_or_create_poi(session, model, commit=False, **poi_data)
+            # Flush now (send the INSERT, without committing) so a constraint violation
+            # surfaces here - attributed to this row's savepoint - rather than silently
+            # deferred to a later row's autoflush or the batch commit below.
+            session.flush()
+            savepoint.commit()
             inserted += 1
         except Exception as e:
+            savepoint.rollback()
             errors += 1
             logging.exception(f'Exception occurred: {e} row skipped: {traceback.format_exc()}')
+
+        if (i + 1) % INSERT_BATCH_COMMIT_SIZE == 0:
+            try:
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                logging.exception(f'Exception occurred during batch commit: {e}: {traceback.format_exc()}')
+                raise
 
     try:
         session.commit()
