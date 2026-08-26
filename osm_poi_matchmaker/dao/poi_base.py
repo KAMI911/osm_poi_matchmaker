@@ -985,11 +985,6 @@ class POIBase:
             else:
                 metadata_fields = ''
             # Looking for way (road)
-            if mode == 'all':
-                name_query = '("name" = :name ' \
-                             'OR dmetaphone(name) = dmetaphone(:name) ' \
-                             'OR similarity(name, :name) >= :similarity_threshold ' \
-                             'OR levenshtein(name, :name) < :levenshtein_threshold)'
             if mode == 'both':
                 name_query = '("name" = :name OR dmetaphone(name) = dmetaphone(:name))'
             elif mode == 'name':
