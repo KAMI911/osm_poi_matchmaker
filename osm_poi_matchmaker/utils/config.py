@@ -291,15 +291,18 @@ def get_database_enable_analyze():
 
 
 def get_database_enable_huge_query():
-    """Whether to allow the large, expensive matching queries.
+    """Whether to combine each matching stage's per-priority-level candidate queries
+    into a single UNION ALL query instead of running them one at a time. Measured
+    ~1.9x faster on this project's data (fewer round trips outweighs the cost of a
+    larger query) - see issue #100.
 
-    Config key 'db.enable.huge_query', defaults to False.
+    Config key 'db.enable.huge_query', defaults to True.
     """
     setting = get_config_bool(KEY_DATABASE_ENABLE_HUGE_QUERY)
     if setting is not None:
         return setting
     else:
-        return False
+        return True
 
 
 def get_database_start_drop_poi_tables():
