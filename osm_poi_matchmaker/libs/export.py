@@ -98,18 +98,41 @@ def export_grouped_poi_data(data):
         logging.exception(traceback.format_exc())
 
 
+def _export_split_by_match_status(rows, matched, output_dir, filename, empty_log=None, count_log=None):
+    """Filter rows by whether they have an osm_id (matched) or not (new), and write
+    the result via _write_osm_and_geojson() if non-empty. Shared by
+    export_new_poi_data()/export_existing_poi_data() and their per-poi_code grouped
+    counterparts, which differ only in the osm_id direction and log messages.
+
+    Args:
+        rows (pandas.DataFrame): POI rows to filter, must have an osm_id column.
+        matched (bool): True to keep rows with an osm_id set, False to keep rows
+            with no osm_id.
+        output_dir (str): Directory to write the .osm/.geojson files into.
+        filename (str): Output filename (without extension).
+        empty_log (str, optional): Message logged (info level) if nothing matches.
+        count_log (str, optional): '%d'-style message logged with the row count if
+            anything matches.
+    """
+    filtered = rows[rows['osm_id'].notna()] if matched else rows[rows['osm_id'].isna()]
+    if len(filtered) == 0:
+        if empty_log:
+            logging.info(empty_log)
+        return
+    if count_log:
+        logging.info(count_log, len(filtered))
+    _write_osm_and_geojson(output_dir, filename, filtered)
+
+
 def export_new_poi_data(addr_data, postfix=''):
     """Export only new (unmatched) POIs — those with no osm_id — to XML and GeoJSON."""
     if addr_data is None:
         logging.warning('No addr_data provided to export_new_poi_data.')
         return
     try:
-        new_data = addr_data[addr_data['osm_id'].isna()]
-        if len(new_data) == 0:
-            logging.info('No new POIs to export.')
-            return
-        logging.info('Exporting %d new POIs.', len(new_data))
-        _write_osm_and_geojson(config.get_directory_output(), 'poi_address_new{}'.format(postfix), new_data)
+        _export_split_by_match_status(addr_data, False, config.get_directory_output(),
+                                      'poi_address_new{}'.format(postfix),
+                                      empty_log='No new POIs to export.', count_log='Exporting %d new POIs.')
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
@@ -121,12 +144,10 @@ def export_existing_poi_data(addr_data, postfix=''):
         logging.warning('No addr_data provided to export_existing_poi_data.')
         return
     try:
-        existing_data = addr_data[addr_data['osm_id'].notna()]
-        if len(existing_data) == 0:
-            logging.info('No existing POIs to export.')
-            return
-        logging.info('Exporting %d existing POIs.', len(existing_data))
-        _write_osm_and_geojson(config.get_directory_output(), 'poi_address_existing{}'.format(postfix), existing_data)
+        _export_split_by_match_status(addr_data, True, config.get_directory_output(),
+                                      'poi_address_existing{}'.format(postfix),
+                                      empty_log='No existing POIs to export.',
+                                      count_log='Exporting %d existing POIs.')
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
@@ -135,13 +156,8 @@ def export_existing_poi_data(addr_data, postfix=''):
 def export_grouped_poi_data_new(data):
     """Per-poi_code export of new (unmatched) POIs to XML and GeoJSON."""
     try:
-        output_dir = data[0]
-        filename = data[1]
-        rows = data[2]
-        new_rows = rows[rows['osm_id'].isna()]
-        if len(new_rows) == 0:
-            return
-        _write_osm_and_geojson(output_dir, filename, new_rows)
+        output_dir, filename, rows = data[0], data[1], data[2]
+        _export_split_by_match_status(rows, False, output_dir, filename)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
@@ -150,13 +166,8 @@ def export_grouped_poi_data_new(data):
 def export_grouped_poi_data_existing(data):
     """Per-poi_code export of existing (matched) POIs to XML and GeoJSON."""
     try:
-        output_dir = data[0]
-        filename = data[1]
-        rows = data[2]
-        existing_rows = rows[rows['osm_id'].notna()]
-        if len(existing_rows) == 0:
-            return
-        _write_osm_and_geojson(output_dir, filename, existing_rows)
+        output_dir, filename, rows = data[0], data[1], data[2]
+        _export_split_by_match_status(rows, True, output_dir, filename)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())

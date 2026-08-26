@@ -109,18 +109,28 @@ class POIBase:
         with self.connection() as conn:
             return pd.read_sql_table(table, conn)
 
+    def _query_gpd_with_lat_lon(self, query_text):
+        """Run a SQL query text (selecting poi_geom) as a GeoDataFrame and add
+        poi_lat/poi_lon columns derived from poi_geom. Shared by query_all_gpd()
+        and query_all_gpd_in_order(), which differ only in the query/ordering.
+
+        :param query_text: Raw SQL query string selecting rows with a poi_geom column.
+        :return: GeoDataFrame with added poi_lat and poi_lon columns.
+        """
+        query = sqlalchemy.text(query_text)
+        with self.connection() as conn:
+            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='poi_geom')
+        data['poi_lat'] = data['poi_geom'].x
+        data['poi_lon'] = data['poi_geom'].y
+        return data
+
     def query_all_gpd(self, table):
         """
         Load all POI data from SQL that contains geometry
         :param table: Name of table where POI data is stored
         :return: Full table with poi_lat and poi_long fields read from SQL database table
         """
-        query = sqlalchemy.text('select * from {} where poi_geom is not NULL'.format(table))
-        with self.connection() as conn:
-            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='poi_geom')
-        data['poi_lat'] = data['poi_geom'].x
-        data['poi_lon'] = data['poi_geom'].y
-        return data
+        return self._query_gpd_with_lat_lon('select * from {} where poi_geom is not NULL'.format(table))
 
     def query_all_gpd_in_order(self, table):
         """
@@ -128,15 +138,10 @@ class POIBase:
         :param table: Name of table where POI data is stored
         :return: Full table with poi_lat and poi_long fields read from SQL database table
         """
-        query = sqlalchemy.text('''SELECT * FROM {}
+        return self._query_gpd_with_lat_lon('''SELECT * FROM {}
                                      WHERE poi_geom is not NULL
                                      ORDER BY poi_common_id ASC, poi_postcode ASC, poi_addr_street ASC,
                                        poi_addr_housenumber ASC'''.format(table))
-        with self.connection() as conn:
-            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='poi_geom')
-        data['poi_lat'] = data['poi_geom'].x
-        data['poi_lon'] = data['poi_geom'].y
-        return data
 
     def count_all_gpd(self, table):
         """
