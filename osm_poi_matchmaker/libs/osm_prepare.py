@@ -32,7 +32,11 @@ def index_osm_data(session):
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE INDEX IF NOT EXISTS i_street_type ON street_type(street_type);
-CREATE INDEX IF NOT EXISTS i_planet_osm_point_way ON planet_osm_point(way);
+-- osm2pgsql already creates planet_osm_point_way_idx as a proper spatial GIST index;
+-- this one is a plain btree on a geometry column, which can't serve the ST_DistanceSphere
+-- etc. spatial predicates every matching query uses - confirmed 0 idx_scan in production.
+-- Dropped rather than "fixed" to gist, since the native index already covers that.
+DROP INDEX IF EXISTS i_planet_osm_point_way;
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_amenity_addr_lower
     ON planet_osm_point("osm_id",LOWER("amenity"),LOWER("name"),LOWER("brand"),LOWER("addr:street"));
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_highway_addr_lower
@@ -49,10 +53,18 @@ CREATE INDEX IF NOT EXISTS i_planet_osm_point_highway ON planet_osm_point(highwa
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_shop ON planet_osm_point(shop);
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_name ON planet_osm_point(name);
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_brand ON planet_osm_point(brand);
+-- Plain btree indexes above don't help query_osm_shop_poi_gpd()'s `name/brand/network
+-- ~* :pattern` regex matching (btree only serves equality/prefix lookups); trigram GIN
+-- indexes do. planet_osm_line already had one for name below - point/polygon didn't.
+CREATE INDEX IF NOT EXISTS i_planet_osm_point_name_trgm ON planet_osm_point USING gin (name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS i_planet_osm_point_brand_trgm ON planet_osm_point USING gin (brand gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS i_planet_osm_point_network_trgm ON planet_osm_point USING gin (network gin_trgm_ops);
 
 
 CREATE INDEX IF NOT EXISTS i_planet_osm_line_way ON planet_osm_line using gist(way);
 CREATE INDEX IF NOT EXISTS i_planet_osm_line_name_trgm ON planet_osm_line USING gin (name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS i_planet_osm_line_brand_trgm ON planet_osm_line USING gin (brand gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS i_planet_osm_line_network_trgm ON planet_osm_line USING gin (network gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS i_planet_osm_line_amenity_addr_lower
     ON planet_osm_line("osm_id",LOWER("amenity"),LOWER("name"),LOWER("brand"),LOWER("addr:street"));
 CREATE INDEX IF NOT EXISTS i_planet_osm_line_highway_addr_lower
@@ -88,6 +100,17 @@ CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_highway ON planet_osm_polygon(hi
 CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_shop ON planet_osm_polygon(shop);
 CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_name ON planet_osm_polygon(name);
 CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_brand ON planet_osm_polygon(brand);
+CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_name_trgm ON planet_osm_polygon USING gin (name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_brand_trgm ON planet_osm_polygon USING gin (brand gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_network_trgm ON planet_osm_polygon USING gin (network gin_trgm_ops);
+
+-- Refresh planner statistics explicitly rather than relying on whatever CREATE INDEX
+-- happens to update as a side effect - stale stats after a big osm2pgsql load can make
+-- the planner drastically misjudge selectivity and pick a much slower plan even with
+-- otherwise-suitable indexes in place.
+ANALYZE planet_osm_point;
+ANALYZE planet_osm_polygon;
+ANALYZE planet_osm_line;
 ''')
         data = session.execute(query)
     except Exception as e:
