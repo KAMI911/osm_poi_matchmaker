@@ -52,16 +52,19 @@ class hu_spar(DataProvider):
         self.__types = [
             {'poi_code': 'husparecon', 'poi_common_name': 'Spar Expressz', 'poi_type': 'shop',
              'poi_tags': husparecon, 'poi_url_base': 'https://www.spar.hu',
-             'poi_search_name': '(spar|spar express|spar expressz)',
+             'poi_search_name': '(spar|spar express|spar expressz)', 'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
             {'poi_code': 'husparisup', 'poi_common_name': 'Interspar', 'poi_type': 'shop',
              'poi_tags': husparisup, 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|interspar)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
             {'poi_code': 'husparsup', 'poi_common_name': 'Spar', 'poi_type': 'shop',
              'poi_tags': husparsup, 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|spar supermarket)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
             {'poi_code': 'huspardcon', 'poi_common_name': 'DeSpar', 'poi_type': 'shop',
              'poi_tags': huspardcon, 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|despar)',
+             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
         ]
         return self.__types

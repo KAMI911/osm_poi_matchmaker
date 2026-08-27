@@ -40,7 +40,7 @@ class hu_kulcs_patika(DataProvider):
             {'poi_code': 'hukulcspha', 'poi_common_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
              'poi_tags': hukulcspha,
              'poi_url_base': 'https://www.kulcspatikak.hu/', 'poi_search_name': '(kulcs patikák|kulcs patika|kulcs)',
-             'preserve_original_name': True},
+             'preserve_original_name': True, 'additional_ref_name': 'ref'},
         ]
         return self.__types
 
@@ -68,6 +68,9 @@ class hu_kulcs_patika(DataProvider):
                             else:
                                 self.data.branch = name
                             self.data.code = 'hukulcspha'
+                            # 'target' is the pharmacy's stable per-location id used by the site itself
+                            # (e.g. in its own detail-page links), not a display value.
+                            self.data.ref = clean_string(poi_data.get('target'))
                             address_part, _, phone_part = (poi_data.get('marker-desc') or '').partition('<br>')
                             phone_match = re.search(r'Tel:\s*(.+)', phone_part)
                             if phone_match is not None:
