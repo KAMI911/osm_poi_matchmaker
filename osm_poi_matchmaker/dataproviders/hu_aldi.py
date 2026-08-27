@@ -35,7 +35,7 @@ class hu_aldi(DataProvider):
                      'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi',
                      'ref:HU:vatin': '22234663-2-44', 'ref:vatin': 'HU22234663',
                      'ref:HU:company': '13-06-058506',
-                     'brand:wikipedia': 'hu:Aldi', 'brand:wikidata': 'Q41171672', 'operator:wikidata': 'Q61299364',
+                     'brand:wikipedia': 'hu:Aldi_(diszkonthálózat)', 'brand:wikidata': 'Q41171672', 'operator:wikidata': 'Q61299364',
                      'contact:facebook': 'ALDI.Magyarorszag',
                      'contact:youtube': 'https://www.youtube.com/user/ALDIMagyarorszag',
                      'contact:instagram': 'aldi.magyarorszag',
