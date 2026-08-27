@@ -44,7 +44,15 @@ services:
       - ../container/importdata:/opm/osm_poi_matchmaker/output
       - ../container/downloaddata:/opm/osm_poi_matchmaker/cache_url
     depends_on:
-      - db
+      db:
+        condition: service_started
+      # osm_load_app only starting isn't enough - without waiting for it to actually
+      # finish, harvesting can begin querying planet_osm_point/polygon/line before
+      # osm2pgsql has created (or fully populated) them, causing UndefinedTable errors
+      # early in STAGE 2 and silent zero-result city/address lookups for whichever
+      # providers happen to run in that window.
+      osm_load_app:
+        condition: service_completed_successfully
     restart: on-failure
     oom_score_adj: -100
     mem_limit: 10g
