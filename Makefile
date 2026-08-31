@@ -31,7 +31,7 @@ help:
 	@echo ""
 
 install-deps:
-	pip install pytest pytest-cov coverage
+	python3 -m pip install --break-system-packages -q pytest pytest-cov coverage
 
 test: install-deps
 	bash run_tests.sh
