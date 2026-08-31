@@ -135,6 +135,44 @@ class TestMatchConflictResolution(unittest.TestCase):
         data, stats = match_conflict_resolution(self.df, max_iterations=2)
         self.assertLessEqual(stats['iterations'], 2)
 
+    def test_resolution_large_conflict_group(self):
+        """Should handle large conflict groups (5+ POIs same osm_id)."""
+        df = pd.DataFrame({
+            'osm_id': [100, 100, 100, 100, 100],
+            'poi_lon': [19.0, 19.01, 19.02, 19.03, 19.04],
+            'poi_lat': [47.5, 47.5, 47.5, 47.5, 47.5],
+            'osm_lon': [19.001, 19.001, 19.001, 19.001, 19.001],
+            'osm_lat': [47.501, 47.501, 47.501, 47.501, 47.501],
+        })
+        data, stats = match_conflict_resolution(df)
+        self.assertEqual(len(find_osm_id_conflicts(data)), 0)
+
+    def test_resolution_preserves_single_match(self):
+        """Should preserve POIs with single osm_id match."""
+        df = pd.DataFrame({
+            'osm_id': [100, 200, 300],
+            'poi_lon': [19.0, 19.1, 19.2],
+            'poi_lat': [47.5, 47.5, 47.5],
+            'osm_lon': [19.001, 19.101, 19.201],
+            'osm_lat': [47.501, 47.501, 47.501],
+        })
+        data, stats = match_conflict_resolution(df)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(stats['initial_conflicts'], 0)
+
+    def test_resolution_mixed_conflicts(self):
+        """Should handle mix of conflicts and singles."""
+        df = pd.DataFrame({
+            'osm_id': [100, 100, 200, 300, 300, 300],
+            'poi_lon': [19.0, 19.01, 19.1, 19.2, 19.21, 19.22],
+            'poi_lat': [47.5, 47.5, 47.5, 47.5, 47.5, 47.5],
+            'osm_lon': [19.001, 19.001, 19.101, 19.201, 19.201, 19.201],
+            'osm_lat': [47.501, 47.501, 47.501, 47.501, 47.501, 47.501],
+        })
+        data, stats = match_conflict_resolution(df)
+        self.assertEqual(len(find_osm_id_conflicts(data)), 0)
+        self.assertEqual(stats['initial_conflicts'], 2)
+
 
 if __name__ == '__main__':
     unittest.main()
