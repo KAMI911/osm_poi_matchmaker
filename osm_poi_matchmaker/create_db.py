@@ -19,6 +19,7 @@ try:
     from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
     from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching, init_matcher_worker
+    from osm_poi_matchmaker.libs.match_conflict_resolution import match_conflict_resolution
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
     from osm_poi_matchmaker.libs.poi_patch import apply_poi_patches, load_poi_patches_from_db
     from osm_poi_matchmaker.libs.export import export_raw_poi_data, export_raw_poi_data_xml, \
@@ -160,6 +161,8 @@ class WorkflowManager(object):
         self.harvest_duration = None
         self.matcher_stats = {}
         self.matcher_duration = None
+        self.conflict_stats = {}
+        self.conflict_duration = None
 
     def _create_pool(self, process_divider=PROCESS_DIVIDER, initializer=None):
         """Create a new multiprocessing.Pool, closing any pre-existing pool first.
@@ -258,7 +261,7 @@ class WorkflowManager(object):
             logging.exception('Exception occurred', exc_info=True)
 
     def start_matcher(self, data: pd.DataFrame, comm_data: pd.DataFrame):
-        """Match harvested POIs against live OSM data in parallel (STAGE 9) and aggregate the results.
+        """Match harvested POIs against live OSM data in parallel (STAGE 8) and aggregate the results.
 
         Splits data into NUMBER_OF_PROCESSES * 8 chunks, runs online_poi_matching() on each
         chunk via a pool created with the per-worker init_matcher_worker initializer (so each
@@ -296,6 +299,33 @@ class WorkflowManager(object):
             logging.exception('Exception occurred', exc_info=True)
         finally:
             self.matcher_duration = phase_timer.end()
+
+    def start_conflict_resolver(self, data: pd.DataFrame):
+        """Resolve OSM ID conflicts where multiple POIs match the same OSM element (STAGE 9).
+
+        After online_poi_matching, some POIs may have been matched to the same OSM element.
+        This stage iteratively reassigns conflicting POIs to None (removing their OSM match)
+        until each OSM element has at most one associated POI.
+
+        Args:
+            data (pandas.DataFrame): Matched POI data from start_matcher().
+
+        Returns:
+            pandas.DataFrame: POI data with OSM ID conflicts resolved.
+        """
+        phase_timer = timing.Timing()
+        try:
+            logging.info('Starting conflict resolution.')
+            resolved_data, stats = match_conflict_resolution(data)
+            logging.info('Conflict resolution complete: %d initial conflicts, %d resolved in %d iterations, %d unresolved',
+                        stats['initial_conflicts'], stats['resolved'], stats['iterations'], stats['unresolved'])
+            self.conflict_stats = stats
+            return resolved_data
+        except Exception as e:
+            logging.exception('Exception occurred during conflict resolution', exc_info=True)
+            return data
+        finally:
+            self.conflict_duration = phase_timer.end()
 
     def log_summary(self):
         """Log a final per-provider / per-phase statistics summary for this run."""
