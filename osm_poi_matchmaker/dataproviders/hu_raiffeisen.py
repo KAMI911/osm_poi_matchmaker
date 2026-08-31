@@ -78,10 +78,11 @@ class hu_raiffeisen(DataProvider):
         address_for_parsing = RAIFFEISEN_KERULET_RE.sub('', address_text, count=1)
         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
             self.data.conscriptionnumber = extract_all_address_waxeye(address_for_parsing)
-        original = clean_string(address_text)
-        if original and len(original) > 512:
-            logging.warning('Address field exceeds 512 char limit, truncating: %s', original[:100])
-            self.data.original = original[:512]
+        address_clean = address_text.split('(')[0].strip() if '(' in address_text else address_text
+        original = clean_string(address_clean)
+        if original and len(original) > 256:
+            logging.warning('Address field exceeds 256 char limit, truncating: %s', original[:100])
+            self.data.original = original[:256]
         else:
             self.data.original = original
 
