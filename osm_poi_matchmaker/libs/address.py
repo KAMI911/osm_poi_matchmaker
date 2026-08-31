@@ -865,19 +865,49 @@ def clean_string(clearable: str):
         return None
 
 def clean_postcode(clearable: str):
-    """Normalize a postcode value, treating '' and '0' as "no postcode".
+    """Normalize a postcode value for Hungarian postcodes (4 digits only).
+
+    Handles format issues like numeric floats (1016.0 → 1016) and complex
+    formats (10003 - Mobiliti → None, as it's not a valid Hungarian postcode).
+
+    Valid Hungarian postcodes are exactly 4 numeric digits. Any other format
+    is treated as invalid and returns None.
 
     Args:
         clearable (str): Raw postcode value.
 
     Returns:
-        str | None: The cleaned postcode, or None if it was empty/'0'.
+        str | None: The cleaned postcode (4 digits), or None if invalid.
     """
     clearable = clean_string(clearable)
     if clearable is None:
         return None
     if clearable is not None and (clearable == '' or clearable == '0'):
         return None
+
+    # Handle floating point postcodes like "1016.0"
+    if isinstance(clearable, str) and '.' in clearable:
+        try:
+            if clearable.endswith('.0'):
+                clearable = clearable[:-2]
+        except:
+            pass
+
+    # Handle complex format like "10003 - Mobiliti" or " 10003 - Mobiliti"
+    if ' - ' in str(clearable):
+        clearable = str(clearable).split(' - ')[0].strip()
+
+    # Remove any remaining quotes and whitespace
+    clearable = str(clearable).replace('"', '').strip()
+
+    # Final validation: Hungarian postcodes must be exactly 4 digits
+    if not clearable or not clearable.isdigit():
+        return None
+
+    if len(clearable) != 4:
+        # If it's not exactly 4 digits, it's not a valid Hungarian postcode
+        return None
+
     return clearable
 
 def clean_url(clearable):
