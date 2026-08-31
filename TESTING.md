@@ -52,15 +52,40 @@ coverage report -m
 
 ## Test Suite Overview
 
-### Test Files
+### New Framework Tests (osm_poi_matchmaker/test/)
 
 | File | Tests | Purpose |
 |------|-------|---------|
 | `test_match_conflict_resolution.py` | 16 | OSM ID conflict resolution (haversine, conflict finding/resolving) |
 | `test_data_validation.py` | 24 | Data validation rules (coordinates, postcode, OSM ID, opening hours) |
 | `test_quality_metrics.py` | 26 | Quality metrics calculation (valid records, duplicates, errors) |
+| `test_opening_hours_fixed.py` | 6 | Opening hours nan-nan fix testing |
+| `test_address_fixed.py` | 18 | Postcode validation fix testing |
+| `test_geo_fixed.py` | 24 | Geographic boundary fix testing |
+| `test_file_output_fixed.py` | 15 | CSV quoting fix testing |
 
-**Total: 66+ test cases**
+**New tests: 129 test cases**
+
+### Legacy Tests (test/)
+
+| File | Tests | Purpose |
+|------|-------|---------|
+| `test_address.py` | 14 | Legacy address module tests |
+| `test_address_extended.py` | 9 | Extended address tests |
+| `test_poi_patch.py` | 19 | POI patch functionality |
+| `test_osm_extended.py` | 5 | OSM module extended tests |
+| `test_file_output_helper.py` | 1 | File output helper |
+| `test_opening_hours.py` | 1 | Opening hours legacy |
+| `test_online_poi_matching.py` | 1 | Online POI matching |
+| `test_osm.py` | 1 | OSM module |
+| `test_poi_dataset.py` | 1 | POI dataset |
+| `test_timing.py` | 1 | Timing tests |
+| `test_create_db.py` | 0 | DB creation (empty) |
+| `test_opening_hours_data.py` | 0 | Opening hours data (empty) |
+
+**Legacy tests: 53 test cases**
+
+**Total: 182 test cases**
 
 ### Test Coverage Areas
 
