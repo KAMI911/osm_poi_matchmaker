@@ -10,6 +10,7 @@ try:
     import math
     import osm_poi_matchmaker.libs.waxeye
     import osm_poi_matchmaker.libs.hu.hu_address_parser as hu_address_parser
+    from osm_poi_matchmaker.libs.string import has_value
     from osm_poi_matchmaker.libs.waxeye_process import waxeye_process
 
     from functools import reduce
@@ -676,7 +677,7 @@ def clean_phone(phone):
     """
     phone = clean_string(str(phone))
     pn = []
-    if phone is None or phone == '':
+    if not has_value(phone):
         return None
     # Remove all whitespaces
     original = phone

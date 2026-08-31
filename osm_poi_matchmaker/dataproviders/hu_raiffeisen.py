@@ -78,7 +78,8 @@ class hu_raiffeisen(DataProvider):
         address_for_parsing = RAIFFEISEN_KERULET_RE.sub('', address_text, count=1)
         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
             self.data.conscriptionnumber = extract_all_address_waxeye(address_for_parsing)
-        self.data.original = clean_string(address_text)
+        original = clean_string(address_text)
+        self.data.original = original[:128] if original else None
 
     def process_branches(self):
         # The list endpoint only gives coordinates and an opaque identifier per branch
