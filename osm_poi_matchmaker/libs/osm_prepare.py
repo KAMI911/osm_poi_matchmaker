@@ -26,6 +26,7 @@ def index_osm_data(session):
         The CursorResult from executing the index-creation batch, or None if it
         failed (in which case the transaction was rolled back).
     """
+    data = None
     try:
         query = sqlalchemy.text('''
 
