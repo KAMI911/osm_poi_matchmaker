@@ -60,7 +60,7 @@ class hu_raiffeisen(DataProvider):
         huraiffatm = {'amenity': 'atm'}
         huraiffatm.update(self.tags)
         self.__types = [
-            {'poi_code': 'huraiffbank', 'poi_common_name': 'Raiffeisen Bank', 'poi_type': 'bank',
+            {'poi_code': 'huraiffbk', 'poi_common_name': 'Raiffeisen Bank', 'poi_type': 'bank',
              'poi_tags': huraiffbank, 'poi_url_base': 'https://www.raiffeisen.hu', 'poi_search_name': 'raiffeisen',
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
@@ -115,7 +115,7 @@ class hu_raiffeisen(DataProvider):
                     logging.warning('No address found for branch %s.', branch_id)
                     continue
 
-                self.data.code = 'huraiffbank'
+                self.data.code = 'huraiffbk'
                 self._set_address(address_span.get_text().strip())
                 self.data.lat, self.data.lon = check_hu_boundary(entry.get('lat'), entry.get('lng'))
                 self.data.ref = clean_string(branch_id)
