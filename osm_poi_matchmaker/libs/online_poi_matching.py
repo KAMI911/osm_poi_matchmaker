@@ -257,11 +257,12 @@ def online_poi_matching(args):
                         logging.warning(traceback.format_exc())
                     try:
                         distance = osm_query.get('distance')
-                        logging.debug('OSM distance query result: %s', distance)
                         if distance is not None:
                             value = distance.values[0]
+                            logging.debug('OSM distance to matched POI: %s m', value)
                             data.at[i, 'poi_distance'] = int(value) if pd.notna(value) else None
                         else:
+                            logging.debug('OSM distance query returned no distance column.')
                             data.at[i, 'poi_distance'] = None
                     except Exception as err_row:
                         logging.exception('Exception occurred during OSM distance query: {}'.format(err_row))
