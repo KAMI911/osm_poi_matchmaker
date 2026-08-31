@@ -141,6 +141,8 @@ def match_conflict_resolution(data, db_session=None, max_iterations=10):
     Returns:
         tuple: (data, resolution_stats dict)
     """
+    data = data.copy()
+
     stats = {
         'initial_conflicts': 0,
         'resolved': 0,

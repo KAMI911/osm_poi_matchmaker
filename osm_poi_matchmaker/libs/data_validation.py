@@ -77,7 +77,7 @@ class POIDataValidator:
                 self._add_error(idx, 'poi_lon', lon, 'hungarian_bounds', f'Longitude {lon} outside Hungary')
 
         # Postcode validation (only if present)
-        if row.get('poi_postcode') not in (None, '', 'None'):
+        if pd.notna(row.get('poi_postcode')) and row.get('poi_postcode') not in ('', 'None'):
             postcode_str = str(row['poi_postcode']).strip()
             if not self.POSTCODE_PATTERN.match(postcode_str):
                 self._add_error(idx, 'poi_postcode', postcode_str, 'postcode_format',
@@ -86,7 +86,11 @@ class POIDataValidator:
         # OSM ID validation (only if present)
         if pd.notna(row.get('osm_id')):
             osm_id = row['osm_id']
-            if not isinstance(osm_id, int) or osm_id <= 0:
+            try:
+                osm_id_num = int(osm_id)
+                if osm_id_num <= 0:
+                    self._add_error(idx, 'osm_id', osm_id, 'osm_id_format', f'Invalid OSM ID: {osm_id}')
+            except (ValueError, TypeError):
                 self._add_error(idx, 'osm_id', osm_id, 'osm_id_format', f'Invalid OSM ID: {osm_id}')
 
         # Opening hours format (if present)

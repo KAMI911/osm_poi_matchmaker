@@ -51,15 +51,24 @@ class QualityMetrics:
 
     def _count_valid_records(self):
         """Count records with essential fields."""
+        if not all(col in self.data.columns for col in ['poi_lon', 'poi_lat']):
+            return 0
+
         valid = (
             (self.data['poi_lon'].notna()) &
-            (self.data['poi_lat'].notna()) &
-            (self.data['poi_name'].notna() | self.data['poi_city'].notna())
-        ).sum()
-        return int(valid)
+            (self.data['poi_lat'].notna())
+        )
+
+        if 'poi_name' in self.data.columns and 'poi_city' in self.data.columns:
+            valid = valid & (self.data['poi_name'].notna() | self.data['poi_city'].notna())
+
+        return int(valid.sum())
 
     def _count_missing_coordinates(self):
         """Count records with missing lat/lon."""
+        if not all(col in self.data.columns for col in ['poi_lon', 'poi_lat']):
+            return 0
+
         missing = (
             (self.data['poi_lon'].isna()) |
             (self.data['poi_lat'].isna())
@@ -68,6 +77,9 @@ class QualityMetrics:
 
     def _count_missing_postcode(self):
         """Count records with missing postcode."""
+        if 'poi_postcode' not in self.data.columns:
+            return 0
+
         missing = (
             (self.data['poi_postcode'].isna()) |
             (self.data['poi_postcode'] == '') |
@@ -77,6 +89,9 @@ class QualityMetrics:
 
     def _count_missing_name(self):
         """Count records with missing name."""
+        if 'poi_name' not in self.data.columns:
+            return 0
+
         missing = (
             (self.data['poi_name'].isna()) |
             (self.data['poi_name'] == '')
@@ -85,18 +100,27 @@ class QualityMetrics:
 
     def _count_duplicates(self):
         """Count records sharing same osm_id."""
-        osm_duplicates = (
-            self.data[self.data['osm_id'].notna()].groupby('osm_id').size() > 1
-        ).sum()
+        total_duplicates = 0
 
-        name_addr_duplicates = (
-            self.data.groupby(['poi_name', 'poi_addr_street', 'poi_addr_housenumber']).size() > 1
-        ).sum()
+        if 'osm_id' in self.data.columns:
+            osm_duplicates = (
+                self.data[self.data['osm_id'].notna()].groupby('osm_id').size() > 1
+            ).sum()
+            total_duplicates += osm_duplicates
 
-        return int(osm_duplicates + name_addr_duplicates)
+        if all(col in self.data.columns for col in ['poi_name', 'poi_addr_street', 'poi_addr_housenumber']):
+            name_addr_duplicates = (
+                self.data.groupby(['poi_name', 'poi_addr_street', 'poi_addr_housenumber']).size() > 1
+            ).sum()
+            total_duplicates += name_addr_duplicates
+
+        return int(total_duplicates)
 
     def _count_osm_matched(self):
         """Count records with OSM match."""
+        if 'osm_id' not in self.data.columns:
+            return 0
+
         matched = self.data['osm_id'].notna().sum()
         return int(matched)
 
@@ -119,12 +143,15 @@ class QualityMetrics:
         if not self.metrics:
             self.calculate()
 
+        total = self.metrics['total_records']
+        total_pct = 100 if total == 0 else 100
+
         return {
             'stage': self.metrics['stage'],
-            'total': self.metrics['total_records'],
+            'total': total,
             'valid': f"{self.metrics['valid_records']} ({self.metrics['completion_rate_percent']:.1f}%)",
-            'osm_matched': f"{self.metrics['osm_matched']} ({self.metrics['osm_matched']/self.metrics['total_records']*100:.1f}%)",
-            'osm_new': f"{self.metrics['osm_new']} ({self.metrics['osm_new']/self.metrics['total_records']*100 if self.metrics['total_records'] > 0 else 0:.1f}%)",
+            'osm_matched': f"{self.metrics['osm_matched']} ({self.metrics['osm_matched']/total*100 if total > 0 else 0:.1f}%)",
+            'osm_new': f"{self.metrics['osm_new']} ({self.metrics['osm_new']/total*100 if total > 0 else 0:.1f}%)",
             'errors': f"{self.metrics['errors']} ({self.metrics['error_rate_percent']:.1f}%)",
             'missing_coords': self.metrics['missing_coordinates'],
             'missing_postcode': self.metrics['missing_postcode'],
