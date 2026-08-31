@@ -1098,8 +1098,8 @@ class POIDatasetRaw:
         self.__opening_hours = t.process()
 
     def dump_opening_hours(self):
-        """Debug helper: print the current processed opening_hours string."""
-        print(self.__opening_hours)
+        """Debug helper: log the current processed opening_hours string."""
+        logging.debug(f'Opening hours: {self.__opening_hours}')
 
     def process_street(self):
         """Validate/correct the street name against nearby OSM roads (exact match,
