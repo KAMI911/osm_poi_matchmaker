@@ -12,6 +12,7 @@ try:
     from math import isnan
     from osm_poi_matchmaker.utils import config, poitypes
     from osm_poi_matchmaker.dao.data_structure import Base
+    from osm_poi_matchmaker.libs.search_statistics import get_search_statistics
     import psycopg2
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -858,6 +859,10 @@ class POIBase:
             query_text = ['UNION ALL'.join(query_arr) + ' ORDER BY priority ASC, distance ASC;']
         else:
             query_text = [i + ' ORDER BY priority ASC, distance ASC;' for i in query_arr]
+
+        # Initialize search statistics tracker
+        stats = get_search_statistics()
+
         stage = 0
         for q in query_text:
             stage += 1
@@ -900,11 +905,18 @@ class POIBase:
             logging.debug(str(query))
             if not data.empty:
                 logging.info('Found item in {} stage without precise geometry search.'.format(stage))
+                # Record: POI found in this stage
+                poi_id = f"{query_type}:{query_name}:{stage}"
+                stats.record_found(poi_id, stage)
                 logging.debug(data.to_string())
                 logging.debug('Return without precise geometry search data: {}'.format(data.iloc[[0]]))
                 return data.iloc[[0]]
             else:
                 logging.info('Item not found in stage {}.'.format(stage))
+
+        # Record: POI not found in any stage
+        poi_id = f"{query_type}:{query_name}"
+        stats.record_not_found(poi_id)
         logging.info('Item not found at all.')
         try:
             self.session.commit()
