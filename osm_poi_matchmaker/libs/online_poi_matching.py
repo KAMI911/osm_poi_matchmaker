@@ -256,8 +256,8 @@ def online_poi_matching(args):
                         logging.exception('Exception occurred during OSM timestamp query: {}'.format(err_row))
                         logging.warning(traceback.format_exc())
                     try:
-                        logging.info(osm_query.get('distance'))
                         distance = osm_query.get('distance')
+                        logging.debug('OSM distance query result: %s', distance)
                         if distance is not None:
                             value = distance.values[0]
                             data.at[i, 'poi_distance'] = int(value) if pd.notna(value) else None
