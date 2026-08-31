@@ -475,6 +475,19 @@ def main():
         if poi_addr_data is None:
             raise RuntimeError('STAGE 9 – Online POI matching failed, aborting pipeline.')
         logging.info("STAGE 9 – Online POI matching finished successfully.")
+        mem_info.log_top_memory_snapshot('STAGE 9')
+
+        # --- STAGE 9.5 ---
+        logging.info('Starting STAGE 9.5 – Conflict resolution.')
+        try:
+            poi_addr_data, conflict_stats = match_conflict_resolution(poi_addr_data)
+            logging.info('STAGE 9.5 – Conflict resolution: %d initial conflicts, %d resolved in %d iterations, %d unresolved',
+                        conflict_stats['initial_conflicts'], conflict_stats['resolved'],
+                        conflict_stats['iterations'], conflict_stats['unresolved'])
+        except Exception as e:
+            logging.error('STAGE 9.5 – Conflict resolution failed: %s', e, exc_info=True)
+            raise
+        mem_info.log_top_memory_snapshot('STAGE 9.5')
 
         # insert_poi_dataframe(session, poi_addr_data, False)
 
@@ -483,7 +496,7 @@ def main():
         export_raw_poi_data_geojson(poi_addr_data, prefix)
         export_new_poi_data(poi_addr_data, prefix)
         export_existing_poi_data(poi_addr_data, prefix)
-        mem_info.log_top_memory_snapshot('STAGE 9')
+        mem_info.log_top_memory_snapshot('STAGE 10')
 
         # --- STAGE 10 ---
         logging.info('Starting STAGE 10 – Exporting matched POI.')
