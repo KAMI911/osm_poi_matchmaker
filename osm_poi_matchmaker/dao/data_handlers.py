@@ -868,7 +868,14 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
     if raw:
         poi_df.columns = POI_COLS_RAW
 
-    poi_df['poi_postcode'] = poi_df['poi_postcode'].astype(object).where(poi_df['poi_postcode'].notna(), None)
+    # Convert postcode to string type to prevent float formatting (e.g., 23.0 instead of 23)
+    # when Pandas handles numeric postcode values. Strip whitespace and handle NaN/None.
+    def convert_postcode_to_str(val):
+        if val is None or (isinstance(val, float) and pd.isna(val)):
+            return None
+        return str(val).strip() if val is not None else None
+
+    poi_df['poi_postcode'] = poi_df['poi_postcode'].apply(convert_postcode_to_str)
 
     poi_dict = poi_df.to_dict('records')
 
