@@ -276,8 +276,8 @@ class TestRealPatchFile(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         import os
-        patch_path = os.path.join(os.path.dirname(__file__), '..',
-                                  'osm_poi_matchmaker', 'data', 'poi_patch.tsv')
+        # Path from osm_poi_matchmaker/test/ to osm_poi_matchmaker/data/
+        patch_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'poi_patch.tsv')
         cls.patch_df = pd.read_csv(patch_path, encoding='UTF-8', sep='\t', skiprows=0)
         cls.patch_df = cls.patch_df.where(pd.notna(cls.patch_df), None)
 
