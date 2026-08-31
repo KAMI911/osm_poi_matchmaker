@@ -79,7 +79,11 @@ class hu_raiffeisen(DataProvider):
         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
             self.data.conscriptionnumber = extract_all_address_waxeye(address_for_parsing)
         original = clean_string(address_text)
-        self.data.original = original[:128] if original else None
+        if original and len(original) > 512:
+            logging.warning('Address field exceeds 512 char limit, truncating: %s', original[:100])
+            self.data.original = original[:512]
+        else:
+            self.data.original = original
 
     def process_branches(self):
         # The list endpoint only gives coordinates and an opaque identifier per branch
