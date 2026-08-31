@@ -107,7 +107,7 @@ class hu_dpd(DataProvider):
         """Establish a session (cookies) and read the Spring Security CSRF token off the
         parcel-shops page, both required by the search POST below."""
         session = requests.Session(impersonate=IMPERSONATE)
-        response = session.get(PARCEL_SHOPS_PAGE_URL, timeout=30)
+        response = session.get(PARCEL_SHOPS_PAGE_URL, timeout=60)
         response.raise_for_status()
         match = re.search(r'name="_csrf"\s+content="([^"]+)"', response.text)
         if not match:
@@ -125,7 +125,7 @@ class hu_dpd(DataProvider):
         }
         headers = dict(REQUEST_HEADERS)
         headers['X-CSRF-TOKEN'] = csrf_token
-        response = session.post(PARCEL_SHOP_MAP_URL, json=body, headers=headers, timeout=30)
+        response = session.post(PARCEL_SHOP_MAP_URL, json=body, headers=headers, timeout=60)
         time.sleep(random.uniform(REQUEST_DELAY_MIN_SECONDS, REQUEST_DELAY_MAX_SECONDS))
         response.raise_for_status()
         return response.json().get('parcelShopDetailsList') or []
