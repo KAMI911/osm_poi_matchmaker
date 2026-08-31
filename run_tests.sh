@@ -26,11 +26,11 @@ fi
 echo "Running unit tests with coverage..."
 echo ""
 
-TEST_DIRS="test osm_poi_matchmaker/test"
+TEST_DIR="osm_poi_matchmaker/test"
 
 if [ -z "$SKIP_COVERAGE" ]; then
     coverage run --source=osm_poi_matchmaker -m pytest \
-        $TEST_DIRS \
+        $TEST_DIR \
         -v \
         --tb=short \
         --color=yes \
@@ -46,7 +46,7 @@ if [ -z "$SKIP_COVERAGE" ]; then
     echo "HTML report generated: htmlcov/index.html"
 else
     pytest \
-        $TEST_DIRS \
+        $TEST_DIR \
         -v \
         --tb=short \
         --color=yes \

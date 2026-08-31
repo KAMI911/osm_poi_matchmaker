@@ -32,7 +32,7 @@ chmod +x run_tests.sh
 
 ```bash
 # Run all tests
-pytest osm_poi_matchmaker/test/ -v
+pytest osm_poi_matchmaker/test -v
 
 # Run specific test file
 pytest osm_poi_matchmaker/test/test_data_validation.py -v
@@ -44,7 +44,7 @@ pytest osm_poi_matchmaker/test/test_quality_metrics.py::TestQualityMetricsCalcul
 pytest osm_poi_matchmaker/test/test_quality_metrics.py::TestQualityMetricsCalculate::test_calculate_metrics -v
 
 # Run with coverage
-coverage run --source=osm_poi_matchmaker -m pytest osm_poi_matchmaker/test/
+coverage run --source=osm_poi_matchmaker -m pytest osm_poi_matchmaker/test
 coverage report -m
 ```
 
@@ -52,7 +52,9 @@ coverage report -m
 
 ## Test Suite Overview
 
-### New Framework Tests (osm_poi_matchmaker/test/)
+All tests consolidated in `osm_poi_matchmaker/test/` (19 files, 182 tests)
+
+### New Framework Tests
 
 | File | Tests | Purpose |
 |------|-------|---------|
@@ -66,11 +68,11 @@ coverage report -m
 
 **New tests: 129 test cases**
 
-### Legacy Tests (test/)
+### Legacy/Migrated Tests
 
 | File | Tests | Purpose |
 |------|-------|---------|
-| `test_address.py` | 14 | Legacy address module tests |
+| `test_address.py` | 14 | Address module tests |
 | `test_address_extended.py` | 9 | Extended address tests |
 | `test_poi_patch.py` | 19 | POI patch functionality |
 | `test_osm_extended.py` | 5 | OSM module extended tests |

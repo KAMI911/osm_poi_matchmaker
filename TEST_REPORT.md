@@ -23,10 +23,10 @@ make test-stats
 
 ## Test Suite Structure
 
-### 1. NEW FRAMEWORK TESTS (129 tests)
-Framework for data quality, validation, and conflict resolution.
+All tests consolidated in: `osm_poi_matchmaker/test/` (19 files)
 
-#### Core Modules (66 tests)
+### NEW FRAMEWORK TESTS (129 tests)
+Framework for data quality, validation, and conflict resolution.
 
 **Conflict Resolution** (16 tests) — `test_match_conflict_resolution.py`
 - Haversine distance calculation
@@ -50,8 +50,6 @@ Framework for data quality, validation, and conflict resolution.
 - JSON export functionality
 - Robustness: missing columns, zero division
 
-#### Regression/Fix Tests (63 tests)
-
 **Opening Hours Fix** (6 tests) — `test_opening_hours_fixed.py`
 - NaN/nan-nan handling
 - Skip invalid time values
@@ -64,28 +62,20 @@ Framework for data quality, validation, and conflict resolution.
 - Complex format rejection ("10003 - Mobiliti")
 - Too long/short/non-numeric handling
 - Whitespace stripping
-- Integration tests
 
 **Geo Boundary Fix** (24 tests) — `test_geo_fixed.py`
 - Hungarian boundary validation (45.5-48.6, 16.1-22.9)
 - Exception handling for invalid floats
-- Corner coordinates (NW, NE, SW, SE)
-- Scientific notation, negative, zero, empty, None
-- Swapped coordinates rejection
-- No-crash robustness
+- Corner coordinates validation
+- No-crash robustness on invalid input
 
 **File Output CSV Fix** (15 tests) — `test_file_output_fixed.py`
 - QUOTE_ALL handling for embedded commas
 - Quote escaping in quoted fields
-- Newline handling in fields
 - Data roundtrip integrity
 - Unicode/Hungarian character support
-- Null/NaN value handling
-- Column count mismatch regression
 
----
-
-### 2. LEGACY TESTS (53 tests)
+### LEGACY/MIGRATED TESTS (53 tests)
 Existing test suite covering established modules.
 
 **Address Module** (23 tests)

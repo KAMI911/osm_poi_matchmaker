@@ -1,7 +1,7 @@
 .PHONY: test test-all test-verbose test-coverage test-quick test-fixed clean install help
 
 help:
-	@echo "OSM POI Matchmaker Test Suite"
+	@echo "OSM POI Matchmaker Test Suite (182 tests consolidated)"
 	@echo ""
 	@echo "Usage: make [target]"
 	@echo ""
@@ -12,19 +12,20 @@ help:
 	@echo "  test-coverage     Show coverage report in terminal"
 	@echo "  test-html         Generate HTML coverage report"
 	@echo ""
-	@echo "New module tests (3.0 framework):"
-	@echo "  test-conflict     Conflict resolution tests (16 tests)"
-	@echo "  test-validation   Data validation tests (24 tests)"
-	@echo "  test-metrics      Quality metrics tests (26 tests)"
+	@echo "New framework tests (129 tests):"
+	@echo "  test-conflict     Conflict resolution (16)"
+	@echo "  test-validation   Data validation (24)"
+	@echo "  test-metrics      Quality metrics (26)"
+	@echo "  test-fixed        All regression tests (63)"
 	@echo ""
-	@echo "Fixed module tests (regression):"
-	@echo "  test-fixed        All fixed module tests (63 tests)"
-	@echo "  test-opening-hours Opening hours nan-nan fix (6 tests)"
-	@echo "  test-address      Postcode validation fix (18 tests)"
-	@echo "  test-geo          Boundary checking fix (24 tests)"
-	@echo "  test-file-output  CSV quoting fix (15 tests)"
+	@echo "Regression test subsets:"
+	@echo "  test-opening-hours Opening hours fix (6)"
+	@echo "  test-address      Address/postcode fix (18)"
+	@echo "  test-geo          Geo boundary fix (24)"
+	@echo "  test-file-output  CSV quoting fix (15)"
 	@echo ""
 	@echo "Utilities:"
+	@echo "  test-stats        Show test suite statistics"
 	@echo "  clean             Remove test artifacts"
 	@echo "  install-deps      Install test dependencies"
 	@echo ""
@@ -36,17 +37,17 @@ test: install-deps
 	bash run_tests.sh
 
 test-quick:
-	pytest test osm_poi_matchmaker/test/ -v --tb=short
+	pytest osm_poi_matchmaker/test/ -v --tb=short
 
 test-verbose:
-	pytest test osm_poi_matchmaker/test/ -vv --tb=long
+	pytest osm_poi_matchmaker/test/ -vv --tb=long
 
 test-coverage:
-	coverage run --source=osm_poi_matchmaker -m pytest test osm_poi_matchmaker/test/ -v
+	coverage run --source=osm_poi_matchmaker -m pytest osm_poi_matchmaker/test/ -v
 	coverage report -m
 
 test-html:
-	coverage run --source=osm_poi_matchmaker -m pytest test osm_poi_matchmaker/test/ -q
+	coverage run --source=osm_poi_matchmaker -m pytest osm_poi_matchmaker/test/ -q
 	coverage html
 	@echo "HTML report generated at: htmlcov/index.html"
 
@@ -83,16 +84,13 @@ test-stats:
 	@echo "=== Test Suite Statistics ==="
 	@echo ""
 	@echo "Test files:"
-	@find test osm_poi_matchmaker/test -name "test_*.py" -type f | wc -l | xargs -I {} echo "  Total: {} files"
+	@find osm_poi_matchmaker/test -name "test_*.py" -type f | wc -l | xargs -I {} echo "  Total: {} files"
 	@echo ""
-	@echo "Test cases (legacy):"
-	@grep -r "def test_" test/ 2>/dev/null | wc -l | xargs -I {} echo "  Legacy: {} tests"
+	@echo "Test cases:"
+	@grep -r "def test_" osm_poi_matchmaker/test/ 2>/dev/null | wc -l | xargs -I {} echo "  Total: {} test methods"
 	@echo ""
-	@echo "Test cases (new framework):"
-	@grep -r "def test_" osm_poi_matchmaker/test/ 2>/dev/null | wc -l | xargs -I {} echo "  New: {} tests"
-	@echo ""
-	@echo "Combined:"
-	@(grep -r "def test_" test/ osm_poi_matchmaker/test/ 2>/dev/null | wc -l) | xargs -I {} echo "  Total: {} test methods"
+	@echo "Breakdown by file:"
+	@for f in osm_poi_matchmaker/test/test_*.py; do count=$$(grep -c "def test_" "$$f" 2>/dev/null || echo 0); echo "  $$(basename $$f): $$count tests"; done | sort -t: -k2 -rn
 
 .PHONY: test-all
 test-all: test
