@@ -23,7 +23,7 @@ RUN python3 --version && \
     python3 -m pip install -r /opm/requirements.txt
 
 COPY ./osm_poi_matchmaker /opm/osm_poi_matchmaker
-COPY ./test /opm/test
+# COPY ./test /opm/test
 COPY ./test_opm_create.sh /opm
 COPY ./app.conf /opm/
 ENV PYTHONPATH=/opm/
