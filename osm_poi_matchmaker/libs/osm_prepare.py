@@ -54,8 +54,8 @@ CREATE INDEX IF NOT EXISTS i_planet_osm_point_highway ON planet_osm_point(highwa
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_shop ON planet_osm_point(shop);
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_name ON planet_osm_point(name);
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_brand ON planet_osm_point(brand);
--- Plain btree indexes above don't help query_osm_shop_poi_gpd()'s `name/brand/network
--- ~* :pattern` regex matching (btree only serves equality/prefix lookups); trigram GIN
+-- Plain btree indexes above don't help query_osm_shop_poi_gpd()'s name/brand/network
+-- regex matching (btree only serves equality/prefix lookups); trigram GIN
 -- indexes do. planet_osm_line already had one for name below - point/polygon didn't.
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_name_trgm ON planet_osm_point USING gin (name gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_brand_trgm ON planet_osm_point USING gin (brand gin_trgm_ops);
