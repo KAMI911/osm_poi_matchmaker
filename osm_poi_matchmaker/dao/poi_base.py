@@ -594,12 +594,12 @@ class POIBase:
                                                                    city_query=city_query,
                                                                    housenumber_query=housenumber_query))
                     perf = self.session.execute(perf_query, query_params)
+                    logging.debug(perf.mappings().all())
+                    perf_rows = [str(row.values()) for row in perf]
+                    logging.debug('\n'.join(perf_rows))
                 except Exception as err:
                     logging.warning('Exception occurred')
                     logging.exception(err)
-                logging.critical(perf.mappings().all())
-                perf_rows = [str(row.values()) for row in perf]
-                logging.debug('\n'.join(perf_rows))
             data = gpd.GeoDataFrame()
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
