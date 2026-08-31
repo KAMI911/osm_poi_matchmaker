@@ -99,23 +99,40 @@ def check_hu_boundary(latitude, longitude):
     """
     if (latitude is not None and latitude != '' and latitude != 0.0) and (
             longitude is not None and longitude != '' and longitude != 0.0):
+        try:
+            lat_float = float(latitude)
+            lon_float = float(longitude)
+        except (ValueError, TypeError) as e:
+            logging.warning('Cannot convert coordinates to float: latitude=%s, longitude=%s: %s', latitude, longitude, e)
+            return None, None
+
         # This is a workaround because original datasource may contains swapped lat / lon parameters
-        if float(latitude) < 44:
+        if lat_float < 44:
             logging.warning(
                 'Latitude-longitude replacement. Originally was: latitude: %s, longitude: %s.',
                 latitude, longitude)
             longitude, latitude = latitude, longitude
+            lat_float, lon_float = lon_float, lat_float
+
         # Another workaround to insert missing decimal point
-        if float(longitude) > 200:
-            longitude = '{}.{}'.format(longitude[:2], longitude[3:])
-            if longitude.count('.') > 1:
-                lon_tmp = longitude.split('.')
-                longitude = '.'.join(lon_tmp[0:1])
-        if float(latitude) > 200:
-            latitude = '{}.{}'.format(latitude[:2], latitude[3:])
-            if latitude.count('.') > 1:
-                lat_tmp = latitude.split('.')
-                latitude = '.'.join(lat_tmp[0:1])
+        if lon_float > 200:
+            try:
+                longitude = '{}.{}'.format(str(longitude)[:2], str(longitude)[2:])
+                if longitude.count('.') > 1:
+                    lon_tmp = longitude.split('.')
+                    longitude = '.'.join(lon_tmp[0:1])
+            except (IndexError, ValueError) as e:
+                logging.warning('Cannot process longitude decimal point: %s: %s', longitude, e)
+
+        if lat_float > 200:
+            try:
+                latitude = '{}.{}'.format(str(latitude)[:2], str(latitude)[2:])
+                if latitude.count('.') > 1:
+                    lat_tmp = latitude.split('.')
+                    latitude = '.'.join(lat_tmp[0:1])
+            except (IndexError, ValueError) as e:
+                logging.warning('Cannot process latitude decimal point: %s: %s', latitude, e)
+
         return latitude, longitude
     else:
         return None, None
