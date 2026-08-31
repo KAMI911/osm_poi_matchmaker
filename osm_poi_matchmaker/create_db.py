@@ -469,37 +469,35 @@ def main():
         mem_info.log_top_memory_snapshot('STAGE 8')
 
         # --- STAGE 9 ---
-        logging.info('Starting STAGE 9 – Online POI matching.')
+        logging.info('Starting STAGE 9 – Online POI matching and conflict resolution.')
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
         if poi_addr_data is None:
             raise RuntimeError('STAGE 9 – Online POI matching failed, aborting pipeline.')
         logging.info("STAGE 9 – Online POI matching finished successfully.")
-        mem_info.log_top_memory_snapshot('STAGE 9')
 
-        # --- STAGE 9.5 ---
-        logging.info('Starting STAGE 9.5 – Conflict resolution.')
+        logging.info('Resolving OSM ID conflicts.')
         try:
             poi_addr_data, conflict_stats = match_conflict_resolution(poi_addr_data)
-            logging.info('STAGE 9.5 – Conflict resolution: %d initial conflicts, %d resolved in %d iterations, %d unresolved',
+            logging.info('Conflict resolution: %d initial conflicts, %d resolved in %d iterations, %d unresolved',
                         conflict_stats['initial_conflicts'], conflict_stats['resolved'],
                         conflict_stats['iterations'], conflict_stats['unresolved'])
         except Exception as e:
-            logging.error('STAGE 9.5 – Conflict resolution failed: %s', e, exc_info=True)
+            logging.error('Conflict resolution failed: %s', e, exc_info=True)
             raise
-        mem_info.log_top_memory_snapshot('STAGE 9.5')
+        logging.info("STAGE 9 – Online POI matching and conflict resolution finished successfully.")
+        mem_info.log_top_memory_snapshot('STAGE 9')
 
         # insert_poi_dataframe(session, poi_addr_data, False)
 
+        # --- STAGE 10 ---
+        logging.info('Starting STAGE 10 – Exporting matched POI.')
         prefix = 'merge_'
         export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
         export_raw_poi_data_geojson(poi_addr_data, prefix)
         export_new_poi_data(poi_addr_data, prefix)
         export_existing_poi_data(poi_addr_data, prefix)
-        mem_info.log_top_memory_snapshot('STAGE 10')
 
-        # --- STAGE 10 ---
-        logging.info('Starting STAGE 10 – Exporting matched POI.')
         manager.start_exporter(poi_addr_data, prefix)
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_new, infix='new_')
         manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_existing, infix='existing_')
