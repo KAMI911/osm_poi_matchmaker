@@ -5,21 +5,21 @@ try:
     import unittest
     import logging
     import sys
-    from test.test_address import TestAddressResolver, TestFullAddressResolver, TestOpeningHoursCleaner, \
+    from osm_poi_matchmaker.test.test_address import TestAddressResolver, TestFullAddressResolver, TestOpeningHoursCleaner, \
         TestOpeningHoursCleaner2, TestPhoneCleaner, TestPhoneCleanerStr, TestPhoneCleanerMobileStr, \
         TestStringCleaner, TestURLCleaner, TestCityCleaner, TestPostcodeCleaner, TestReplaceHTMLNewLines, \
         TestExtractPhoneNumber
-    from test.test_online_poi_matching import TestSmartOnlinePOIMatching
-    from test.test_opening_hours import TestOpeningHours
-    from test.test_file_output_helper import TestURLTagGenerator
-    # from test.test_poi_dataset import TestPOIDatasetRaw
-    from test.test_timing import TestTiming
-    from test.test_osm import TestOSMRelationer
-    from test.test_address_extended import TestRemoveWhitespace, TestCleanJavascriptVariable, \
+    from osm_poi_matchmaker.test.test_online_poi_matching import TestSmartOnlinePOIMatching
+    from osm_poi_matchmaker.test.test_opening_hours import TestOpeningHours
+    from osm_poi_matchmaker.test.test_file_output_helper import TestURLTagGenerator
+    # from osm_poi_matchmaker.test.test_poi_dataset import TestPOIDatasetRaw
+    from osm_poi_matchmaker.test.test_timing import TestTiming
+    from osm_poi_matchmaker.test.test_osm import TestOSMRelationer
+    from osm_poi_matchmaker.test.test_address_extended import TestRemoveWhitespace, TestCleanJavascriptVariable, \
         TestCleanStreet, TestCleanStreetType, TestCleanBranch, TestCleanEmail, TestCleanPhoneToJson, \
         TestExtractStreetHousenumber, TestExtractCityStreetHousenumber
-    from test.test_osm_extended import TestOSMRelationerEdgeCases, TestOSMTimestamp
-    from test.test_poi_patch import TestApplyPoiPatches
+    from osm_poi_matchmaker.test.test_osm_extended import TestOSMRelationerEdgeCases, TestOSMTimestamp
+    from osm_poi_matchmaker.test.test_poi_patch import TestApplyPoiPatches
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)

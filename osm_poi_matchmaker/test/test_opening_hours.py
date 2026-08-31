@@ -5,7 +5,7 @@ try:
     import logging
     import sys
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
-    from test.test_opening_hours_data import OPENING_HOURS_TEST_DATA
+    from osm_poi_matchmaker.test.test_opening_hours_data import OPENING_HOURS_TEST_DATA
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
