@@ -5,6 +5,7 @@ try:
     import sys
     import math
     import os
+    import csv
     import datetime
     import traceback
     from urllib.parse import quote
@@ -149,9 +150,9 @@ def save_csv_file(path: str, file: str, data, message: str):
         logging.warning('No data to save for %s', file)
         return
     try:
-        # Save file to CSV file
+        # Save file to CSV file with proper quoting to handle fields containing commas
         logging.info('Saving %s to file: %s', message, file)
-        res = data.to_csv(os.path.join(path, file))
+        res = data.to_csv(os.path.join(path, file), quoting=csv.QUOTE_ALL, doublequote=True, quotechar='"')
         logging.info('The %s was successfully saved', file)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
