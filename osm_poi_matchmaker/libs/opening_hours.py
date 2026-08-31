@@ -113,6 +113,30 @@ class OpeningHours(object):
         """
         self.__lunch_break_stop = value
 
+    def _is_valid_time(self, time_value):
+        """Check if a time value is valid (not None, not NaN, not 'nan' string).
+
+        Args:
+            time_value: The time value to validate
+
+        Returns:
+            bool: True if the value is a valid time string, False otherwise
+        """
+        if time_value is None:
+            return False
+
+        time_str = str(time_value).strip().lower()
+
+        # Check for NaN variations
+        if time_str in ('nan', 'none', ''):
+            return False
+
+        # Check if it looks like a valid time format (HH:MM:SS or HH:MM)
+        if ':' not in time_str:
+            return False
+
+        return True
+
     def process(self):
         """Build the OSM opening_hours string from the per-day table set up in
         __init__: groups consecutive weekdays with identical open/close times into
@@ -129,6 +153,10 @@ class OpeningHours(object):
         oh_list = []
         for row in self.df_dup.itertuples():
             if row.open is not None and row.close is not None:
+                # Validate that times are not NaN or invalid
+                if not self._is_valid_time(row.open) or not self._is_valid_time(row.close):
+                    continue
+
                 # Order by week days
                 ordered = collections.OrderedDict(sorted(row.same.items(), key=lambda x: x[0]))
                 same = list(ordered.values())
@@ -154,24 +182,39 @@ class OpeningHours(object):
                 # Make list of days
                 else:
                     days = ','.join(same)
-                if self.__lunch_break_start is None and self.__lunch_break_stop is None:
-                    # If open and close are equals we handles as closed
+
+                # Validate lunch break times if they exist
+                lunch_break_valid = True
+                if self.__lunch_break_start is not None or self.__lunch_break_stop is not None:
+                    if not self._is_valid_time(self.__lunch_break_start) or not self._is_valid_time(self.__lunch_break_stop):
+                        lunch_break_valid = False
+
+                if lunch_break_valid:
+                    if self.__lunch_break_start is None and self.__lunch_break_stop is None:
+                        # If open and close are equals we handles as closed
+                        if row.open != row.close:
+                            oh_list.append(
+                                "{} {}-{}".format(days.title(), row.open, row.close)
+                            )
+                    else:
+                        # If open and close are equals we handles as closed
+                        if row.open != row.close:
+                            oh_list.append(
+                                "{} {}-{},{}-{}".format(
+                                    days.title(),
+                                    row.open,
+                                    self.__lunch_break_start,
+                                    self.__lunch_break_stop,
+                                    row.close,
+                                )
+                            )
+                else:
+                    # Lunch break is invalid, just use open-close
                     if row.open != row.close:
                         oh_list.append(
                             "{} {}-{}".format(days.title(), row.open, row.close)
                         )
-                else:
-                    # If open and close are equals we handles as closed
-                    if row.open != row.close:
-                        oh_list.append(
-                            "{} {}-{},{}-{}".format(
-                                days.title(),
-                                row.open,
-                                self.__lunch_break_start,
-                                self.__lunch_break_stop,
-                                row.close,
-                            )
-                        )
+
                 oh = '; '.join(oh_list)
                 oh = oh + oh_ph
         if self.__non_stop is True or 'Mo-Su 00:00-24:00' in oh:
