@@ -17,6 +17,7 @@ try:
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao.data_handlers import get_or_create_cache
     from osm_poi_matchmaker.utils.config import get_dataproviders_limit_elemets
+    from osm_poi_matchmaker.libs.string import has_value
     import json
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -25,6 +26,14 @@ except ImportError as err:
     sys.exit(128)
 
 RETRY = 3
+
+
+def _disp(value):
+    """Blank out None/NaN for '%s'-style logging - printed as-is a pandas NaN
+    (a field never set for this row) renders as the literal text 'nan', which is
+    confusing noise in an address-summary log line (see e.g. 'Old .../New ...'
+    below - it looks like real data, not a missing field)."""
+    return value if has_value(value) else ''
 
 # Per-worker-process connection, created once by init_matcher_worker() and
 # reused across every chunk that worker handles, instead of opening a fresh
@@ -233,8 +242,9 @@ def online_poi_matching(args):
                                       row.poi_search_name, row.poi_search_avoid_name,
                                       row.poi_type,
                                       data.at[i, 'poi_distance'] if 'poi_distance' in data.columns else None,
-                                      data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
-                                      data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'])
+                                      _disp(data.at[i, 'poi_postcode']), _disp(data.at[i, 'poi_city']),
+                                      _disp(data.at[i, 'poi_addr_street']), _disp(data.at[i, 'poi_addr_housenumber']),
+                                      _disp(data.at[i, 'poi_conscriptionnumber']))
                     try:
                         data.at[i, 'osm_version'] = osm_query.get('osm_version').values[0] \
                             if osm_query.get('osm_version') is not None else None
@@ -280,18 +290,20 @@ def online_poi_matching(args):
                         data.at[i, 'osm_nodes'] = json.dumps(nodes) if isinstance(nodes, (list, dict)) else nodes
                     if not changed_from_osm:
                         logging.info('Old %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
-                                 row.poi_search_name, row.poi_search_avoid_name, 
+                                 row.poi_search_name, row.poi_search_avoid_name,
                                  row.poi_type, data.at[i, 'poi_distance'],
-                                 data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
-                                 data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'])
+                                 _disp(data.at[i, 'poi_postcode']), _disp(data.at[i, 'poi_city']),
+                                 _disp(data.at[i, 'poi_addr_street']), _disp(data.at[i, 'poi_addr_housenumber']),
+                                 _disp(data.at[i, 'poi_conscriptionnumber']))
                     else:
                         logging.info('Old changed %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s) was: %s %s, %s %s (%s)',
                                  row.poi_search_name, row.poi_search_avoid_name,
                                  row.poi_type, data.at[i, 'poi_distance'],
-                                 data.at[i, 'poi_postcode'], data.at[i, 'poi_city'], data.at[i, 'poi_addr_street'],
-                                 data.at[i, 'poi_addr_housenumber'], data.at[i, 'poi_conscriptionnumber'],
-                                 row.poi_postcode, row.poi_city, row.poi_addr_street,
-                                 row.poi_addr_housenumber, row.poi_conscriptionnumber)
+                                 _disp(data.at[i, 'poi_postcode']), _disp(data.at[i, 'poi_city']),
+                                 _disp(data.at[i, 'poi_addr_street']), _disp(data.at[i, 'poi_addr_housenumber']),
+                                 _disp(data.at[i, 'poi_conscriptionnumber']),
+                                 _disp(row.poi_postcode), _disp(row.poi_city), _disp(row.poi_addr_street),
+                                 _disp(row.poi_addr_housenumber), _disp(row.poi_conscriptionnumber))
                     cached_node = None
                     try:
                         # Download OSM POI way live tags
@@ -442,9 +454,9 @@ def online_poi_matching(args):
                     else:
                         logging.info('Preserving original postcode %s', row.poi_postcode)
                     logging.info('New %s (not %s) type: %s POI: %s %s, %s %s (%s)', row.poi_search_name,
-                                 row.poi_search_avoid_name, row.poi_type, row.poi_postcode,
-                                 row.poi_city, row.poi_addr_street, row.poi_addr_housenumber,
-                                 row.poi_conscriptionnumber if pd.notna(row.poi_conscriptionnumber) else '')
+                                 row.poi_search_avoid_name, row.poi_type, _disp(row.poi_postcode),
+                                 _disp(row.poi_city), _disp(row.poi_addr_street), _disp(row.poi_addr_housenumber),
+                                 _disp(row.poi_conscriptionnumber))
             except Exception as e:
                 if isinstance(e, SQLAlchemyError):
                     session.rollback()
