@@ -323,7 +323,10 @@ def extract_all_address(clearable):
         tuple[str | None, str | None, str | None, str | None, str | None]:
         (postcode, city, street, housenumber, conscriptionnumber).
     """
-    if clearable is not None and clearable != '':
+    # has_value() rejects NaN too, unlike a plain 'is not None' check - a bare NaN
+    # would otherwise reach clean_string() below, come back None, and crash the
+    # regex search on it two lines down.
+    if has_value(clearable):
         clearable = clean_string(clearable)
         pc_match = PATTERN_POSTCODE_CITY.search(clearable)
         if pc_match is not None:
@@ -424,7 +427,10 @@ def extract_city_street_housenumber_address(clearable):
         tuple[str | None, str | None, str | None, str | None]:
         (city, street, housenumber, conscriptionnumber).
     """
-    if clearable is None:
+    # has_value() rejects NaN too, unlike a plain 'is None' check - a bare NaN would
+    # otherwise reach clean_string() below, come back None, and crash the regex search
+    # on it two lines down.
+    if not has_value(clearable):
         return None, None, None, None, None
     if clearable is not None and clearable != '':
         clearable = clean_string(clearable)
