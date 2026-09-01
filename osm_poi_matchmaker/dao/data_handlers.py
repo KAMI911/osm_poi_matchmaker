@@ -868,6 +868,16 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
     if raw:
         poi_df.columns = POI_COLS_RAW
 
+    # A cell a data provider left unset comes back from pandas as NaN (a float), not
+    # None or '' - a provider field assigned straight from a raw source (e.g. a bare
+    # `poi_data.get(...)` never routed through clean_string()/has_value()) can carry
+    # that NaN all the way here. Left unguarded it gets bound as-is to the INSERT and
+    # stored as the literal text 'nan' instead of SQL NULL (seen in practice from
+    # hu_mkb_bank.py's pd.read_csv() rows and in file_output.py's OSM tag generation).
+    # Blanket-normalize every column here as a backstop, on top of - not instead of -
+    # providers cleaning their own fields.
+    poi_df = poi_df.replace({np.nan: None})
+
     # Convert postcode to string type to prevent float formatting (e.g., 23.0 instead of 23)
     # when Pandas handles numeric postcode values. Strip whitespace and handle NaN/None.
     def convert_postcode_to_str(val):
