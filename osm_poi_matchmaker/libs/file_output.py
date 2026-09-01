@@ -13,6 +13,7 @@ try:
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import clean_url
+    from osm_poi_matchmaker.libs.string import has_value
     from osm_poi_matchmaker.libs.file_output_helper import url_tag_generator
     from osm_poi_matchmaker.libs.osm import relationer, timestamp_now
     from osm_poi_matchmaker.libs.compare_strings import compare_strings
@@ -542,7 +543,7 @@ def generate_osm_xml(df, session=None):
                     # Alternative opening hours code path to handle cases like COVID-19 special tagging
                     alternative_oh_tag = config.get_geo_alternative_opening_hours_tag()
 
-                    if tags.get('opening_hours') is not None and tags.get('opening_hours') != '':
+                    if has_value(tags.get('opening_hours')):
                         current_oh = tags.get('opening_hours')
                         if is_complex_opening_hours(current_oh):
                             # Too complex → not to modify, also add a comment
@@ -550,20 +551,20 @@ def generate_osm_xml(df, session=None):
                             etree.Comment(comment)
                             logging.debug(f'Opening_hours too complex ({current_oh}), skipping modification.')
                         else:
-                            if row.poi_opening_hours is not None and row.poi_opening_hours != '':
+                            if has_value(row.poi_opening_hours):
                                 if current_oh == row.poi_opening_hours:
                                     tags[alternative_oh_tag] = 'same'
                                 else:
                                     tags[alternative_oh_tag] = row.poi_opening_hours
                     else:
-                        if row.poi_opening_hours is not None and row.poi_opening_hours != '':
+                        if has_value(row.poi_opening_hours):
                             tags['opening_hours'] = row.poi_opening_hours
                             tags[alternative_oh_tag] = 'same'
 
                 else:
                     # NON COVID-19 code path: simple opening hours tagging
-                    if row.poi_opening_hours is not None and row.poi_opening_hours != '':
-                        if tags.get('opening_hours') is not None and tags.get('opening_hours') != '':
+                    if has_value(row.poi_opening_hours):
+                        if has_value(tags.get('opening_hours')):
                             current_oh = tags.get('opening_hours')
                             if is_complex_opening_hours(current_oh):
                                 comment = f'Opening Hours is too complex ({current_oh}) to handle automatically.'
@@ -580,7 +581,7 @@ def generate_osm_xml(df, session=None):
             try:
                 # If we got POI phone tag use it as OSM contact:phone tag
                 logging.debug('Add contact:phone tag with phone numbers.')
-                if row.poi_phone is not None and row.poi_phone != '':
+                if has_value(row.poi_phone):
                     tags['contact:phone'] = row.poi_phone
                 logging.debug('Add contact:mobile tag with phone numbers.')
             except Exception as e:
@@ -588,7 +589,7 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Add contact:mobile tag with phone numbers.')
-                if row.poi_mobile is not None and row.poi_mobile != '':
+                if has_value(row.poi_mobile):
                     tags['contact:mobile'] = row.poi_mobile
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
@@ -704,7 +705,7 @@ def generate_osm_xml(df, session=None):
                         tags['name'] = row.poi_name
                 else:
                     # Use OSM live 'name' tag for bus_stops when possible
-                    if osm_live_tags.get('name') is not None and osm_live_tags.get('name') != '':
+                    if has_value(osm_live_tags.get('name')):
                         tags['name'] = osm_live_tags.get('name')
                     else:
                         if preserved_name is not None:
@@ -732,14 +733,7 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Add description OSM tag.')
-                if (
-                    row.poi_description is not None
-                    and row.poi_description != ""
-                    and not (
-                        isinstance(row.poi_description, float)
-                        and math.isnan(row.poi_description)
-                    )
-                ):
+                if has_value(row.poi_description):
                     tags['description'] = row.poi_description
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
@@ -748,7 +742,7 @@ def generate_osm_xml(df, session=None):
                 # Write tags with yes/no value
                 logging.debug('Add boolean OSM tags.')
                 for k, v in POI_YESNO_TAGS.items():
-                    if getattr(row, k, None) is not None and getattr(row, k, None) != '':
+                    if has_value(getattr(row, k, None)):
                         tags[v] = 'yes' if getattr(row, k, None) is True else 'no'
 
                 logging.debug('Add EV tags')
