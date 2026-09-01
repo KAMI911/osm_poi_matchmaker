@@ -825,8 +825,12 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 logging.debug('Rendering test data as XML comment.')
+                # has_value() rejects NaN as well as None - without it a field the row
+                # never had (a pandas NaN, not a str) fell to the else branch below and
+                # got interpolated as the literal text 'nan' into this comment.
                 test_case = {ckey: (getattr(row, ckey, None).replace('-', '\\-') if isinstance(getattr(row, ckey, None), str)
-                                    else getattr(row, ckey, None)) for ckey in TESTCASE_GEN_KEYS}
+                                    else (getattr(row, ckey, None) if has_value(getattr(row, ckey, None)) else ''))
+                             for ckey in TESTCASE_GEN_KEYS}
                 comment = etree.Comment(
                     "ˇ'original': '{t[original]}', 'postcode': '{t[poi_postcode]}', 'city': '{t[poi_city]}', 'street': '{t[poi_addr_street]}', 'housenumber': '{t[poi_addr_housenumber]}', 'conscriptionnumber': '{t[poi_conscriptionnumber]}'°".format(
                         t=test_case))
