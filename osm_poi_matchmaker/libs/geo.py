@@ -4,6 +4,7 @@ try:
     import logging
     import sys
     import re
+    import math
     from geoalchemy2 import WKTElement
     from osm_poi_matchmaker.utils import config
 except ImportError as err:
@@ -13,6 +14,15 @@ except ImportError as err:
     sys.exit(128)
 
 PATTERN_COORDINATE = re.compile(r'[\d]{1,3}.[\d]{2,5}')
+
+
+def _is_nan(value) -> bool:
+    """True if value is a float NaN. IEEE 754 NaN compares unequal to everything,
+    including itself and 0.0, so a plain '!= 0.0'/'!= ""' presence check lets it
+    through as if it were a real coordinate - it then survives unmodified through
+    check_geom()/check_hu_boundary() (every '<'/'>' comparison against NaN is False,
+    so the swap/decimal-point workarounds below never trigger either)."""
+    return isinstance(value, float) and math.isnan(value)
 
 
 def geom_point(latitude, longitude, projection):
@@ -27,7 +37,7 @@ def geom_point(latitude, longitude, projection):
         WKTElement | None: 'POINT(latitude longitude)' with the given SRID, or None
         if either coordinate is missing.
     """
-    if latitude is not None and longitude is not None:
+    if latitude is not None and longitude is not None and not _is_nan(latitude) and not _is_nan(longitude):
         return WKTElement('POINT({} {})'.format(latitude, longitude), srid=projection)
     else:
         return None
@@ -43,7 +53,8 @@ def check_geom(latitude, longitude, proj=config.get_geo_default_projection()):
     :param proj: Projection of geom
     :return: Validated coordinates or None on error
     """
-    if (latitude is not None and latitude != '') and (longitude is not None and longitude != ''):
+    if (latitude is not None and latitude != '' and not _is_nan(latitude)) and (
+            longitude is not None and longitude != '' and not _is_nan(longitude)):
         if not isinstance(latitude, float) and not isinstance(latitude, int):
             la = PATTERN_COORDINATE.search(latitude.replace(',', '.').strip())
             try:
@@ -97,8 +108,8 @@ def check_hu_boundary(latitude, longitude):
         tuple: (latitude, longitude) after any swap/decimal-point correction, or
         (None, None) if either input was missing.
     """
-    if (latitude is not None and latitude != '' and latitude != 0.0) and (
-            longitude is not None and longitude != '' and longitude != 0.0):
+    if (latitude is not None and latitude != '' and latitude != 0.0 and not _is_nan(latitude)) and (
+            longitude is not None and longitude != '' and longitude != 0.0 and not _is_nan(longitude)):
         try:
             lat_float = float(latitude)
             lon_float = float(longitude)
