@@ -11,7 +11,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_email, replace_html_newlines,\
-        extract_phone_number, clean_url, clean_string
+        extract_phone_number, clean_url, clean_string, clean_city
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -79,11 +79,16 @@ class hu_mkb_bank(DataProvider):
                         else:
                             self.data.code = 'humkbatm'
                             self.data.public_holiday_open = True
-                        self.data.postcode = poi_data.get('Körzetszám')
-                        self.data.city = poi_data.get('Város')
+                        self.data.postcode = clean_string(poi_data.get('Körzetszám'))
+                        self.data.city = clean_city(poi_data.get('Város'))
+                        # pd.read_csv().to_dict('records') turns an empty cell into a float
+                        # NaN, not None/'' - clean_string() catches that (and non-str types in
+                        # general) before .replace() gets a chance to crash on a non-string.
+                        raw_lat = clean_string(poi_data.get('Földrajzi szélesség'))
+                        raw_lon = clean_string(poi_data.get('Földrajzi hosszúság'))
                         self.data.lat, self.data.lon = check_hu_boundary(
-                            poi_data.get('Földrajzi szélesség').replace(',','.'),
-                            poi_data.get('Földrajzi hosszúság').replace(',','.'))
+                            raw_lat.replace(',', '.') if raw_lat is not None else None,
+                            raw_lon.replace(',', '.') if raw_lon is not None else None)
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(poi_data['Cím'])
                         self.data.original = clean_string(poi_data.get('Cím'))
@@ -101,54 +106,24 @@ class hu_mkb_bank(DataProvider):
                             self.data.nonstop = False
                             # Processing opening hours
                             self.data.opening_hours_table = []
-                            if poi_data.get('Hétfő nyitás') is not None and str(poi_data.get('Hétfő nyitás')).strip() != '':
-                                self.data.mo_o = str(poi_data.get('Hétfő nyitás')).strip() if str(poi_data.get(
-                                    'Hétfő nyitás')).strip() is not None else None
-                            if poi_data.get('Hétfő nyitás') is not None and str(poi_data.get('Hétfő zárás')).strip() != '':
-                                self.data.mo_c = str(poi_data.get('Hétfő zárás')).strip() if str(poi_data.get(
-                                    'Hétfő zárás')).strip() is not None else None
-
-                            if poi_data.get('Kedd nyitás') is not None and str(poi_data.get('Kedd nyitás')).strip() != '':
-                                self.data.tu_o = str(poi_data.get('Kedd nyitás')).strip() if str(poi_data.get(
-                                    'Kedd nyitás')).strip() is not None else None
-                            if poi_data.get('Kedd zárás') is not None and str(poi_data.get('Kedd zárás')).strip() != '':
-                                self.data.tu_c = str(poi_data.get('Kedd zárás')).strip() if str(poi_data.get(
-                                    'Kedd zárás')).strip() is not None else None
-
-                            if poi_data.get('Szerda nyitás') is not None and str(poi_data.get('Szerda nyitás')).strip() != '':
-                                self.data.we_o = str(poi_data.get('Szerda nyitás')).strip() if str(poi_data.get(
-                                    'Szerda nyitás')).strip() is not None else None
-                            if poi_data.get('Szerda zárás') is not None and str(poi_data.get('Szerda zárás')).strip() != '':
-                                self.data.we_c = str(poi_data.get('Szerda zárás')).strip() if str(poi_data.get(
-                                    'Szerda zárás')).strip() is not None else None
-
-                            if poi_data.get('Csütörtök nyitás') is not None and str(poi_data.get('Csütörtök nyitás')).strip() != '':
-                                self.data.th_o = str(poi_data.get('Csütörtök nyitás')).strip() if str(poi_data.get(
-                                    'Csütörtök nyitás')).strip() is not None else None
-                            if poi_data.get('Csütörtök zárás') is not None and str(poi_data.get('Csütörtök zárás')).strip() != '':
-                                self.data.th_c = str(poi_data.get('Csütörtök zárás')).strip() if str(poi_data.get(
-                                    'Csütörtök zárás')).strip() is not None else None
-
-                            if poi_data.get('Péntek nyitás') is not None and str(poi_data.get('Péntek nyitás')).strip() != '':
-                                self.data.fr_o = str(poi_data.get('Péntek nyitás')).strip() if str(poi_data.get(
-                                    'Péntek nyitás')).strip() is not None else None
-                            if poi_data.get('Péntek zárás') is not None and str(poi_data.get('Péntek zárás')).strip() != '':
-                                self.data.fr_c = str(poi_data.get('Péntek zárás')).strip() if str(poi_data.get(
-                                    'Péntek zárás')).strip() is not None else None
-
-                            if poi_data.get('Szombat nyitás') is not None and str(poi_data.get('Szombat nyitás')).strip() != '':
-                                self.data.sa_o = str(poi_data.get('Szombat nyitás')).strip() if str(poi_data.get(
-                                    'Szombat nyitás')).strip() is not None else None
-                            if poi_data.get('Szombat zárás') is not None and str(poi_data.get('Szombat zárás')).strip() != '':
-                                self.data.sa_c = str(poi_data.get('Szombat zárás')).strip() if str(poi_data.get(
-                                    'Szombat zárás')).strip() is not None else None
-
-                            if poi_data.get('Vasárnap nyitás') is not None and str(poi_data.get('Vasárnap nyitás')).strip() != '':
-                                self.data.su_o = str(poi_data.get('Vasárnap nyitás')).strip() if str(poi_data.get(
-                                    'Vasárnap nyitás')).strip() is not None else None
-                            if poi_data.get('Vasárnap zárás') is not None and str(poi_data.get('Vasárnap zárás')).strip() != '':
-                                self.data.su_c = str(poi_data.get('Vasárnap zárás')).strip() if str(poi_data.get(
-                                    'Vasárnap zárás')).strip() is not None else None
+                            # clean_string() converts pd.read_csv()'s empty-cell NaN (a float,
+                            # not None/'') to None as well as trimming/blanking real values -
+                            # the previous 'is not None and str(...).strip() != ""' checks let
+                            # NaN straight through, str()-ing it into the literal text 'nan'.
+                            self.data.mo_o = clean_string(poi_data.get('Hétfő nyitás'))
+                            self.data.mo_c = clean_string(poi_data.get('Hétfő zárás'))
+                            self.data.tu_o = clean_string(poi_data.get('Kedd nyitás'))
+                            self.data.tu_c = clean_string(poi_data.get('Kedd zárás'))
+                            self.data.we_o = clean_string(poi_data.get('Szerda nyitás'))
+                            self.data.we_c = clean_string(poi_data.get('Szerda zárás'))
+                            self.data.th_o = clean_string(poi_data.get('Csütörtök nyitás'))
+                            self.data.th_c = clean_string(poi_data.get('Csütörtök zárás'))
+                            self.data.fr_o = clean_string(poi_data.get('Péntek nyitás'))
+                            self.data.fr_c = clean_string(poi_data.get('Péntek zárás'))
+                            self.data.sa_o = clean_string(poi_data.get('Szombat nyitás'))
+                            self.data.sa_c = clean_string(poi_data.get('Szombat zárás'))
+                            self.data.su_o = clean_string(poi_data.get('Vasárnap nyitás'))
+                            self.data.su_c = clean_string(poi_data.get('Vasárnap zárás'))
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
