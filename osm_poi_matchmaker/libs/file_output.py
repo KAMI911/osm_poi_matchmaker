@@ -176,7 +176,13 @@ def add_osm_node(osm_id: int, node_data: dict, prefix: str = 'poi') -> dict:
     else:
         osm_timestamp = node_data.get('osm_timestamp')
     osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
-    osm_data = {'action': 'modify', 'id': str(osm_id),
+    # A negative id is our own placeholder for a POI no match was found for (see
+    # query_osm_shop_poi_gpd_gpd()'s callers assigning default_osm_id, decremented per
+    # new node) - it was never downloaded from OSM, so 'modify' is wrong here and reads
+    # as if we were changing an existing element. Only a real (positive) OSM id is
+    # actually being modified.
+    action = 'create' if int(osm_id) < 0 else 'modify'
+    osm_data = {'action': action, 'id': str(osm_id),
                 'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
                 'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
                 'user': '{}'.format('osm_poi_matchmaker'), 'uid': '{}'.format('8635934'),
@@ -229,7 +235,10 @@ def add_osm_way(osm_id: int, node_data: dict) -> dict:
     else:
         osm_timestamp = node_data.get('osm_timestamp')
     osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
-    osm_data = {'action': 'modify', 'id': str(osm_id),
+    # See add_osm_node()'s comment - a negative id is a new element, never downloaded
+    # from OSM, so it must not be marked 'modify'.
+    action = 'create' if int(osm_id) < 0 else 'modify'
+    osm_data = {'action': action, 'id': str(osm_id),
                 'user': '{}'.format('osm_poi_matchmaker'), 'uid': '{}'.format('8635934'),
                 'version': '{}'.format(osm_version),
                 'timestamp': TIMESTAMP_FORMAT.format(osm_timestamp, dfmt=DATE_FORMAT, tfmt=TIME_FORMAT)}
