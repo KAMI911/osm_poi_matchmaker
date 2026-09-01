@@ -69,11 +69,9 @@ class hu_oil(DataProvider):
                         self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                         self.data.fuel_octane_95 = True
                         self.data.fuel_diesel = True
-                        self.data.ref = clean_string(poi_data.get('id').strip())
-                        if poi_data.get('url') is not None and poi_data.get('url') != '':
-                            self.data.website = poi_data.get('url').strip()
-                        else:
-                            self.data.website = 'https://www.oil-benzinkutak.hu'
+                        self.data.ref = clean_string(poi_data.get('id'))
+                        website = clean_string(poi_data.get('url'))
+                        self.data.website = website if website is not None else 'https://www.oil-benzinkutak.hu'
                         tmp = clean_string(poi_data.get('store').split(' ', 1))
                         self.data.branch = tmp[1].strip().capitalize()
                         self.data.add()
