@@ -62,8 +62,7 @@ class hu_avia(DataProvider):
                         self.data.code = 'huaviafu'
                         if self.data.city is None:
                             self.data.city = poi_data['title']
-                        self.data.ref = poi_data['kutid'] if poi_data['kutid'] is not None and poi_data['kutid'] != '' \
-                            else None
+                        self.data.ref = clean_string(poi_data.get('kutid'))
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data['lat'], poi_data['lng'])
                         if poi_data['cim'] is not None and poi_data['cim'] != '':
@@ -72,7 +71,7 @@ class hu_avia(DataProvider):
                                     poi_data['cim'])
                         self.data.website = '/toltoallomas/?id={}'.format(clean_string(poi_data.get('kutid'))) \
                             if clean_string(poi_data.get('kutid')) is not None else None
-                        self.data.original = poi_data['cim']
+                        self.data.original = clean_string(poi_data.get('cim'))
                         self.data.phone = clean_phone_to_str(poi_data.get('tel'))
                         self.data.email = clean_email(poi_data.get('email'))
                         self.data.public_holiday_open = False

@@ -4,6 +4,7 @@ __author__ = 'kami911'
 try:
     import logging
     import sys
+    import math
     import numpy as np
     import pandas as pd
     from sqlalchemy.orm import scoped_session, sessionmaker
@@ -740,7 +741,9 @@ class POIDatasetRaw:
 
     @lat.setter
     def lat(self, lat: float):
-        self.__lat = lat
+        # Almost every provider goes through geo.check_hu_boundary() first, which
+        # already rejects NaN, but guard here too for any direct assignment.
+        self.__lat = None if isinstance(lat, float) and math.isnan(lat) else lat
 
     @property
     def lon(self) -> float:
@@ -748,7 +751,9 @@ class POIDatasetRaw:
 
     @lon.setter
     def lon(self, lon: float):
-        self.__lon = lon
+        # Almost every provider goes through geo.check_hu_boundary() first, which
+        # already rejects NaN, but guard here too for any direct assignment.
+        self.__lon = None if isinstance(lon, float) and math.isnan(lon) else lon
 
     def process_geom(self):
         """Build self.geom (a WKT point) from the current lat/lon via
@@ -777,7 +782,7 @@ class POIDatasetRaw:
 
     @mo_o.setter
     def mo_o(self, data: str):
-        self.__oh.at[WeekDaysShort.mo, OpenClose.open] = data
+        self.__oh.at[WeekDaysShort.mo, OpenClose.open] = clean_string(data)
 
     @property
     def tu_o(self) -> str:
@@ -785,7 +790,7 @@ class POIDatasetRaw:
 
     @tu_o.setter
     def tu_o(self, data: str):
-        self.__oh.at[WeekDaysShort.tu, OpenClose.open] = data
+        self.__oh.at[WeekDaysShort.tu, OpenClose.open] = clean_string(data)
 
     @property
     def we_o(self) -> str:
@@ -793,7 +798,7 @@ class POIDatasetRaw:
 
     @we_o.setter
     def we_o(self, data: str):
-        self.__oh.at[WeekDaysShort.we, OpenClose.open] = data
+        self.__oh.at[WeekDaysShort.we, OpenClose.open] = clean_string(data)
 
     @property
     def th_o(self) -> str:
@@ -801,7 +806,7 @@ class POIDatasetRaw:
 
     @th_o.setter
     def th_o(self, data: str):
-        self.__oh.at[WeekDaysShort.th, OpenClose.open] = data
+        self.__oh.at[WeekDaysShort.th, OpenClose.open] = clean_string(data)
 
     @property
     def fr_o(self) -> str:
@@ -809,7 +814,7 @@ class POIDatasetRaw:
 
     @fr_o.setter
     def fr_o(self, data: str):
-        self.__oh.at[WeekDaysShort.fr, OpenClose.open] = data
+        self.__oh.at[WeekDaysShort.fr, OpenClose.open] = clean_string(data)
 
     @property
     def sa_o(self) -> str:
@@ -817,7 +822,7 @@ class POIDatasetRaw:
 
     @sa_o.setter
     def sa_o(self, data: str):
-        self.__oh.at[WeekDaysShort.sa, OpenClose.open] = data
+        self.__oh.at[WeekDaysShort.sa, OpenClose.open] = clean_string(data)
 
     @property
     def su_o(self) -> str:
@@ -825,7 +830,7 @@ class POIDatasetRaw:
 
     @su_o.setter
     def su_o(self, data: str):
-        self.__oh.at[WeekDaysShort.su, OpenClose.open] = data
+        self.__oh.at[WeekDaysShort.su, OpenClose.open] = clean_string(data)
 
     @property
     def mo_c(self) -> str:
@@ -833,7 +838,7 @@ class POIDatasetRaw:
 
     @mo_c.setter
     def mo_c(self, data: str):
-        self.__oh.at[WeekDaysShort.mo, OpenClose.close] = data
+        self.__oh.at[WeekDaysShort.mo, OpenClose.close] = clean_string(data)
 
     @property
     def tu_c(self) -> str:
@@ -841,7 +846,7 @@ class POIDatasetRaw:
 
     @tu_c.setter
     def tu_c(self, data: str):
-        self.__oh.at[WeekDaysShort.tu, OpenClose.close] = data
+        self.__oh.at[WeekDaysShort.tu, OpenClose.close] = clean_string(data)
 
     @property
     def we_c(self) -> str:
@@ -849,7 +854,7 @@ class POIDatasetRaw:
 
     @we_c.setter
     def we_c(self, data: str):
-        self.__oh.at[WeekDaysShort.we, OpenClose.close] = data
+        self.__oh.at[WeekDaysShort.we, OpenClose.close] = clean_string(data)
 
     @property
     def th_c(self) -> str:
@@ -857,7 +862,7 @@ class POIDatasetRaw:
 
     @th_c.setter
     def th_c(self, data: str):
-        self.__oh.at[WeekDaysShort.th, OpenClose.close] = data
+        self.__oh.at[WeekDaysShort.th, OpenClose.close] = clean_string(data)
 
     @property
     def fr_c(self) -> str:
@@ -865,7 +870,7 @@ class POIDatasetRaw:
 
     @fr_c.setter
     def fr_c(self, data: str):
-        self.__oh.at[WeekDaysShort.fr, OpenClose.close] = data
+        self.__oh.at[WeekDaysShort.fr, OpenClose.close] = clean_string(data)
 
     @property
     def sa_c(self) -> str:
@@ -873,7 +878,7 @@ class POIDatasetRaw:
 
     @sa_c.setter
     def sa_c(self, data: str):
-        self.__oh.at[WeekDaysShort.sa, OpenClose.close] = data
+        self.__oh.at[WeekDaysShort.sa, OpenClose.close] = clean_string(data)
 
     @property
     def su_c(self) -> str:
@@ -881,7 +886,7 @@ class POIDatasetRaw:
 
     @su_c.setter
     def su_c(self, data: str):
-        self.__oh.at[WeekDaysShort.su, OpenClose.close] = data
+        self.__oh.at[WeekDaysShort.su, OpenClose.close] = clean_string(data)
 
     @property
     def summer_mo_o(self) -> str:
@@ -889,7 +894,7 @@ class POIDatasetRaw:
 
     @summer_mo_o.setter
     def summer_mo_o(self, data: str):
-        self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open] = data
+        self.__oh.at[WeekDaysShort.mo, OpenClose.summer_open] = clean_string(data)
 
     @property
     def summer_tu_o(self) -> str:
@@ -897,7 +902,7 @@ class POIDatasetRaw:
 
     @summer_tu_o.setter
     def summer_tu_o(self, data: str):
-        self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open] = data
+        self.__oh.at[WeekDaysShort.tu, OpenClose.summer_open] = clean_string(data)
 
     @property
     def summer_we_o(self) -> str:
@@ -905,7 +910,7 @@ class POIDatasetRaw:
 
     @summer_we_o.setter
     def summer_we_o(self, data: str):
-        self.__oh.at[WeekDaysShort.we, OpenClose.summer_open] = data
+        self.__oh.at[WeekDaysShort.we, OpenClose.summer_open] = clean_string(data)
 
     @property
     def summer_th_o(self) -> str:
@@ -913,7 +918,7 @@ class POIDatasetRaw:
 
     @summer_th_o.setter
     def summer_th_o(self, data: str):
-        self.__oh.at[WeekDaysShort.th, OpenClose.summer_open] = data
+        self.__oh.at[WeekDaysShort.th, OpenClose.summer_open] = clean_string(data)
 
     @property
     def summer_fr_o(self) -> str:
@@ -921,7 +926,7 @@ class POIDatasetRaw:
 
     @summer_fr_o.setter
     def summer_fr_o(self, data: str):
-        self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open] = data
+        self.__oh.at[WeekDaysShort.fr, OpenClose.summer_open] = clean_string(data)
 
     @property
     def summer_sa_o(self) -> str:
@@ -929,7 +934,7 @@ class POIDatasetRaw:
 
     @summer_sa_o.setter
     def summer_sa_o(self, data: str):
-        self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open] = data
+        self.__oh.at[WeekDaysShort.sa, OpenClose.summer_open] = clean_string(data)
 
     @property
     def summer_su_o(self) -> str:
@@ -937,7 +942,7 @@ class POIDatasetRaw:
 
     @summer_su_o.setter
     def summer_su_o(self, data: str):
-        self.__oh.at[WeekDaysShort.su, OpenClose.summer_open] = data
+        self.__oh.at[WeekDaysShort.su, OpenClose.summer_open] = clean_string(data)
 
     @property
     def summer_mo_c(self) -> str:
@@ -945,7 +950,7 @@ class POIDatasetRaw:
 
     @summer_mo_c.setter
     def summer_mo_c(self, data: str):
-        self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close] = data
+        self.__oh.at[WeekDaysShort.mo, OpenClose.summer_close] = clean_string(data)
 
     @property
     def summer_tu_c(self) -> str:
@@ -953,7 +958,7 @@ class POIDatasetRaw:
 
     @summer_tu_c.setter
     def summer_tu_c(self, data: str):
-        self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close] = data
+        self.__oh.at[WeekDaysShort.tu, OpenClose.summer_close] = clean_string(data)
 
     @property
     def summer_we_c(self) -> str:
@@ -961,7 +966,7 @@ class POIDatasetRaw:
 
     @summer_we_c.setter
     def summer_we_c(self, data: str):
-        self.__oh.at[WeekDaysShort.we, OpenClose.summer_close] = data
+        self.__oh.at[WeekDaysShort.we, OpenClose.summer_close] = clean_string(data)
 
     @property
     def summer_th_c(self) -> str:
@@ -969,7 +974,7 @@ class POIDatasetRaw:
 
     @summer_th_c.setter
     def summer_th_c(self, data: str):
-        self.__oh.at[WeekDaysShort.th, OpenClose.summer_close] = data
+        self.__oh.at[WeekDaysShort.th, OpenClose.summer_close] = clean_string(data)
 
     @property
     def summer_fr_c(self) -> str:
@@ -977,7 +982,7 @@ class POIDatasetRaw:
 
     @summer_fr_c.setter
     def summer_fr_c(self, data: str):
-        self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close] = data
+        self.__oh.at[WeekDaysShort.fr, OpenClose.summer_close] = clean_string(data)
 
     @property
     def summer_sa_c(self) -> str:
@@ -985,7 +990,7 @@ class POIDatasetRaw:
 
     @summer_sa_c.setter
     def summer_sa_c(self, data: str):
-        self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close] = data
+        self.__oh.at[WeekDaysShort.sa, OpenClose.summer_close] = clean_string(data)
 
     @property
     def summer_su_c(self) -> str:
@@ -993,7 +998,7 @@ class POIDatasetRaw:
 
     @summer_su_c.setter
     def summer_su_c(self, data: str):
-        self.__oh.at[WeekDaysShort.su, OpenClose.summer_close] = data
+        self.__oh.at[WeekDaysShort.su, OpenClose.summer_close] = clean_string(data)
 
     @property
     def lunch_break_start(self) -> str:
@@ -1018,31 +1023,31 @@ class POIDatasetRaw:
             day (int): Weekday index, 0 (Monday) - 6 (Sunday) - see WeekDaysShort.
             data (str): Time string, e.g. '08:00'.
         """
-        self.__oh.at[WeekDaysShort(day), OpenClose.open] = data
+        self.__oh.at[WeekDaysShort(day), OpenClose.open] = clean_string(data)
 
     def day_close(self, day, data):
         """Set one weekday's regular closing time. Args as day_open()."""
-        self.__oh.at[WeekDaysShort(day), OpenClose.close] = data
+        self.__oh.at[WeekDaysShort(day), OpenClose.close] = clean_string(data)
 
     def day_summer_open(self, day, data):
         """Set one weekday's summer-season opening time. Args as day_open()."""
-        self.__oh.at[WeekDaysShort(day), OpenClose.summer_open] = data
+        self.__oh.at[WeekDaysShort(day), OpenClose.summer_open] = clean_string(data)
 
     def day_summer_close(self, day, data):
         """Set one weekday's summer-season closing time. Args as day_open()."""
-        self.__oh.at[WeekDaysShort(day), OpenClose.summer_close] = data
+        self.__oh.at[WeekDaysShort(day), OpenClose.summer_close] = clean_string(data)
 
     def day_open_close(self, day, opening, closing):
         """Set one weekday's regular open and close time in one call. Args as
         day_open(), plus closing (str): close time."""
-        self.__oh.at[WeekDaysShort(day), OpenClose.open] = opening
-        self.__oh.at[WeekDaysShort(day), OpenClose.close] = closing
+        self.__oh.at[WeekDaysShort(day), OpenClose.open] = clean_string(opening)
+        self.__oh.at[WeekDaysShort(day), OpenClose.close] = clean_string(closing)
 
     def day_summer_open_close(self, day, opening, closing):
         """Set one weekday's summer-season open and close time in one call. Args as
         day_open_close()."""
-        self.__oh.at[WeekDaysShort(day), OpenClose.summer_open] = opening
-        self.__oh.at[WeekDaysShort(day), OpenClose.summer_close] = closing
+        self.__oh.at[WeekDaysShort(day), OpenClose.summer_open] = clean_string(opening)
+        self.__oh.at[WeekDaysShort(day), OpenClose.summer_close] = clean_string(closing)
 
     @property
     def opening_hours(self) -> str:
@@ -1050,7 +1055,7 @@ class POIDatasetRaw:
 
     @opening_hours.setter
     def opening_hours(self, data: str):
-        self.__opening_hours = data
+        self.__opening_hours = clean_string(data)
 
     @property
     def public_holiday_open(self) -> bool:
