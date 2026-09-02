@@ -550,6 +550,10 @@ def ordered_postcode_check(postcode_list) -> str:
         if every candidate was unusable.
     """
     for postcode in postcode_list:
-        if postcode is not None and postcode != 0 and postcode != '0':
+        # has_value() rejects NaN too - a plain 'is not None' check doesn't, since
+        # IEEE 754 NaN compares unequal to everything (nan != 0 and nan != '0' are
+        # both True), so a NaN postcode used to sail through and str(nan) returned
+        # the literal text 'nan' as if it were a real postcode.
+        if has_value(postcode) and postcode != 0 and postcode != '0':
             return str(postcode)
     return None

@@ -4,8 +4,9 @@ try:
     import unittest
     import logging
     import sys
+    import math
     import pandas as pd
-    from osm_poi_matchmaker.libs.online_poi_matching import smart_postcode_check
+    from osm_poi_matchmaker.libs.online_poi_matching import smart_postcode_check, ordered_postcode_check
     from osm_poi_matchmaker.dao.poi_array_structure import POI_ADDR_COLS, OSM_ADDR_COLS
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -31,6 +32,11 @@ class TestSmartOnlinePOIMatching(unittest.TestCase):
             pd.Series(data=['5662', 'Csanádapáca', None, None, None], index=POI_ADDR_COLS),
             pd.Series(data=['1036', 'Budapest', 'Bécsi út', '136', None], index=POI_ADDR_COLS),
             pd.Series(data=['1024', 'Budapest', '', '', None], index=POI_ADDR_COLS),
+            # Regression case: a pandas/numpy NaN poi_postcode (e.g. a provider field
+            # that was never set) used to survive ordered_postcode_check()'s
+            # 'is not None' guard and come back as the literal text 'nan' instead of
+            # None - see TestOrderedPostcodeCheck below for the focused unit tests.
+            pd.Series(data=[float('nan'), 'Teszt', 'Teszt utca', '1', None], index=POI_ADDR_COLS),
         ]
         self.osm_addresses = pd.DataFrame(
             [
@@ -48,6 +54,7 @@ class TestSmartOnlinePOIMatching(unittest.TestCase):
                 ['5662', 'Csanádapáca', None, None, None],
                 ['1032', 'Budapest', 'Bécsi út', '136', None],
                 ['0', 'Budapest', '', '', None],
+                [None, 'Teszt', 'Teszt utca', '1', None],
             ])
         '''
         ['5662', 'Csanádapáca', None, None, None],
@@ -56,9 +63,9 @@ class TestSmartOnlinePOIMatching(unittest.TestCase):
         '''
         self.osm_addresses.columns = OSM_ADDR_COLS
         self.postcodes = ['9737', '9739', '9740', '9741', '9737', '9742', '9750', '1029', '1040', '1030',
-                          '1029', '5555', '1037', '0']
+                          '1029', '5555', '1037', '0', '0']
         self.good_codes = ['9737', '9737', '9737', '9737', '9738', '9738', '9738', '1028', '1028', '1029',
-                           '1028', '5662', '1032', '1024']
+                           '1028', '5662', '1032', '1024', None]
 
     def test_smart_online_poi_matching(self):
         case = 0
@@ -67,3 +74,42 @@ class TestSmartOnlinePOIMatching(unittest.TestCase):
             postcode = smart_postcode_check(self.addresses[i], self.osm_addresses.iloc[[i]], self.postcodes[i])
             with self.subTest():
                 self.assertEqual(postcode, self.good_codes[i], 'Case {}'.format(case))
+
+
+class TestOrderedPostcodeCheck(unittest.TestCase):
+    """Regression tests for ordered_postcode_check()'s NaN handling.
+
+    A pandas/numpy NaN float compares unequal to everything under IEEE 754
+    (nan != 0 and nan != '0' are both True), so a plain 'postcode is not None'
+    guard let a NaN postcode through, and str(nan) returned the literal text
+    'nan' as if it were a real postcode - which then ended up written into
+    poi_postcode and, from there, into the OSM XML/CSV output as the literal
+    string 'nan'. See has_value() usage in ordered_postcode_check().
+    """
+
+    def test_all_nan_returns_none(self):
+        nan = float('nan')
+        self.assertIsNone(ordered_postcode_check([nan, nan, nan]))
+
+    def test_nan_is_skipped_in_favour_of_a_real_value(self):
+        nan = float('nan')
+        self.assertEqual(ordered_postcode_check([nan, None, '1026']), '1026')
+        self.assertEqual(ordered_postcode_check([nan, nan, '1026']), '1026')
+
+    def test_nan_never_stringified(self):
+        nan = float('nan')
+        result = ordered_postcode_check([nan, nan, nan])
+        self.assertNotEqual(result, 'nan')
+
+    def test_none_and_zero_variants_are_skipped(self):
+        self.assertIsNone(ordered_postcode_check([None, 0, '0']))
+        self.assertEqual(ordered_postcode_check([None, 0, '6720']), '6720')
+
+    def test_first_real_value_wins_priority_order(self):
+        self.assertEqual(ordered_postcode_check(['1026', '9737', '1024']), '1026')
+
+    def test_numeric_postcode_is_stringified(self):
+        self.assertEqual(ordered_postcode_check([1026]), '1026')
+
+    def test_empty_list_returns_none(self):
+        self.assertIsNone(ordered_postcode_check([]))
