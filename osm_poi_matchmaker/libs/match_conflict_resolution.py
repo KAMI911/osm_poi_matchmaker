@@ -24,19 +24,35 @@ def haversine(lon1, lat1, lon2, lat2):
 
 
 def find_osm_id_conflicts(data):
-    """Find all POIs that share the same osm_id (non-None).
+    """Find all POIs that share the same osm_id (non-None) AND poi_type.
+
+    Grouping by osm_id alone would flag two POIs of *different* types matched to
+    the same OSM element (e.g. an Aldi shop and a parcel locker vending machine
+    tagged on the same building/node) as a spurious duplicate - they're distinct,
+    legitimate real-world features that both belong there, not two provider rows
+    describing the same object. Only same-type matches to the same osm_id (the
+    actual duplicate-harvest case this module exists for) count as a conflict.
 
     Args:
-        data (pd.DataFrame): POI data with osm_id column
+        data (pd.DataFrame): POI data with an osm_id column; also grouped by
+            poi_type if that column is present (older/minimal callers - mostly in
+            tests - that don't carry poi_type fall back to the osm_id-only
+            behaviour).
 
     Returns:
-        dict: {osm_id: [list of row indices]} for osm_ids with 2+ POIs
+        dict: {group_key: [list of row indices]} for groups with 2+ POIs. group_key
+        is the bare osm_id if poi_type isn't a column, else an (osm_id, poi_type) tuple.
     """
     conflicts = {}
-    osm_id_groups = data[data['osm_id'].notna()].groupby('osm_id').size()
-    for osm_id, count in osm_id_groups[osm_id_groups > 1].items():
-        conflict_rows = data[data['osm_id'] == osm_id].index.tolist()
-        conflicts[osm_id] = conflict_rows
+    matched = data[data['osm_id'].notna()]
+    group_cols = ['osm_id', 'poi_type'] if 'poi_type' in data.columns else ['osm_id']
+    group_sizes = matched.groupby(group_cols, dropna=False).size()
+    for key, count in group_sizes[group_sizes > 1].items():
+        mask = matched['osm_id'] == (key[0] if len(group_cols) > 1 else key)
+        if len(group_cols) > 1:
+            mask = mask & (matched['poi_type'] == key[1])
+        conflict_rows = matched[mask].index.tolist()
+        conflicts[key] = conflict_rows
     return conflicts
 
 
@@ -79,15 +95,17 @@ def get_available_osm_candidates(db_session, poi_data, search_distance=500):
         return []
 
 
-def resolve_conflict(data, osm_id, conflict_indices, db_session=None):
-    """Resolve a single OSM ID conflict by reassigning POIs to different OSM elements.
+def resolve_conflict(data, group_key, conflict_indices, db_session=None):
+    """Resolve a single OSM-element conflict by reassigning POIs to different OSM elements.
 
     Sorts conflicting POIs by distance to their current OSM element, then reassigns
     the farthest POI to the nearest available alternative OSM element.
 
     Args:
         data (pd.DataFrame): Full POI dataset
-        osm_id: The conflicted OSM ID
+        group_key: The conflicted group's key - a bare osm_id, or (per
+            find_osm_id_conflicts()) an (osm_id, poi_type) tuple; used only for
+            logging here.
         conflict_indices (list): Row indices of conflicting POIs
         db_session: Database session for OSM queries (optional)
 
@@ -119,8 +137,8 @@ def resolve_conflict(data, osm_id, conflict_indices, db_session=None):
     distances.sort(key=lambda x: x[1], reverse=True)
     farthest_idx = distances[0][0]
 
-    logging.debug('Resolving OSM ID %s: reassigning POI at index %d (distance: %.1f m)',
-                  osm_id, farthest_idx, distances[0][1])
+    logging.debug('Resolving conflict %s: reassigning POI at index %d (distance: %.1f m)',
+                  group_key, farthest_idx, distances[0][1])
 
     # Clear every OSM-derived field online_poi_matching.py set while this row still
     # held the (now-revoked) match, not just osm_id/osm_node - otherwise the row is
@@ -133,14 +151,21 @@ def resolve_conflict(data, osm_id, conflict_indices, db_session=None):
                 'osm_live_tags', 'osm_nodes'):
         if col in data.columns:
             data.at[farthest_idx, col] = None
+    # This row's osm_id was set (poi_new=False) before the conflict was detected -
+    # flip it back to True so file_output.py's fixme tag and STAGE 9 phase 2
+    # (enrich_matched_pois()) both treat it as the new/unverified POI it now is,
+    # not as a still-matched one.
+    if 'poi_new' in data.columns:
+        data.at[farthest_idx, 'poi_new'] = True
     return True
 
 
 def match_conflict_resolution(data, db_session=None, max_iterations=10):
-    """Resolve all OSM ID conflicts in the POI dataset.
+    """Resolve all OSM-element conflicts in the POI dataset.
 
-    Iteratively finds all POIs sharing the same osm_id and reassigns conflicting
-    POIs to None (effectively removing their OSM match) until no duplicates remain.
+    Iteratively finds all POIs sharing the same osm_id *and poi_type* (see
+    find_osm_id_conflicts()) and reassigns conflicting POIs to None (effectively
+    removing their OSM match) until no duplicates remain.
 
     Args:
         data (pd.DataFrame): POI data with osm_id column
@@ -170,8 +195,8 @@ def match_conflict_resolution(data, db_session=None, max_iterations=10):
             stats['initial_conflicts'] = len(conflicts)
 
         resolved_count = 0
-        for osm_id, conflict_indices in conflicts.items():
-            if resolve_conflict(data, osm_id, conflict_indices, db_session):
+        for group_key, conflict_indices in conflicts.items():
+            if resolve_conflict(data, group_key, conflict_indices, db_session):
                 resolved_count += 1
 
         stats['resolved'] += resolved_count

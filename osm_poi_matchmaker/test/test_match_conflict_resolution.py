@@ -65,6 +65,81 @@ class TestFindConflicts(unittest.TestCase):
         self.assertNotIn(None, conflicts)
 
 
+class TestFindConflictsRespectsPoiType(unittest.TestCase):
+    """A shop and a parcel-locker vending machine legitimately matched to the same
+    OSM element/building (e.g. an Aldi with a parcel locker mounted on the wall)
+    are two distinct real-world features, not a duplicate provider match - grouping
+    by osm_id alone would flag them as a conflict and demote one as if it were
+    spurious. find_osm_id_conflicts() must also group by poi_type."""
+
+    def test_same_osm_id_different_type_is_not_a_conflict(self):
+        df = pd.DataFrame({
+            'osm_id': [100, 100],
+            'poi_type': ['shop', 'vending_machine_parcel_locker'],
+            'poi_lon': [19.0, 19.0],
+            'poi_lat': [47.5, 47.5],
+        })
+        conflicts = find_osm_id_conflicts(df)
+        self.assertEqual(len(conflicts), 0)
+
+    def test_same_osm_id_same_type_is_still_a_conflict(self):
+        """The actual duplicate-harvest case this module exists for - two rows of
+        the *same* type (e.g. two Aldi harvest rows) matched to the same element -
+        must still be caught."""
+        df = pd.DataFrame({
+            'osm_id': [100, 100],
+            'poi_type': ['shop', 'shop'],
+            'poi_lon': [19.0, 19.0],
+            'poi_lat': [47.5, 47.5],
+        })
+        conflicts = find_osm_id_conflicts(df)
+        self.assertEqual(len(conflicts), 1)
+        self.assertIn((100, 'shop'), conflicts)
+
+    def test_mixed_dataset_flags_only_the_genuine_duplicate(self):
+        df = pd.DataFrame({
+            'osm_id': [100, 100, 100],
+            'poi_type': ['shop', 'shop', 'vending_machine_parcel_locker'],
+            'poi_lon': [19.0, 19.0, 19.0],
+            'poi_lat': [47.5, 47.5, 47.5],
+        })
+        conflicts = find_osm_id_conflicts(df)
+        self.assertEqual(len(conflicts), 1)
+        self.assertIn((100, 'shop'), conflicts)
+        self.assertNotIn((100, 'vending_machine_parcel_locker'), conflicts)
+
+    def test_end_to_end_resolution_keeps_the_different_type_untouched(self):
+        """match_conflict_resolution() must not demote the parcel locker just
+        because it shares an osm_id with the (genuinely conflicting) Aldi rows."""
+        df = pd.DataFrame({
+            'osm_id': [100, 100, 100],
+            'poi_type': ['shop', 'shop', 'vending_machine_parcel_locker'],
+            'poi_lon': [19.0, 19.0, 19.0],
+            'poi_lat': [47.5, 47.5, 47.5],
+            'osm_lon': [19.001, 19.1, 19.001],
+            'osm_lat': [47.501, 47.6, 47.501],
+        })
+        data, stats = match_conflict_resolution(df)
+        self.assertEqual(stats['initial_conflicts'], 1)
+        # The parcel locker (index 2) keeps its match.
+        self.assertEqual(data.loc[2, 'osm_id'], 100)
+        # Exactly one of the two shop rows was demoted (the farther one, index 1).
+        self.assertEqual(data.loc[0, 'osm_id'], 100)
+        self.assertTrue(pd.isna(data.loc[1, 'osm_id']))
+
+    def test_missing_poi_type_column_falls_back_to_osm_id_only(self):
+        """Older/minimal callers (and most of this test file) don't carry
+        poi_type - must keep working exactly as before."""
+        df = pd.DataFrame({
+            'osm_id': [100, 100],
+            'poi_lon': [19.0, 19.0],
+            'poi_lat': [47.5, 47.5],
+        })
+        conflicts = find_osm_id_conflicts(df)
+        self.assertEqual(len(conflicts), 1)
+        self.assertIn(100, conflicts)
+
+
 class TestResolveConflict(unittest.TestCase):
     """Test single conflict resolution."""
 
@@ -123,6 +198,7 @@ class TestResolveConflict(unittest.TestCase):
             [{'shop': 'supermarket'}, {'shop': 'supermarket'}, {'shop': 'bakery'}], dtype=object)
         self.df['osm_nodes'] = pd.array([None, None, None], dtype=object)
         self.df['osm_id'] = self.df['osm_id'].astype(object)
+        self.df['poi_new'] = pd.array([False, False, False], dtype=object)
 
         # Force row 0 to be the farthest, so it's the one that gets demoted.
         self.df.loc[0, 'osm_lon'] = 19.1
@@ -139,12 +215,18 @@ class TestResolveConflict(unittest.TestCase):
                     'osm_timestamp', 'osm_live_tags', 'osm_nodes'):
             with self.subTest(col=col):
                 self.assertFalse(has_value(demoted[col]), f'{col} was not cleared on the demoted row')
+        # poi_new was False (set back when this row still held its now-revoked
+        # match) - must flip to True, or file_output.py's fixme tag and STAGE 9
+        # phase 2 (enrich_matched_pois()) both miss that this row needs the "new
+        # POI" treatment now.
+        self.assertTrue(demoted['poi_new'], 'poi_new was not flipped back to True on the demoted row')
 
         # The winning row (index 1) must be untouched.
         winner = self.df.loc[1]
         self.assertEqual(winner['osm_id'], 100)
         self.assertEqual(winner['osm_version'], '23')
         self.assertEqual(winner['osm_live_tags'], {'shop': 'supermarket'})
+        self.assertFalse(winner['poi_new'])
 
     def test_resolve_missing_osm_columns_does_not_crash(self):
         """A DataFrame without osm_version/osm_timestamp/etc. (only the columns the

@@ -18,7 +18,7 @@ try:
     from osm_poi_matchmaker.utils import config, timing
     from osm_poi_matchmaker.libs.osm import timestamp_now
     from osm_poi_matchmaker.dao.data_handlers import insert_poi_dataframe
-    from osm_poi_matchmaker.libs.online_poi_matching import online_poi_matching, init_matcher_worker
+    from osm_poi_matchmaker.libs.online_poi_matching import find_osm_matches, enrich_matched_pois, init_matcher_worker
     from osm_poi_matchmaker.libs.match_conflict_resolution import match_conflict_resolution
     from osm_poi_matchmaker.libs.import_poi_data_module import import_poi_data_module
     from osm_poi_matchmaker.libs.poi_patch import apply_poi_patches, load_poi_patches_from_db
@@ -261,20 +261,24 @@ class WorkflowManager(object):
             logging.exception('Exception occurred', exc_info=True)
 
     def start_matcher(self, data: pd.DataFrame, comm_data: pd.DataFrame):
-        """Match harvested POIs against live OSM data in parallel (STAGE 8) and aggregate the results.
+        """Find OSM match candidates for harvested POIs in parallel (STAGE 9 phase 1)
+        and aggregate the results.
 
-        Splits data into NUMBER_OF_PROCESSES * 8 chunks, runs online_poi_matching() on each
+        Splits data into NUMBER_OF_PROCESSES * 8 chunks, runs find_osm_matches() on each
         chunk via a pool created with the per-worker init_matcher_worker initializer (so each
         worker reuses one DB connection instead of opening one per chunk), then concatenates
-        the returned chunks back into a single DataFrame and computes summary counts.
+        the returned chunks back into a single DataFrame. Deliberately does NOT touch the
+        live OSM API - only the local PostGIS DB - so match_conflict_resolution() can settle
+        the final osm_id<->POI assignment on the *whole* dataset before any row does that
+        (expensive, network-bound) work; see start_enricher() for that second pass.
 
         Args:
             data (pandas.DataFrame): POI data to match, split row-wise across worker processes.
             comm_data (pandas.DataFrame): Shared poi_common reference data passed to every worker.
 
         Returns:
-            pandas.DataFrame: The matched POI data (all chunks concatenated), or None if an
-            exception occurred before the result could be assembled.
+            pandas.DataFrame: The candidate-matched POI data (all chunks concatenated), or None
+            if an exception occurred before the result could be assembled.
         """
         phase_timer = timing.Timing()
         try:
@@ -284,9 +288,48 @@ class WorkflowManager(object):
             idx_chunks = np.array_split(np.arange(len(data)), self.NUMBER_OF_PROCESSES * 8)
             split_data = [data.iloc[idx] for idx in idx_chunks]
             logging.info('Starting matcher on %d data chunks.', len(split_data))
-            self.results = self.pool.map_async(online_poi_matching, [(chunk, comm_data) for chunk in split_data],
+            self.results = self.pool.map_async(find_osm_matches, [(chunk, comm_data) for chunk in split_data],
                                                chunksize=16)
             result_chunks = self._wait_for_results('matcher', return_results=True, timeout=360000)
+            combined_result = pd.concat(result_chunks, ignore_index=True, sort=False)
+            return combined_result
+        except Exception as e:
+            logging.exception('Exception occurred', exc_info=True)
+        finally:
+            self.matcher_duration = phase_timer.end()
+
+    def start_enricher(self, data: pd.DataFrame, comm_data: pd.DataFrame):
+        """Download live OSM data for the *final* (post-conflict-resolution) matches, and
+        finalize genuinely-new POIs, in parallel (STAGE 9 phase 2).
+
+        Same chunking/pooling pattern as start_matcher() (reuses init_matcher_worker), but
+        runs enrich_matched_pois() instead - see its docstring. Must only be called after
+        match_conflict_resolution() has run on `data`, so a POI demoted there gets the "new
+        POI" treatment here instead of a live tag download for a match it no longer has.
+        Computes the final matcher_stats (new/matched/errors), overwriting whatever
+        start_matcher() computed before conflict resolution - poi_new only reflects the
+        final state once this phase (and match_conflict_resolution() before it) has run.
+
+        Args:
+            data (pandas.DataFrame): Matched-and-deduplicated POI data from
+                match_conflict_resolution(), split row-wise across worker processes.
+            comm_data (pandas.DataFrame): Shared poi_common reference data (kept for
+                interface symmetry with start_matcher(); enrich_matched_pois() doesn't use it).
+
+        Returns:
+            pandas.DataFrame: The enriched POI data (all chunks concatenated), or None if an
+            exception occurred before the result could be assembled.
+        """
+        phase_timer = timing.Timing()
+        try:
+            logging.info('Starting processing enricher.')
+            self._create_pool(initializer=init_matcher_worker)
+            idx_chunks = np.array_split(np.arange(len(data)), self.NUMBER_OF_PROCESSES * 8)
+            split_data = [data.iloc[idx] for idx in idx_chunks]
+            logging.info('Starting enricher on %d data chunks.', len(split_data))
+            self.results = self.pool.map_async(enrich_matched_pois, [(chunk, comm_data) for chunk in split_data],
+                                               chunksize=16)
+            result_chunks = self._wait_for_results('enricher', return_results=True, timeout=360000)
             combined_result = pd.concat(result_chunks, ignore_index=True, sort=False)
             self.matcher_stats = {
                 'total': int(len(combined_result)),
@@ -470,12 +513,18 @@ def main():
 
         # --- STAGE 9 ---
         logging.info('Starting STAGE 9 – Online POI matching and conflict resolution.')
+        # Phase 1: find candidate osm_id matches (local DB only, no live OSM API
+        # calls yet) for the whole dataset.
         poi_addr_data = manager.start_matcher(poi_addr_data, poi_common_data)
         manager.join()
         if poi_addr_data is None:
             raise RuntimeError('STAGE 9 – Online POI matching failed, aborting pipeline.')
-        logging.info("STAGE 9 – Online POI matching finished successfully.")
+        logging.info("STAGE 9 – Candidate OSM matching finished successfully.")
 
+        # Phase 1.5: resolve (osm_id, poi_type) conflicts on the *whole* dataset,
+        # before any row does the expensive live-tag download below - so a POI that
+        # loses a conflict never wastes an API call, and never carries live tag
+        # data from a match it no longer has.
         logging.info('Resolving OSM ID conflicts.')
         try:
             poi_addr_data, conflict_stats = match_conflict_resolution(poi_addr_data)
@@ -485,6 +534,13 @@ def main():
         except Exception as e:
             logging.error('Conflict resolution failed: %s', e, exc_info=True)
             raise
+
+        # Phase 2: download live OSM data for the *final* matches only, and
+        # finalize genuinely-new (including conflict-demoted) POIs.
+        poi_addr_data = manager.start_enricher(poi_addr_data, poi_common_data)
+        manager.join()
+        if poi_addr_data is None:
+            raise RuntimeError('STAGE 9 – OSM enrichment failed, aborting pipeline.')
         logging.info("STAGE 9 – Online POI matching and conflict resolution finished successfully.")
         mem_info.log_top_memory_snapshot('STAGE 9')
 

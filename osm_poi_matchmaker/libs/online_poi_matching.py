@@ -57,25 +57,37 @@ def init_matcher_worker():
     _worker_osm_live_query = OsmApi()
 
 
-def online_poi_matching(args):
-    """STAGE 8's per-chunk matcher worker: for every harvested POI in `data`, search
-    the local OSM database for an existing match and either enrich the row with that
-    OSM element's data, or (if nothing matched) mark it as a new POI. Runs as one
-    multiprocessing.Pool task per chunk - see create_db.py's start_matcher(), which
-    splits the full dataset into NUMBER_OF_PROCESSES * 8 chunks and creates the pool
-    with init_matcher_worker() so each worker process reuses one DB connection
-    across every chunk it's given, rather than opening a new one per chunk.
+def find_osm_matches(args):
+    """STAGE 9 phase 1 (candidate search): for every harvested POI in `data`, search
+    the *local* OSM database (PostGIS) for an existing match and copy that element's
+    id/coordinates/version/refined address fields onto the row - or, if nothing
+    matched, mark it poi_new=True. Deliberately does NOT touch the live OSM API: that
+    (expensive, network-bound) step now happens in enrich_matched_pois(), which only
+    runs after match_conflict_resolution() has settled the final osm_id<->POI
+    assignment on the whole dataset - see create_db.py's STAGE 9. Splitting it out
+    means a POI that loses a same-(osm_id, poi_type) conflict (e.g. two duplicate-
+    harvested rows for the same shop) never wastes a live API call on a match it's
+    about to lose, and never ends up exported as "new" while still carrying live tag
+    data from the match it no longer has.
+
+    Runs as one multiprocessing.Pool task per chunk - see create_db.py's
+    start_matcher(), which splits the full dataset into NUMBER_OF_PROCESSES * 8
+    chunks and creates the pool with init_matcher_worker() so each worker process
+    reuses one DB connection across every chunk it's given, rather than opening a
+    new one per chunk.
 
     Per row, roughly:
       1. db.query_osm_shop_poi_gpd() searches for a matching OSM POI by
          name/type/address/distance thresholds from row.osm_search_distance_*.
-      2. If found: copy the OSM element's id/coordinates/version/etc. onto the row,
-         refine the postcode/housenumber/city/street from OSM data where allowed
-         (see smart_postcode_check()), and download the element's live tags from the
-         OSM API (way_get/node_get/relation_get), caching them in POI_OSM_cache.
-      3. If not found: mark the row as poi_new=True, try to snap its coordinates
-         onto a nearby building with the same address
-         (db.query_osm_building_poi_gpd()), and resolve its postcode the same way.
+      2. If found: copy the OSM element's id/coordinates/version/etc. onto the row
+         (all sourced from the local DB query, not the live API), refine the
+         postcode/housenumber/city/street from OSM data where allowed (see
+         smart_postcode_check()), and stash whether the address changed in
+         '_changed_from_osm' for enrich_matched_pois()'s log line later.
+      3. If not found: mark the row as poi_new=True. Building-relocation and
+         postcode refinement for genuinely-new POIs happens in
+         enrich_matched_pois() now too, since a POI that *did* match here can still
+         end up in that same "new" bucket after conflict resolution demotes it.
       4. Any row-level exception sets data['match_error'] and is logged, without
          aborting the rest of the chunk.
 
@@ -85,17 +97,23 @@ def online_poi_matching(args):
             up each row's poi_type by poi_common_id).
 
     Returns:
-        pd.DataFrame | None: `data`, mutated in place with match results (osm_id,
-        osm_node, poi_new, match_error, refined address fields, ...), or None if an
-        exception escaped the per-row try/except (logged either way).
+        pd.DataFrame | None: `data`, mutated in place with candidate match results
+        (osm_id, osm_node, poi_new, match_error, refined address fields,
+        _changed_from_osm, ...), or None if an exception escaped the per-row
+        try/except (logged either way).
     """
     data, comm_data = args
     if 'osm_nodes' not in data.columns:
         data['osm_nodes'] = None
+    if '_changed_from_osm' not in data.columns:
+        data['_changed_from_osm'] = False
+    if 'osm_lat' not in data.columns:
+        data['osm_lat'] = None
+    if 'osm_lon' not in data.columns:
+        data['osm_lon'] = None
     data['match_error'] = False
     db = _worker_db
     session = _worker_session
-    osm_live_query = _worker_osm_live_query
     try:
         # Pre-compute lookup so we avoid a full DataFrame scan on every iteration
         poi_type_by_common_id = comm_data.set_index('pc_id')['poi_type'].to_dict()
@@ -129,14 +147,21 @@ def online_poi_matching(args):
                     osm_id = osm_query['osm_id'].values[0] if osm_query.get('osm_id') is not None else None
                     osm_node = osm_query.get('node').values[0] if osm_query.get('node') is not None else None
                     osm_postcode = osm_query.get('addr:postcode').values[0] if osm_query.get('addr:postcode') is not None else None
-                    # Set OSM POI coordinates for all kind of geom
+                    # Stash the matched OSM element's own coordinates in a
+                    # dedicated osm_lat/osm_lon column - NOT onto poi_lat/poi_lon
+                    # yet (that snap now happens in enrich_matched_pois(), after
+                    # conflict resolution). match_conflict_resolution.py's
+                    # resolve_conflict() needs poi_lat/poi_lon to still hold each
+                    # row's own, pre-snap coordinate here: two provider rows that
+                    # both match the same OSM element would otherwise both get
+                    # snapped onto that element's coordinate right here, making
+                    # them indistinguishable by distance - the "farthest" pick
+                    # conflict resolution relies on would become arbitrary instead
+                    # of reflecting which duplicate was actually further off.
                     lat = osm_query.get('lat').values[0]
                     lon = osm_query.get('lon').values[0]
-                    if row.poi_lat != lat and row.poi_lon != lon:
-                        logging.info('Using new coordinates %s %s instead of %s %s.',
-                                     lat, lon, row.poi_lat, row.poi_lon)
-                        data.at[i, 'poi_lat'] = lat
-                        data.at[i, 'poi_lon'] = lon
+                    data.at[i, 'osm_lat'] = lat
+                    data.at[i, 'osm_lon'] = lon
                     if osm_node == 'node':
                         osm_node = OSM_object_type.node
                     elif osm_node == 'way':
@@ -288,22 +313,109 @@ def online_poi_matching(args):
                         # Add list of relation nodes to the dataframe
                         nodes = db.query_relation_nodes(osm_id)
                         data.at[i, 'osm_nodes'] = json.dumps(nodes) if isinstance(nodes, (list, dict)) else nodes
+                    # The "Old .../Old changed..." log line and the live tag
+                    # download used to happen right here. Both moved to
+                    # enrich_matched_pois(), which only runs after conflict
+                    # resolution has settled the final osm_id - a candidate found
+                    # here can still be demoted, and logging/downloading against a
+                    # match that's about to be revoked was exactly the waste and
+                    # inconsistent-leftover-state class of bug this split fixes.
+                    # Stash the decision so the eventual log line can still report
+                    # it correctly.
+                    data.at[i, '_changed_from_osm'] = changed_from_osm
+                # This is a new POI (candidate search found nothing) - final
+                # handling (building relocation, postcode refinement, the "New
+                # ..." log) happens in enrich_matched_pois() too, since a POI that
+                # *did* match here can still end up in that same bucket if
+                # conflict resolution later demotes it.
+                else:
+                    data.at[i, 'poi_new'] = True
+            except Exception as e:
+                if isinstance(e, SQLAlchemyError):
+                    session.rollback()
+                data.at[i, 'match_error'] = True
+                logging.error(e)
+                logging.error(row)
+                logging.exception('Exception occurred')
+            finally:
+                session.commit()
+        session.commit()
+        logging.info("Finished candidate OSM matching!")
+        return data
+    except Exception as e:
+        if session is not None and isinstance(e, SQLAlchemyError):
+            session.rollback()
+        logging.error(e)
+        logging.exception('Exception occurred')
+
+
+def enrich_matched_pois(args):
+    """STAGE 9 phase 2 (enrichment): for every POI in `data` with a *final* osm_id
+    (set by find_osm_matches() and possibly cleared by match_conflict_resolution()
+    since then), download the OSM element's live tags from the OSM API and log the
+    "Old .../Old changed..." summary line. For every POI without a final osm_id -
+    whether find_osm_matches() never found one, or match_conflict_resolution()
+    demoted it - do the "new POI" finalization instead: snap its coordinates onto a
+    nearby building with the same address (db.query_osm_building_poi_gpd()),
+    resolve its postcode, and log the "New ..." summary line. Runs only after
+    match_conflict_resolution() has settled the final osm_id<->POI assignment on
+    the whole dataset, so it never downloads live tags for - or logs as matched - a
+    row that's about to be (or already was) demoted.
+
+    Runs as one multiprocessing.Pool task per chunk, mirroring find_osm_matches() -
+    see create_db.py's start_enricher().
+
+    Args:
+        args (tuple[pd.DataFrame, pd.DataFrame]): (data, comm_data) - the chunk of
+            already-matched-and-deduplicated POI rows to enrich, and the full
+            poi_common table (kept for interface symmetry with find_osm_matches();
+            not otherwise used here).
+
+    Returns:
+        pd.DataFrame | None: `data`, mutated in place with osm_live_tags and the
+        final new-POI address refinements, or None if an exception escaped the
+        per-row try/except (logged either way).
+    """
+    data, comm_data = args
+    db = _worker_db
+    session = _worker_session
+    osm_live_query = _worker_osm_live_query
+    try:
+        for row in data.itertuples(index=True):
+            i = row.Index
+            try:
+                if has_value(getattr(row, 'osm_id', None)):
+                    osm_id = row.osm_id
+                    osm_node = row.osm_node
+                    changed_from_osm = bool(getattr(row, '_changed_from_osm', False))
+                    # Snap the POI onto the matched OSM element's own coordinates
+                    # now that conflict resolution has settled which row keeps
+                    # this match - find_osm_matches() deliberately left poi_lat/
+                    # poi_lon untouched so resolve_conflict()'s distance-based
+                    # duplicate selection had two genuinely different points to
+                    # compare (see its comment there).
+                    osm_lat = getattr(row, 'osm_lat', None)
+                    osm_lon = getattr(row, 'osm_lon', None)
+                    if has_value(osm_lat) and has_value(osm_lon) and \
+                            row.poi_lat != osm_lat and row.poi_lon != osm_lon:
+                        logging.info('Using new coordinates %s %s instead of %s %s.',
+                                     osm_lat, osm_lon, row.poi_lat, row.poi_lon)
+                        data.at[i, 'poi_lat'] = osm_lat
+                        data.at[i, 'poi_lon'] = osm_lon
                     if not changed_from_osm:
                         logging.info('Old %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
                                  row.poi_search_name, row.poi_search_avoid_name,
-                                 row.poi_type, data.at[i, 'poi_distance'],
-                                 _disp(data.at[i, 'poi_postcode']), _disp(data.at[i, 'poi_city']),
-                                 _disp(data.at[i, 'poi_addr_street']), _disp(data.at[i, 'poi_addr_housenumber']),
-                                 _disp(data.at[i, 'poi_conscriptionnumber']))
+                                 row.poi_type, getattr(row, 'poi_distance', None),
+                                 _disp(row.poi_postcode), _disp(row.poi_city),
+                                 _disp(row.poi_addr_street), _disp(row.poi_addr_housenumber),
+                                 _disp(row.poi_conscriptionnumber))
                     else:
-                        logging.info('Old changed %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s) was: %s %s, %s %s (%s)',
+                        logging.info('Old changed %s (not %s) type: %s POI within %s m: %s %s, %s %s (%s)',
                                  row.poi_search_name, row.poi_search_avoid_name,
-                                 row.poi_type, data.at[i, 'poi_distance'],
-                                 _disp(data.at[i, 'poi_postcode']), _disp(data.at[i, 'poi_city']),
-                                 _disp(data.at[i, 'poi_addr_street']), _disp(data.at[i, 'poi_addr_housenumber']),
-                                 _disp(data.at[i, 'poi_conscriptionnumber']),
-                                 _disp(row.poi_postcode), _disp(row.poi_city), _disp(row.poi_addr_street),
-                                 _disp(row.poi_addr_housenumber), _disp(row.poi_conscriptionnumber))
+                                 row.poi_type, getattr(row, 'poi_distance', None),
+                                 _disp(row.poi_postcode), _disp(row.poi_city),
+                                 _disp(row.poi_addr_street), _disp(row.poi_addr_housenumber),
+                                 _disp(row.poi_conscriptionnumber))
                     cached_node = None
                     try:
                         # Download OSM POI way live tags
@@ -402,10 +514,10 @@ def online_poi_matching(args):
                             logging.warning('Live tag is: %s', _cached.get('osm_live_tags'))
                         else:
                             logging.warning('Live tag is None (no cached entry available)')
-                # This is a new POI
+                # No final match - never found one, or demoted by conflict
+                # resolution. Either way this row needs the "new POI" treatment.
                 else:
                     osm_postcode = None
-                    # This is a new POI - will add fix me tag to the new items.
                     data.at[i, 'poi_new'] = True
                     # Get the first character of then name of POI and generate a floating number between 0 and 1
                     # for a PostGIS function: https://postgis.net/docs/ST_LineInterpolatePoint.html
@@ -441,7 +553,7 @@ def online_poi_matching(args):
                             postcode = None
                             postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
                                                                    session,
-                                                                   data.at[i, 'poi_lon'], data.at[i, 'poi_lat'],
+                                                                   row.poi_lon, row.poi_lat,
                                                                    row.poi_postcode, osm_postcode)
                         except Exception as e:
                             if isinstance(e, SQLAlchemyError):
@@ -467,7 +579,7 @@ def online_poi_matching(args):
             finally:
                 session.commit()
         session.commit()
-        logging.info("Finished online POI matching!")
+        logging.info("Finished OSM enrichment!")
         return data
     except Exception as e:
         if session is not None and isinstance(e, SQLAlchemyError):
