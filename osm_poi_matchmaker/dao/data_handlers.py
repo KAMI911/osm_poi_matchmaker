@@ -10,6 +10,7 @@ try:
     from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, POI_address_raw, POI_patch, \
         Street_type, Country
     from osm_poi_matchmaker.libs import address
+    from osm_poi_matchmaker.libs.string import has_value
     from osm_poi_matchmaker.dao import poi_array_structure
     from sqlalchemy import func
     from sqlalchemy.exc import SQLAlchemyError
@@ -680,6 +681,16 @@ def insert_street_type_dataframe(session: Session, street_df: pd.DataFrame):
         session.close()
 
 
+def _safe_str(v):
+    """str() unless the cell has no real value - a bare str(row.x) turned every
+    None cell (any optional patch field, e.g. orig_conscriptionnumber - 99% of rows
+    in poi_patch) into the literal 4-character text 'None' in the DB. Downstream
+    code (poi_patch.py's _normalize()/_resolve_new_value()) happens to treat that
+    text as empty too, so this wasn't an active matching bug, but it's still
+    misleading data to store."""
+    return str(v) if has_value(v) else None
+
+
 def insert_patch_data_dataframe(session: Session, patch_df: pd.DataFrame):
     """Bulk-insert the poi_patch.tsv contents into the POI_patch table, skipping the
     work entirely if the table already has as many rows as the dataframe (a cheap
@@ -705,15 +716,15 @@ def insert_patch_data_dataframe(session: Session, patch_df: pd.DataFrame):
     try:
         new_patches = [
             POI_patch(
-                poi_code=str(row.poi_code), orig_postcode=str(row.orig_postcode),
-                orig_city=str(row.orig_city), orig_street=str(row.orig_street),
-                orig_housenumber=str(row.orig_housenumber),
-                orig_conscriptionnumber=str(row.orig_conscriptionnumber),
-                orig_name=str(row.orig_name), new_postcode=str(row.new_postcode),
-                new_city=str(row.new_city), new_street=str(row.new_street),
-                new_housenumber=str(row.new_housenumber),
-                new_conscriptionnumber=str(row.new_conscriptionnumber),
-                new_name=str(row.new_name)
+                poi_code=_safe_str(row.poi_code), orig_postcode=_safe_str(row.orig_postcode),
+                orig_city=_safe_str(row.orig_city), orig_street=_safe_str(row.orig_street),
+                orig_housenumber=_safe_str(row.orig_housenumber),
+                orig_conscriptionnumber=_safe_str(row.orig_conscriptionnumber),
+                orig_name=_safe_str(row.orig_name), new_postcode=_safe_str(row.new_postcode),
+                new_city=_safe_str(row.new_city), new_street=_safe_str(row.new_street),
+                new_housenumber=_safe_str(row.new_housenumber),
+                new_conscriptionnumber=_safe_str(row.new_conscriptionnumber),
+                new_name=_safe_str(row.new_name)
             )
             for row in patch_df.itertuples(index=False)
         ]

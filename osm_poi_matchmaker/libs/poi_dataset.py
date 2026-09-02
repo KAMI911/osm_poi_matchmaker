@@ -12,6 +12,7 @@ try:
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
     from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch, clean_phone_to_str, clean_email, clean_postcode
+    from osm_poi_matchmaker.libs.string import has_value
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.utils import config
@@ -1155,10 +1156,15 @@ class POIDatasetRaw:
         data = clean_string(self.__postcode)
         if data is None or data == 0 or data == '':
             osm_postcode = query_postcode_osm_external(True, False, self.__session_object(), self.__lon, self.__lat, None, None)
-            if osm_postcode is not None or osm_postcode != 0:
+            # 'or' here was always True (None is not None -> False, but None != 0 -> True,
+            # and any other value already satisfies 'is not None'), making the else branch
+            # below dead code. clean_postcode()/clean_string() happened to still filter out
+            # None/0/NaN/'' downstream, so this wasn't an active leak, but it didn't do what
+            # it says either - use has_value() to actually gate on "is this usable".
+            if has_value(osm_postcode) and osm_postcode != 0:
                 # Ensure postcode is stored as string to avoid float formatting (23.0 instead of 23)
                 # when exporting to CSV through Pandas DataFrame
-                self.__postcode = clean_postcode(str(osm_postcode) if osm_postcode is not None else None)
+                self.__postcode = clean_postcode(str(osm_postcode))
             else:
                 self.__postcode = None
 
