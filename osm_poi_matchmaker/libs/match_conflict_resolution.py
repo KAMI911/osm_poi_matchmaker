@@ -122,8 +122,17 @@ def resolve_conflict(data, osm_id, conflict_indices, db_session=None):
     logging.debug('Resolving OSM ID %s: reassigning POI at index %d (distance: %.1f m)',
                   osm_id, farthest_idx, distances[0][1])
 
-    data.at[farthest_idx, 'osm_id'] = None
-    data.at[farthest_idx, 'osm_node'] = None
+    # Clear every OSM-derived field online_poi_matching.py set while this row still
+    # held the (now-revoked) match, not just osm_id/osm_node - otherwise the row is
+    # exported as "new" (osm_id is None, so file_output.py gives it a negative
+    # placeholder id) while still carrying a real osm_version/osm_timestamp/live tag
+    # payload from the OSM element it no longer matches, which looks like - and is
+    # a leftover of - an already-existing element. See STAGE 7 in create_db.py for
+    # the matching set of columns matching starts from.
+    for col in ('osm_id', 'osm_node', 'osm_version', 'osm_changeset', 'osm_timestamp',
+                'osm_live_tags', 'osm_nodes'):
+        if col in data.columns:
+            data.at[farthest_idx, col] = None
     return True
 
 

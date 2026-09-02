@@ -6,6 +6,7 @@ import numpy as np
 from osm_poi_matchmaker.libs.match_conflict_resolution import (
     haversine, find_osm_id_conflicts, resolve_conflict, match_conflict_resolution
 )
+from osm_poi_matchmaker.libs.string import has_value
 
 
 class TestHaversine(unittest.TestCase):
@@ -95,6 +96,68 @@ class TestResolveConflict(unittest.TestCase):
         """Should return False if only one conflict."""
         result = resolve_conflict(self.df, 100, [0])
         self.assertFalse(result)
+
+    def test_resolve_clears_all_osm_derived_fields(self):
+        """The demoted (farthest) row must come back to a clean 'never matched'
+        state - not just osm_id/osm_node cleared while osm_version/osm_timestamp/
+        osm_live_tags/osm_nodes/osm_changeset are left over from the match that was
+        just revoked. Left uncleared, file_output.py exports the row as "new" (a
+        negative placeholder id, since osm_id is None) while it still carries a
+        real OSM version/timestamp/live-tag payload from the element it no longer
+        matches - looking like, and partly being, an already-existing element.
+
+        Columns use dtype=object throughout, matching real pipeline data: STAGE 7
+        (create_db.py) initializes osm_id/osm_version/etc. to None for every row
+        before matching runs, which keeps the column object-dtype even once some
+        rows get real int/str values - unlike a plain int column (auto-upcast to
+        float64 on the first None assignment, silently turning a later reset into
+        NaN instead of None, which 'row.osm_id is None' in file_output.py would
+        then miss). A too-narrow test dtype would hide exactly that failure mode.
+        """
+        self.df['osm_node'] = pd.array(['node', 'node', 'node'], dtype=object)
+        self.df['osm_version'] = pd.array(['23', '23', '5'], dtype=object)
+        self.df['osm_changeset'] = pd.array([111, 111, 222], dtype=object)
+        self.df['osm_timestamp'] = pd.array(
+            pd.to_datetime(['2026-06-15', '2026-06-15', '2026-01-01'], utc=True), dtype=object)
+        self.df['osm_live_tags'] = pd.array(
+            [{'shop': 'supermarket'}, {'shop': 'supermarket'}, {'shop': 'bakery'}], dtype=object)
+        self.df['osm_nodes'] = pd.array([None, None, None], dtype=object)
+        self.df['osm_id'] = self.df['osm_id'].astype(object)
+
+        # Force row 0 to be the farthest, so it's the one that gets demoted.
+        self.df.loc[0, 'osm_lon'] = 19.1
+        self.df.loc[0, 'osm_lat'] = 47.6
+
+        resolve_conflict(self.df, 100, [0, 1])
+
+        # Not assertIsNone: pandas silently upcasts a None assignment to whatever
+        # missing-value sentinel fits the column's dtype (NaN for numeric, NaT for
+        # datetime) - has_value() is what file_output.py actually checks downstream,
+        # and it correctly treats every one of those sentinels as "no value".
+        demoted = self.df.loc[0]
+        for col in ('osm_id', 'osm_node', 'osm_version', 'osm_changeset',
+                    'osm_timestamp', 'osm_live_tags', 'osm_nodes'):
+            with self.subTest(col=col):
+                self.assertFalse(has_value(demoted[col]), f'{col} was not cleared on the demoted row')
+
+        # The winning row (index 1) must be untouched.
+        winner = self.df.loc[1]
+        self.assertEqual(winner['osm_id'], 100)
+        self.assertEqual(winner['osm_version'], '23')
+        self.assertEqual(winner['osm_live_tags'], {'shop': 'supermarket'})
+
+    def test_resolve_missing_osm_columns_does_not_crash(self):
+        """A DataFrame without osm_version/osm_timestamp/etc. (only the columns the
+        rest of this test class already uses) must still resolve cleanly - the
+        extra columns are optional, guarded by `if col in data.columns`. Uses
+        pd.isna() rather than assertIsNone: this setUp's osm_id is a plain int
+        column, so pandas upcasts a None assignment to NaN, not None - the dtype
+        nuance itself is covered separately by test_resolve_clears_all_osm_derived_fields."""
+        self.df.loc[0, 'osm_lon'] = 19.1
+        self.df.loc[0, 'osm_lat'] = 47.6
+        result = resolve_conflict(self.df, 100, [0, 1])
+        self.assertTrue(result)
+        self.assertFalse(has_value(self.df.loc[0, 'osm_id']))
 
 
 class TestMatchConflictResolution(unittest.TestCase):

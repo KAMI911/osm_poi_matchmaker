@@ -30,20 +30,6 @@ except ImportError as err:
     sys.exit(128)
 
 
-def has_value(value) -> bool:
-    """True if value is a real, present value - not None and not a pandas/numpy NaN float.
-
-    A DataFrame column a data provider never set defaults to NaN, which is neither None
-    nor an empty string, so plain `is not None` / truthy checks let it through and it ends
-    up written out as the literal string 'nan' in OSM tags.
-    """
-    if value is None:
-        return False
-    if isinstance(value, float) and math.isnan(value):
-        return False
-    return True
-
-
 POI_TAGS = {'poi_common_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:postcode',
             'poi_addr_street': 'addr:street', 'poi_addr_housenumber': 'addr:housenumber',
             'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email'}
@@ -171,11 +157,14 @@ def add_osm_node(osm_id: int, node_data: dict, prefix: str = 'poi') -> dict:
     Returns:
         str: [description]
     """
-    if node_data.get('osm_timestamp') is None:
+    # has_value() catches pandas.NaT too, not just None - a plain 'is None' check
+    # doesn't, and TIMESTAMP_FORMAT.format() on a NaT raises
+    # "NaTType does not support strftime" instead of falling back to now().
+    if not has_value(node_data.get('osm_timestamp')):
         osm_timestamp = datetime.datetime.now()
     else:
         osm_timestamp = node_data.get('osm_timestamp')
-    osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
+    osm_version = '99999' if not has_value(node_data.get('osm_version')) else node_data.get('osm_version')
     osm_data = {'action': 'modify', 'id': str(osm_id),
                 'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
                 'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
@@ -198,13 +187,16 @@ def list_osm_node(osm_id: int, node_data: dict, prefix='poi') -> dict:
         str: [description]
     """
     logging.debug(node_data)
-    osm_user = 'osm_poi_matchmaker' if node_data.get('osm_user') is None else node_data.get('osm_user')
-    osm_user_id = '8635934' if node_data.get('osm_user_id') is None else node_data.get('osm_user_id')
-    if node_data.get('osm_timestamp') is None:
+    osm_user = 'osm_poi_matchmaker' if not has_value(node_data.get('osm_user')) else node_data.get('osm_user')
+    osm_user_id = '8635934' if not has_value(node_data.get('osm_user_id')) else node_data.get('osm_user_id')
+    # has_value() catches pandas.NaT too, not just None - a plain 'is None' check
+    # doesn't, and TIMESTAMP_FORMAT.format() on a NaT raises
+    # "NaTType does not support strftime" instead of falling back to now().
+    if not has_value(node_data.get('osm_timestamp')):
         osm_timestamp = datetime.datetime.now()
     else:
         osm_timestamp = node_data.get('osm_timestamp')
-    osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
+    osm_version = '99999' if not has_value(node_data.get('osm_version')) else node_data.get('osm_version')
     osm_data = {'id': str(osm_id),
                 'lat': '{}'.format(node_data.get('{}_lat'.format(prefix))),
                 'lon': '{}'.format(node_data.get('{}_lon'.format(prefix))),
@@ -224,11 +216,14 @@ def add_osm_way(osm_id: int, node_data: dict) -> dict:
     Returns:
         str: [description]
     """
-    if node_data.get('osm_timestamp') is None:
+    # has_value() catches pandas.NaT too, not just None - a plain 'is None' check
+    # doesn't, and TIMESTAMP_FORMAT.format() on a NaT raises
+    # "NaTType does not support strftime" instead of falling back to now().
+    if not has_value(node_data.get('osm_timestamp')):
         osm_timestamp = datetime.datetime.now()
     else:
         osm_timestamp = node_data.get('osm_timestamp')
-    osm_version = '99999' if node_data.get('osm_version') is None else node_data.get('osm_version')
+    osm_version = '99999' if not has_value(node_data.get('osm_version')) else node_data.get('osm_version')
     osm_data = {'action': 'modify', 'id': str(osm_id),
                 'user': '{}'.format('osm_poi_matchmaker'), 'uid': '{}'.format('8635934'),
                 'version': '{}'.format(osm_version),
@@ -381,8 +376,14 @@ def generate_osm_xml(df, session=None):
                 osm_live_tags = {}
                 main_data = {}
                 preserved_name = None
-                current_osm_id = default_osm_id if row.osm_id is None else row.osm_id
-                osm_version = '99999' if row.osm_version is None else row.osm_version
+                # has_value() rejects NaN too - a plain 'is None' check doesn't, and a
+                # numeric-dtype osm_id/osm_version column silently turns a None
+                # assignment into NaN (see match_conflict_resolution.py's demoted-row
+                # reset), which would otherwise flow into the exported XML as a
+                # literal 'nan' id/version instead of getting the negative
+                # placeholder id / '99999' default a genuinely unmatched row gets.
+                current_osm_id = default_osm_id if not has_value(row.osm_id) else row.osm_id
+                osm_version = '99999' if not has_value(row.osm_version) else row.osm_version
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())
