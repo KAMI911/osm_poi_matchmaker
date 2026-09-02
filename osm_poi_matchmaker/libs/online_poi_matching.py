@@ -83,7 +83,7 @@ def find_osm_matches(args):
          (all sourced from the local DB query, not the live API), refine the
          postcode/housenumber/city/street from OSM data where allowed (see
          smart_postcode_check()), and stash whether the address changed in
-         '_changed_from_osm' for enrich_matched_pois()'s log line later.
+         'addr_changed_from_osm' for enrich_matched_pois()'s log line later.
       3. If not found: mark the row as poi_new=True. Building-relocation and
          postcode refinement for genuinely-new POIs happens in
          enrich_matched_pois() now too, since a POI that *did* match here can still
@@ -99,18 +99,24 @@ def find_osm_matches(args):
     Returns:
         pd.DataFrame | None: `data`, mutated in place with candidate match results
         (osm_id, osm_node, poi_new, match_error, refined address fields,
-        _changed_from_osm, ...), or None if an exception escaped the per-row
+        addr_changed_from_osm, ...), or None if an exception escaped the per-row
         try/except (logged either way).
     """
     data, comm_data = args
     if 'osm_nodes' not in data.columns:
         data['osm_nodes'] = None
-    if '_changed_from_osm' not in data.columns:
-        data['_changed_from_osm'] = False
+    if 'addr_changed_from_osm' not in data.columns:
+        data['addr_changed_from_osm'] = False
     if 'osm_lat' not in data.columns:
         data['osm_lat'] = None
     if 'osm_lon' not in data.columns:
         data['osm_lon'] = None
+    if 'orig_addr_captured' not in data.columns:
+        data['orig_addr_captured'] = False
+    for col in ('orig_poi_postcode', 'orig_poi_city', 'orig_poi_addr_street',
+                'orig_poi_addr_housenumber', 'orig_poi_conscriptionnumber'):
+        if col not in data.columns:
+            data[col] = None
     data['match_error'] = False
     db = _worker_db
     session = _worker_session
@@ -172,6 +178,24 @@ def find_osm_matches(args):
                         logging.warning('Illegal state: %s', osm_query.get('node').values[0])
                     data.at[i, 'osm_id'] = osm_id
                     data.at[i, 'osm_node'] = osm_node
+                    # Snapshot the provider's own address fields before the OSM
+                    # overwrite below can touch them, and record that this row
+                    # went through this branch at all (orig_addr_captured survives a
+                    # later demotion in match_conflict_resolution.py, unlike
+                    # osm_id/osm_node/etc., which that clears) - so
+                    # enrich_matched_pois() can restore them if this row ends up
+                    # needing the "new POI" treatment after conflict resolution.
+                    # Without this, a demoted row keeps whatever OSM address it
+                    # picked up from the match it no longer has, and the building-
+                    # relocation/postcode-refinement in that treatment then
+                    # searches using that stale address instead of the provider's
+                    # own.
+                    data.at[i, 'orig_addr_captured'] = True
+                    data.at[i, 'orig_poi_postcode'] = row.poi_postcode
+                    data.at[i, 'orig_poi_city'] = row.poi_city
+                    data.at[i, 'orig_poi_addr_street'] = row.poi_addr_street
+                    data.at[i, 'orig_poi_addr_housenumber'] = row.poi_addr_housenumber
+                    data.at[i, 'orig_poi_conscriptionnumber'] = row.poi_conscriptionnumber
                     # Refine postcode
                     if row.do_not_export_addr_tags is False:
                         try:
@@ -322,7 +346,7 @@ def find_osm_matches(args):
                     # inconsistent-leftover-state class of bug this split fixes.
                     # Stash the decision so the eventual log line can still report
                     # it correctly.
-                    data.at[i, '_changed_from_osm'] = changed_from_osm
+                    data.at[i, 'addr_changed_from_osm'] = changed_from_osm
                 # This is a new POI (candidate search found nothing) - final
                 # handling (building relocation, postcode refinement, the "New
                 # ..." log) happens in enrich_matched_pois() too, since a POI that
@@ -387,7 +411,7 @@ def enrich_matched_pois(args):
                 if has_value(getattr(row, 'osm_id', None)):
                     osm_id = row.osm_id
                     osm_node = row.osm_node
-                    changed_from_osm = bool(getattr(row, '_changed_from_osm', False))
+                    changed_from_osm = bool(getattr(row, 'addr_changed_from_osm', False))
                     # Snap the POI onto the matched OSM element's own coordinates
                     # now that conflict resolution has settled which row keeps
                     # this match - find_osm_matches() deliberately left poi_lat/
@@ -519,6 +543,31 @@ def enrich_matched_pois(args):
                 else:
                     osm_postcode = None
                     data.at[i, 'poi_new'] = True
+                    # If find_osm_matches() captured this row's provider-sourced
+                    # address before overwriting it with a (now-revoked, since
+                    # there's no final osm_id here) OSM match's address, restore
+                    # it - a demoted row must get the "new POI" treatment below
+                    # using its own claimed address, not leftover data from the
+                    # match it no longer has. A row that never matched at all
+                    # never had orig_addr_captured set, so poi_* here is already its
+                    # own untouched data and this is a no-op for it.
+                    if bool(getattr(row, 'orig_addr_captured', False)):
+                        addr_postcode = row.orig_poi_postcode
+                        addr_city = row.orig_poi_city
+                        addr_street = row.orig_poi_addr_street
+                        addr_housenumber = row.orig_poi_addr_housenumber
+                        addr_conscriptionnumber = row.orig_poi_conscriptionnumber
+                        data.at[i, 'poi_postcode'] = addr_postcode
+                        data.at[i, 'poi_city'] = addr_city
+                        data.at[i, 'poi_addr_street'] = addr_street
+                        data.at[i, 'poi_addr_housenumber'] = addr_housenumber
+                        data.at[i, 'poi_conscriptionnumber'] = addr_conscriptionnumber
+                    else:
+                        addr_postcode = row.poi_postcode
+                        addr_city = row.poi_city
+                        addr_street = row.poi_addr_street
+                        addr_housenumber = row.poi_addr_housenumber
+                        addr_conscriptionnumber = row.poi_conscriptionnumber
                     # Get the first character of then name of POI and generate a floating number between 0 and 1
                     # for a PostGIS function: https://postgis.net/docs/ST_LineInterpolatePoint.html
                     # If there is more than one POI in a building this will try to do a different location and
@@ -536,9 +585,9 @@ def enrich_matched_pois(args):
                         ibp = 0.50
                     # Refine postcode
                     osm_building_q = db.query_osm_building_poi_gpd(row.poi_lon, row.poi_lat,
-                                                                   row.poi_city, row.poi_postcode,
-                                                                   row.poi_addr_street,
-                                                                   row.poi_addr_housenumber,
+                                                                   addr_city, addr_postcode,
+                                                                   addr_street,
+                                                                   addr_housenumber,
                                                                    in_building_percentage=ibp)
                     if osm_building_q is not None:
                         logging.info('Relocating POI coordinates to the building with same address: %s %s, %s %s',
@@ -554,21 +603,22 @@ def enrich_matched_pois(args):
                             postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
                                                                    session,
                                                                    row.poi_lon, row.poi_lat,
-                                                                   row.poi_postcode, osm_postcode)
+                                                                   addr_postcode, osm_postcode)
                         except Exception as e:
                             if isinstance(e, SQLAlchemyError):
                                 session.rollback()
                             logging.exception('Exception occurred during postcode query (1): {}'.format(e))
                             logging.exception(traceback.format_exc())
-                        if postcode is not None and postcode != row.poi_postcode:
-                            logging.info('Changing postcode from %s to %s.', row.poi_postcode, postcode)
+                        if postcode is not None and postcode != addr_postcode:
+                            logging.info('Changing postcode from %s to %s.', addr_postcode, postcode)
                             data.at[i, 'poi_postcode'] = postcode
+                            addr_postcode = postcode
                     else:
-                        logging.info('Preserving original postcode %s', row.poi_postcode)
+                        logging.info('Preserving original postcode %s', addr_postcode)
                     logging.info('New %s (not %s) type: %s POI: %s %s, %s %s (%s)', row.poi_search_name,
-                                 row.poi_search_avoid_name, row.poi_type, _disp(row.poi_postcode),
-                                 _disp(row.poi_city), _disp(row.poi_addr_street), _disp(row.poi_addr_housenumber),
-                                 _disp(row.poi_conscriptionnumber))
+                                 row.poi_search_avoid_name, row.poi_type, _disp(addr_postcode),
+                                 _disp(addr_city), _disp(addr_street), _disp(addr_housenumber),
+                                 _disp(addr_conscriptionnumber))
             except Exception as e:
                 if isinstance(e, SQLAlchemyError):
                     session.rollback()

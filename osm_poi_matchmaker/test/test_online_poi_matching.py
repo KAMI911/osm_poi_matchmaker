@@ -130,8 +130,11 @@ def _candidate_row(**overrides):
         osm_search_distance_perfect=600, osm_search_distance_safe=200,
         osm_search_distance_unsafe=2, do_not_export_addr_tags=False,
         preserve_original_post_code=True, poi_type='shop', poi_common_name='Aldi',
-        osm_id=None, osm_node=None, poi_new=False, _changed_from_osm=False,
+        osm_id=None, osm_node=None, poi_new=False, addr_changed_from_osm=False,
         poi_distance=None, osm_live_tags=None, osm_lat=None, osm_lon=None,
+        orig_addr_captured=False, orig_poi_postcode=None, orig_poi_city=None,
+        orig_poi_addr_street=None, orig_poi_addr_housenumber=None,
+        orig_poi_conscriptionnumber=None,
     )
     base.update(overrides)
     return pd.DataFrame([base])
@@ -210,7 +213,7 @@ class TestFindOsmMatches(unittest.TestCase):
         mocked osm_query), so the bridging column must record that."""
         data = _candidate_row(poi_addr_housenumber='56')
         result = opm.find_osm_matches((data, self.comm_data))
-        self.assertTrue(result.at[0, '_changed_from_osm'])
+        self.assertTrue(result.at[0, 'addr_changed_from_osm'])
 
     def test_no_match_marks_new_without_touching_building_query(self):
         """Building-relocation/postcode-refinement for a genuinely-new POI now
@@ -274,10 +277,68 @@ class TestEnrichMatchedPois(unittest.TestCase):
 
     def test_final_match_downloads_live_tags(self):
         data = _candidate_row(osm_id=7059681581, osm_node=OSM_object_type.node,
-                              _changed_from_osm=False)
+                              addr_changed_from_osm=False)
         result = opm.enrich_matched_pois((data, self.comm_data))
         self.mock_api.node_get.assert_called_once_with(7059681581)
         self.assertEqual(result.at[0, 'osm_live_tags'], {'shop': 'supermarket', 'brand': 'Aldi'})
+
+    def testaddr_changed_from_osm_is_read_correctly(self):
+        """Regression test: itertuples() renames leading-underscore columns to
+        positional names (e.g. '_2') instead of exposing them under their real
+        name, so 'getattr(row, "addr_changed_from_osm", False)' used to silently
+        always return the default False - the 'Old changed ...' branch could
+        never fire, only 'Old ...', regardless of the column's real value."""
+        data = _candidate_row(osm_id=7059681581, osm_node=OSM_object_type.node,
+                              addr_changed_from_osm=True)
+        with self.assertLogs(level='INFO') as cm:
+            opm.enrich_matched_pois((data, self.comm_data))
+        self.assertTrue(any('Old changed' in line for line in cm.output),
+                        f'no \"Old changed\" log line found in: {cm.output}')
+
+    def test_demoted_row_restores_original_address_before_building_query(self):
+        """A demoted row's poi_* address fields still hold whatever find_osm_
+        matches() overwrote them with from the (now-revoked) OSM match - the
+        _orig_poi_* snapshot it also left behind must be restored before the
+        building-relocation query and the 'New ...' log, or this row searches
+        for a building using a stale, no-longer-relevant address instead of its
+        own provider-sourced one."""
+        data = _candidate_row(
+            osm_id=None, osm_node=None, poi_new=True,
+            poi_city='STALE-OSM-CITY', poi_postcode='0000',
+            poi_addr_street='STALE-OSM-STREET', poi_addr_housenumber='999',
+            orig_addr_captured=True,
+            orig_poi_city='Budapest', orig_poi_postcode='1016',
+            orig_poi_addr_street='Mészáros utca', orig_poi_addr_housenumber='56',
+            orig_poi_conscriptionnumber=None,
+        )
+        result = opm.enrich_matched_pois((data, self.comm_data))
+
+        self.assertEqual(result.at[0, 'poi_city'], 'Budapest')
+        self.assertEqual(result.at[0, 'poi_postcode'], '1016')
+        self.assertEqual(result.at[0, 'poi_addr_street'], 'Mészáros utca')
+        self.assertEqual(result.at[0, 'poi_addr_housenumber'], '56')
+
+        # The building-relocation query must have used the restored address.
+        call_args = self.mock_db.query_osm_building_poi_gpd.call_args
+        self.assertEqual(call_args.args[2], 'Budapest')
+        self.assertEqual(call_args.args[3], '1016')
+        self.assertEqual(call_args.args[4], 'Mészáros utca')
+        self.assertEqual(call_args.args[5], '56')
+
+    def test_never_matched_row_address_is_left_untouched(self):
+        """A row that never matched at all has orig_addr_captured=False (the default) -
+        its poi_* fields were never overwritten in the first place, so this must
+        be a no-op, not a wipe to None."""
+        data = _candidate_row(
+            osm_id=None, osm_node=None, poi_new=True, orig_addr_captured=False,
+            poi_city='Szeged', poi_postcode='6720',
+            poi_addr_street='Kossuth utca', poi_addr_housenumber='1',
+        )
+        result = opm.enrich_matched_pois((data, self.comm_data))
+        self.assertEqual(result.at[0, 'poi_city'], 'Szeged')
+        self.assertEqual(result.at[0, 'poi_postcode'], '6720')
+        self.assertEqual(result.at[0, 'poi_addr_street'], 'Kossuth utca')
+        self.assertEqual(result.at[0, 'poi_addr_housenumber'], '1')
 
     def test_demoted_row_gets_new_poi_treatment_not_a_live_download(self):
         """A row match_conflict_resolution() demoted has osm_id=None but poi_new
