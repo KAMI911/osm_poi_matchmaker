@@ -40,13 +40,15 @@ def find_osm_id_conflicts(data):
             behaviour).
 
     Returns:
-        dict: {group_key: [list of row indices]} for groups with 2+ POIs. group_key
-        is the bare osm_id if poi_type isn't a column, else an (osm_id, poi_type) tuple.
+        dict: {group_key: [list of row indices]} for groups with 2+ POIs.
+        group_key is the bare osm_id if poi_type isn't a column,
+        else an (osm_id, poi_type) tuple.
     """
     conflicts = {}
     matched = data[data['osm_id'].notna()]
     group_cols = ['osm_id', 'poi_type'] if 'poi_type' in data.columns else ['osm_id']
     group_sizes = matched.groupby(group_cols, dropna=False).size()
+
     for key, count in group_sizes[group_sizes > 1].items():
         mask = matched['osm_id'] == (key[0] if len(group_cols) > 1 else key)
         if len(group_cols) > 1:
