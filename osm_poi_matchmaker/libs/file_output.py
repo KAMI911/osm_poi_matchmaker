@@ -432,7 +432,15 @@ def generate_osm_xml(df, session=None):
                         logging.debug('Object type is relation.')
                         main_data = etree.SubElement(osm_xml_data, 'relation', add_osm_way(current_osm_id, row._asdict()))
                         josm_object = 'r{}'.format(current_osm_id)
-                        relations = relationer(row.osm_nodes)
+                        # row.osm_nodes is stored as a JSON string (see
+                        # online_poi_matching.py's json.dumps(nodes) for both the way
+                        # and relation branches) - it must be parsed back into a list
+                        # before relationer() walks it in (ref, role) pairs, exactly
+                        # like the way branch above does. Passing the raw string here
+                        # made relationer() iterate character-by-character instead of
+                        # member-by-member, producing garbage <member> elements with
+                        # an empty ref and a single-character role.
+                        relations = relationer(json.loads(row.osm_nodes) if row.osm_nodes is not None else None)
                         for i in relations:
                             data = etree.SubElement(main_data, 'member', type=i.get('type'), ref=i.get('ref'),
                                                     role=i.get('role'))
