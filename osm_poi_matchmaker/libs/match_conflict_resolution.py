@@ -137,28 +137,43 @@ def resolve_conflict(data, group_key, conflict_indices, db_session=None):
 
     conflict_data = data.loc[conflict_indices]
 
-    distances = []
-    for idx in conflict_indices:
-        poi = data.loc[idx]
-        if poi['poi_lon'] and poi['poi_lat']:
-            try:
-                osm_lon = float(poi.get('osm_lon', poi['poi_lon']))
-                osm_lat = float(poi.get('osm_lat', poi['poi_lat']))
-                dist = haversine(poi['poi_lon'], poi['poi_lat'], osm_lon, osm_lat)
-                distances.append((idx, dist))
-            except (TypeError, ValueError):
+    # Prefer to demote lowest-confidence (highest priority number) POI
+    # If priority column exists, use it; otherwise fall back to distance-based (farthest)
+    if 'priority' in data.columns:
+        priorities = []
+        for idx in conflict_indices:
+            poi = data.loc[idx]
+            priority = poi.get('priority', float('inf'))
+            priorities.append((idx, float(priority) if pd.notna(priority) else float('inf')))
+
+        priorities.sort(key=lambda x: x[1], reverse=True)
+        worst_idx = priorities[0][0]
+        logging.debug('Resolving conflict %s: demoting POI at index %d (priority: %s)',
+                      group_key, worst_idx, data.loc[worst_idx].get('priority'))
+        farthest_idx = worst_idx
+    else:
+        # Fallback: demote farthest POI (original behavior)
+        distances = []
+        for idx in conflict_indices:
+            poi = data.loc[idx]
+            if poi['poi_lon'] and poi['poi_lat']:
+                try:
+                    osm_lon = float(poi.get('osm_lon', poi['poi_lon']))
+                    osm_lat = float(poi.get('osm_lat', poi['poi_lat']))
+                    dist = haversine(poi['poi_lon'], poi['poi_lat'], osm_lon, osm_lat)
+                    distances.append((idx, dist))
+                except (TypeError, ValueError):
+                    distances.append((idx, float('inf')))
+            else:
                 distances.append((idx, float('inf')))
-        else:
-            distances.append((idx, float('inf')))
 
-    if not distances:
-        return False
+        if not distances:
+            return False
 
-    distances.sort(key=lambda x: x[1], reverse=True)
-    farthest_idx = distances[0][0]
-
-    logging.debug('Resolving conflict %s: reassigning POI at index %d (distance: %.1f m)',
-                  group_key, farthest_idx, distances[0][1])
+        distances.sort(key=lambda x: x[1], reverse=True)
+        farthest_idx = distances[0][0]
+        logging.debug('Resolving conflict %s: reassigning POI at index %d (distance: %.1f m)',
+                      group_key, farthest_idx, distances[0][1])
 
     # Clear every OSM-derived field online_poi_matching.py set while this row still
     # held the (now-revoked) match, not just osm_id/osm_node - otherwise the row is
