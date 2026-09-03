@@ -33,11 +33,15 @@ def find_osm_id_conflicts(data):
     describing the same object. Only same-type matches to the same osm_id (the
     actual duplicate-harvest case this module exists for) count as a conflict.
 
+    Priority-based filtering: High-confidence matches (priority <= 970) protect
+    themselves from conflict resolution. Only unsafe/low-confidence matches
+    (priority >= 980) can participate in conflicts.
+
     Args:
         data (pd.DataFrame): POI data with an osm_id column; also grouped by
             poi_type if that column is present (older/minimal callers - mostly in
             tests - that don't carry poi_type fall back to the osm_id-only
-            behaviour).
+            behaviour). Can include priority column for confidence-based filtering.
 
     Returns:
         dict: {group_key: [list of row indices]} for groups with 2+ POIs.
@@ -54,6 +58,24 @@ def find_osm_id_conflicts(data):
         if len(group_cols) > 1:
             mask = mask & (matched['poi_type'] == key[1])
         conflict_rows = matched[mask].index.tolist()
+
+        # Priority-based conflict filtering: only allow conflicts between unsafe (980+) or lower-priority matches
+        if 'priority' in data.columns:
+            group_data = data.loc[conflict_rows]
+            priorities = group_data['priority'].dropna().unique()
+            has_high_confidence = any(p <= 970 for p in priorities if pd.notna(p))
+
+            if has_high_confidence:
+                if len(priorities) > 1:
+                    # Mixed priorities: keep only high-confidence matches (priority <= 970)
+                    high_conf_mask = group_data['priority'] <= 970
+                    if high_conf_mask.any():
+                        conflict_rows = group_data[high_conf_mask].index.tolist()
+                        if len(conflict_rows) <= 1:
+                            continue  # No conflict among high-confidence matches
+                else:
+                    continue  # All same priority, not a real conflict
+
         conflicts[key] = conflict_rows
     return conflicts
 
