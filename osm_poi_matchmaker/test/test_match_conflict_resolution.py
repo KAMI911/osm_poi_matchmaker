@@ -319,5 +319,60 @@ class TestMatchConflictResolution(unittest.TestCase):
         self.assertEqual(stats['initial_conflicts'], 2)
 
 
+class TestPriorityBasedConflictFiltering(unittest.TestCase):
+    """Test priority-based conflict filtering: high-confidence matches protected."""
+
+    def test_high_confidence_protected_from_low_confidence(self):
+        """Priority 950 + Priority 990 should NOT be flagged as conflict."""
+        df = pd.DataFrame({
+            'osm_id': [100, 100],
+            'priority': [950, 990],  # Perfect + Unsafe
+            'poi_lon': [19.0, 19.0],
+            'poi_lat': [47.5, 47.5],
+            'poi_type': ['shop', 'shop'],
+        })
+        conflicts = find_osm_id_conflicts(df)
+        # Only the high-confidence match should remain, no conflict
+        self.assertEqual(len(conflicts), 0)
+
+    def test_two_high_confidence_matches_are_conflict(self):
+        """Priority 950 + Priority 950 should be flagged as conflict (genuine duplicate)."""
+        df = pd.DataFrame({
+            'osm_id': [100, 100],
+            'priority': [950, 950],
+            'poi_lon': [19.0, 19.01],
+            'poi_lat': [47.5, 47.51],
+            'poi_type': ['shop', 'shop'],
+        })
+        conflicts = find_osm_id_conflicts(df)
+        self.assertEqual(len(conflicts), 1)
+        self.assertIn((100, 'shop'), conflicts)
+
+    def test_two_low_confidence_matches_are_conflict(self):
+        """Priority 980 + Priority 980 should be flagged as conflict."""
+        df = pd.DataFrame({
+            'osm_id': [100, 100],
+            'priority': [980, 980],
+            'poi_lon': [19.0, 19.01],
+            'poi_lat': [47.5, 47.51],
+            'poi_type': ['shop', 'shop'],
+        })
+        conflicts = find_osm_id_conflicts(df)
+        self.assertEqual(len(conflicts), 1)
+        self.assertIn((100, 'shop'), conflicts)
+
+    def test_no_priority_column_ignores_filtering(self):
+        """Without priority column, old behavior: all same-osm_id are conflicts."""
+        df = pd.DataFrame({
+            'osm_id': [100, 100],
+            'poi_lon': [19.0, 19.01],
+            'poi_lat': [47.5, 47.51],
+            'poi_type': ['shop', 'shop'],
+        })
+        conflicts = find_osm_id_conflicts(df)
+        self.assertEqual(len(conflicts), 1)
+        self.assertIn((100, 'shop'), conflicts)
+
+
 if __name__ == '__main__':
     unittest.main()

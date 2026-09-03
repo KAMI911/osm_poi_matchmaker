@@ -59,22 +59,18 @@ def find_osm_id_conflicts(data):
             mask = mask & (matched['poi_type'] == key[1])
         conflict_rows = matched[mask].index.tolist()
 
-        # Priority-based conflict filtering: only allow conflicts between unsafe (980+) or lower-priority matches
+        # Priority-based conflict filtering: protect high-confidence matches
         if 'priority' in data.columns:
             group_data = data.loc[conflict_rows]
-            priorities = group_data['priority'].dropna().unique()
-            has_high_confidence = any(p <= 970 for p in priorities if pd.notna(p))
+            has_high_conf = (group_data['priority'] <= 970).any()
+            has_low_conf = (group_data['priority'] >= 980).any()
 
-            if has_high_confidence:
-                if len(priorities) > 1:
-                    # Mixed priorities: keep only high-confidence matches (priority <= 970)
-                    high_conf_mask = group_data['priority'] <= 970
-                    if high_conf_mask.any():
-                        conflict_rows = group_data[high_conf_mask].index.tolist()
-                        if len(conflict_rows) <= 1:
-                            continue  # No conflict among high-confidence matches
-                else:
-                    continue  # All same priority, not a real conflict
+            # Mixed confidence: only high-confidence matches remain (discard low-confidence)
+            if has_high_conf and has_low_conf:
+                high_conf_rows = group_data[group_data['priority'] <= 970].index.tolist()
+                if len(high_conf_rows) <= 1:
+                    continue  # Only one high-confidence match, no conflict
+                conflict_rows = high_conf_rows
 
         conflicts[key] = conflict_rows
     return conflicts
