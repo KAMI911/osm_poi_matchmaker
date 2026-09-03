@@ -55,6 +55,10 @@ coverage.xml
 *.log.malloc
 local_settings.py
 
+# Log rotation / backup files
+*.bak
+*.bak-*
+
 # Flask stuff:
 instance/
 .webassets-cache
