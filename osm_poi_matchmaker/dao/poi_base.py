@@ -337,8 +337,9 @@ class POIBase:
             query_params.update({'city': city})
         else:
             city_query = ''
-        logging.debug('%s %s: %s, %s (NOT %s), %s %s %s (%s) [%s, %s, %s]', lon, lat, ptype, name, avoid_name, city,
-                      street_name, housenumber, conscriptionnumber, distance_perfect, distance_safe, distance_unsafe)
+        logging.debug('POI search: coords=%.5f,%.5f type=%s name=%s avoid=%s city=%s street=%s housenumber=%s conscript=%s | distances: perfect=%sm safe=%sm unsafe=%sm',
+                      lon, lat, ptype, name, avoid_name, city, street_name, housenumber, conscriptionnumber,
+                      distance_perfect, distance_safe, distance_unsafe)
         if additional_ref_name is not None and not pd.isna(additional_ref_name) and additional_ref_name != '' \
                 and unique_ref is not None and not pd.isna(unique_ref) and unique_ref != '':
             query_text = '''

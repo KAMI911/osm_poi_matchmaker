@@ -374,5 +374,67 @@ class TestPriorityBasedConflictFiltering(unittest.TestCase):
         self.assertIn((100, 'shop'), conflicts)
 
 
+class TestSameLocationDifferentPostcodes(unittest.TestCase):
+    """Test handling of same-location stores with different postcodes.
+
+    Real-world scenario: Two store locations at same address (or nearby)
+    with different postcodes in source data. They should not be auto-treated
+    as conflicts since postcodes can differ legitimately (boundary cases,
+    API data issues). Each should match to own OSM element via name+street.
+
+    Example: Two stores on same street, 4.7km apart, different postcodes.
+    """
+
+    def test_same_street_different_postcodes_no_auto_conflict(self):
+        """Unmatched stores on same street with different postcodes."""
+        df = pd.DataFrame({
+            'osm_id': [None, None],
+            'poi_type': ['shop', 'shop'],
+            'poi_postcode': ['1171', '1173'],
+            'poi_lon': [19.28432, 19.22585],
+            'poi_lat': [47.47068, 47.48529],
+        })
+        conflicts = find_osm_id_conflicts(df)
+        # No osm_id matched, no conflicts possible
+        self.assertEqual(len(conflicts), 0)
+
+    def test_same_osm_same_priority_same_postcode_is_conflict(self):
+        """Two same-postcode stores matched to same OSM element: conflict."""
+        df = pd.DataFrame({
+            'osm_id': [100, 100],
+            'priority': [970, 970],
+            'poi_postcode': ['1171', '1171'],
+            'poi_lon': [19.28432, 19.28432],
+            'poi_lat': [47.47068, 47.47068],
+            'poi_type': ['shop', 'shop'],
+            'osm_lon': [19.28432, 19.28432],
+            'osm_lat': [47.47068, 47.47068],
+        })
+        conflicts = find_osm_id_conflicts(df)
+        self.assertEqual(len(conflicts), 1)
+        self.assertIn((100, 'shop'), conflicts)
+
+    def test_same_osm_same_priority_different_postcodes_still_conflict(self):
+        """Two different-postcode stores matched to same OSM: still conflict.
+
+        Even if postcodes differ, if both matched to same OSM element,
+        it's a conflict that needs resolution (one should be demoted).
+        """
+        df = pd.DataFrame({
+            'osm_id': [100, 100],
+            'priority': [970, 970],
+            'poi_postcode': ['1171', '1173'],
+            'poi_lon': [19.28432, 19.22585],
+            'poi_lat': [47.47068, 47.48529],
+            'poi_type': ['shop', 'shop'],
+            'osm_lon': [19.28432, 19.28432],
+            'osm_lat': [47.47068, 47.47068],
+        })
+        conflicts = find_osm_id_conflicts(df)
+        # Same OSM ID, same priority = conflict (resolution will separate them)
+        self.assertEqual(len(conflicts), 1)
+        self.assertIn((100, 'shop'), conflicts)
+
+
 if __name__ == '__main__':
     unittest.main()
