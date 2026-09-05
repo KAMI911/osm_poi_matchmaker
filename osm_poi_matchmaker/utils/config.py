@@ -141,18 +141,26 @@ def get_log_level():
 def init_log():
     """Configure the logging module from log.conf (fileConfig-style).
 
-    Also attaches ProviderLogFilter to the root logger - see log.conf's
+    Also attaches ProviderLogFilter to every root handler - see log.conf's
     %(provider)s and utils/log_context.py - so log lines can be tagged with
-    the data provider currently being harvested.
+    the data provider currently being harvested. This has to be a HANDLER
+    filter, not a root LOGGER filter: a Logger's own filters only run for
+    records logged directly through that logger, never for records from
+    another logger (e.g. sqlalchemy.engine.Engine, enabled by
+    db.enable.query_log) that merely propagate up to the root handler - those
+    would hit %(provider)s with no record.provider set and crash the handler
+    with "KeyError: 'provider'". A handler's filters run for every record
+    that reaches it, regardless of which logger it came from.
 
     The root logger's and its handlers' level is then overridden from
     get_log_level() (app.conf's 'log.level') - log.conf's own level=... lines
     still apply as the fallback default if that key isn't set."""
     from osm_poi_matchmaker.utils.log_context import ProviderLogFilter
     logging.config.fileConfig("log.conf")
-    logging.getLogger().addFilter(ProviderLogFilter())
-    level = get_log_level()
     root_logger = logging.getLogger()
+    for handler in root_logger.handlers:
+        handler.addFilter(ProviderLogFilter())
+    level = get_log_level()
     root_logger.setLevel(level)
     for handler in root_logger.handlers:
         handler.setLevel(level)

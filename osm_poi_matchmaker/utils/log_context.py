@@ -37,9 +37,12 @@ def clear_current_provider():
 
 class ProviderLogFilter(logging.Filter):
     """Injects record.provider (see set_current_provider()) so log.conf's format
-    strings can include %(provider)s. Attached to the root logger in
-    create_db.py/config.py's init_log(), right after logging.config.fileConfig() -
-    multiprocessing.Pool workers on Linux inherit it via fork()."""
+    strings can include %(provider)s. Attached to each of the root logger's
+    handlers (not the root logger itself - a logger-level filter would miss
+    records from other loggers, e.g. sqlalchemy.engine.Engine, that only
+    propagate up to the root handlers) in config.py's init_log(), right after
+    logging.config.fileConfig() - multiprocessing.Pool workers on Linux
+    inherit it via fork()."""
 
     def filter(self, record):
         record.provider = getattr(_context, 'provider', '-')
