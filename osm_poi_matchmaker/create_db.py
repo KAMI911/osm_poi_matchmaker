@@ -146,6 +146,7 @@ class WorkflowManager(object):
         self.harvest_stats = []
         self.harvest_duration = None
         self.matcher_stats = {}
+        self.matcher_stats_by_code = []
         self.matcher_duration = None
         self.conflict_stats = {}
         self.conflict_duration = None
@@ -323,11 +324,42 @@ class WorkflowManager(object):
                 'matched': int((combined_result['poi_new'] == False).sum()) if 'poi_new' in combined_result else 0,
                 'errors': int((combined_result['match_error'] == True).sum()) if 'match_error' in combined_result else 0,
             }
+            self.matcher_stats_by_code = self._matcher_stats_by_code(combined_result, comm_data)
             return combined_result
         except Exception as e:
             logging.exception('Exception occurred', exc_info=True)
         finally:
             self.matcher_duration = phase_timer.end()
+
+    @staticmethod
+    def _matcher_stats_by_code(combined_result: pd.DataFrame, comm_data: pd.DataFrame) -> list:
+        """Break matcher_stats down per poi_code (e.g. 'hualdisup'), for log_summary()'s
+        STAGE 8 table - one row per POI type a provider declared in types(), rather than
+        just the one grand total across every enabled provider.
+
+        Args:
+            combined_result (pandas.DataFrame): Enriched POI data from start_enricher(),
+                with a poi_common_id column.
+            comm_data (pandas.DataFrame): The poi_common table (pc_id, poi_code, ...).
+
+        Returns:
+            list[dict]: One {'poi_code', 'total', 'new', 'matched', 'errors'} entry per
+            poi_code found, or [] if poi_common_id/poi_code isn't available to join on.
+        """
+        if 'poi_common_id' not in combined_result or comm_data is None or 'poi_code' not in comm_data:
+            return []
+        merged = combined_result.merge(comm_data[['pc_id', 'poi_code']], left_on='poi_common_id',
+                                       right_on='pc_id', how='left')
+        stats_by_code = []
+        for code, group in merged.groupby('poi_code', dropna=False):
+            stats_by_code.append({
+                'poi_code': code if pd.notna(code) else '?',
+                'total': int(len(group)),
+                'new': int((group['poi_new'] == True).sum()) if 'poi_new' in group else 0,
+                'matched': int((group['poi_new'] == False).sum()) if 'poi_new' in group else 0,
+                'errors': int((group['match_error'] == True).sum()) if 'match_error' in group else 0,
+            })
+        return stats_by_code
 
     def start_conflict_resolver(self, data: pd.DataFrame):
         """Resolve OSM ID conflicts where multiple POIs match the same OSM element (STAGE 9).
@@ -380,6 +412,13 @@ class WorkflowManager(object):
                 lines.append('Completely failed modules: %s' % ', '.join(failed_modules))
         if self.matcher_stats:
             lines.append('-- STAGE 8: Online POI matching (duration: %s) --' % self.matcher_duration)
+            if self.matcher_stats_by_code:
+                lines.append('{:<28} {:>10} {:>10} {:>10} {:>10}'.format(
+                    'POI code', 'Total', 'New', 'Existing', 'Errors'))
+                for entry in sorted(self.matcher_stats_by_code, key=lambda e: e.get('poi_code', '')):
+                    lines.append('{:<28} {:>10} {:>10} {:>10} {:>10}'.format(
+                        entry.get('poi_code', '?'), entry.get('total', 0), entry.get('new', 0),
+                        entry.get('matched', 0), entry.get('errors', 0)))
             lines.append('Total: {total}   New: {new}   Existing: {matched}   Errors: {errors}'.format(
                 **self.matcher_stats))
         lines.append('=============================')
