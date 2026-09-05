@@ -133,6 +133,10 @@ def find_osm_matches(args):
                 # composite ref:{additional_ref_name} tag (e.g. Volánbusz's ref:gtfs:stop_id),
                 # which pairs with poi_additional_ref instead. See query_osm_shop_poi_gpd().
                 unique_ref = row.poi_ref if row.additional_ref_name == 'ref' else row.poi_additional_ref
+                # Handle NaN distance values by using config defaults
+                distance_unsafe = row.osm_search_distance_unsafe if has_value(row.osm_search_distance_unsafe) else config.get_geo_default_poi_unsafe_distance()
+                distance_safe = row.osm_search_distance_safe if has_value(row.osm_search_distance_safe) else config.get_geo_default_poi_distance()
+                distance_perfect = row.osm_search_distance_perfect if has_value(row.osm_search_distance_perfect) else config.get_geo_default_poi_perfect_distance()
                 # Try to search OSM POI with same type, and name contains poi_search_name within the specified distance
                 osm_query = db.query_osm_shop_poi_gpd(row.poi_lon, row.poi_lat,
                                                       poi_type_by_common_id.get(row.poi_common_id),
@@ -141,9 +145,9 @@ def find_osm_matches(args):
                                                       row.additional_ref_name, unique_ref,
                                                       row.poi_addr_street, row.poi_addr_housenumber,
                                                       row.poi_conscriptionnumber, row.poi_city,
-                                                      row.osm_search_distance_perfect,
-                                                      row.osm_search_distance_safe,
-                                                      row.osm_search_distance_unsafe)
+                                                      distance_perfect,
+                                                      distance_safe,
+                                                      distance_unsafe)
                 # Enrich our data with OSM database POI metadata
                 if osm_query is not None:
                     changed_from_osm = False
