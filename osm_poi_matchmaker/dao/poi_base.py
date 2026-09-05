@@ -561,29 +561,33 @@ class POIBase:
             --- The way selector with city, street name and housenumber
             SELECT name, osm_id, {metadata_fields} 940 AS priority, 'way' AS node, shop, amenity, "addr:housename",
                    "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
-                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
-            FROM planet_osm_polygon
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE ({query_type}) AND osm_id > 0 {query_name} {city_query} {street_query} {housenumber_query}
+                    AND ST_DistanceSphere(way, point.geom) < :distance_perfect
             UNION ALL
             --- The node selector with street name and housenumber
             SELECT name, osm_id, {metadata_fields} 940 AS priority, 'node' AS node, shop, amenity, "addr:housename",
                    "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
-                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
-            FROM planet_osm_point
+            FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE ({query_type}) AND osm_id > 0 {query_name} {city_query} {street_query} {housenumber_query}
+                    AND ST_DistanceSphere(way, point.geom) < :distance_perfect
             UNION ALL
             --- The relation selector with street name and housenumber
             SELECT name, osm_id, {metadata_fields} 940 AS priority, 'relation' AS node, shop, amenity,
                    "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                   "addr:conscriptionnumber", 0 as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   "addr:conscriptionnumber", ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
-            FROM planet_osm_polygon
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE ({query_type}) AND osm_id < 0 {query_name} {city_query} {street_query} {housenumber_query}
+                    AND ST_DistanceSphere(way, point.geom) < :distance_perfect
+            ORDER BY distance ASC
             '''
             try:
                 query = sqlalchemy.text(query_text.format(query_type=query_type, query_name=query_name,
