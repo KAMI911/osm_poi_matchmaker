@@ -8,7 +8,6 @@ __version__ = '0.7.0'
 try:
     import os
     import logging
-    import logging.config
     import sys
     import numpy as np
     import pandas as pd
@@ -32,7 +31,6 @@ try:
     from osm_poi_matchmaker.dao import poi_array_structure
     from osm_poi_matchmaker.libs.osm_prepare import index_osm_data
     from osm_poi_matchmaker.utils.memory_info import MemoryInfo
-    from osm_poi_matchmaker.utils.log_context import ProviderLogFilter
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -45,18 +43,6 @@ POI_COLS = poi_array_structure.POI_DB
 POI_COLS_RAW = poi_array_structure.POI_DB_RAW
 
 PROCESS_DIVIDER = 1
-
-
-def init_log():
-    """Configure the logging subsystem from the 'log.conf' file in the current working directory.
-
-    Also attaches ProviderLogFilter to the root logger, so every log line (including
-    ones from shared library code called on a provider's behalf) can be tagged with
-    the data provider currently being harvested - see log.conf's %(provider)s and
-    utils/log_context.py. This must happen before start_poi_harvest() creates its
-    multiprocessing.Pool, so forked workers inherit the filter."""
-    logging.config.fileConfig('log.conf')
-    logging.getLogger().addFilter(ProviderLogFilter())
 
 
 def import_basic_data(session):
@@ -587,7 +573,7 @@ def main():
 
 if __name__ == '__main__':
     config.set_mode(config.Mode.matcher)
-    init_log()
+    config.init_log()
     timer = timing.Timing()
     exit_code = main()
     logging.info('Total duration of process: %s. Finished, exiting…', timer.end())

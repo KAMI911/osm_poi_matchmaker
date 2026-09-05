@@ -2,6 +2,7 @@
 
 try:
     import logging
+    import logging.config
     import sys
     import configparser
     import os
