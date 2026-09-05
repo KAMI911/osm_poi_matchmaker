@@ -324,7 +324,7 @@ class WorkflowManager(object):
                 'matched': int((combined_result['poi_new'] == False).sum()) if 'poi_new' in combined_result else 0,
                 'errors': int((combined_result['match_error'] == True).sum()) if 'match_error' in combined_result else 0,
             }
-            self.matcher_stats_by_code = self._matcher_stats_by_code(combined_result, comm_data)
+            self.matcher_stats_by_code = self._matcher_stats_by_code(combined_result)
             return combined_result
         except Exception as e:
             logging.exception('Exception occurred', exc_info=True)
@@ -332,26 +332,28 @@ class WorkflowManager(object):
             self.matcher_duration = phase_timer.end()
 
     @staticmethod
-    def _matcher_stats_by_code(combined_result: pd.DataFrame, comm_data: pd.DataFrame) -> list:
+    def _matcher_stats_by_code(combined_result: pd.DataFrame) -> list:
         """Break matcher_stats down per poi_code (e.g. 'hualdisup'), for log_summary()'s
         STAGE 8 table - one row per POI type a provider declared in types(), rather than
         just the one grand total across every enabled provider.
 
         Args:
-            combined_result (pandas.DataFrame): Enriched POI data from start_enricher(),
-                with a poi_common_id column.
-            comm_data (pandas.DataFrame): The poi_common table (pc_id, poi_code, ...).
+            combined_result (pandas.DataFrame): Enriched POI data from start_enricher().
+                Already carries a poi_code column - STAGE 5 (main()) merges poi_addr_data
+                with poi_common_data (on poi_common_id/pc_id) before matching ever runs, so
+                no further join is needed (or possible: merging comm_data back in here a
+                second time collides with this column and pandas silently suffixes both to
+                poi_code_x/poi_code_y instead of raising - the groupby below would then
+                KeyError on the now-missing plain 'poi_code').
 
         Returns:
             list[dict]: One {'poi_code', 'total', 'new', 'matched', 'errors'} entry per
-            poi_code found, or [] if poi_common_id/poi_code isn't available to join on.
+            poi_code found, or [] if the column isn't there.
         """
-        if 'poi_common_id' not in combined_result or comm_data is None or 'poi_code' not in comm_data:
+        if 'poi_code' not in combined_result:
             return []
-        merged = combined_result.merge(comm_data[['pc_id', 'poi_code']], left_on='poi_common_id',
-                                       right_on='pc_id', how='left')
         stats_by_code = []
-        for code, group in merged.groupby('poi_code', dropna=False):
+        for code, group in combined_result.groupby('poi_code', dropna=False):
             stats_by_code.append({
                 'poi_code': code if pd.notna(code) else '?',
                 'total': int(len(group)),
