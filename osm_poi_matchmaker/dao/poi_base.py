@@ -347,7 +347,7 @@ class POIBase:
             --- The way selector with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'way' AS node,
                    highway, {ref_column},
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
@@ -356,7 +356,7 @@ class POIBase:
             --- The node selector with with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'node' AS node,
                    highway, {ref_column},
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
             FROM planet_osm_point
@@ -365,7 +365,7 @@ class POIBase:
             --- The relation selector with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'relation' AS node,
                    highway, {ref_column},
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
@@ -414,7 +414,7 @@ class POIBase:
             --- WITH UNIQUE NAME
             --- The way selector with unique name
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'way' AS node, highway,
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
@@ -422,7 +422,7 @@ class POIBase:
             UNION ALL
             --- The node selector with unique name
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'node' AS node, highway,
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
             FROM planet_osm_point
@@ -430,7 +430,7 @@ class POIBase:
             UNION ALL
             --- The relation selector with unique name
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'relation' AS node, highway,
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
@@ -486,7 +486,7 @@ class POIBase:
             --- The way selector with conscriptionnumber and city
             SELECT name, osm_id, {metadata_fields} 965 AS priority, 'way' AS node, shop, amenity, "addr:housename",
                    "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
@@ -495,7 +495,7 @@ class POIBase:
             --- The node selector with conscriptionnumber and city
             SELECT name, osm_id, {metadata_fields} 965 AS priority, 'node' AS node, shop, amenity, "addr:housename",
                    "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
             FROM planet_osm_point
@@ -504,7 +504,7 @@ class POIBase:
             --- The relation selector with conscriptionnumber and city
             SELECT name, osm_id, {metadata_fields} 965 AS priority, 'relation' AS node, shop, amenity,
                    "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                   "addr:conscriptionnumber", '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   "addr:conscriptionnumber", 0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
@@ -561,7 +561,7 @@ class POIBase:
             --- The way selector with city, street name and housenumber
             SELECT name, osm_id, {metadata_fields} 940 AS priority, 'way' AS node, shop, amenity, "addr:housename",
                    "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
@@ -570,7 +570,7 @@ class POIBase:
             --- The node selector with street name and housenumber
             SELECT name, osm_id, {metadata_fields} 940 AS priority, 'node' AS node, shop, amenity, "addr:housename",
                    "addr:housenumber", "addr:postcode", "addr:city", "addr:street", "addr:conscriptionnumber",
-                   '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
             FROM planet_osm_point
@@ -579,7 +579,7 @@ class POIBase:
             --- The relation selector with street name and housenumber
             SELECT name, osm_id, {metadata_fields} 940 AS priority, 'relation' AS node, shop, amenity,
                    "addr:housename", "addr:housenumber", "addr:postcode", "addr:city", "addr:street",
-                   "addr:conscriptionnumber", '0' as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   "addr:conscriptionnumber", 0 as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
