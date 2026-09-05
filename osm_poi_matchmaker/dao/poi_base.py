@@ -205,6 +205,45 @@ class POIBase:
             data = pd.read_sql(query, conn, params={'relation_id': int(abs(relation_id))})
         return data.iloc[0, 0]
 
+    # Human-readable label for each priority a query_arr fallback stage tags its rows with -
+    # see _query_osm_shop_poi_gpd_impl()'s wnwswh_*/wnwsnh_*/wnnswh_*/wnnsnh_*/nnnsnh_* stages.
+    _STAGE_PRIORITY_LABELS = {
+        930: 'unique ref/name (exact identifier match, no distance limit)',
+        940: 'exact address (name + city + street + housenumber)',
+        950: 'name + street + housenumber',
+        965: 'name + conscriptionnumber + city',
+        970: 'name + street, or name + housenumber (partial address)',
+        980: 'name only (city/street/housenumber ignored)',
+        990: 'no name at all (last resort, nearest same-type POI)',
+    }
+
+    @staticmethod
+    def _format_search_criteria(**kwargs) -> str:
+        """One-line 'field=value' summary of the non-empty search inputs, for INFO-level
+        match logging - e.g. "name='aldi', city='Nagykanizsa', street='Dózsa György utca',
+        housenumber='146'". Skips anything that's None, '', or NaN so the message only shows
+        the criteria this particular stage actually searched by."""
+        parts = []
+        for key, value in kwargs.items():
+            if value is None or value == '':
+                continue
+            if isinstance(value, float) and math.isnan(value):
+                continue
+            parts.append('{}={!r}'.format(key, value))
+        return ', '.join(parts) if parts else '(no criteria)'
+
+    @staticmethod
+    def _format_match_result(row) -> str:
+        """One-line human-readable summary of a matched OSM row, for INFO-level match
+        logging - e.g. "osm_id=976664226 (way) name='Aldi', 18.8m away at 46.46244,17.00777"."""
+        distance = row.get('distance')
+        try:
+            distance = float(distance)
+        except (TypeError, ValueError):
+            distance = 0.0
+        return "osm_id={} ({}) name={!r}, {:.1f}m away at {},{}".format(
+            row.get('osm_id'), row.get('node'), row.get('name'), distance, row.get('lat'), row.get('lon'))
+
     def query_osm_shop_poi_gpd(self, lon: float, lat: float, ptype: str = 'shop', name: str = None,
                                avoid_name: str = None, unique_name: str = None,
                                additional_ref_name: str = None, unique_ref: str = None,
@@ -413,12 +452,14 @@ class POIBase:
                 # fail with InFailedSqlTransaction otherwise, not just this one.
                 conn.rollback()
             if not data.empty:
-                logging.info('Found item with simple additional ref search.')
+                logging.info('Match found via additional-ref search: searched %s -> found %s',
+                            self._format_search_criteria(name=name, ref_field=additional_ref_name, ref=unique_ref),
+                            self._format_match_result(data.iloc[0]))
                 logging.debug(data.to_string())
-                logging.debug('Return with additional ref search data: {}'.format(data.iloc[[0]]))
                 return data.iloc[[0]]
             else:
-                logging.info('Item not found with additional ref search.')
+                logging.info('No match via additional-ref search: searched %s',
+                            self._format_search_criteria(name=name, ref_field=additional_ref_name, ref=unique_ref))
         if unique_name is not None and not pd.isna(unique_name) and unique_name != '':
             query_text = '''
             --- WITH UNIQUE NAME
@@ -481,14 +522,17 @@ class POIBase:
                 conn.rollback()
             if not data.empty:
                 if len(data) > 1:
-                    logging.info('Multiple items found with simple unique name search. Skipping this method ...')
+                    logging.info('Multiple items found via unique-name search for name=%r - ambiguous, skipping this method.',
+                                unique_name)
                 else:
-                    logging.info('Found item with simple unique name search.')
+                    logging.info('Match found via unique-name search: searched %s -> found %s',
+                                self._format_search_criteria(unique_name=unique_name),
+                                self._format_match_result(data.iloc[0]))
                     logging.debug(data.to_string())
-                    logging.debug('Return with additional unique name data: {}'.format(data.iloc[[0]]))
                     return data.iloc[[0]]
             else:
-                logging.info('Item not found with unique name search.')
+                logging.info('No match via unique-name search: searched %s',
+                            self._format_search_criteria(unique_name=unique_name))
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
                 conscriptionnumber_query is not None and conscriptionnumber_query != '':
             query_text = '''
@@ -557,12 +601,14 @@ class POIBase:
                 # fail with InFailedSqlTransaction otherwise, not just this one.
                 conn.rollback()
             if not data.empty:
-                logging.info('Found item with simple conscription number search.')
+                logging.info('Match found via name+conscriptionnumber+city search: searched %s -> found %s',
+                            self._format_search_criteria(name=name, city=city, conscriptionnumber=conscriptionnumber),
+                            self._format_match_result(data.iloc[0]))
                 logging.debug(data.to_string())
-                logging.debug('Return with simple conscription number search data: {}'.format(data.iloc[[0]]))
                 return data.iloc[[0]]
             else:
-                logging.info('Item not found with simple conscription number search.')
+                logging.info('No match via name+conscriptionnumber+city search: searched %s',
+                            self._format_search_criteria(name=name, city=city, conscriptionnumber=conscriptionnumber))
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
                 street_query is not None and street_query != '' and \
                 housenumber_query is not None and housenumber_query != '':
@@ -642,12 +688,16 @@ class POIBase:
                 # fail with InFailedSqlTransaction otherwise, not just this one.
                 conn.rollback()
             if not data.empty:
-                logging.info('Found item with simple address search.')
+                logging.info('Match found via exact address search: searched %s near %s,%s -> found %s',
+                            self._format_search_criteria(name=name, city=city, street=street_name,
+                                                        housenumber=housenumber), lon, lat,
+                            self._format_match_result(data.iloc[0]))
                 logging.debug(data.to_string())
-                logging.debug('Return with simple address search data: {}'.format(data.iloc[[0]]))
                 return data.iloc[[0]]
             else:
-                logging.info('Item not found with precise geometry search.')
+                logging.info('No match via exact address search: searched %s near %s,%s',
+                            self._format_search_criteria(name=name, city=city, street=street_name,
+                                                        housenumber=housenumber), lon, lat)
         if street_query is not None and street_query != '':
             # Using street name for query
             if housenumber_query is not None and housenumber_query != '':
@@ -937,15 +987,24 @@ class POIBase:
                 conn.rollback()
             logging.debug(str(query))
             if not data.empty:
-                logging.info('Found item in {} stage without precise geometry search.'.format(stage))
+                best = data.iloc[0]
+                priority = int(best['priority']) if 'priority' in best and pd.notna(best['priority']) else None
+                stage_label = self._STAGE_PRIORITY_LABELS.get(priority, 'query batch {}'.format(stage))
+                logging.info('Match found via fallback stage [%s]: searched %s near %s,%s -> found %s',
+                            stage_label,
+                            self._format_search_criteria(name=name, avoid_name=avoid_name, city=city,
+                                                        street=street_name, housenumber=housenumber), lon, lat,
+                            self._format_match_result(best))
                 # Record: POI found in this stage
                 poi_id = f"{query_type}:{query_name}:{stage}"
                 stats.record_found(poi_id, stage)
                 logging.debug(data.to_string())
-                logging.debug('Return without precise geometry search data: {}'.format(data.iloc[[0]]))
                 return data.iloc[[0]]
             else:
-                logging.info('Item not found in stage {}.'.format(stage))
+                logging.info('No match via fallback stage batch %s: searched %s near %s,%s',
+                            stage,
+                            self._format_search_criteria(name=name, avoid_name=avoid_name, city=city,
+                                                        street=street_name, housenumber=housenumber), lon, lat)
 
         # Record: POI not found in any stage
         poi_id = f"{query_type}:{query_name}"
