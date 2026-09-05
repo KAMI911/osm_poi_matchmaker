@@ -32,12 +32,9 @@ def index_osm_data(session):
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
+CREATE INDEX IF NOT EXISTS planet_osm_point_way_idx ON planet_osm_point using gist(way);
+
 CREATE INDEX IF NOT EXISTS i_street_type ON street_type(street_type);
--- osm2pgsql already creates planet_osm_point_way_idx as a proper spatial GIST index;
--- this one is a plain btree on a geometry column, which can't serve the ST_DistanceSphere
--- etc. spatial predicates every matching query uses - confirmed 0 idx_scan in production.
--- Dropped rather than "fixed" to gist, since the native index already covers that.
-DROP INDEX IF EXISTS i_planet_osm_point_way;
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_amenity_addr_lower
     ON planet_osm_point("osm_id",LOWER("amenity"),LOWER("name"),LOWER("brand"),LOWER("addr:street"));
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_highway_addr_lower
@@ -62,7 +59,8 @@ CREATE INDEX IF NOT EXISTS i_planet_osm_point_brand_trgm ON planet_osm_point USI
 CREATE INDEX IF NOT EXISTS i_planet_osm_point_network_trgm ON planet_osm_point USING gin (network gin_trgm_ops);
 
 
-CREATE INDEX IF NOT EXISTS i_planet_osm_line_way ON planet_osm_line using gist(way);
+CREATE INDEX IF NOT EXISTS planet_osm_line_way_idx ON planet_osm_line using gist(way);
+
 CREATE INDEX IF NOT EXISTS i_planet_osm_line_name_trgm ON planet_osm_line USING gin (name gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS i_planet_osm_line_brand_trgm ON planet_osm_line USING gin (brand gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS i_planet_osm_line_network_trgm ON planet_osm_line USING gin (network gin_trgm_ops);
@@ -84,7 +82,8 @@ CREATE INDEX IF NOT EXISTS i_planet_osm_line_name ON planet_osm_line(name);
 CREATE INDEX IF NOT EXISTS i_planet_osm_line_brand ON planet_osm_line(brand);
 
 
-CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_way ON planet_osm_polygon using gist (way);
+CREATE INDEX IF NOT EXISTS planet_osm_polygon_way_idx ON planet_osm_polygon using gist (way);
+
 CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_amenity_addr_lower
     ON planet_osm_polygon("osm_id",LOWER("amenity"),LOWER("name"),LOWER("brand"),LOWER("addr:street"));
 CREATE INDEX IF NOT EXISTS i_planet_osm_polygon_highway_addr_lower
