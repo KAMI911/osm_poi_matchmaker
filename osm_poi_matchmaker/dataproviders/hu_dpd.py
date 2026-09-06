@@ -93,7 +93,7 @@ class hu_dpd(DataProvider):
              'poi_tags': hudpdcso, 'poi_url_base': 'https://www.dpd.com', 'poi_search_name': 'dpd',
              'poi_search_avoid_name': avoid_name, 'export_poi_name': False,
              'additional_ref_name': 'ref',
-             'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 250, 'osm_search_distance_unsafe': 100},
+             'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 250, 'osm_search_distance_unsafe': 2},
             {'poi_code': 'hudpdpp', 'poi_common_name': 'DPD', 'poi_type': 'post_partner',
              'poi_tags': hudpdpp, 'poi_url_base': 'https://www.dpd.com', 'poi_search_name': 'dpd',
              'poi_search_avoid_name': avoid_name, 'export_poi_name': False,
