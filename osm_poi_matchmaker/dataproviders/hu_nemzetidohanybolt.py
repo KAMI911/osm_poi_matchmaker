@@ -18,11 +18,14 @@ except ImportError as err:
     sys.exit(128)
 
 
-class hu_mol(DataProvider):
+class hu_nemzetidohanybolt(DataProvider):
     """Imports Nemzeti Dohánybolt (national tobacco shop) locations in Hungary from a JSONP feed.
 
-    Note: the class name is a copy-paste artifact from hu_mol.py and does not reflect this
-    provider's brand; the module name/filename (hu_nemzetidohanybolt) is the actual identifier.
+    Note: as of 2026 the feed's domain (trafikok.nemzetidohany.hu) no longer resolves - the
+    nemzetidohany.hu site now redirects outright to the successor regulator (sztfh.hu), whose
+    public registry only publishes name/address/license number, not coordinates. This provider
+    is left as-is (module loading and poi_code now fixed) for if/when a coordinate-bearing
+    source becomes available again, but should not be enabled while self.link is dead.
     """
 
     def contains(self):
@@ -43,18 +46,27 @@ class hu_mol(DataProvider):
         return self.__types
 
     def process(self):
-        soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                    self.filetype, False)
-        if soup is not None:
-            text = json.loads(soup)
-            for poi_data in text:
-                self.data.code = 'hunemdotob'
-                self.data.postcode = clean_string(poi_data.get('postcode'))
-                self.data.city = clean_city(poi_data['city'])
-                self.data.original = clean_string(poi_data.get('address'))
-                self.data.lat, self.data.lon = check_hu_boundary(
-                    poi_data['lat'], poi_data['lng'])
-                self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                    poi_data['address'])
-                self.data.public_holiday_open = False
-                self.data.add()
+        try:
+            soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
+                                        self.filetype, False)
+            if soup is not None:
+                text = json.loads(soup)
+                for poi_data in text:
+                    try:
+                        self.data.code = 'hunemdoto'
+                        self.data.postcode = clean_string(poi_data.get('postcode'))
+                        self.data.city = clean_city(poi_data.get('city'))
+                        self.data.original = clean_string(poi_data.get('address'))
+                        self.data.lat, self.data.lon = check_hu_boundary(
+                            poi_data.get('lat'), poi_data.get('lng'))
+                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
+                            extract_street_housenumber_better_2(poi_data.get('address'))
+                        self.data.public_holiday_open = False
+                        self.data.add()
+                    except Exception as e:
+                        logging.exception('Exception occurred: {}'.format(e))
+                        logging.exception(traceback.format_exc())
+                        logging.exception(poi_data)
+        except Exception as e:
+            logging.exception('Exception occurred: {}'.format(e))
+            logging.exception(traceback.format_exc())
