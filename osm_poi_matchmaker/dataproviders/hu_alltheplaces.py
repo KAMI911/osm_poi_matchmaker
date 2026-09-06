@@ -137,6 +137,10 @@ _OSM_TAG_TO_POI_TYPE = {
     ('shop', 'mobile_phone'): 'mobile_phone',
     ('shop', 'sports'): 'sports',
     ('shop', 'hearing_aids'): 'hearing_aids',
+    ('shop', 'variety_store'): 'shop',
+    ('shop', 'convenience'): 'shop',
+    ('shop', 'supermarket'): 'shop',
+    ('shop', 'general'): 'shop',
 }
 _TYPE_KEY_PRIORITY = ('amenity', 'shop', 'office', 'craft', 'tourism', 'leisure', 'healthcare')
 
@@ -162,7 +166,14 @@ def _is_excluded_brand(brand_name: str) -> bool:
 
 def _resolve_feature_type(props: dict):
     """Return (poi_type, tag_key, tag_value) for a feature's real OSM category, or
-    None if nothing in props matches a type this project supports."""
+    None if nothing in props matches a type this project supports.
+
+    Deliberately NOT a blanket "any shop=* falls back to generic 'shop'" - that
+    would search shop='convenience' OR shop='supermarket' (see utils/poitypes.py)
+    for things like shop=car or shop=jewelry, which will never match and only
+    pollutes results with car dealerships, watch boutiques etc. Only the
+    (key, value) pairs actually listed in _OSM_TAG_TO_POI_TYPE are accepted;
+    everything else is skipped rather than mistagged."""
     for key in _TYPE_KEY_PRIORITY:
         value = props.get(key)
         if not value:
@@ -170,8 +181,6 @@ def _resolve_feature_type(props: dict):
         poi_type = _OSM_TAG_TO_POI_TYPE.get((key, value))
         if poi_type:
             return poi_type, key, value
-        if key == 'shop':
-            return 'shop', key, value
     return None
 
 
