@@ -41,7 +41,7 @@ class hu_mobiliti_ev(DataProvider):
         self.__types = [
             {'poi_code': 'humobilchs', 'poi_common_name': 'Mobiliti', 'poi_type': 'charging_station',
              'poi_tags': self.tags, 'poi_url_base': 'https://www.mobiliti.hu',
-             'poi_search_name': '(mobility|e-mobi|emobi|e-töltőpont)', 'poi_search_avoid_name': '(tesla|supercharger|plugee)',
+             'poi_search_name': '(mobiliti|mobility|e-mobi|emobi|e-töltőpont)', 'poi_search_avoid_name': '(tesla|supercharger|plugee)',
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 400,
              'osm_search_distance_safe': 150, 'osm_search_distance_unsafe': 10},
