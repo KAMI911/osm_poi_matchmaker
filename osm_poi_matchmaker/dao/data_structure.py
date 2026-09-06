@@ -61,6 +61,7 @@ class POI_type(enum.Enum):
     cafe = 28
     fastfood_or_cafe = 29
     restaurant = 30
+    mobile_phone = 31
 
 
 class POI_address_raw(Base):
