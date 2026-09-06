@@ -88,7 +88,12 @@ def getPOITypes(ptype):
     elif ptype == 'waterway_fuel':
         query_type = "waterway='fuel'"
     elif ptype == 'fastfood':
-        query_type = "amenity='fastfood'"
+        # Only used by hu_mol.py's Fresh Corner. Two bugs fixed together here: the OSM
+        # tag is amenity=fast_food (with an underscore) - 'fastfood' never matched
+        # anything - and real data also tags a good chunk of these amenity='cafe'
+        # instead (inconsistent tagging by contributors, not a distinction the
+        # provider itself makes), so match both.
+        query_type = "amenity='fast_food' OR amenity='cafe'"
     elif ptype == 'shoes':
         query_type = "shop='shoes'"
     elif ptype == 'optician':
