@@ -30,8 +30,8 @@ class hu_aldi(DataProvider):
         self.link = 'https://locator.uberall.com/api/storefinders/rDCKKjdtbi2w0Qx3Cq1axERNtccFqZ/locations/all' \
                    '?v=20260101&language=hu&fieldMask=id&fieldMask=lat&fieldMask=lng&fieldMask=country' \
                    '&fieldMask=city&fieldMask=streetAndNumber&fieldMask=zip&fieldMask=phone' \
-                   '&fieldMask=openingHours&fieldMask=website'
-        self.tags = {'operator': 'ALDI Magyarország Élelmiszer Bt.', 'operator:wikipedia': 'hu:Aldi_(Magyarország)',
+                   '&fieldMask=openingHours&fieldMask=website&fieldMask=identifier&fieldMask=name'
+        self.tags = {'operator': 'ALDI Magyarország Élelmiszer Bt.', 'operator:wikipedia': 'hu:Aldi (Magyarország)',
                      'operator:addr': '2051 Biatorbágy, Mészárosok útja 2.', 'brand': 'Aldi',
                      'ref:HU:vatin': '22234663-2-44', 'ref:vatin': 'HU22234663',
                      'ref:HU:company': '13-06-058506',
@@ -55,7 +55,7 @@ class hu_aldi(DataProvider):
         hualdisup.update(self.tags)
         self.__types = [
             {'poi_code': 'hualdisup', 'poi_common_name': 'Aldi', 'poi_type': 'shop', 'poi_tags': hualdisup,
-             'poi_url_base': 'https://www.aldi.hu', 'poi_search_name': 'aldi',
+             'poi_url_base': 'https://www.aldi.hu', 'poi_search_name': 'aldi', 'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 1000, 'osm_search_distance_safe': 400
             },
         ]
@@ -85,6 +85,8 @@ class hu_aldi(DataProvider):
                             self.data.public_holiday_open = False
                             self.data.phone = clean_string(poi_data.get('phone'))
                             self.data.website = clean_url(poi_data.get('website'))
+                            self.data.ref = clean_string(poi_data.get('identifier'))
+                            self.data.branch = clean_string(poi_data.get('name'))
                             for opening_day in poi_data.get('openingHours') or []:
                                 day_of_week = opening_day.get('dayOfWeek')
                                 if day_of_week is not None:
