@@ -3,33 +3,54 @@
 AllThePlaces.xyz Hungarian POI Importer
 
 Data source:
-  Entry point:  https://data.alltheplaces.xyz/runs/latest.json
-  Insights:     {run.insights_url}  —  maps each brand's country splits to spider
-                names and feature counts; used to identify HU-relevant spiders
-  Spider data:  {base_url}/output/{spider_name}.geojson  (GeoJSON FeatureCollection)
+  Entry point:    https://data.alltheplaces.xyz/runs/latest.json
+  Insights:       {run.insights_url} - maps each brand's country splits to spider
+                  names and feature counts; used to identify HU-relevant spiders
+  Spider output:  https://data.alltheplaces.xyz/runs/latest/output/{spider}.geojson
+                  - a documented, dedicated endpoint (see alltheplaces/API.md) that
+                  302-redirects to that spider's *last successful* run, rather than
+                  assuming every spider produced output in the single latest run
+                  (many don't - a naive {run}/output/{spider}.geojson URL 404s for
+                  those).
 
 Hungary filtering logic:
   1. A spider is considered HU-relevant when the insights file contains it under
-     the "HU" key of the brand's atp_splits object.
+     the "HU" key of the brand's atp_splits object, UNLESS that brand is already
+     covered by a dedicated hu_*.py provider elsewhere in this project (see
+     EXCLUDED_BRANDS) - this importer exists to catch everything those don't,
+     not to compete with them for the same poi_code.
   2. Each downloaded feature is accepted when its addr:country property equals
-     "HU" (case-insensitive).  When addr:country is absent the feature is accepted
-     if its coordinates fall inside the Hungarian bounding box
-     (lat 45.7–48.6 °N, lon 16.1–22.9 °E).
+     "HU" (case-insensitive). When addr:country is absent the feature is accepted
+     if its coordinates fall inside the Hungarian bounding box.
+
+poi_type / poi_code:
+  Unlike a hand-built provider, one spider's features can carry more than one real
+  OSM category (e.g. a bank spider mixing amenity=bank and amenity=atm rows) - so
+  poi_type is resolved per feature from its own amenity/shop/... tag (not guessed
+  from the spider's name), and one poi_code is registered per (spider, poi_type)
+  pair actually found in the data, not per spider.
+
+  POI_common.poi_code is a hard Unicode(10) database column - nowhere near enough
+  room for a readable "huatp_<spider>_<type>" code once spider names and multiple
+  types are involved, so poi_code here is a deterministic hash ('atp' + 7 hex
+  chars of sha1(spider:poi_type)) instead. It isn't human-readable, but it's
+  stable across runs (same spider+type always hashes the same way, so re-imports
+  keep matching the same poi_common row) and collisions are effectively
+  impossible at this scale. poi_tags carries source:spider and source:osm_tag so
+  the original spider/tag is still recoverable from the row itself.
 
 Data format:
   Standard GeoJSON FeatureCollection per spider; coordinates follow the GeoJSON
-  convention [longitude, latitude].  Address is typically in the combined field
+  convention [longitude, latitude]. Address is typically in the combined field
   addr:street_address; opening_hours is already formatted for OpenStreetMap.
 
 Edge cases:
-  - Network or parse errors for individual spiders are logged and skipped;
-    they do not abort the overall import.
+  - Network or parse errors for individual spiders are logged and skipped; they
+    do not abort the overall import.
   - addr:street_address is split into street + housenumber via the project's
     extract_street_housenumber_better_2 helper.
-  - The insights_url is embedded in latest.json; a missing or malformed
-    insights file causes the importer to log an error and exit cleanly.
-  - Duplicate-detection relies on the deduplication built into insert_poi_dataframe
-    (hash of poi_code + postcode + city + street + housenumber).
+  - A feature whose only tag key isn't in _OSM_TAG_TO_POI_TYPE (and isn't a
+    generic shop=* value) is skipped rather than forced into an unrelated type.
 """
 
 try:
@@ -37,6 +58,8 @@ try:
     import sys
     import os
     import json
+    import hashlib
+    import re
 
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import (
@@ -54,105 +77,115 @@ except ImportError as err:
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 
-# Programmatic entry-point: returns run metadata including insights_url
 ATP_LATEST_URL = 'https://data.alltheplaces.xyz/runs/latest.json'
+ATP_SPIDER_OUTPUT_URL = 'https://data.alltheplaces.xyz/runs/latest/output/{}.geojson'
 
-# The builds page is the human-readable index of the same information;
-# we document it here for reference but use the JSON API for automation.
-ATP_BUILDS_PAGE = 'https://alltheplaces.xyz/builds.html'
-
-# Bounding box for Hungary (approximate, used as fallback when addr:country is absent)
 _HU_LAT_MIN, _HU_LAT_MAX = 45.7, 48.6
 _HU_LON_MIN, _HU_LON_MAX = 16.1, 22.9
-
-# Accepted country identifiers in AllThePlaces data
 _HU_COUNTRY_CODES = frozenset({'HU', 'Hungary', 'hu'})
 
-# Maximum poi_code length is constrained by the poi_common.poi_code column (Unicode 64);
-# prefix "huatp_" (6 chars) leaves 58 characters for the spider name.
-_ATP_CODE_PREFIX = 'huatp_'
-_ATP_SPIDER_MAX_LEN = 57  # total poi_code ≤ 63 chars
+# Brands already covered by a dedicated hu_*.py provider elsewhere in this project -
+# checked against ATP's nsi_brand/spider-derived name (normalised: lower-cased,
+# diacritics folded, non-alphanumeric stripped) so this importer doesn't create a
+# second, less-tuned, competing poi_code for the same real-world brand.
+EXCLUDED_BRANDS = frozenset({
+    'aldi', 'alzabox', 'amplifon', 'auchan', 'avia', 'benu', 'benugyogyszertar',
+    'budapestbank', 'burgerking', 'cba', 'ccc', 'cibbank', 'decathlon', 'deichmann',
+    'dm', 'dpd', 'easybox', 'erstebank', 'foxpost', 'foxpostabox', 'foxpostzbox',
+    'freshcorner', 'gls', 'hm', 'handm', 'ikea', 'ionity', 'jysk', 'kfc', 'kh',
+    'khbank', 'kulcspatikak', 'kulcspatika', 'lidl', 'magnetbank', 'magyarposta',
+    'mavstart', 'mav', 'mbhbank', 'mkbbank', 'mobiliti', 'mobilpetrol',
+    'mobilposta', 'mol', 'molbubi', 'mpl', 'newyorker', 'obi', 'ofotert', 'oil',
+    'omv', 'omvemotion', 'otpbank', 'otp', 'packeta', 'packetazbox', 'penny',
+    'pennymarket', 'pepco', 'pingvinpatika', 'pizzahut', 'posta', 'postapont',
+    'prima', 'raiffeisenbank', 'raiffeisen', 'real', 'rossmann', 'sberbank',
+    'shell', 'sinsay', 'spar', 'starbucks', 'takarekbank', 'takko', 'takkofashion',
+    'tesco', 'tommarket', 'unicredit', 'volanbusz', 'yettel', 'yvesrocher', 'zara',
+    'zbox',
+})
+
+_DIACRITIC_MAP = str.maketrans('áéíóöőúüű', 'aeiooouuu')
+
+# Priority-ordered OSM tag keys checked per feature; the first one present decides
+# the feature's type. (key, value) -> internal poi_type; a 'shop' key whose value
+# isn't listed here still falls back to the generic 'shop' type (see
+# _resolve_feature_type), everything else is skipped rather than mistagged.
+_OSM_TAG_TO_POI_TYPE = {
+    ('amenity', 'bank'): 'bank',
+    ('amenity', 'atm'): 'atm',
+    ('amenity', 'pharmacy'): 'pharmacy',
+    ('amenity', 'fuel'): 'fuel',
+    ('amenity', 'post_office'): 'post_office',
+    ('amenity', 'fast_food'): 'fastfood',
+    ('amenity', 'cafe'): 'cafe',
+    ('amenity', 'restaurant'): 'restaurant',
+    ('amenity', 'charging_station'): 'charging_station',
+    ('amenity', 'bicycle_rental'): 'bicycle_rental',
+    ('amenity', 'vending_machine'): 'vending_machine',
+    ('amenity', 'fire_station'): 'fire_station',
+    ('shop', 'chemist'): 'chemist',
+    ('shop', 'clothes'): 'clothes',
+    ('shop', 'fashion'): 'clothes',
+    ('shop', 'shoes'): 'shoes',
+    ('shop', 'doityourself'): 'doityourself',
+    ('shop', 'hardware'): 'doityourself',
+    ('shop', 'cosmetics'): 'cosmetics',
+    ('shop', 'beauty'): 'cosmetics',
+    ('shop', 'furniture'): 'furniture',
+    ('shop', 'optician'): 'optician',
+    ('shop', 'tobacco'): 'tobacco',
+    ('shop', 'mobile_phone'): 'mobile_phone',
+    ('shop', 'sports'): 'sports',
+    ('shop', 'hearing_aids'): 'hearing_aids',
+}
+_TYPE_KEY_PRIORITY = ('amenity', 'shop', 'office', 'craft', 'tourism', 'leisure', 'healthcare')
 
 
 # ── Module-level helpers ───────────────────────────────────────────────────────
 
-def _spider_to_poi_code(spider_name: str) -> str:
-    """Return a stable, DB-safe poi_code for the given AllThePlaces spider."""
-    sanitised = spider_name.strip().lower().replace('-', '_').replace(' ', '_')
-    return '{}{}'.format(_ATP_CODE_PREFIX, sanitised[:_ATP_SPIDER_MAX_LEN])
+def _normalise_brand(name: str) -> str:
+    """Lower-case, fold Hungarian diacritics, strip everything but letters/digits -
+    so 'K&H Bank', 'kh_bank' and 'K&H' all compare equal against EXCLUDED_BRANDS."""
+    if not name:
+        return ''
+    name = name.lower().translate(_DIACRITIC_MAP)
+    return re.sub(r'[^a-z0-9]', '', name)
 
 
-def _infer_poi_type(spider_name: str) -> str:
-    """
-    Heuristically map a spider name to the nearest internal poi_type value.
-
-    AllThePlaces spider names typically encode the country suffix (e.g. *_hu)
-    and sometimes the business category.  When no category keyword matches,
-    the importer falls back to 'shop', which is the most common type for
-    retail/commercial POIs.
-    """
-    n = spider_name.lower()
-    if any(k in n for k in ('fuel', 'petrol', 'benzin', '_gas', 'mol_hu', 'shell', 'eni_', 'bp_')):
-        return 'fuel'
-    if any(k in n for k in ('atm',)):
-        return 'atm'
-    if any(k in n for k in ('bank',)):
-        return 'bank'
-    if any(k in n for k in ('pharmacy', 'patika', 'apotheke', 'benu', 'pingvin')):
-        return 'pharmacy'
-    if any(k in n for k in ('charging', '_ev_', 'electr')):
-        return 'charging_station'
-    if any(k in n for k in ('post_office', '_posta', 'postamt')):
-        return 'post_office'
-    if any(k in n for k in ('fastfood', 'fast_food', 'mcdonald', 'burger', 'kfc', 'subway_')):
-        return 'fastfood'
-    if any(k in n for k in ('chemist', 'droger', 'rossmann', 'dm_')):
-        return 'chemist'
-    if any(k in n for k in ('clothes', 'fashion', 'takko', 'pepco', 'jysk')):
-        return 'clothes'
-    if any(k in n for k in ('shoes', 'deichmann', 'ccc_')):
-        return 'shoes'
-    if any(k in n for k in ('optician', 'optic')):
-        return 'optician'
-    if any(k in n for k in ('diy', 'obi_', 'baumax', 'bauhaus')):
-        return 'doityourself'
-    if any(k in n for k in ('cosmetic', 'perfum', 'douglas', 'yves_rocher')):
-        return 'cosmetics'
-    if any(k in n for k in ('furniture', 'ikea',)):
-        return 'furniture'
-    if any(k in n for k in ('tobacco', 'dohany')):
-        return 'tobacco'
-    return 'shop'
+def _is_excluded_brand(brand_name: str) -> bool:
+    normalised = _normalise_brand(brand_name)
+    if not normalised:
+        return False
+    return any(normalised == excluded or excluded in normalised or normalised in excluded
+              for excluded in EXCLUDED_BRANDS)
 
 
-def _derive_common_name(spider_name: str, brand_name: str | None) -> str:
-    """Return a human-readable common name for this poi type."""
-    if brand_name:
-        return brand_name
-    # Strip trailing country suffix (_hu, _hu_sk, …) and title-case
-    parts = spider_name.split('_')
-    # Drop trailing 2-letter (country) suffixes
-    while parts and len(parts[-1]) == 2:
-        parts.pop()
-    return ' '.join(p.capitalize() for p in parts) if parts else spider_name.title()
+def _resolve_feature_type(props: dict):
+    """Return (poi_type, tag_key, tag_value) for a feature's real OSM category, or
+    None if nothing in props matches a type this project supports."""
+    for key in _TYPE_KEY_PRIORITY:
+        value = props.get(key)
+        if not value:
+            continue
+        poi_type = _OSM_TAG_TO_POI_TYPE.get((key, value))
+        if poi_type:
+            return poi_type, key, value
+        if key == 'shop':
+            return 'shop', key, value
+    return None
+
+
+def _spider_type_poi_code(spider_name: str, poi_type: str) -> str:
+    """Deterministic 10-char poi_code - see module docstring for why this can't be
+    a readable 'huatp_<spider>_<type>' string (POI_common.poi_code is Unicode(10))."""
+    digest = hashlib.sha1('{}:{}'.format(spider_name, poi_type).encode('utf-8')).hexdigest()
+    return 'atp{}'.format(digest[:7])
 
 
 def _is_hu_feature(props: dict, coords: list) -> bool:
-    """
-    Return True when the feature is located in Hungary.
-
-    Primary check: addr:country property.
-    Fallback:      geographic bounding box when addr:country is absent.
-    """
-    country = (
-        props.get('addr:country')
-        or props.get('@country')
-        or props.get('country')
-        or ''
-    )
+    country = props.get('addr:country') or props.get('@country') or props.get('country') or ''
     if country:
         return country in _HU_COUNTRY_CODES
-    # Fallback: bounding box (GeoJSON coords are [lon, lat])
     if len(coords) >= 2:
         lon, lat = float(coords[0]), float(coords[1])
         return _HU_LAT_MIN <= lat <= _HU_LAT_MAX and _HU_LON_MIN <= lon <= _HU_LON_MAX
@@ -163,41 +196,34 @@ def _is_hu_feature(props: dict, coords: list) -> bool:
 
 class hu_alltheplaces(DataProvider):
     """
-    Imports Hungarian Points of Interest from AllThePlaces (alltheplaces.xyz).
+    Imports Hungarian POIs from AllThePlaces (alltheplaces.xyz) for every brand that
+    doesn't already have a dedicated provider in this project.
 
     Workflow
     --------
-    1. ``contains()`` — sets the primary download URL (latest run JSON).
-    2. ``types()``    — downloads run metadata and the insights file; discovers
-                        all AllThePlaces spiders that have Hungarian POIs;
-                        registers one poi_common type per spider.
-    3. ``process()``  — downloads each spider's GeoJSON output, filters for
-                        Hungary, and populates the internal POI dataset.
-    4. ``export_list()`` (inherited) — bulk-inserts accumulated POIs.
+    1. ``contains()`` - sets the primary download URL (latest run JSON).
+    2. ``types()``    - downloads run metadata and the insights file; discovers
+                        HU-relevant, not-already-covered spiders; downloads each
+                        one's GeoJSON, resolves each feature's real type, and
+                        registers one poi_common type per (spider, type) pair
+                        actually found. Features are cached in memory
+                        (self._spider_features) so process() doesn't re-fetch them.
+    3. ``process()``  - replays the cached features into the internal POI dataset.
     """
 
-    # ── contains ──────────────────────────────────────────────────────────────
-
     def contains(self):
-        # Primary download URL: AllThePlaces latest-run JSON manifest
         self.link = ATP_LATEST_URL
         self.tags = {'source': 'alltheplaces.xyz'}
         self.filetype = FileType.json
         self.filename = 'hu_alltheplaces_latest.json'
-
-        # State populated during types(); consumed by process()
-        self._hu_spiders: dict[str, str] = {}   # {spider_name: poi_common_name}
-        self._base_output_url: str = ''          # e.g. .../runs/2026-02-28-13-32-34
+        # {spider_name: [(poi_code, poi_type, feature), ...]} - populated by types(),
+        # consumed by process().
+        self._spider_features = {}
 
     # ── Internal helpers ───────────────────────────────────────────────────────
 
-    def _download_latest_run(self) -> dict | None:
-        """Download and return the latest run metadata JSON."""
-        content = save_downloaded_soup(
-            self.link,
-            os.path.join(self.download_cache, self.filename),
-            FileType.json,
-        )
+    def _download_latest_run(self):
+        content = save_downloaded_soup(self.link, os.path.join(self.download_cache, self.filename), FileType.json)
         if content is None:
             logging.error('[hu_alltheplaces] Cannot download latest run info from %s', self.link)
             return None
@@ -207,13 +233,9 @@ class hu_alltheplaces(DataProvider):
             logging.error('[hu_alltheplaces] Invalid JSON in latest run response: %s', e)
             return None
 
-    def _download_insights(self, insights_url: str) -> dict | None:
-        """Download and return the build insights JSON."""
+    def _download_insights(self, insights_url):
         content = save_downloaded_soup(
-            insights_url,
-            os.path.join(self.download_cache, 'hu_alltheplaces_insights.json'),
-            FileType.json,
-        )
+            insights_url, os.path.join(self.download_cache, 'hu_alltheplaces_insights.json'), FileType.json)
         if content is None:
             logging.error('[hu_alltheplaces] Cannot download insights from %s', insights_url)
             return None
@@ -223,19 +245,9 @@ class hu_alltheplaces(DataProvider):
             logging.error('[hu_alltheplaces] Invalid JSON in insights file: %s', e)
             return None
 
-    def _extract_hu_spiders(self, insights: dict) -> dict[str, str]:
-        """
-        Parse the insights JSON and return a dict of
-        {spider_name: brand_name} for all spiders that have Hungarian POIs.
-
-        The insights file structure is::
-
-            {"data": [{"nsi_brand": "Lidl", "atp_splits": {"HU": {"lidl_hu": 214}}}]}
-
-        Multiple brand entries can reference the same spider; the first
-        brand name encountered wins.
-        """
-        hu_spiders: dict[str, str] = {}
+    def _extract_hu_spiders(self, insights: dict) -> dict:
+        """Return {spider_name: brand_name} for HU-relevant, not-already-covered spiders."""
+        hu_spiders = {}
         data = insights.get('data', [])
         if not isinstance(data, list):
             logging.error('[hu_alltheplaces] Unexpected insights format: "data" is not a list.')
@@ -243,6 +255,8 @@ class hu_alltheplaces(DataProvider):
 
         for brand in data:
             brand_name = brand.get('nsi_brand') or brand.get('q_title') or ''
+            if _is_excluded_brand(brand_name):
+                continue
             atp_splits = brand.get('atp_splits') or {}
             hu_entries = atp_splits.get('HU') or {}
             if not isinstance(hu_entries, dict):
@@ -251,306 +265,142 @@ class hu_alltheplaces(DataProvider):
                 if spider_name and spider_name not in hu_spiders:
                     hu_spiders[spider_name] = brand_name
 
-        logging.info(
-            '[hu_alltheplaces] Found %d HU-relevant spiders in insights file.',
-            len(hu_spiders),
-        )
+        logging.info('[hu_alltheplaces] %d HU-relevant, not-already-covered spiders found.', len(hu_spiders))
         return hu_spiders
+
+    def _fetch_spider_geojson(self, spider_name):
+        spider_url = ATP_SPIDER_OUTPUT_URL.format(spider_name)
+        cache_file = os.path.join(self.download_cache, 'hu_alltheplaces_{}.json'.format(spider_name))
+        content = save_downloaded_soup(spider_url, cache_file, FileType.json)
+        if content is None:
+            return None
+        try:
+            data = json.loads(content, strict=False)
+        except (json.JSONDecodeError, ValueError):
+            logging.warning('[hu_alltheplaces] Unparseable GeoJSON for spider %s.', spider_name)
+            return None
+        if isinstance(data, dict) and data.get('type') == 'FeatureCollection':
+            return data.get('features') or []
+        if isinstance(data, dict) and data.get('type') == 'Feature':
+            return [data]
+        return None
 
     # ── types ─────────────────────────────────────────────────────────────────
 
     def types(self) -> list:
-        """
-        Resolve the latest AllThePlaces build, identify Hungary-relevant spiders
-        from the insights file, and return one poi_common type definition per spider.
-        """
         run_meta = self._download_latest_run()
         if run_meta is None:
-            logging.warning('[hu_alltheplaces] No run metadata; returning empty type list.')
-            self.__types = []
-            return self.__types
-
-        run_id = run_meta.get('run_id', '')
+            return []
         insights_url = run_meta.get('insights_url', '')
-        output_url = run_meta.get('output_url', '')
-
-        if not run_id or not insights_url:
-            logging.error(
-                '[hu_alltheplaces] Missing run_id or insights_url in latest.json: %s',
-                run_meta,
-            )
-            self.__types = []
-            return self.__types
-
-        # Derive the per-spider base URL from the output ZIP URL
-        # e.g. .../runs/2026-02-28-13-32-34/output.zip → .../runs/2026-02-28-13-32-34
-        if output_url:
-            self._base_output_url = output_url.rsplit('/output', 1)[0]
-        else:
-            # Fallback: construct from insights_url base
-            self._base_output_url = insights_url.rsplit('/stats', 1)[0]
+        if not insights_url:
+            logging.error('[hu_alltheplaces] Missing insights_url in latest.json: %s', run_meta)
+            return []
 
         insights = self._download_insights(insights_url)
         if insights is None:
-            self.__types = []
-            return self.__types
+            return []
 
-        self._hu_spiders = self._extract_hu_spiders(insights)
+        hu_spiders = self._extract_hu_spiders(insights)
 
-        self.__types = []
-        seen_codes: set[str] = set()
-
-        for spider_name, brand_name in self._hu_spiders.items():
-            poi_code = _spider_to_poi_code(spider_name)
-
-            # Guard against accidental poi_code collisions after truncation
-            if poi_code in seen_codes:
-                logging.warning(
-                    '[hu_alltheplaces] poi_code collision for spider %s (code %s); skipping.',
-                    spider_name, poi_code,
-                )
+        type_defs = {}  # poi_code -> type dict
+        for spider_name, brand_name in hu_spiders.items():
+            try:
+                features = self._fetch_spider_geojson(spider_name)
+            except Exception as e:
+                logging.warning('[hu_alltheplaces] Failed to fetch spider %s: %s', spider_name, e)
                 continue
-            seen_codes.add(poi_code)
+            if not features:
+                continue
 
-            poi_type = _infer_poi_type(spider_name)
-            common_name = _derive_common_name(spider_name, brand_name)
+            for feature in features:
+                props = feature.get('properties') or {}
+                geometry = feature.get('geometry') or {}
+                if geometry.get('type') != 'Point':
+                    continue
+                coords = geometry.get('coordinates') or []
+                if len(coords) < 2 or not _is_hu_feature(props, coords):
+                    continue
+                resolved = _resolve_feature_type(props)
+                if resolved is None:
+                    continue
+                poi_type, tag_key, tag_value = resolved
+                poi_code = _spider_type_poi_code(spider_name, poi_type)
+                self._spider_features.setdefault(poi_code, []).append(feature)
 
-            # Derive a search name: brand name (lower-case) or spider name
-            # without the trailing country suffix
-            if brand_name:
-                search_name = brand_name.lower()
-            else:
-                parts = spider_name.lower().split('_')
-                while parts and len(parts[-1]) == 2:
-                    parts.pop()
-                search_name = ' '.join(parts)
+                if poi_code not in type_defs:
+                    common_name = brand_name or spider_name
+                    poi_tags = {'source': 'alltheplaces.xyz', 'source:spider': spider_name,
+                               'source:osm_tag': '{}={}'.format(tag_key, tag_value)}
+                    if brand_name:
+                        poi_tags['brand'] = brand_name
+                    type_defs[poi_code] = {
+                        'poi_code': poi_code,
+                        'poi_common_name': '{} ({})'.format(common_name, poi_type),
+                        'poi_type': poi_type,
+                        'poi_tags': poi_tags,
+                        'poi_url_base': 'https://alltheplaces.xyz',
+                        'poi_search_name': (brand_name or spider_name).lower(),
+                        'osm_search_distance_perfect': 200,
+                        'osm_search_distance_safe': 100,
+                        'osm_search_distance_unsafe': 20,
+                    }
 
-            poi_tags = {
-                'source': 'alltheplaces.xyz',
-                'source:spider': spider_name,
-            }
-            if brand_name:
-                poi_tags['brand'] = brand_name
-
-            self.__types.append({
-                'poi_code': poi_code,
-                'poi_common_name': common_name,
-                'poi_type': poi_type,
-                'poi_tags': poi_tags,
-                'poi_url_base': 'https://alltheplaces.xyz',
-                'poi_search_name': search_name,
-                'osm_search_distance_perfect': 200,
-                'osm_search_distance_safe': 100,
-                'osm_search_distance_unsafe': 20,
-            })
-
-        logging.info(
-            '[hu_alltheplaces] Registered %d poi types for Hungarian spiders.',
-            len(self.__types),
-        )
-        return self.__types
+        logging.info('[hu_alltheplaces] Registered %d poi types from %d spiders.', len(type_defs), len(hu_spiders))
+        return list(type_defs.values())
 
     # ── process ───────────────────────────────────────────────────────────────
 
     def process(self):
-        """Download and import POIs from every HU-relevant AllThePlaces spider."""
-        if not self._hu_spiders:
-            logging.warning('[hu_alltheplaces] No HU-relevant spiders; nothing to process.')
-            return
-
-        if not self._base_output_url:
-            logging.error(
-                '[hu_alltheplaces] base_output_url not set — was types() called first?'
-            )
-            return
-
-        for spider_name, _brand_name in self._hu_spiders.items():
-            try:
-                self._process_spider(spider_name)
-            except Exception as e:
-                logging.error(
-                    '[hu_alltheplaces] Unhandled error processing spider %s: %s',
-                    spider_name, e,
-                )
-                logging.exception('Exception occurred')
-
-    def _process_spider(self, spider_name: str):
-        """Download a single spider's GeoJSON and import Hungarian features."""
-        spider_url = '{}/output/{}.geojson'.format(
-            self._base_output_url, spider_name
-        )
-        # Cache file name: prefix to avoid collisions with other importers
-        spider_cache_file = os.path.join(
-            self.download_cache,
-            'hu_alltheplaces_{}.json'.format(spider_name),
-        )
-        poi_code = _spider_to_poi_code(spider_name)
-
-        logging.info('[hu_alltheplaces] Downloading spider: %s', spider_name)
-        content = save_downloaded_soup(spider_url, spider_cache_file, FileType.json)
-        if content is None:
-            logging.warning(
-                '[hu_alltheplaces] No data for spider %s; skipping.', spider_name
-            )
-            return
-
-        features = self._parse_geojson(content, spider_name)
-        if features is None:
-            return
-
-        imported = 0
-        for feature in features:
-            try:
-                if self._import_feature(feature, poi_code):
-                    imported += 1
-            except Exception as e:
-                logging.error(
-                    '[hu_alltheplaces] Error importing feature from %s: %s',
-                    spider_name, e,
-                )
-                logging.exception('Exception occurred')
-
-        logging.info(
-            '[hu_alltheplaces] Imported %d Hungarian POIs from spider %s.',
-            imported, spider_name,
-        )
-
-    # ── GeoJSON parser ─────────────────────────────────────────────────────────
-
-    def _parse_geojson(self, content: str, spider_name: str) -> list | None:
-        """
-        Parse GeoJSON content and return a list of Feature dicts.
-
-        Supports:
-        - Standard GeoJSON FeatureCollection  {"type":"FeatureCollection","features":[…]}
-        - Single GeoJSON Feature              {"type":"Feature",…}
-        - NDJSON (newline-delimited features, one per line)
-        """
-        try:
-            data = json.loads(content, strict=False)
-            if isinstance(data, dict):
-                if data.get('type') == 'FeatureCollection':
-                    return data.get('features') or []
-                if data.get('type') == 'Feature':
-                    return [data]
-            logging.warning(
-                '[hu_alltheplaces] Unexpected root JSON type for spider %s; '
-                'trying NDJSON fallback.',
-                spider_name,
-            )
-        except (json.JSONDecodeError, ValueError):
-            pass  # fall through to NDJSON
-
-        # NDJSON fallback: one JSON object per line
-        features = []
-        for line in content.splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                obj = json.loads(line, strict=False)
-                if isinstance(obj, dict) and obj.get('type') == 'Feature':
-                    features.append(obj)
-            except (json.JSONDecodeError, ValueError):
-                pass
-
-        if features:
-            return features
-
-        logging.error(
-            '[hu_alltheplaces] Cannot parse content for spider %s.', spider_name
-        )
-        return None
-
-    # ── Feature importer ───────────────────────────────────────────────────────
+        for poi_code, features in self._spider_features.items():
+            for feature in features:
+                try:
+                    self._import_feature(feature, poi_code)
+                except Exception as e:
+                    logging.error('[hu_alltheplaces] Error importing a %s feature: %s', poi_code, e)
+                    logging.exception('Exception occurred')
 
     def _import_feature(self, feature: dict, poi_code: str) -> bool:
-        """
-        Map a GeoJSON Feature to the internal POI model and stage it for insert.
-
-        Returns True when the feature was accepted and staged.
-        """
         props = feature.get('properties') or {}
         geometry = feature.get('geometry') or {}
-
-        # Only Point geometries carry a usable location
-        if geometry.get('type') != 'Point':
-            return False
-
         coords = geometry.get('coordinates') or []
         if len(coords) < 2:
             return False
 
-        # Hungary filter (primary: addr:country; fallback: bounding box)
-        if not _is_hu_feature(props, coords):
-            return False
-
         # GeoJSON coordinates are [longitude, latitude]; check_hu_boundary(lat, lon)
-        raw_lat = float(coords[1])
-        raw_lon = float(coords[0])
-        lat, lon = check_hu_boundary(raw_lat, raw_lon)
+        lat, lon = check_hu_boundary(float(coords[1]), float(coords[0]))
         if lat is None or lon is None:
-            logging.debug(
-                '[hu_alltheplaces] Feature outside HU boundary: lat=%s lon=%s',
-                raw_lat, raw_lon,
-            )
             return False
-
-        # ── Populate POI fields ────────────────────────────────────────────────
 
         self.data.code = poi_code
         self.data.lat = lat
         self.data.lon = lon
+        self.data.branch = clean_string(props.get('name', '') or props.get('brand', '') or '')
 
-        # Name: prefer 'name' property; fall back to brand
-        name_val = clean_string(props.get('name', '') or props.get('brand', '') or '')
-        self.data.name = name_val
-
-        # Branch: use the spider ID as the data-source reference
-        self.data.branch = clean_string(props.get('@spider', ''))
-
-        # Address — AllThePlaces typically provides addr:street_address (combined)
-        # but individual addr:street / addr:housenumber are preferred when present.
         addr_street = clean_string(props.get('addr:street', ''))
         addr_housenumber = clean_string(props.get('addr:housenumber', ''))
-        addr_combined = clean_string(
-            props.get('addr:street_address', '')
-            or props.get('addr:full', '')
-        )
+        addr_combined = clean_string(props.get('addr:street_address', '') or props.get('addr:full', ''))
 
         if addr_street:
-            # Separate fields available — use them directly
             self.data.street = addr_street
             self.data.housenumber = addr_housenumber
-            self.data.original = '{} {}'.format(addr_street, addr_housenumber).strip()
+            self.data.original = '{} {}'.format(addr_street, addr_housenumber or '').strip()
         elif addr_combined:
-            # Combined address — split using the project's address parser
             self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                 extract_street_housenumber_better_2(addr_combined)
             self.data.original = addr_combined
-        # No address information: leave street/housenumber as None (cleared by add())
 
         self.data.city = clean_city(clean_string(props.get('addr:city', '') or ''))
         self.data.postcode = clean_string(props.get('addr:postcode', '') or '')
-
-        # Contact
         self.data.phone = clean_string(props.get('phone', '') or props.get('contact:phone', '') or '')
         self.data.email = clean_string(props.get('email', '') or props.get('contact:email', '') or '')
         self.data.website = clean_string(
-            props.get('website', '')
-            or props.get('contact:website', '')
-            or props.get('@source_uri', '')
-            or ''
-        )
-
-        # Unique reference from the source spider
+            props.get('website', '') or props.get('contact:website', '') or props.get('@source_uri', '') or '')
         self.data.ref = clean_string(props.get('ref', '') or props.get('@id', '') or '')
 
-        # Opening hours: AllThePlaces already outputs OSM-format opening_hours
         oh = clean_string(props.get('opening_hours', '') or '')
         if oh:
             self.data.opening_hours = oh
 
-        # Stage the record; clear_all() is called automatically by add()
+        self.data.public_holiday_open = False
         self.data.add()
         return True
