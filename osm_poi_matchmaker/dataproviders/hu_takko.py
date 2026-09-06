@@ -24,6 +24,12 @@ class hu_takko(DataProvider):
     """Imports Takko clothing store locations in Hungary.
 
     Currently disabled: self.link is left empty, so process() has no data source to fetch.
+    Takko's own store locator (takko.com/hu-hu/stores) embeds a Storepoint.co widget
+    (id ntntW06QJjYNYFkpc7H8w3P7V2Q9kb); its locations/country API responds successfully
+    but returns an empty location list for every country tried (DE, PL, AT, RO, CZ, SK,
+    HU included) - the Storepoint account behind the widget currently has no location
+    data loaded at all, not just for Hungary. Nothing to scrape until Takko's own
+    integration has data again.
     """
 
     def contains(self):
