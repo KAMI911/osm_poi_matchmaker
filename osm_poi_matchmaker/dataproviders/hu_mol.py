@@ -41,7 +41,9 @@ class hu_mol(DataProvider):
                      'brand:wikipedia': 'hu:MOL Magyar Olaj- és Gázipari Nyrt.', 'brand:wikidata': 'Q549181',
                      'ref:HU:company': '01-10-041683'}
         self.waterway_fuel = {'waterway': 'fuel'}
-        self.fastfood = {'amenity': 'fastfood'}
+        self.fastfood = {'amenity': 'fast_food'}
+        self.cafe = {'amenity': 'cafe'}
+        self.restaurant = {'amenity': 'restaurant'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
@@ -58,6 +60,14 @@ class hu_mol(DataProvider):
         humolfaf.update(self.fastfood)
         humolfaf.update(POS_HU_GEN)
         humolfaf.update(PAY_CASH)
+        humolfafc = self.tags.copy()
+        humolfafc.update(self.cafe)
+        humolfafc.update(POS_HU_GEN)
+        humolfafc.update(PAY_CASH)
+        humolfafr = self.tags.copy()
+        humolfafr.update(self.restaurant)
+        humolfafr.update(POS_HU_GEN)
+        humolfafr.update(PAY_CASH)
         self.__types = [
             {'poi_code': 'humolfu', 'poi_common_name': 'MOL', 'poi_type': 'fuel',
              'poi_tags': humolfu, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
@@ -71,7 +81,16 @@ class hu_mol(DataProvider):
              'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 100},
             {'poi_code': 'humolfaf', 'poi_common_name': 'Fresh Corner', 'poi_type': 'fastfood_or_cafe',
              'poi_tags': humolfaf, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'fresh corner',
-             'poi_search_avoid_name': '(étterem|bistro|bisztr|csárda|bár)',
+             'poi_search_avoid_name': '(étterem|csárda|bár)',
+             'osm_search_distance_perfect': 200,
+             'osm_search_distance_safe': 100, 'osm_search_distance_unsafe': 10},
+            {'poi_code': 'humolfafc', 'poi_common_name': 'Fresh Corner Kávézó', 'poi_type': 'cafe',
+             'poi_tags': humolfafc, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'fresh corner',
+             'poi_search_avoid_name': '(étterem|csárda|bár)',
+             'osm_search_distance_perfect': 200,
+             'osm_search_distance_safe': 100, 'osm_search_distance_unsafe': 10},
+            {'poi_code': 'humolfafr', 'poi_common_name': 'Fresh Corner Étterem', 'poi_type': 'restaurant',
+             'poi_tags': humolfafr, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'fresh corner',
              'osm_search_distance_perfect': 200,
              'osm_search_distance_safe': 100, 'osm_search_distance_unsafe': 10}, ]
         return self.__types
@@ -90,6 +109,8 @@ class hu_mol(DataProvider):
                         fuel_ids = [v.get('id') for v in (poi_data.get('fuelsAndAdditives') or {}).get('values', [])]
                         gastro_ids = [v.get('id') for v in (poi_data.get('gastroCategory') or {}).get('values', [])]
                         has_fresh_corner = any(g.startswith('FRESH_CORNER') for g in gastro_ids)
+                        has_cafe = 'FRESH_CORNER_CAFE' in gastro_ids
+                        has_restaurant = 'FRESH_CORNER_RESTAURANT' in gastro_ids
                         if ' Sziget ' in poi_data.get('name'):
                             self.data.code = 'humolwfu'
                         else:
@@ -97,7 +118,12 @@ class hu_mol(DataProvider):
                               not ('SHOP' in service_ids or \
                               ('AD_BLUE' in service_ids or \
                               ('TOLL_TERMINAL' in service_ids))):
-                                self.data.code = 'humolfaf'
+                                if has_cafe:
+                                    self.data.code = 'humolfafc'
+                                elif has_restaurant:
+                                    self.data.code = 'humolfafr'
+                                else:
+                                    self.data.code = 'humolfaf'
                             else:
                                 self.data.code = 'humolfu'
                         self.data.postcode = clean_string(poi_data.get('postcode'))

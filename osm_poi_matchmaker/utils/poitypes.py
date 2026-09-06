@@ -91,6 +91,8 @@ def getPOITypes(ptype):
         query_type = "amenity='fast_food'"
     elif ptype == 'cafe':
         query_type = "amenity='cafe'"
+    elif ptype == 'restaurant':
+        query_type = "amenity='restaurant'"
     elif ptype == 'fastfood_or_cafe':
         # For concepts that don't map to a single OSM amenity in practice - e.g. MOL's
         # Fresh Corner, which real contributors tag as either fast_food or cafe pretty
