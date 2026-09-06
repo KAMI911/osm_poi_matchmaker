@@ -85,6 +85,8 @@ def getPOITypes(ptype):
         query_type = "shop='furniture'"
     elif ptype == 'mobile_phone':
         query_type = "shop='mobile_phone'"
+    elif ptype == 'sports':
+        query_type = "shop='sports'"
     elif ptype == 'charging_station':
         query_type = "amenity='charging_station'"
     elif ptype == 'waterway_fuel':
