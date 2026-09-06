@@ -87,7 +87,7 @@ class hu_dpd(DataProvider):
         hudpdpp = {'post_office': 'post_partner', 'post_office:brand': 'DPD Pickup',
                   'post_office:brand:wikidata': 'Q541030', 'post_office:parcel_pickup': 'yes'}
         hudpdpp.update(self.tags)
-        avoid_name = '(gls|foxpost|alzabox|alza|packeta|z-box|postapont|easybox|sameday|mpl|express one|pick pack)'
+        avoid_name = '(gls|foxpost|alzabox|alza|packeta|z-box|z-pont|postapont|easybox|sameday|mpl|express one|pick pack)'
         self.__types = [
             {'poi_code': 'hudpdcso', 'poi_common_name': 'DPD', 'poi_type': 'vending_machine_parcel_locker_and_mail_in',
              'poi_tags': hudpdcso, 'poi_url_base': 'https://www.dpd.com', 'poi_search_name': 'dpd',
