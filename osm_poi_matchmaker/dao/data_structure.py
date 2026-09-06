@@ -63,6 +63,7 @@ class POI_type(enum.Enum):
     restaurant = 30
     mobile_phone = 31
     sports = 32
+    hearing_aids = 33
 
 
 class POI_address_raw(Base):
