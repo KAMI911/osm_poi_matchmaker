@@ -339,9 +339,12 @@ class POIBase:
             query_name = ''
         # Do not match with other specified names, brand names, network names
         if avoid_name is not None and not pd.isna(avoid_name) and avoid_name != '':
-            query_avoid_name = 'AND (LOWER(TEXT(name)) !~* LOWER(TEXT(:avoid_name)) ' \
-                               'AND LOWER(TEXT(brand)) !~* LOWER(TEXT(:avoid_name)) ' \
-                               'AND LOWER(TEXT(network)) !~* LOWER(TEXT(:avoid_name))) '
+            # COALESCE(..., '') matters: NULL !~* pattern evaluates to NULL (not TRUE) in SQL, and
+            # NULL AND NULL AND NULL stays NULL, which WHERE treats as false - silently excluding
+            # every row with no brand/network tag (the common case) regardless of its actual name.
+            query_avoid_name = "AND (COALESCE(LOWER(TEXT(name)), '') !~* LOWER(TEXT(:avoid_name)) " \
+                               "AND COALESCE(LOWER(TEXT(brand)), '') !~* LOWER(TEXT(:avoid_name)) " \
+                               "AND COALESCE(LOWER(TEXT(network)), '') !~* LOWER(TEXT(:avoid_name))) "
             query_params.update({'avoid_name': '.*{}.*'.format(avoid_name)})
         else:
             query_avoid_name = ''
