@@ -88,11 +88,14 @@ def getPOITypes(ptype):
     elif ptype == 'waterway_fuel':
         query_type = "waterway='fuel'"
     elif ptype == 'fastfood':
-        # Only used by hu_mol.py's Fresh Corner. Two bugs fixed together here: the OSM
-        # tag is amenity=fast_food (with an underscore) - 'fastfood' never matched
-        # anything - and real data also tags a good chunk of these amenity='cafe'
-        # instead (inconsistent tagging by contributors, not a distinction the
-        # provider itself makes), so match both.
+        query_type = "amenity='fast_food'"
+    elif ptype == 'cafe':
+        query_type = "amenity='cafe'"
+    elif ptype == 'fastfood_or_cafe':
+        # For concepts that don't map to a single OSM amenity in practice - e.g. MOL's
+        # Fresh Corner, which real contributors tag as either fast_food or cafe pretty
+        # much interchangeably (confirmed against live data: same brand, both tags in
+        # use, not a real distinction the venues themselves make).
         query_type = "amenity='fast_food' OR amenity='cafe'"
     elif ptype == 'shoes':
         query_type = "shop='shoes'"

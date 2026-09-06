@@ -58,6 +58,8 @@ class POI_type(enum.Enum):
     railway_station = 25
     fire_station = 26
     post_partner = 27
+    cafe = 28
+    fastfood_or_cafe = 29
 
 
 class POI_address_raw(Base):

@@ -69,7 +69,7 @@ class hu_mol(DataProvider):
              'poi_search_avoid_name': '(shell|m. petrol|avia|lukoil|hunoil)',
              'osm_search_distance_perfect': 2000,
              'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 100},
-            {'poi_code': 'humolfaf', 'poi_common_name': 'Fresh Corner', 'poi_type': 'fastfood',
+            {'poi_code': 'humolfaf', 'poi_common_name': 'Fresh Corner', 'poi_type': 'fastfood_or_cafe',
              'poi_tags': humolfaf, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'fresh corner',
              'poi_search_avoid_name': '(étterem|bistro|bisztr|csárda|bár)',
              'osm_search_distance_perfect': 200,
