@@ -38,5 +38,13 @@ use.general.source.website.date.tag=source:date
 #log.level=DEBUG
 
 dataproviders.limit.elements=None
-dataproviders.modules.available = hu_aldi, hu_alzabox, hu_avia, hu_benu, hu_cba, hu_ccc, hu_cib_bank, hu_deichmann, hu_dm, hu_dpd, hu_fire_station, hu_foxpost, hu_gls, hu_ionity_ev, hu_jysk, hu_kh_bank, hu_kulcs_patika, hu_magnet_bank, hu_mobiliti_ev, hu_mobil_petrol,hu_mol_bubi, hu_mol_plugee_ev, hu_mol, hu_obi, hu_ofotert, hu_oil, hu_omv, hu_omv_ev, hu_penny_market, hu_pepco, hu_pingvin_patika, hu_posta_json, hu_posta, hu_raiffeisen, hu_rossmann, hu_sber_bank, hu_shell, hu_spar, hu_tesco, hu_tom_market, hu_yves_rocher, hu_volanbusz
-dataproviders.modules.enable = hu_posta, hu_aldi, hu_alzabox, hu_avia, hu_benu, hu_cba, hu_ccc, hu_cib_bank, hu_deichmann, hu_dm, hu_dpd, hu_fire_station, hu_foxpost, hu_gls, hu_ionity_ev, hu_jysk, hu_kh_bank, hu_kulcs_patika, hu_magnet_bank, hu_mobiliti_ev, hu_mobil_petrol, hu_mol_bubi, hu_mol_plugee_ev, hu_mol, hu_obi, hu_ofotert, hu_oil, hu_omv, hu_omv_ev, hu_penny_market, hu_pepco, hu_pingvin_patika, hu_posta_json, hu_raiffeisen, hu_rossmann, hu_sber_bank, hu_shell, hu_spar, hu_tesco, hu_tom_market, hu_yves_rocher, hu_volanbusz
+
+# MAV's GTFS feed (hu_mav.py) requires HTTP Basic Auth credentials that must NOT be
+# committed to git - set these only in your local, untracked app.conf (or via the
+# OPM_MAV_GTFS_USERNAME / OPM_MAV_GTFS_PASSWORD environment variables). Without
+# either, hu_mav.py falls back to a manually-provided local hu_mav.zip if present.
+#dataproviders.mav.gtfs.username=
+#dataproviders.mav.gtfs.password=
+
+dataproviders.modules.available = hu_aldi, hu_alzabox, hu_avia, hu_benu, hu_cba, hu_ccc, hu_cib_bank, hu_deichmann, hu_dm, hu_dpd, hu_fire_station, hu_foxpost, hu_gls, hu_ionity_ev, hu_jysk, hu_kh_bank, hu_kulcs_patika, hu_magnet_bank, hu_mav, hu_mobiliti_ev, hu_mobil_petrol,hu_mol_bubi, hu_mol_plugee_ev, hu_mol, hu_obi, hu_ofotert, hu_oil, hu_omv, hu_omv_ev, hu_penny_market, hu_pepco, hu_pingvin_patika, hu_posta_json, hu_posta, hu_raiffeisen, hu_rossmann, hu_shell, hu_spar, hu_tesco, hu_tom_market, hu_yves_rocher, hu_volanbusz
+dataproviders.modules.enable = hu_posta, hu_aldi, hu_alzabox, hu_avia, hu_benu, hu_cba, hu_ccc, hu_cib_bank, hu_deichmann, hu_dm, hu_dpd, hu_fire_station, hu_foxpost, hu_gls, hu_ionity_ev, hu_jysk, hu_kh_bank, hu_kulcs_patika, hu_magnet_bank, hu_mav, hu_mobiliti_ev, hu_mobil_petrol, hu_mol_bubi, hu_mol_plugee_ev, hu_mol, hu_obi, hu_ofotert, hu_oil, hu_omv, hu_omv_ev, hu_penny_market, hu_pepco, hu_pingvin_patika, hu_posta_json, hu_raiffeisen, hu_rossmann, hu_shell, hu_spar, hu_tesco, hu_tom_market, hu_yves_rocher, hu_volanbusz

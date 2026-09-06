@@ -7,6 +7,7 @@ try:
     import re
     import json
     import math
+    import base64
     import traceback
     import pandas as pd
     from urllib.parse import urlencode
@@ -18,6 +19,7 @@ try:
         clean_opening_hours, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
+    from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.utils.enums import WeekDaysLong
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
@@ -132,6 +134,20 @@ class hu_mav(DataProvider):
         self.filetype = FileType.zip
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
+    @staticmethod
+    def __basic_auth_header():
+        """Build the Authorization header for MÁV's GTFS feed from
+        dataproviders.mav.gtfs.username/.password (or the OPM_MAV_GTFS_* env vars) -
+        see config.get_mav_gtfs_username()/get_mav_gtfs_password(). Returns None if
+        either credential is missing, so callers can fall back to a manually-provided
+        local file instead of attempting an unauthenticated request that would 401."""
+        username = config.get_mav_gtfs_username()
+        password = config.get_mav_gtfs_password()
+        if not username or not password:
+            return None
+        token = base64.b64encode('{}:{}'.format(username, password).encode('utf-8')).decode('ascii')
+        return {'Authorization': 'Basic {}'.format(token)}
+
     def __load_wikidata_stations(self):
         """Fetch (and cache) Hungarian railway stations' UIC codes and Wikidata items,
         keyed by normalized name, for _match_wikidata_station(). Returns {} - not
@@ -162,11 +178,22 @@ class hu_mav(DataProvider):
         try:
             file = os.path.join(self.download_cache, self.filename)
 
-            # skip downloading gtfs file, no official source for data
-            # save_downloaded_soup('{}'.format(self.link), file, self.filetype, None, self.verify_link)
-
-            if not os.path.isfile(file):
-                raise Exception("MAV GTFS data file not found! Please provide an actual version in the right place with the right name (hu_mav.zip)")
+            auth_headers = self.__basic_auth_header()
+            if auth_headers is not None:
+                if not save_downloaded_soup(self.link, file, self.filetype, False, headers=auth_headers,
+                                            verify=self.verify_link) and not os.path.isfile(file):
+                    raise Exception(
+                        "Could not download MAV's GTFS feed ({}) with the configured "
+                        "dataproviders.mav.gtfs.username/.password credentials - check they're still "
+                        "valid.".format(self.link))
+            elif not os.path.isfile(file):
+                raise Exception(
+                    "MAV's GTFS feed ({}) requires HTTP Basic Auth credentials that aren't checked "
+                    "into this repo. Set dataproviders.mav.gtfs.username and "
+                    "dataproviders.mav.gtfs.password in your local (untracked) app.conf - or the "
+                    "OPM_MAV_GTFS_USERNAME / OPM_MAV_GTFS_PASSWORD environment variables - to download "
+                    "it automatically, or place an already-downloaded copy at {} manually.".format(
+                        self.link, file))
 
             import gtfs_kit as gk
             feed = (gk.read_feed(file, dist_units='m'))

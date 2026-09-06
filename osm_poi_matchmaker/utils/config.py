@@ -83,6 +83,8 @@ KEY_USE_GENERAL_SOURCE_WEBSITE_DATE_TAG = 'use.general.source.website.date.tag'
 KEY_DATAPROVIDERS_MODULES_AVAILABLE = 'dataproviders.modules.available'
 KEY_DATAPROVIDERS_MODULES_ENABLE = 'dataproviders.modules.enable'
 KEY_DATAPROVIDERS_LIMIT_ELEMENTS = 'dataproviders.limit.elements'
+KEY_DATAPROVIDERS_MAV_GTFS_USERNAME = 'dataproviders.mav.gtfs.username'
+KEY_DATAPROVIDERS_MAV_GTFS_PASSWORD = 'dataproviders.mav.gtfs.password'
 KEY_MEMORY_ENABLE_TRACING = 'memory.enable.tracing'
 KEY_LOG_LEVEL = 'log.level'
 
@@ -285,6 +287,32 @@ def get_database_writer_password():
         return setting
     else:
         return 'poitest'
+
+
+def get_mav_gtfs_username():
+    """Username for MÁV's HTTP Basic Auth-protected GTFS feed (hu_mav.py).
+
+    Config key 'dataproviders.mav.gtfs.username' (env OPM_MAV_GTFS_USERNAME). Unlike the
+    database credentials there's no sane default - this is a third-party credential, not
+    checked into git (only the untracked local app.conf, never app.conf-template). Returns
+    None if unset, so hu_mav.py can fall back to a manually-provided local GTFS file.
+    """
+    env_setting = os.environ.get('OPM_MAV_GTFS_USERNAME')
+    if env_setting is not None:
+        return env_setting
+    return get_config(KEY_DATAPROVIDERS_MAV_GTFS_USERNAME)
+
+
+def get_mav_gtfs_password():
+    """Password for MÁV's HTTP Basic Auth-protected GTFS feed (hu_mav.py).
+
+    Config key 'dataproviders.mav.gtfs.password' (env OPM_MAV_GTFS_PASSWORD). See
+    get_mav_gtfs_username() for why there's no default and where this belongs (or doesn't).
+    """
+    env_setting = os.environ.get('OPM_MAV_GTFS_PASSWORD')
+    if env_setting is not None:
+        return env_setting
+    return get_config(KEY_DATAPROVIDERS_MAV_GTFS_PASSWORD)
 
 
 def get_database_poi_database():
