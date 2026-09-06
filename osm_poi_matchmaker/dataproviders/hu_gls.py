@@ -76,7 +76,7 @@ class hu_gls(DataProvider):
              'poi_search_avoid_name': '(alzabox|alza|dpd|pick pack|postapont|easybox|sameday|foxpost|mpl|express one|z-box|z-pont|packeta)',
              'export_poi_name': False,
              'additional_ref_name': 'ref',
-             'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 250, 'osm_search_distance_unsafe': 2},
+             'osm_search_distance_perfect': 600, 'osm_search_distance_safe': 250, 'osm_search_distance_unsafe': 100},
         ]
         return self.__types
 
