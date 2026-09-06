@@ -24,7 +24,14 @@ except ImportError as err:
 
 
 class hu_mkb_bank(DataProvider):
-    """Imports MKB Bank branch locations in Hungary from a locally cached CSV file (hu_mkb_bank.csv)."""
+    """Imports MKB Bank branch locations in Hungary from a locally cached CSV file (hu_mkb_bank.csv).
+
+    Note: MKB Bank hasn't existed as an independent brand since 2023-05-01, when it merged
+    with Takarékbank and Budapest Bank into MBH Bank - so this provider is now obsolete
+    rather than simply unregistered. Its successor (MBH Bank, ~1691 HU locations) is already
+    covered by hu_alltheplaces.py once that provider is enabled; there's no need to build a
+    bespoke MBH Bank scraper on top of it.
+    """
 
     def contains(self):
         self.link = os.path.join(
