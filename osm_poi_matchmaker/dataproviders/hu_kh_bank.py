@@ -53,7 +53,7 @@ class hu_kh_bank(DataProvider):
              'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 4},
             {'poi_code': 'hukhatm', 'poi_common_name': 'K&H Bank ATM', 'poi_type': 'atm',
              'poi_tags': hukhatm, 'poi_url_base': 'https://www.kh.hu',
-             'poi_search_name': '(kh bank atm|k&h bank atm|k&h atm|kh atm)',
+             'poi_search_name': '(kh bank|k&h bank|k&h|kh|kh bank atm|k&h bank atm|k&h atm|kh atm)',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80,
              'osm_search_distance_unsafe': 3},
         ]

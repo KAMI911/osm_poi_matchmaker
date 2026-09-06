@@ -53,7 +53,7 @@ class hu_cib_bank(DataProvider):
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 40},
             {'poi_code': 'hucibatm', 'poi_common_name': 'CIB Bank ATM', 'poi_type': 'atm', 'poi_tags': hucibatm,
-             'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank atm|cib atm)',
+             'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank|cib)',
              'poi_search_avoid_name': '(raiffeisen|otp|k&h|budapest)',
              'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10}
