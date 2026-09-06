@@ -79,6 +79,15 @@ def import_poi_data_module(module: str) -> dict:
             work = hu_cib_bank(session_object(), config.get_directory_cache_url(), True,
                                cib_locator_url, 'CIB Bank ATM')
             _add(work.process() or {})
+        elif module == 'hu_erste_bank':
+            from osm_poi_matchmaker.dataproviders.hu_erste_bank import hu_erste_bank
+            work = hu_erste_bank(session_object(), config.get_directory_cache_url(), 'BRANCH')
+            insert_type(session_object(), work.types())
+            work.process()
+            _add(work.export_list())
+            work = hu_erste_bank(session_object(), config.get_directory_cache_url(), 'ATM')
+            work.process()
+            _add(work.export_list())
         elif module == 'hu_posta_json':
             # Old code that uses JSON files
             from osm_poi_matchmaker.dataproviders.hu_posta_json import hu_posta_json
