@@ -46,7 +46,7 @@ class hu_mobil_petrol(DataProvider):
         self.__types = [
             {'poi_code': 'humobpefu', 'poi_common_name': 'Mobil Petrol', 'poi_type': 'fuel',
              'poi_tags': humobpefu, 'poi_url_base': 'http://mpetrol.hu/',
-             'poi_search_name': '(mobil metrol|shell)',
+             'poi_search_name': '(mobil petrol|m.petrol|mobil)',
              'poi_search_avoid_name': '(mol|shell|avia|lukoil|hunoil)'}
         ]
         return self.__types
