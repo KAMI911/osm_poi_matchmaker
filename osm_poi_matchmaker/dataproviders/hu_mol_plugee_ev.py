@@ -70,6 +70,11 @@ class hu_mol_plugee_ev(DataProvider):
         self.__types = [
             {'poi_code': 'humolplchs', 'poi_common_name': 'MOL Plugee', 'poi_type': 'charging_station',
              'poi_tags': humolplchs, 'poi_url_base': 'https://molplugee.hu', 'poi_search_name': '(mol plugee|plugee)',
+             'poi_search_avoid_name': '(mobiliti|e-mobi|emobi|tesla|supercharger|tea|e.on|eon|e-on|shell|ionity|'
+                                      'alte-go|parkl|elektro profi|elmű|omv|emotion|optimum way|lidl|ev24|'
+                                      'freecharger|ecotap|penny|polyfazer|rolecev|rollin|toka|voltie|zse|audi|'
+                                      'chargepoint|city gecko|greengo|innogy|joinon|enel|virta|stormi|hep elen|'
+                                      'cyeb|ampernative|mvm)',
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10},
