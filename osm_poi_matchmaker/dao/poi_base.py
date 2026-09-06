@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 try:
     import logging
+    import re
     import sys
     import multiprocessing
     import geopandas as gpd
@@ -209,6 +210,7 @@ class POIBase:
     # see _query_osm_shop_poi_gpd_impl()'s wnwswh_*/wnwsnh_*/wnnswh_*/wnnsnh_*/nnnsnh_* stages.
     _STAGE_PRIORITY_LABELS = {
         930: 'unique ref/name (exact identifier match, no distance limit)',
+        932: 'fuzzy unique name (generic words stripped, within 500m)',
         940: 'exact address (name + city + street + housenumber)',
         950: 'name + street + housenumber',
         965: 'name + conscriptionnumber + city',
@@ -249,7 +251,8 @@ class POIBase:
                                additional_ref_name: str = None, unique_ref: str = None,
                                street_name: str = None, housenumber: str = None, conscriptionnumber: str = None,
                                city: str = None, distance_perfect: int = None, distance_safe: int = None,
-                               distance_unsafe: int = None, with_metadata: bool = True):
+                               distance_unsafe: int = None, with_metadata: bool = True,
+                               unique_name_strip_words: str = None):
         """
         Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
         :param lon:
@@ -268,6 +271,10 @@ class POIBase:
         :param distance_safe:
         :param distance_unsafe:
         :param with_metadata:
+        :param unique_name_strip_words: '|'-separated generic words (e.g. 'patika|gyógyszertár|fiók') to
+            strip from unique_name (and from each OSM candidate's name) before a fuzzy WITH FUZZY UNIQUE
+            NAME fallback stage - see _query_osm_shop_poi_gpd_impl(). Only runs when both this and
+            unique_name are set; the exact-match WITH UNIQUE NAME stage is unaffected either way.
         :return:
         """
         # Thin wrapper: `with` guarantees conn is closed on every exit path (normal
@@ -278,7 +285,7 @@ class POIBase:
             return self._query_osm_shop_poi_gpd_impl(
                 conn, lon, lat, ptype, name, avoid_name, unique_name, additional_ref_name, unique_ref,
                 street_name, housenumber, conscriptionnumber, city, distance_perfect, distance_safe,
-                distance_unsafe, with_metadata)
+                distance_unsafe, with_metadata, unique_name_strip_words)
 
     def _query_osm_shop_poi_gpd_impl(self, conn, lon: float, lat: float, ptype: str = 'shop', name: str = None,
                                      avoid_name: str = None, unique_name: str = None,
@@ -286,7 +293,8 @@ class POIBase:
                                      street_name: str = None, housenumber: str = None,
                                      conscriptionnumber: str = None,
                                      city: str = None, distance_perfect: int = None, distance_safe: int = None,
-                                     distance_unsafe: int = None, with_metadata: bool = True):
+                                     distance_unsafe: int = None, with_metadata: bool = True,
+                                     unique_name_strip_words: str = None):
         """Implementation body for query_osm_shop_poi_gpd(), run inside its `with self.connection()` block."""
         buffer = 10
         query_arr = []
@@ -536,6 +544,84 @@ class POIBase:
             else:
                 logging.info('No match via unique-name search: searched %s',
                             self._format_search_criteria(unique_name=unique_name))
+        if unique_name is not None and not pd.isna(unique_name) and unique_name != '' and \
+                unique_name_strip_words is not None and not pd.isna(unique_name_strip_words) and \
+                unique_name_strip_words != '':
+            # WITH FUZZY UNIQUE NAME: the exact WITH UNIQUE NAME stage above requires a
+            # byte-for-byte match, which is fragile for POI types whose individual name is
+            # basically two synonymous generic words plus a distinguishing one (e.g.
+            # Hungarian pharmacies: "X Gyógyszertár" vs OSM's "X Patika" for the exact same
+            # place). Strip the configured generic words from both sides before comparing,
+            # so only the distinguishing "core" is scored - and require a tight 500m radius
+            # (unlike the unrestricted exact stage) since a bare core name alone isn't
+            # unique enough nationwide to trust without a distance sanity check.
+            fuzzy_strip_pattern = r'\y({})\y'.format(unique_name_strip_words)
+            fuzzy_core_name = re.sub(fuzzy_strip_pattern.replace(r'\y', r'\b'), '', unique_name, flags=re.IGNORECASE)
+            fuzzy_core_name = re.sub(r'[^\w\s\-]', '', fuzzy_core_name, flags=re.UNICODE)
+            fuzzy_core_name = re.sub(r'\s+', ' ', fuzzy_core_name).strip().lower()
+            if fuzzy_core_name != '':
+                query_params.update({'fuzzy_core_name': fuzzy_core_name,
+                                     'fuzzy_strip_pattern': fuzzy_strip_pattern,
+                                     'fuzzy_distance': 500, 'fuzzy_threshold': 0.3})
+                query_text = '''
+                --- WITH FUZZY UNIQUE NAME
+                --- The way selector with fuzzy unique name
+                SELECT name, osm_id, {metadata_fields} 932 AS priority, 'way' AS node, highway,
+                       ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt,
+                       ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
+                       ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat,
+                       similarity(:fuzzy_core_name, regexp_replace(LOWER(name), :fuzzy_strip_pattern, '', 'gi')) as fuzzy_sim
+                FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+                WHERE ({query_type}) AND osm_id > 0
+                  AND ST_DistanceSphere(way, point.geom) < :fuzzy_distance
+                  AND similarity(:fuzzy_core_name, regexp_replace(LOWER(name), :fuzzy_strip_pattern, '', 'gi')) >= :fuzzy_threshold
+                UNION ALL
+                --- The node selector with fuzzy unique name
+                SELECT name, osm_id, {metadata_fields} 932 AS priority, 'node' AS node, highway,
+                       ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt,
+                       ST_X(planet_osm_point.way) as lon,
+                       ST_Y(planet_osm_point.way) as lat,
+                       similarity(:fuzzy_core_name, regexp_replace(LOWER(name), :fuzzy_strip_pattern, '', 'gi')) as fuzzy_sim
+                FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+                WHERE ({query_type}) AND osm_id > 0
+                  AND ST_DistanceSphere(way, point.geom) < :fuzzy_distance
+                  AND similarity(:fuzzy_core_name, regexp_replace(LOWER(name), :fuzzy_strip_pattern, '', 'gi')) >= :fuzzy_threshold
+                UNION ALL
+                --- The relation selector with fuzzy unique name
+                SELECT name, osm_id, {metadata_fields} 932 AS priority, 'relation' AS node, highway,
+                       ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt,
+                       ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
+                       ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat,
+                       similarity(:fuzzy_core_name, regexp_replace(LOWER(name), :fuzzy_strip_pattern, '', 'gi')) as fuzzy_sim
+                FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+                WHERE ({query_type}) AND osm_id < 0
+                  AND ST_DistanceSphere(way, point.geom) < :fuzzy_distance
+                  AND similarity(:fuzzy_core_name, regexp_replace(LOWER(name), :fuzzy_strip_pattern, '', 'gi')) >= :fuzzy_threshold
+                ORDER BY fuzzy_sim DESC, distance ASC
+                '''
+                try:
+                    query = sqlalchemy.text(query_text.format(query_type=query_type, metadata_fields=metadata_fields))
+                except Exception as err:
+                    logging.warning('Exception occurred')
+                    logging.exception(err)
+                logging.debug(str(query))
+                data = gpd.GeoDataFrame()
+                try:
+                    data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
+                except Exception as err:
+                    logging.warning('Exception occurred')
+                    logging.exception(err)
+                    conn.rollback()
+                if not data.empty:
+                    best = data.iloc[0]
+                    logging.info('Match found via fuzzy unique-name search: searched core=%r (from %r) within %sm -> found %s (similarity=%.2f)',
+                                fuzzy_core_name, unique_name, query_params['fuzzy_distance'],
+                                self._format_match_result(best), best['fuzzy_sim'])
+                    logging.debug(data.to_string())
+                    return data.iloc[[0]]
+                else:
+                    logging.info('No match via fuzzy unique-name search: searched core=%r (from %r) within %sm',
+                                fuzzy_core_name, unique_name, query_params['fuzzy_distance'])
         if query_name is not None and query_name != '' and city_query is not None and city_query != '' and \
                 conscriptionnumber_query is not None and conscriptionnumber_query != '':
             query_text = '''

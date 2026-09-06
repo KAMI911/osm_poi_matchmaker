@@ -318,6 +318,10 @@ class POI_address(Base):
     poi_gtfs_location_type = Column(Unicode(4))
     poi_uic_ref = Column(Unicode(16))
     poi_wikidata = Column(Unicode(16))
+    # Appended at the end rather than sitting next to the other poi_search_* fields above -
+    # see the matching note in dao/poi_array_structure.py's POI_DB list, which this must stay
+    # positionally aligned with.
+    poi_search_name_strip_words = Column(Unicode(256))
     common = relationship('POI_common', primaryjoin='POI_address.poi_common_id == POI_common.pc_id',
                           backref='poi_address')
     city = relationship('City', primaryjoin='POI_address.poi_addr_city == City.city_id', backref='poi_address')
@@ -359,6 +363,7 @@ class POI_common(Base):
     poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
     poi_search_name = Column(Unicode(128))
     poi_search_avoid_name = Column(Unicode(512))
+    poi_search_name_strip_words = Column(Unicode(256))
     preserve_original_name = Column(Boolean, nullable=False, default=False)
     preserve_original_post_code = Column(Boolean, nullable=False, default=False)
     export_poi_name = Column(Boolean, nullable=False, default=True)

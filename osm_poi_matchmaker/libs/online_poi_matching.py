@@ -147,7 +147,9 @@ def find_osm_matches(args):
                                                       row.poi_conscriptionnumber, row.poi_city,
                                                       distance_perfect,
                                                       distance_safe,
-                                                      distance_unsafe)
+                                                      distance_unsafe,
+                                                      unique_name_strip_words=getattr(
+                                                          row, 'poi_search_name_strip_words', None))
                 # Enrich our data with OSM database POI metadata
                 if osm_query is not None:
                     changed_from_osm = False

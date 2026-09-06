@@ -61,6 +61,7 @@ class hu_benu(DataProvider):
             {'poi_code': 'hubenupha', 'poi_common_name': 'Benu gyógyszertár', 'poi_type': 'pharmacy',
              'poi_tags': hubenupha, 'poi_url_base': 'https://benu.hu',
              'poi_search_name': '(benu gyogyszertár|benu)',
+             'poi_search_name_strip_words': r'patikák|patika|fiókgyógyszertár\w*|fiók|gyógyszertár\w*|gyogyszertar|benu',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 20, 'preserve_original_name': True},
         ]
