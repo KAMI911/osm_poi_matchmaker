@@ -344,7 +344,7 @@ class hu_alltheplaces(DataProvider):
                         poi_tags['brand'] = brand_name
                     type_defs[poi_code] = {
                         'poi_code': poi_code,
-                        'poi_common_name': '{} ({})'.format(common_name, poi_type),
+                        'poi_common_name': '{}'.format(common_name),
                         'poi_type': poi_type,
                         'poi_tags': poi_tags,
                         'poi_url_base': 'https://alltheplaces.xyz',
