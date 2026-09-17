@@ -180,6 +180,20 @@ def find_osm_matches(args):
                         osm_node = OSM_object_type.way
                     elif osm_node == 'relation':
                         osm_node = OSM_object_type.relation
+                        # planet_osm_polygon encodes a relation-derived row's real
+                        # (positive) OSM relation id as a negative osm_id - it's
+                        # osm2pgsql's own way-vs-relation convention for that table
+                        # (query_osm_shop_poi_gpd()'s relation branches select WHERE
+                        # osm_id < 0). Normalize it here, the one place this raw value
+                        # is first captured, so every downstream consumer sees the
+                        # real id instead of a negative placeholder - without this,
+                        # file_output.py writes a matched, EXISTING relation as
+                        # <relation action="modify" id="-9148931" .../> (a negative id
+                        # looks like a brand-new, not-yet-uploaded element to any OSM
+                        # editor) and its "current_osm_id > 0" check wrongly skips the
+                        # "already in OSM" link comment for every matched relation.
+                        if osm_id is not None:
+                            osm_id = abs(osm_id)
                     else:
                         logging.warning('Illegal state: %s', osm_query.get('node').values[0])
                     data.at[i, 'osm_id'] = osm_id
@@ -680,7 +694,7 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
     except KeyError:
         changed += 1
     try:
-        if getattr(curr_data, 'poi_addr_conscriptionnumber', None) != osm_data.iloc[0, osm_data.columns.get_loc('addr:conscriptionnumber')]:
+        if getattr(curr_data, 'poi_conscriptionnumber', None) != osm_data.iloc[0, osm_data.columns.get_loc('addr:conscriptionnumber')]:
             changed += 1
     except KeyError:
         changed += 1

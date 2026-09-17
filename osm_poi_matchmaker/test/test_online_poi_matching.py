@@ -226,6 +226,34 @@ class TestFindOsmMatches(unittest.TestCase):
         self.mock_db.query_osm_building_poi_gpd.assert_not_called()
         opm._worker_osm_live_query.node_get.assert_not_called()
 
+    def test_relation_match_normalizes_negative_osm_id(self):
+        """query_osm_shop_poi_gpd()'s relation branches read planet_osm_polygon WHERE
+        osm_id < 0 - osm2pgsql's own way-vs-relation encoding for that table, not a
+        'not yet uploaded' placeholder. find_osm_matches() must store the real
+        (positive) relation id, or file_output.py later writes a matched, EXISTING
+        relation as <relation action="modify" id="-9148931" .../>, which looks like a
+        brand-new element to any OSM editor, and its 'current_osm_id > 0' check wrongly
+        skips the 'already in OSM' link comment for every matched relation."""
+        self.mock_db.query_osm_shop_poi_gpd.return_value = pd.DataFrame({
+            'osm_id': [-9148931],
+            'node': ['relation'],
+            'lat': [47.5163083],
+            'lon': [19.0003085],
+            'addr:postcode': ['1026'],
+            'addr:city': ['Budapest'],
+            'addr:street': ['Szilágyi Erzsébet fasor'],
+            'addr:housenumber': ['121'],
+            'addr:conscriptionnumber': [None],
+            'osm_version': ['9'],
+            'osm_changeset': [158388859],
+            'osm_timestamp': ['2024-10-26T19:00:45Z'],
+            'distance': [0.0],
+        })
+        data = _candidate_row()
+        result = opm.find_osm_matches((data, self.comm_data))
+        self.assertEqual(result.at[0, 'osm_id'], 9148931)
+        self.assertEqual(result.at[0, 'osm_node'], OSM_object_type.relation)
+
 
 class TestEnrichMatchedPois(unittest.TestCase):
     """enrich_matched_pois() (STAGE 9 phase 2) must key off the *final* (post-
