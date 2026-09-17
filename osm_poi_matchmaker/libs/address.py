@@ -38,6 +38,16 @@ PATTERN_PHONE = re.compile(r'[\/\\\(\)\-\+]')
 PATTERN_STREET_RICH = re.compile(
     r'\s*(.*)\s+(akna|alja|almáskert|alsó|alsósor|aluljáró|autópálya|autóversenypálya|állomás|árok|átjáró|barakképület|bánya|bányatelep|bekötőút|benzinkút|bérc|bisztró|bokor|burgundia|büfé|camping|campingsor|centrum|célgazdaság|csapás|csarnok|csárda|cser|csoport|domb|dunapart|dunasor|dűlő|dűlője|dűlők|dűlőút|egyesület|egyéb|elágazás|erdeje|erdészház|erdészlak|erdő|erdősarok|erdősor|épület|épületek|észak|étterem|falu|farm|fasor|fasora|feketeerdő|feketeföldek|felső|felsősor|fennsík|fogadó|fok|forduló|forrás|föld|földek|földje|főcsatorna|főtér|főút|fürdő|fürdőhely|fürésztelepe|gazdaság|gát|gátőrház|gátsor|gimnázium|gödör|gulyakút|gyár|gyártelep|halom|határátkelőhely|határrész|határsor|határút|hatházak|hát|ház|háza|házak|hegy|hegyhát|hegyhát dűlő|hely|hivatal|híd|hídfő|horgásztanya|hotel|intézet|ipari park|ipartelep|iparterület|irodaház|irtás|iskola|jánoshegy|járás|juhászház|kapcsolóház|kapu|kastély|kálvária|kemping|kert|kertek|kertek-köze|kertsor|kertváros|kerület|kikötő|kilátó|kishajtás|kitérő|kocsiszín|kolónia|korzó|kórház|környék|körönd|körtér|körút|körútja|körvasútsor|körzet|köz|köze|középsor|központ|kút|kútház|kültelek|külterület|külterülete|lakás|lakások|lakóház|lakókert|lakónegyed|lakópark|lakótelep|laktanya|legelő|lejáró|lejtő|lépcső|liget|lovasiskola|lovastanya|magánút|major|malom|malomsor|megálló|mellékköz|mező|mélyút|MGTSZ|munkásszálló|műút|nagymajor|nagyút|nádgazdaság|nyaraló|oldal|országút|otthon|otthona|öböl|öregszőlők|ösvény|ötház|őrház|őrházak|pagony|pallag|palota|park|parkfalu|parkja|parkoló|part|pavilonsor|pálya|pályafenntartás|pályaudvar|piac|pihenő|pihenőhely|pince|pinceköz|pincesor|pincék|présházak|puszta|rakodó|rakpart|repülőtér|rész|rét|rétek|rév|ring|sarok|sertéstelep|sétatér|sétány|sikátor|sor|sora|sportpálya|sporttelep|stadion|strand|strandfürdő|sugárút|szabadstrand|szakiskola|szállás|szálló|szárító|szárnyasliget|szektor|szer|szél|széle|sziget|szigete|szivattyútelep|szög|szőlő|szőlőhegy|szőlők|szőlőkert|szőlős|szőlősor|tag|tanya|tanyaközpont|tanyasor|tanyák|tavak|tábor|tároló|társasház|teherpályaudvar|telek|telep|telepek|település|temető|tere|terményraktár|terület|teteje|tető|téglagyár|tér|tipegő|tormás|torony|tó|tömb|TSZ|turistaház|udvar|udvara|ugarok|utca|utcája|újfalu|újsor|újtelep|útfél|útgyűrű|útja|út|üdülő|üdülő központ|üdülő park|üdülők|üdülőközpont|üdülőpart|üdülő-part|üdülősor|üdülő-sor|üdülőtelep|üdülő-telep|üdülőterület|ürbő|üzem|üzletház|üzletsor|vadászház|varroda|vasútállomás|vasúti megálló|vasúti őrház|vasútsor|vám|vár|város|városrész|vásártér|vendéglő|vég|villa|villasor|viztároló|vízmű|vízmű telep|völgy|zsilip|zug|ltp\.|ltp|krt\.|krt|sgt\.|u\.|u\s+|Várkerület).*',
     re.UNICODE | re.IGNORECASE)
+# Matches a street value that is nothing but a Budapest-style district marker (an
+# optional roman numeral followed by 'ker.'/'kerület') or a bare cadastral/administrative
+# label ('Belterület', 'Külterület', 'HRSZ', ...) with no actual place name attached -
+# these come from source addresses like '3528 Miskolc, II. ker. 0235/72 hrsz.' where the
+# waxeye grammar (or the regex fallback) picks up the district/cadastral word as if it
+# were a street name. A real rural address like 'Aranyoslapos külterület' still has a
+# genuine place-name prefix and is left untouched.
+PATTERN_INVALID_STREET_ONLY = re.compile(
+    r'^(?:[ivxlcdm]+\.?\s*)?(ker|kerület|külterület|belterület|zártkert)\.?$|^hrsz\.?$',
+    re.IGNORECASE)
 PATTERN_URL_SLASH = re.compile(r'(?<!:)(//+)')
 PATTERN_FULL_URL = re.compile(r'((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)')
 PATTERN_WHITESPACE = re.compile(r'\s+')
@@ -308,6 +318,19 @@ def extract_street_housenumber(clearable):
     return street, housenumber
 
 
+def discard_placeholder_street(street):
+    """Return None if street is only a district/cadastral marker (e.g. 'II. ker.',
+    'Belterület', 'HRSZ') with no real place name attached, otherwise return street
+    unchanged. See PATTERN_INVALID_STREET_ONLY.
+
+    :param street: Candidate addr:street value, or None
+    :return: street, or None if it was a placeholder
+    """
+    if street is not None and PATTERN_INVALID_STREET_ONLY.match(street.strip()):
+        return None
+    return street
+
+
 def extract_all_address(clearable):
     """Parse a "POSTCODE CITY, STREET HOUSENUMBER" style combined address string
     using regex (PATTERN_POSTCODE_CITY for the postcode+city prefix, then
@@ -398,6 +421,7 @@ def extract_all_address_waxeye(clearable):
                     street = f'{street_name}'
                 else:
                     street = None
+                street = discard_placeholder_street(street)
                 conscriptionnumber = address_dict.get('conscriptionHrsz')
                 return postcode, city, street, housenumber, conscriptionnumber
         except Exception as err_ext_waxeye:
@@ -530,9 +554,8 @@ def extract_street_housenumber_better_2(clearable: str) -> tuple[str | None, str
         conscriptionnumber = clean_string(conscriptionnumber)
         if street_type is not None:
             street_type = clean_string(street_type)
-            return '{} {}'.format(street, street_type), housenumber, conscriptionnumber
-        else:
-            return street, housenumber, conscriptionnumber
+            street = '{} {}'.format(street, street_type)
+        return discard_placeholder_street(street), housenumber, conscriptionnumber
     else:
         return None, None, None
 
