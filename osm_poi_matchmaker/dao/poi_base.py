@@ -183,12 +183,17 @@ class POIBase:
         planet_osm_ways table.
 
         :param way_id: OSM way id. IDs <= 0 always return None.
-        :return: The way's 'nodes' array (list of node ids), or None if way_id <= 0.
+        :return: The way's 'nodes' array (list of node ids), or None if way_id <= 0 or
+            the way isn't in the local extract (e.g. a partial/outdated import - the
+            way itself matched by geometry, but its member nodes weren't loaded).
         """
         if way_id > 0:
             query = sqlalchemy.text('select nodes from planet_osm_ways where id = :way_id limit 1')
             with self.connection() as conn:
                 data = pd.read_sql(query, conn, params={'way_id': int(way_id)})
+            if data.empty:
+                logging.warning('Way %s not found in planet_osm_ways (partial/outdated local extract?).', way_id)
+                return None
             return data.iloc[0, 0]
         else:
             return None
@@ -199,11 +204,18 @@ class POIBase:
 
         :param relation_id: OSM relation id. abs() is applied, so negative
             (locally-assigned) ids are also accepted.
-        :return: The relation's 'members' array.
+        :return: The relation's 'members' array, or None if the relation isn't in the
+            local extract (e.g. a partial/outdated import - the relation itself
+            matched by geometry via planet_osm_polygon/planet_osm_line, but
+            planet_osm_rels doesn't have a row for it).
         """
         query = sqlalchemy.text('select members from planet_osm_rels where id = :relation_id limit 1')
         with self.connection() as conn:
             data = pd.read_sql(query, conn, params={'relation_id': int(abs(relation_id))})
+        if data.empty:
+            logging.warning('Relation %s not found in planet_osm_rels (partial/outdated local extract?).',
+                            relation_id)
+            return None
         return data.iloc[0, 0]
 
     # Human-readable label for each priority a query_arr fallback stage tags its rows with -
