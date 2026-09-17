@@ -84,7 +84,10 @@ class hu_aldi(DataProvider):
                             self.data.original = clean_string(poi_data.get('streetAndNumber'))
                             self.data.public_holiday_open = False
                             self.data.phone = clean_string(poi_data.get('phone'))
-                            self.data.website = clean_url(poi_data.get('website'))
+                            # The Uberall feed returns store pages under the retired '/hu/uzletek.html/l/...'
+                            # path; the site now serves the same pages under '/uzletkereso/l/...'.
+                            self.data.website = clean_url((poi_data.get('website') or '').replace(
+                                '/hu/uzletek.html/l/', '/uzletkereso/l/'))
                             self.data.ref = clean_string(poi_data.get('identifier'))
                             self.data.branch = clean_string(poi_data.get('name'))
                             for opening_day in poi_data.get('openingHours') or []:
