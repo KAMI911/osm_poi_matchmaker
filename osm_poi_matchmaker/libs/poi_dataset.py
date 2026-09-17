@@ -1129,8 +1129,20 @@ class POIDatasetRaw:
                         logging.warning('There is no street around with the same name, trying metaphone name…')
                         query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'all')
                         if query is None or query.empty:
-                            logging.warning('(1) There is no street around named or metaphone named: %s', data)
-                            self.__street = data
+                            # Name-based matching (exact/metaphone/similarity/levenshtein) failed -
+                            # as a last resort, trust the nearest named road if it's close enough
+                            # that proximity alone is a reliable signal (e.g. source street
+                            # 'Rákóczi út' vs. the real, too-dissimilar-to-match 'Rákóczi Ferenc
+                            # utca' right next to it). See query_nearest_named_road()'s docstring.
+                            nearest = self.__db.query_nearest_named_road(self.__lon, self.__lat)
+                            if nearest is None or nearest.empty:
+                                logging.warning('(1) There is no street around named or metaphone named: %s', data)
+                                self.__street = data
+                            else:
+                                new_data = nearest.at[0, 'name']
+                                logging.info('(1) Trusting nearest road by proximity (%.1fm): %s, original was: %s.',
+                                            nearest.at[0, 'distance'], new_data, data)
+                                self.__street = new_data
                             cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
                         else:
                             new_data = query.at[0, 'name']
@@ -1334,8 +1346,17 @@ class POIDataset(POIDatasetRaw):
                     if query is None or query.empty:
                         query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'all')
                         if query is None or query.empty:
-                            logging.warning('There is no street around named or metaphone named: %s', data)
-                            self.__street = data
+                            # Last resort: trust the nearest named road by proximity alone - see
+                            # query_nearest_named_road()'s docstring and process_street() above.
+                            nearest = self.__db.query_nearest_named_road(self.__lon, self.__lat)
+                            if nearest is None or nearest.empty:
+                                logging.warning('There is no street around named or metaphone named: %s', data)
+                                self.__street = data
+                            else:
+                                new_data = nearest.at[0, 'name']
+                                logging.info('Trusting nearest road by proximity (%.1fm): %s, original was: %s.',
+                                            nearest.at[0, 'distance'], new_data, data)
+                                self.__street = new_data
                         else:
                             new_data = query.at[0, 'name']
                             logging.info('There is a metaphone street around named: %s, original was: %s.', new_data, data)

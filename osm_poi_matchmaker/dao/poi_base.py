@@ -1266,3 +1266,49 @@ class POIBase:
             logging.debug(f'{data.to_string()}')
 
         return data
+
+    def query_nearest_named_road(self, lon, lat, distance=None, with_metadata=True):
+        """Find the single nearest named OSM road around lon,lat, regardless of what
+        name (if any) the caller was looking for.
+
+        Unlike query_name_road_around(), this does not filter by name similarity at
+        all - it's meant to be called with a short `distance` (see
+        config.get_geo_default_poi_road_trust_distance()), where the point is so close
+        to the road that proximity alone is a reliable signal, e.g. to recover from a
+        source address using an old/abbreviated street name (like 'Rákóczi út' for the
+        real 'Rákóczi Ferenc utca') that's too different in text for similarity,
+        metaphone or levenshtein matching to catch.
+
+        :param lon: Longitude of the point to search around.
+        :param lat: Latitude of the point to search around.
+        :param distance: Search radius in meters. Defaults to
+            config.get_geo_default_poi_road_trust_distance() when None.
+        :param with_metadata: Query OpenStreetMap metadata information.
+        :return: One-row GeoDataFrame of the nearest named road, or None/empty if
+            nothing named is within distance.
+        """
+        if distance is None:
+            distance = config.get_geo_default_poi_road_trust_distance()
+        if with_metadata is True:
+            metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
+        else:
+            metadata_fields = ''
+        data = None
+        try:
+            query = sqlalchemy.text('''
+              SELECT * FROM
+                (SELECT name, osm_id, highway, {metadata_fields}
+                  ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt
+                    FROM planet_osm_line, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
+                WHERE "highway" is not NULL AND name IS NOT NULL AND name <> ''
+                ORDER BY distance ASC) AS geo
+              WHERE geo.distance < :distance
+              LIMIT 1
+              '''.format(metadata_fields=metadata_fields))
+            with self.connection() as conn:
+                data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way',
+                                                     params={'lon': lon, 'lat': lat, 'distance': distance})
+        except Exception as err:
+            logging.warning('Exception occurred')
+            logging.exception(err)
+        return data

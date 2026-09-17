@@ -70,6 +70,7 @@ KEY_GEO_DEFAULT_POI_DISTANCE = 'geo.default.poi.distance'
 KEY_GEO_DEFAULT_POI_UNSAFE_DISTANCE = 'geo.default.poi.unsafe.distance'
 KEY_GEO_DEFAULT_POI_PERFECT_DISTANCE = 'geo.default.poi.perfect.distance'
 KEY_GEO_DEFAULT_POI_ROAD_DISTANCE = 'geo.default.poi.road.distance'
+KEY_GEO_DEFAULT_POI_ROAD_TRUST_DISTANCE = 'geo.default.poi.road.trust.distance'
 KEY_GEO_AMENITY_ATM_POI_DISTANCE = 'geo.amenity.atm.poi.distance'
 KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE = 'geo.shop.convenience.poi.distance'
 KEY_GEO_AMENITY_POST_OFFICE_POI_DISTANCE = 'geo.amenity.post.office.poi.distance'
@@ -440,6 +441,24 @@ def get_geo_default_poi_road_distance():
         return setting
     else:
         return 600
+
+
+def get_geo_default_poi_road_trust_distance():
+    """Distance in meters within which the single nearest named OSM road is adopted
+    as addr:street even without any name similarity to the source address - e.g. a
+    source street of 'Rákóczi út' vs. the real nearby road 'Rákóczi Ferenc utca' (too
+    dissimilar for query_name_road_around()'s similarity/metaphone/levenshtein checks
+    to catch). At this short a range, proximity itself is the reliable signal - name
+    text isn't, since Hungary has hundreds of unrelated streets sharing a common first
+    word (surnames like 'Szabó', 'Kovács'; generic 'Szent', 'Nagy', 'Dr.', ...).
+
+    Config key 'geo.default.poi.road.trust.distance', defaults to 30.
+    """
+    setting = get_config_int(KEY_GEO_DEFAULT_POI_ROAD_TRUST_DISTANCE)
+    if setting is not None:
+        return setting
+    else:
+        return 30
 
 
 def get_geo_amenity_atm_poi_distance():
