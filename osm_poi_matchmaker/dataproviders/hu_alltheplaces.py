@@ -390,8 +390,16 @@ class hu_alltheplaces(DataProvider):
         addr_combined = clean_string(props.get('addr:street_address', '') or props.get('addr:full', ''))
 
         if addr_street:
-            self.data.street = addr_street
-            self.data.housenumber = addr_housenumber
+            # addr:street is scraped per-spider and can be dirty - a bare cadastral
+            # number ('Hrsz. 0222/30'), a district/cadastral placeholder ('M1 -
+            # Belterület hrsz.: 2101'), or a real street with an hrsz suffix glued on
+            # ('Pápai út 2854/a hrsz.') - so route it through the same cleanup every
+            # other combined-address source gets, instead of trusting it verbatim.
+            parsed_street, parsed_housenumber, parsed_conscriptionnumber = \
+                extract_street_housenumber_better_2(addr_street)
+            self.data.street = parsed_street
+            self.data.housenumber = addr_housenumber or parsed_housenumber
+            self.data.conscriptionnumber = parsed_conscriptionnumber
             self.data.original = '{} {}'.format(addr_street, addr_housenumber or '').strip()
         elif addr_combined:
             self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
