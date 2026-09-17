@@ -56,7 +56,7 @@ class hu_rossmann(DataProvider):
                      'contact:phone': '+36 29 889 800', 'contact:mobile': '+36 70 469 2800',
                      'contact:facebook': 'Rossmann.hu',
                      'contact:youtube': 'https://www.youtube.com/channel/UCmUCPmvMLL3IaXRBtx7-J7Q',
-                     'contact:instagram': 'rossmann_hu', 'air_conditioning': 'yes'}
+                     'contact:instagram': 'rossmannhungary', 'air_conditioning': 'yes'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
