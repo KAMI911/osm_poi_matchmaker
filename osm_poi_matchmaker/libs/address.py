@@ -405,12 +405,12 @@ def extract_all_address_waxeye(clearable):
                 city = address_dict.get('cTown')
                 housenumber_only = address_dict.get('houseNumber')
                 subletter = address_dict.get('subLetter')
-                if housenumber_only is not None and subletter is not None:
-                    housenumber = f'{housenumber_only}/{subletter}'
-                elif housenumber_only is not None:
-                    housenumber = f'{housenumber_only}'
-                else:
-                    housenumber = None
+                # 'subNumber' is the grammar's name for the '/N' part of a cadastral number
+                # given as 'hrsz. NNN/N' (leading marker, nCStreet below) - unlike subLetter
+                # (a real housenumber's letter suffix, e.g. '12/A'), it's never a housenumber.
+                subnumber = address_dict.get('subNumber')
+                no_name_street = address_dict.get('nCStreet')
+                conscriptionnumber = address_dict.get('conscriptionHrsz') or address_dict.get('conscriptionRev')
                 street_name = address_dict.get('cStreet')
                 street_type = address_dict.get('type')
                 if street_type is not None:
@@ -421,8 +421,23 @@ def extract_all_address_waxeye(clearable):
                     street = f'{street_name}'
                 else:
                     street = None
+                street_was_placeholder = street is not None and discard_placeholder_street(street) is None
                 street = discard_placeholder_street(street)
-                conscriptionnumber = address_dict.get('conscriptionHrsz')
+                # An explicit leading 'hrsz.' marker, or a discarded district/cadastral-only
+                # street, means houseNumber(+subNumber) is itself the cadastral number, not a
+                # real addr:housenumber - e.g. 'hrsz. 617/2' or 'IV. kerület 130.'.
+                is_hrsz_marker = no_name_street is not None and no_name_street.strip(' .:').lower() == 'hrsz'
+                if (is_hrsz_marker or street_was_placeholder) and housenumber_only is not None \
+                        and conscriptionnumber is None:
+                    conscriptionnumber = f'{housenumber_only}/{subnumber}' if subnumber is not None \
+                        else f'{housenumber_only}'
+                    housenumber_only = None
+                if housenumber_only is not None and subletter is not None:
+                    housenumber = f'{housenumber_only}/{subletter}'
+                elif housenumber_only is not None:
+                    housenumber = f'{housenumber_only}'
+                else:
+                    housenumber = None
                 return postcode, city, street, housenumber, conscriptionnumber
         except Exception as err_ext_waxeye:
             logging.debug(f'Exception occurred: {err_ext_waxeye} ... Waxeye parsing has failed: {clearable}')
