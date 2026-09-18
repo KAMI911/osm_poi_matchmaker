@@ -197,7 +197,14 @@ class hu_tesco(DataProvider):
                     if website:
                         self.data.website = website
 
-                    coord = profile.get('geocodedCoordinate') or {}
+                    # geocodedCoordinate is Tesco/Yext's raw, automated address geocode - for 8 of
+                    # the 197 stores (checked against the cached feed) it lands 500m-4km from the
+                    # store's real position (e.g. Tököl: 3.8km off, into the wrong part of town).
+                    # yextDisplayCoordinate is the manually-curated map pin Yext exposes for
+                    # display purposes and is present on every store in the feed; prefer it, with
+                    # displayCoordinate and finally the unreliable geocodedCoordinate as fallbacks.
+                    coord = profile.get('yextDisplayCoordinate') or profile.get('displayCoordinate') \
+                        or profile.get('geocodedCoordinate') or {}
                     self.data.lat, self.data.lon = check_hu_boundary(coord.get('lat'), coord.get('long'))
 
                     line1 = address.get('line1')
