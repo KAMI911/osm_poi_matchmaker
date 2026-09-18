@@ -28,7 +28,7 @@ COUNTRY_BBOX = (45.6, 16.0, 48.7, 23.0)  # (sw_lat, sw_lng, ne_lat, ne_lng) cove
 SPLIT_THRESHOLD = 90  # complete responses observed up to ~95; truncation plateaus at ~99
 MIN_SPAN = 0.02  # stop subdividing below this span (degrees) to guarantee termination
 
-AVOID_NAME = '(otp|cib|k&h|kh bank|raiffeisen|erste|mbh|mkb|takarékbank|budapest bank|gránit|sberbank)'
+AVOID_NAME = '(otp|cib|k&h|kh bank|raiffeisen|erste|mbh|mkb|takarékbank|budapest bank|gránit|sberbank|magnet)'
 
 
 class hu_unicredit_bank(DataProvider):

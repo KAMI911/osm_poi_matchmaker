@@ -18,6 +18,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(otp|cib|raiffeisen|unicredit|mbh|mkb|takarékbank|budapest bank|gránit|sberbank|erste|magnet)'
+
 
 class hu_kh_bank(DataProvider):
     """Imports K&H Bank branch/ATM locations in Hungary from a locally cached JSON file.
@@ -49,11 +51,14 @@ class hu_kh_bank(DataProvider):
         self.__types = [
             {'poi_code': 'hukhbank', 'poi_common_name': 'K&H Bank', 'poi_type': 'bank',
              'poi_tags': hukhbank, 'poi_url_base': 'https://www.kh.hu',
-             'poi_search_name': '(kh bank|k&h bank|k&h|kh)', 'osm_search_distance_perfect': 2000,
+             'poi_search_name': '(kh bank|k&h bank|k&h|kh)',
+             'poi_search_avoid_name': AVOID_NAME,
+             'osm_search_distance_perfect': 2000,
              'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 4},
             {'poi_code': 'hukhatm', 'poi_common_name': 'K&H Bank ATM', 'poi_type': 'atm',
              'poi_tags': hukhatm, 'poi_url_base': 'https://www.kh.hu',
              'poi_search_name': '(kh bank|k&h bank|k&h|kh|kh bank atm|k&h bank atm|k&h atm|kh atm)',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80,
              'osm_search_distance_unsafe': 3},
         ]

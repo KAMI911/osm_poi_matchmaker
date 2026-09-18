@@ -22,7 +22,7 @@ except ImportError as err:
 # result, so requesting the entire world in one call returns the complete HU dataset too.
 WORLD_BBOX = {'enclosingRectangle': [{'latitude': 90, 'longitude': 180}, {'latitude': -90, 'longitude': -180}]}
 
-AVOID_NAME = '(cib|k&h|kh bank|raiffeisen|unicredit|erste|mbh|mkb|takarékbank|budapest bank|gránit|sberbank)'
+AVOID_NAME = '(cib|k&h|kh bank|raiffeisen|unicredit|erste|mbh|mkb|takarékbank|budapest bank|gránit|sberbank|magnet)'
 
 
 class hu_otp_bank(DataProvider):

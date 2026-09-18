@@ -40,6 +40,8 @@ RAIFFEISEN_BRANCH_DETAIL_URL = 'https://www.raiffeisen.hu/kapcsolat/bankfiokok/-
 # shared Hungarian address parser doesn't recognize; strip the district clause before parsing.
 RAIFFEISEN_KERULET_RE = re.compile(r'\s+[IVXLCDM]+\.\s*ker[üu]let,?', re.IGNORECASE)
 
+AVOID_NAME = '(otp|cib|k&h|kh bank|unicredit|mbh|mkb|takarékbank|budapest bank|gránit|sberbank|erste|magnet)'
+
 
 class hu_raiffeisen(DataProvider):
     """Imports Raiffeisen Bank branch and ATM locations in Hungary from Raiffeisen's Liferay portlet backend."""
@@ -62,12 +64,14 @@ class hu_raiffeisen(DataProvider):
         self.__types = [
             {'poi_code': 'huraiffbk', 'poi_common_name': 'Raiffeisen Bank', 'poi_type': 'bank',
              'poi_tags': huraiffbank, 'poi_url_base': 'https://www.raiffeisen.hu', 'poi_search_name': 'raiffeisen',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 40},
             {'poi_code': 'huraiffatm', 'poi_common_name': 'Raiffeisen Bank ATM', 'poi_type': 'atm',
              'poi_tags': huraiffatm, 'poi_url_base': 'https://www.raiffeisen.hu',
              'poi_search_name': '(raiffeisen atm|raiffeisen)',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 100, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10},

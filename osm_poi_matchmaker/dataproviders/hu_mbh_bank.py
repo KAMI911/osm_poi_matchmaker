@@ -23,6 +23,10 @@ except ImportError as err:
 # bankfiók" rows) that isn't used here since mobile-branch rows are skipped entirely.
 DAY_FIELDS = [('mon', 0), ('tue', 1), ('wed', 2), ('thu', 3), ('fri', 4), ('sat', 5), ('sun', 6)]
 
+# MKB/Takarékbank/Budapest Bank are MBH's own predecessor names (see poi_search_name below),
+# not competitors, so they're deliberately left out of this list.
+AVOID_NAME = '(otp|cib|k&h|kh bank|raiffeisen|unicredit|erste|gránit|sberbank|magnet)'
+
 
 class hu_mbh_bank(DataProvider):
     """Imports MBH Bank branch/ATM locations in Hungary from the same JSON endpoint
@@ -49,14 +53,14 @@ class hu_mbh_bank(DataProvider):
              # MBH formed from a 2023 merger of MKB, Takarékbank and Budapest Bank - OSM nodes for
              # former branches often still carry one of those predecessor names, not "MBH" itself.
              'poi_search_name': '(mbh bank|mbh|mkb bank|mkb|takarékbank|takarék bank|budapest bank)',
-             'poi_search_avoid_name': '(otp|cib|k&h|kh bank|raiffeisen|unicredit|erste|gránit|sberbank)',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 40},
             {'poi_code': 'humbhatm', 'poi_common_name': 'MBH Bank ATM', 'poi_type': 'atm', 'poi_tags': humbhatm,
              'poi_url_base': 'https://www.mbhbank.hu',
              'poi_search_name': '(mbh bank|mbh|mkb bank|mkb|takarékbank|takarék bank|budapest bank)',
-             'poi_search_avoid_name': '(otp|cib|k&h|kh bank|raiffeisen|unicredit|erste|gránit|sberbank)',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10},

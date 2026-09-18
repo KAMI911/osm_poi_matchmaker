@@ -27,6 +27,8 @@ API_URL = 'https://www.magnetbank.hu/MagNetWeb/resources/bankfiok?osz=true'
 # weekend hours to map.
 DAY_CODE_TO_INDEX = {'H': 0, 'K': 1, 'SZ': 2, 'CS': 3, 'P': 4}
 
+AVOID_NAME = '(otp|cib|k&h|kh bank|raiffeisen|unicredit|mbh|mkb|takarékbank|budapest bank|gránit|sberbank|erste)'
+
 
 class hu_magnet_bank(DataProvider):
     """Imports MagNet Bank branch locations in Hungary from MagNet's API."""
@@ -51,12 +53,14 @@ class hu_magnet_bank(DataProvider):
         self.__types = [
             {'poi_code': 'humagnbank', 'poi_common_name': 'MagNet Bank', 'poi_type': 'bank',
              'poi_tags': humagnbank, 'poi_url_base': 'https://www.magnetbank.hu',
-             'poi_search_name': '(magnet bank|magnetbank)', 'osm_search_distance_perfect': 2000,
+             'poi_search_name': '(magnet bank|magnetbank)', 'poi_search_avoid_name': AVOID_NAME,
+             'osm_search_distance_perfect': 2000,
              'additional_ref_name': 'ref',
              'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 10},
             {'poi_code': 'humagnatm', 'poi_common_name': 'MagNet Bank ATM', 'poi_type': 'atm',
              'poi_tags': humagnatm, 'poi_url_base': 'https://www.magnetbank.hu',
              'poi_search_name': '(magnet bank|magnetbank|magnet bank atm|magnet atm)',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 10},
         ]

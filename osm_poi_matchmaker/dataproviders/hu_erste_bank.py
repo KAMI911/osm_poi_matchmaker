@@ -18,7 +18,7 @@ except ImportError as err:
 
     sys.exit(128)
 
-AVOID_NAME = '(otp|cib|k&h|kh bank|raiffeisen|unicredit|mbh|mkb|takarékbank|budapest bank|gránit|sberbank)'
+AVOID_NAME = '(otp|cib|k&h|kh bank|raiffeisen|unicredit|mbh|mkb|takarékbank|budapest bank|gránit|sberbank|magnet)'
 
 
 class hu_erste_bank(DataProvider):

@@ -19,6 +19,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(otp|k&h|kh bank|raiffeisen|unicredit|mbh|mkb|takarékbank|budapest bank|gránit|sberbank|erste|magnet)'
+
 
 class hu_cib_bank(DataProvider):
     """Imports CIB Bank branch/ATM locations in Hungary from CIB's branch-locator API
@@ -49,12 +51,12 @@ class hu_cib_bank(DataProvider):
         data = [
             {'poi_code': 'hucibbank', 'poi_common_name': 'CIB Bank', 'poi_type': 'bank', 'poi_tags': hucibbank,
              'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank|cib)',
-             'poi_search_avoid_name': '(raiffeisen|otp|k&h|budapest)',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 40},
             {'poi_code': 'hucibatm', 'poi_common_name': 'CIB Bank ATM', 'poi_type': 'atm', 'poi_tags': hucibatm,
              'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank|cib)',
-             'poi_search_avoid_name': '(raiffeisen|otp|k&h|budapest)',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10}
         ]
