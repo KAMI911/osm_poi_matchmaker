@@ -19,6 +19,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(mol|shell|m. petrol|avia|lukoil|hunoil|orlen|omv)'
+
 
 class hu_oil(DataProvider):
     """Imports OIL! fuel station locations in Hungary from oil-benzinkutak.hu's WordPress store-search AJAX endpoint."""
@@ -43,7 +45,7 @@ class hu_oil(DataProvider):
             {'poi_code': 'huoilfu', 'poi_common_name': 'OIL!', 'poi_type': 'fuel',
              'poi_tags': huoilfu, 'poi_url_base': 'https://www.oil-benzinkutak.hu',
              'poi_search_name': '(oil|oil!|oil benzinkutak|oil-benzinkutak)',
-             'poi_search_avoid_name': '(mol|shell|m. petrol|avia|lukoil|hunoil)',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 450,
              'osm_search_distance_unsafe': 60},

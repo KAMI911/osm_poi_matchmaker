@@ -29,6 +29,8 @@ BASE_URL = 'https://shellretaillocator.geoapp.me/api/v2/locations/within_bounds'
 HU_BBOX = ((45.7, 16.0), (48.6, 22.9))
 MAX_SPLIT_DEPTH = 6
 
+AVOID_NAME = '(mol|m. petrol|avia|lukoil|hunoil|orlen|omv|oil)'
+
 
 class hu_shell(DataProvider):
     """Imports Shell fuel station locations in Hungary from Shell's station-locator API."""
@@ -53,7 +55,7 @@ class hu_shell(DataProvider):
         self.__types = [
             {'poi_code': 'hushellfu', 'poi_common_name': 'Shell', 'poi_type': 'fuel', 'poi_tags': hushellfu,
              'poi_url_base': 'https://shell.hu', 'poi_search_name': 'shell',
-             'poi_search_avoid_name': '(mol|m. petrol|avia|lukoil|hunoil)',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
         ]
         return self.__types

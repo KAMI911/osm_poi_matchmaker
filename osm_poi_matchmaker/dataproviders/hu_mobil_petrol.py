@@ -21,6 +21,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(mol|shell|avia|lukoil|hunoil|orlen|omv|oil)'
+
 
 class hu_mobil_petrol(DataProvider):
     """Imports Mobil Petrol fuel station locations in Hungary from its SuperStoreFinder WordPress plugin XML feed."""
@@ -47,7 +49,7 @@ class hu_mobil_petrol(DataProvider):
             {'poi_code': 'humobpefu', 'poi_common_name': 'Mobil Petrol', 'poi_type': 'fuel',
              'poi_tags': humobpefu, 'poi_url_base': 'http://mpetrol.hu/',
              'poi_search_name': '(mobil petrol|m.petrol|mobil)',
-             'poi_search_avoid_name': '(mol|shell|avia|lukoil|hunoil)'}
+             'poi_search_avoid_name': AVOID_NAME}
         ]
         return self.__types
 

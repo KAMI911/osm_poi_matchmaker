@@ -21,6 +21,8 @@ except ImportError as err:
 
 MAPS_LINK_COORDS_RE = re.compile(r'query=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)')
 
+FUEL_AVOID_NAME = '(mol|shell|m. petrol|avia|lukoil|hunoil|orlen|omv|oil)'
+
 
 class hu_auchan(DataProvider):
     """Imports Auchan supermarket and petrol station locations in Hungary. Petrol
@@ -52,6 +54,7 @@ class hu_auchan(DataProvider):
              'osm_search_distance_perfect': 1000, 'osm_search_distance_safe': 400},
             {'poi_code': 'huauchfu', 'poi_common_name': 'Auchan', 'poi_type': 'fuel', 'poi_tags': huauchfu,
              'poi_url_base': 'https://auchan.hu', 'poi_search_name': 'auchan', 'additional_ref_name': 'ref',
+             'poi_search_avoid_name': FUEL_AVOID_NAME,
              'osm_search_distance_perfect': 500, 'osm_search_distance_safe': 100, 'osm_search_distance_unsafe': 20},
         ]
         return self.__types

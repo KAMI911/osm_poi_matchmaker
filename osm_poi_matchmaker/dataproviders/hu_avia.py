@@ -20,6 +20,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(mol|shell|m. petrol|lukoil|hunoil|orlen|omv|oil)'
+
 
 class hu_avia(DataProvider):
     """Imports Avia fuel station locations in Hungary, scraped from the Avia contact page."""
@@ -42,7 +44,7 @@ class hu_avia(DataProvider):
         self.__types = [
             {'poi_code': 'huaviafu', 'poi_common_name': 'Avia', 'poi_type': 'fuel', 'poi_tags': huaviafu,
              'poi_url_base': 'https://www.avia.hu', 'poi_search_name': 'avia',
-             'poi_search_avoid_name': '(mol|shell|m. petrol|lukoil|hunoil)',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 30000,
              'osm_search_distance_safe': 800, 'osm_search_distance_unsafe': 110},

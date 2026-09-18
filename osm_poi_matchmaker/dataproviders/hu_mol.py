@@ -21,6 +21,8 @@ except ImportError as err:
 POST_DATA = {'api': 'stations', 'input': 'HU',
              'lang': 'hu', 'mode': 'country'}
 
+AVOID_NAME = '(shell|m. petrol|avia|lukoil|hunoil|orlen|omv|oil)'
+
 
 class hu_mol(DataProvider):
     """Imports MOL fuel station locations in Hungary from MOL's station-finder API."""
@@ -71,12 +73,12 @@ class hu_mol(DataProvider):
         self.__types = [
             {'poi_code': 'humolfu', 'poi_common_name': 'MOL', 'poi_type': 'fuel',
              'poi_tags': humolfu, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
-             'poi_search_avoid_name': '(shell|m. petrol|avia|lukoil|hunoil)',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000,
              'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
             {'poi_code': 'humolwfu', 'poi_common_name': 'MOL', 'poi_type': 'waterway_fuel',
              'poi_tags': humolwfu, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
-             'poi_search_avoid_name': '(shell|m. petrol|avia|lukoil|hunoil)',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000,
              'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 100},
             {'poi_code': 'humolfaf', 'poi_common_name': 'Fresh Corner', 'poi_type': 'fastfood_or_cafe',
