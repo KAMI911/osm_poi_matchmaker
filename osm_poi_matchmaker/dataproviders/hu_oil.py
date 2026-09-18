@@ -19,7 +19,7 @@ except ImportError as err:
 
     sys.exit(128)
 
-AVOID_NAME = '(mol|shell|m. petrol|avia|lukoil|hunoil|orlen|omv)'
+AVOID_NAME = '(mol|shell|m. petrol|avia|lukoil|hunoil|orlen|omv|auchan)'
 
 
 class hu_oil(DataProvider):

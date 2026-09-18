@@ -21,7 +21,7 @@ except ImportError as err:
 POST_DATA = {'api': 'stations', 'input': 'HU',
              'lang': 'hu', 'mode': 'country'}
 
-AVOID_NAME = '(shell|m. petrol|avia|lukoil|hunoil|orlen|omv|oil)'
+AVOID_NAME = '(shell|m. petrol|avia|lukoil|hunoil|orlen|omv|oil|auchan)'
 
 
 class hu_mol(DataProvider):

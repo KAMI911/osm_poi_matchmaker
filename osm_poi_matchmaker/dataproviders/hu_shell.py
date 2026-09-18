@@ -29,7 +29,7 @@ BASE_URL = 'https://shellretaillocator.geoapp.me/api/v2/locations/within_bounds'
 HU_BBOX = ((45.7, 16.0), (48.6, 22.9))
 MAX_SPLIT_DEPTH = 6
 
-AVOID_NAME = '(mol|m. petrol|avia|lukoil|hunoil|orlen|omv|oil)'
+AVOID_NAME = '(mol|m. petrol|avia|lukoil|hunoil|orlen|omv|oil|auchan)'
 
 
 class hu_shell(DataProvider):
