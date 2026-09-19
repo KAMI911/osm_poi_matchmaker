@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import MagicMock
 from lxml import etree
 
-from osm_poi_matchmaker.libs.file_output import _emit_relation_geometry
+from osm_poi_matchmaker.libs.file_output import _emit_relation_geometry, _emit_node_geometry
 
 
 def _way_elements(root):
@@ -13,6 +13,84 @@ def _way_elements(root):
 
 def _node_elements(root):
     return root.findall('node')
+
+
+class TestEmitNodeGeometry(unittest.TestCase):
+    """_emit_node_geometry() is the shared helper behind both the plain way
+    branch and _emit_relation_geometry() - previously two separate
+    implementations. The way branch's own version silently emitted nothing on
+    a cache miss (while still marking the id "handled" in added_nodes, so a
+    later reference to it - e.g. from a relation sharing that vertex - was
+    skipped too), and separately never actually embedded a cached node's live
+    tags at all: it read `node_data.get('osm_live_tags')` off the just-created
+    XML element (which list_osm_node() never sets as an attribute) instead of
+    off the cache dict, so that branch was always None and the tag loop never
+    ran."""
+
+    def setUp(self):
+        self.root = etree.Element('osm')
+        self.db = MagicMock()
+        self.added_nodes = []
+
+    def _run(self, node_ids):
+        _emit_node_geometry(self.root, self.db, node_ids, self.added_nodes)
+
+    def test_cache_hit_emits_node_from_cache(self):
+        self.db.query_from_cache.return_value = {'osm_lat': 47.5, 'osm_lon': 19.0}
+        self._run([100])
+        nodes = _node_elements(self.root)
+        self.assertEqual(len(nodes), 1)
+        self.assertEqual(nodes[0].get('lat'), '47.5')
+        self.db.query_nodes_coords.assert_not_called()
+        self.assertEqual(self.added_nodes, [100])
+
+    def test_cache_hit_with_live_tags_embeds_them(self):
+        """Regression test for the dead tag-embedding code: live tags must come
+        from the cache dict, not from an attribute the XML element never has."""
+        self.db.query_from_cache.return_value = {
+            'osm_lat': 47.5, 'osm_lon': 19.0, 'osm_live_tags': {'barrier': 'gate'},
+        }
+        self._run([100])
+        node = _node_elements(self.root)[0]
+        tags = {t.get('k'): t.get('v') for t in node.findall('tag')}
+        self.assertEqual(tags, {'barrier': 'gate'})
+
+    def test_cache_miss_falls_back_to_local_extract(self):
+        self.db.query_from_cache.return_value = None
+        self.db.query_nodes_coords.return_value = {100: (47.5, 19.0)}
+        self._run([100])
+        nodes = _node_elements(self.root)
+        self.assertEqual(len(nodes), 1)
+        self.assertEqual(nodes[0].get('lat'), '47.5')
+        self.assertEqual(self.added_nodes, [100])
+
+    def test_cache_miss_and_missing_from_local_extract_emits_nothing(self):
+        """Neither source has it - must warn and skip cleanly, and NOT mark it
+        as added (unlike the old way-branch code, which marked a cache-miss id
+        as "handled" even though nothing was ever emitted for it)."""
+        self.db.query_from_cache.return_value = None
+        self.db.query_nodes_coords.return_value = {}
+        self._run([100])
+        self.assertEqual(_node_elements(self.root), [])
+        self.assertEqual(self.added_nodes, [])
+
+    def test_already_added_node_is_not_refetched(self):
+        self.added_nodes.append(100)
+        self._run([100])
+        self.db.query_from_cache.assert_not_called()
+        self.db.query_nodes_coords.assert_not_called()
+
+    def test_duplicate_ids_in_input_are_only_resolved_once(self):
+        self.db.query_from_cache.return_value = None
+        self.db.query_nodes_coords.return_value = {100: (47.5, 19.0)}
+        self._run([100, 100, 100])
+        self.assertEqual(len(_node_elements(self.root)), 1)
+        self.db.query_nodes_coords.assert_called_once_with([100])
+
+    def test_empty_input_does_not_touch_db(self):
+        self._run([])
+        self.db.query_from_cache.assert_not_called()
+        self.db.query_nodes_coords.assert_not_called()
 
 
 class TestEmitRelationGeometry(unittest.TestCase):
@@ -26,6 +104,13 @@ class TestEmitRelationGeometry(unittest.TestCase):
     def setUp(self):
         self.root = etree.Element('osm')
         self.db = MagicMock()
+        # _emit_relation_geometry() resolves node coordinates through the shared
+        # _emit_node_geometry(), which tries the live-tag cache first - a bare
+        # MagicMock isn't None, so without this every lookup would look like a
+        # cache hit and never reach query_nodes_coords() at all. A relation
+        # member's vertices essentially always miss that cache for real (nothing
+        # ever populates it for them - see _emit_node_geometry()'s docstring).
+        self.db.query_from_cache.return_value = None
         self.added_nodes = []
         self.added_ways = set()
         self.added_relations = set()

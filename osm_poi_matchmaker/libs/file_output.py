@@ -342,6 +342,63 @@ def generate_geojson(df):
     return json.dumps(geojson, ensure_ascii=False, indent=2).encode('utf-8')
 
 
+def _emit_node_geometry(osm_xml_data, db, node_ids, added_nodes):
+    """Emit a full <node lat=.. lon=..> element (with any live tags the node
+    itself carries) for every id in node_ids not already in added_nodes, so a
+    way's or relation's geometry actually renders when this file is opened
+    standalone in JOSM (an <nd>/<member> ref alone doesn't define anything).
+
+    Shared by the plain way branch and _emit_relation_geometry() below - these
+    used to be two separate implementations with different reliability
+    profiles. The way branch's own version only ever checked the live-API tag
+    cache (poi_osm_cache, populated by enrich_matched_pois()'s nodes_get() call
+    for a *directly-matched* way) and, on a cache miss, silently emitted
+    nothing - while still marking the id as "handled" in added_nodes, so a
+    later reference to the very same id (e.g. from a relation sharing that
+    vertex) was skipped too, with no warning either time. Nothing populates
+    that cache for a relation's member ways' vertices at all (enrich_matched_pois()
+    downloads only the relation's own tags for a relation match, never its
+    members' geometry), so a cache-only lookup there would almost always miss.
+
+    Falls back to the local osm2pgsql import (query_nodes_coords(), reading
+    planet_osm_nodes directly) for anything not in the cache - coordinates
+    only, no tags, but always available for anything in the local extract
+    regardless of whether the live-API step ever ran for it.
+
+    Args:
+        osm_xml_data: Root <osm> element new <node> elements are appended to.
+        db (POIBase): Database handle.
+        node_ids: Iterable of node ids (str or int) to resolve.
+        added_nodes (list): Node ids already emitted anywhere in this file so
+            far (shared across every row/way/relation processed). Mutated in
+            place with every id this call successfully emits.
+    """
+    candidates = [n for n in dict.fromkeys(int(n) for n in node_ids) if n not in added_nodes]
+    if not candidates:
+        return
+    needs_fallback = []
+    for n in candidates:
+        cached = db.query_from_cache(n, OSM_object_type.node)
+        if cached is None:
+            needs_fallback.append(n)
+            continue
+        node_elem = etree.SubElement(osm_xml_data, 'node', list_osm_node(n, cached, 'osm'))
+        live_tags = cached.get('osm_live_tags')
+        if live_tags:
+            for k, v in sorted(live_tags.items()):
+                etree.SubElement(node_elem, 'tag', k=k, v='{}'.format(v))
+        added_nodes.append(n)
+
+    coords = db.query_nodes_coords(needs_fallback) if needs_fallback else {}
+    for n in needs_fallback:
+        if n not in coords:
+            logging.warning('Missing coordinates for node %s - no live cache entry and not in the local extract.', n)
+            continue
+        lat, lon = coords[n]
+        etree.SubElement(osm_xml_data, 'node', list_osm_node(n, {'osm_lat': lat, 'osm_lon': lon}, 'osm'))
+        added_nodes.append(n)
+
+
 def _emit_relation_geometry(osm_xml_data, db, members, added_nodes, added_ways, added_relations,
                             depth=0, max_depth=10):
     """Recursively resolve a relation's members into full <way>/<node> elements
@@ -355,10 +412,11 @@ def _emit_relation_geometry(osm_xml_data, db, members, added_nodes, added_ways, 
     building outline opened standalone in JOSM (not "download from OSM") shows no
     shape at all - just an unresolvable member reference.
 
-    Member ways' node lists/coordinates come from the local osm2pgsql import
-    (query_ways_nodes()/query_nodes_coords()), not the live-API tag cache - that
-    cache is only ever populated for an element a provider's own row directly
-    matched, never for a relation's member ways or their vertices.
+    Member ways' node lists come from the local osm2pgsql import
+    (query_ways_nodes()); their coordinates (and any direct node members') are
+    resolved via the shared _emit_node_geometry() - see its docstring for why a
+    relation's member vertices need the local-extract fallback path there far
+    more often than a directly-matched way's own nodes do.
 
     A member can itself be another relation (e.g. a multipolygon nested inside a
     boundary/route relation - rare for a shop/amenity outline, but real), so this
@@ -418,20 +476,7 @@ def _emit_relation_geometry(osm_xml_data, db, members, added_nodes, added_ways, 
             way_vertex_ids.append(int(n))
         added_ways.add(way_id)
 
-    # Adjacent ways in a multipolygon share their endpoint nodes, so way_vertex_ids
-    # alone can repeat an id several times within this same call - dict.fromkeys()
-    # dedupes while keeping order, which a plain "not in added_nodes" filter can't
-    # do on its own since added_nodes is only updated once a node is actually
-    # emitted, further down.
-    needed_node_ids = [n for n in dict.fromkeys(direct_node_ids + way_vertex_ids) if n not in added_nodes]
-    coords = db.query_nodes_coords(needed_node_ids) if needed_node_ids else {}
-    for n in needed_node_ids:
-        if n not in coords:
-            logging.warning('Missing coordinates for relation member node %s.', n)
-            continue
-        lat, lon = coords[n]
-        etree.SubElement(osm_xml_data, 'node', list_osm_node(n, {'osm_lat': lat, 'osm_lon': lon}, 'osm'))
-        added_nodes.append(n)
+    _emit_node_geometry(osm_xml_data, db, direct_node_ids + way_vertex_ids, added_nodes)
 
     for sub_relation_id in sub_relation_ids:
         if sub_relation_id in added_relations:
@@ -508,26 +553,11 @@ def generate_osm_xml(df, session=None):
                         main_data = etree.SubElement(osm_xml_data, 'way', add_osm_way(current_osm_id, row._asdict()))
                         josm_object = 'w{}'.format(current_osm_id)
                         # Add way nodes without any modification)
-                        node_data = []
                         if row.osm_nodes is not None:
                             for n in json.loads(row.osm_nodes):
                                 data = etree.SubElement(main_data, 'nd', ref=str(n))
-                        if session is not None:
-                            if row.osm_nodes is not None:
-                                # Go through the list except the last value (which is same as the first)
-                                for n in json.loads(row.osm_nodes):
-                                    # Add nodes only when it is not already added.
-                                    if n not in added_nodes:
-                                        added_nodes.append(n)
-                                        way_node = db.query_from_cache(n, OSM_object_type.node)
-                                        if way_node is not None:
-                                            node_data = etree.SubElement(osm_xml_data, 'node',
-                                                                         list_osm_node(n, way_node, 'osm'))
-                                            if node_data.get('osm_live_tags') is not None and \
-                                                    node_data.get('osm_live_tags') != '':
-                                                node_osm_live_tags = node_data.get('osm_live_tags')
-                                                for k, v in sorted(node_osm_live_tags).items():
-                                                    xml_node_tags = etree.SubElement(node_data, 'tag', k=k, v='{}'.format(v))
+                        if session is not None and row.osm_nodes is not None:
+                            _emit_node_geometry(osm_xml_data, db, json.loads(row.osm_nodes), added_nodes)
                     except TypeError as e:
                         logging.warning('Missing nodes on this way: %s.', row.osm_id)
                         logging.exception('Exception occurred: {}'.format(e))
