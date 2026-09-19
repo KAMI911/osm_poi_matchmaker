@@ -5,6 +5,7 @@ try:
     import sys
     import hashlib
     import traceback
+    from datetime import datetime, timedelta, timezone
     import numpy as np
     import pandas as pd
     from osm_poi_matchmaker.dao.data_structure import City, POI_common, POI_address, POI_address_raw, POI_patch, \
@@ -393,11 +394,20 @@ def search_poi_patch(session, model, **kwargs):
 
 def get_or_create_cache(session, model, **kwargs):
     """
-    Retrieve an existing cache entry from the database or create a new one if it does not exist.
+    Retrieve an existing, still-fresh cache entry from the database, refresh a
+    stale one in place, or create a new one if none exists.
 
-    This function looks for a model instance based on the given `osm_id` and `osm_object_type`.
-    If such an instance exists, it is returned. Otherwise, a new instance is created,
-    added to the session, and committed to the database.
+    This function looks for a model instance based on the given `osm_id` and
+    `osm_object_type`. If such an instance exists and is still fresh (see
+    config.get_database_osm_cache_max_age_days() and the model's own
+    poc_fetched_at, when it has one), it's returned as-is. If it exists but is
+    stale, its fields are overwritten from kwargs and poc_fetched_at is reset to
+    now, in place - poi_osm_cache is explicitly meant to survive across runs, so
+    without this a query_from_cache() miss on a stale row (which now re-triggers
+    a live re-fetch) would call back in here, find the same old row again by
+    (osm_id, osm_object_type), and hand back the stale data forever, discarding
+    the freshly-fetched kwargs. Otherwise, a new instance is created, added to
+    the session, and committed to the database.
 
     Args:
         session (sqlalchemy.orm.Session): The SQLAlchemy session used for querying and committing.
@@ -408,7 +418,7 @@ def get_or_create_cache(session, model, **kwargs):
                 - osm_object_type (str): The type of the OSM object (e.g. 'node', 'way', 'relation').
 
     Returns:
-        model: The retrieved or newly created model instance.
+        model: The retrieved, refreshed, or newly created model instance.
 
     Raises:
         Exception: If database operations fail.
@@ -424,7 +434,19 @@ def get_or_create_cache(session, model, **kwargs):
             ).first()
 
             if instance:
-                logging.debug('Instance already exists: %s', instance)
+                fetched_at = getattr(instance, 'poc_fetched_at', None)
+                is_stale = fetched_at is not None and \
+                    datetime.now(timezone.utc) - fetched_at > \
+                    timedelta(days=config.get_database_osm_cache_max_age_days())
+                if not is_stale:
+                    logging.debug('Instance already exists and is fresh: %s', instance)
+                    return instance
+                logging.debug('Refreshing stale cache instance: %s', instance)
+                for key, value in kwargs.items():
+                    setattr(instance, key, value)
+                if hasattr(instance, 'poc_fetched_at'):
+                    instance.poc_fetched_at = func.now()
+                session.commit()
                 return instance
 
             instance = model(**kwargs)

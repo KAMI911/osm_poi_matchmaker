@@ -389,7 +389,12 @@ class POI_common(Base):
 class POI_OSM_cache(Base):
     """Cache of OSM live-tag lookups (osmapi node_get/way_get/relation_get results),
     keyed by osm_id, so the matcher doesn't re-fetch the same element's live tags on
-    every run. See libs/online_poi_matching.py and dao/data_handlers.get_or_create_cache()."""
+    every run. See libs/online_poi_matching.py and dao/data_handlers.get_or_create_cache().
+
+    Explicitly meant to survive across runs (db.start.drop.poi_tables=False keeps
+    it), so a row needs its own staleness check independent of osm_timestamp (the
+    cached OSM element's own last-edit time, which says nothing about how long ago
+    *we* fetched it) - see poc_fetched_at and config.get_database_osm_cache_max_age_days()."""
     __tablename__ = 'poi_osm_cache'
     _plural_name_ = 'poi_osm_cache'
     poc_id = Column(Integer, primary_key=True, index=True)
@@ -407,6 +412,10 @@ class POI_OSM_cache(Base):
     osm_nodes = Column(JSON, nullable=True, index=False)
     # osm_distance = Column(Integer, nullable=True, index=False)
     osm_live_tags = Column(JSON, nullable=True, index=False)
+    # When *we* wrote/refreshed this row (server-side default, not app-set) - the
+    # basis for the staleness check in query_from_cache(), independent of
+    # osm_timestamp above.
+    poc_fetched_at = Column(DateTime(True), nullable=False, server_default=func.now())
 
 
 class City(Base):

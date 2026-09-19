@@ -158,19 +158,29 @@ class POIBase:
 
     def query_from_cache(self, node_id, object_type):
         """Look up a previously cached OSM live-tag record for this element (see
-        dao/data_structure.py's POI_OSM_cache), avoiding a redundant osmapi call.
+        dao/data_structure.py's POI_OSM_cache), avoiding a redundant osmapi call -
+        unless it's older than config.get_database_osm_cache_max_age_days(), in
+        which case it's treated as not cached at all (returns None, same as a
+        genuine miss), so the caller re-fetches it live and get_or_create_cache()
+        refreshes the row. poi_osm_cache is explicitly meant to survive across
+        runs (with db.start.drop.poi_tables=False), so without this a row cached
+        weeks or months ago would be trusted forever even after the real OSM
+        element moved, got retagged, or was deleted by someone else since.
 
         :param node_id: OSM element id. IDs <= 0 (locally-assigned negative ids for
             new/unmatched POIs) always return None.
         :param object_type: OSM_object_type enum member (node/way/relation).
-        :return: The cached row as a dict, or None if nothing is cached for this element.
+        :return: The cached row as a dict, or None if nothing (fresh) is cached
+            for this element.
         """
         if node_id > 0:
             query = sqlalchemy.text(
-                'select * from poi_osm_cache where osm_id = :node_id and osm_object_type = :object_type limit 1')
+                "select * from poi_osm_cache where osm_id = :node_id and osm_object_type = :object_type "
+                "and poc_fetched_at > now() - make_interval(days => :max_age_days) limit 1")
             with self.connection() as conn:
                 data = pd.read_sql(query, conn,
-                                   params={'node_id': int(node_id), 'object_type': object_type.name})
+                                   params={'node_id': int(node_id), 'object_type': object_type.name,
+                                           'max_age_days': config.get_database_osm_cache_max_age_days()})
             if data.empty:
                 return None
             else:

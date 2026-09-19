@@ -10,6 +10,7 @@ db.enable.analyze=False
 db.enable.query_log=False
 db.enable.huge_query=True
 db.start.drop.poi_tables=True
+db.osm_cache.max_age_days=7
 
 # Directory settings
 dir.output=output

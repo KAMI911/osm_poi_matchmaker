@@ -65,6 +65,7 @@ KEY_DATABASE_ENABLE_QUERY_LOG = 'db.enable.query_log'
 KEY_DATABASE_ENABLE_ANALYZE = 'db.enable.analyze'
 KEY_DATABASE_ENABLE_HUGE_QUERY = 'db.enable.huge_query'
 KEY_DATABASE_START_DROP_POI_TABLES = 'db.start.drop.poi_tables'
+KEY_DATABASE_OSM_CACHE_MAX_AGE_DAYS = 'db.osm_cache.max_age_days'
 KEY_GEO_DEFAULT_PROJECTION = 'geo.default.projection'
 KEY_GEO_DEFAULT_POI_DISTANCE = 'geo.default.poi.distance'
 KEY_GEO_DEFAULT_POI_UNSAFE_DISTANCE = 'geo.default.poi.unsafe.distance'
@@ -380,6 +381,28 @@ def get_database_start_drop_poi_tables():
         return setting
     else:
         return True
+
+
+def get_database_osm_cache_max_age_days():
+    """Age in days after which a poi_osm_cache row (a live OSM node/way/relation
+    lookup, see dao/data_structure.py's POI_OSM_cache) is treated as stale and
+    re-fetched from the live API instead of reused as-is.
+
+    poi_osm_cache is explicitly meant to survive across runs (so the matcher
+    doesn't re-fetch the same element on every run) - with
+    db.start.drop.poi_tables=True (the default) it gets wiped at the start of
+    each run anyway, but a run with that off keeps accumulating entries with no
+    other staleness check at all, so a row cached weeks or months ago would be
+    trusted forever even after the real OSM element moved, got retagged, or was
+    deleted by someone else in the meantime.
+
+    Config key 'db.osm_cache.max_age_days', defaults to 7.
+    """
+    setting = get_config_int(KEY_DATABASE_OSM_CACHE_MAX_AGE_DAYS)
+    if setting is not None:
+        return setting
+    else:
+        return 7
 
 
 def get_geo_default_projection():
