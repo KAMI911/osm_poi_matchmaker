@@ -218,6 +218,27 @@ class POIBase:
             return None
         return data.iloc[0, 0]
 
+    def query_nodes_coords(self, node_ids):
+        """Batch look up lat/lon for OSM node ids from the osm2pgsql-imported
+        planet_osm_nodes table - the raw node coordinate store, independent of the
+        live-API tag cache (poi_osm_cache), which is only populated for elements a
+        provider's own row directly matched, never for a relation's member ways'
+        own nodes. Needed to give a matched relation's member ways real geometry in
+        the exported OSM XML (see generate_osm_xml()'s relation branch).
+
+        :param node_ids: Iterable of OSM node ids.
+        :return: {node_id: (lat, lon)} dict in real degrees (planet_osm_nodes
+            stores them as integers, degrees * 1e7). Ids not in the local extract
+            are simply absent from the result.
+        """
+        ids = [int(n) for n in node_ids]
+        if not ids:
+            return {}
+        query = sqlalchemy.text('select id, lat, lon from planet_osm_nodes where id = ANY(:ids)')
+        with self.connection() as conn:
+            data = pd.read_sql(query, conn, params={'ids': ids})
+        return {int(row.id): (row.lat / 1e7, row.lon / 1e7) for row in data.itertuples()}
+
     # Human-readable label for each priority a query_arr fallback stage tags its rows with -
     # see _query_osm_shop_poi_gpd_impl()'s wnwswh_*/wnwsnh_*/wnnswh_*/wnnsnh_*/nnnsnh_* stages.
     _STAGE_PRIORITY_LABELS = {

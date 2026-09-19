@@ -342,6 +342,109 @@ def generate_geojson(df):
     return json.dumps(geojson, ensure_ascii=False, indent=2).encode('utf-8')
 
 
+def _emit_relation_geometry(osm_xml_data, db, members, added_nodes, added_ways, added_relations,
+                            depth=0, max_depth=10):
+    """Recursively resolve a relation's members into full <way>/<node> elements
+    with real geometry, appended to osm_xml_data.
+
+    The relation branch below only ever emitted <member> references (way/node ids)
+    for the relation itself - unlike the way branch, which additionally downloads
+    and embeds every one of its own nodes as a full <node lat=.. lon=..> element so
+    the way actually renders. A relation's member ways got no such treatment: their
+    ids were referenced but never defined anywhere in the file, so a multipolygon
+    building outline opened standalone in JOSM (not "download from OSM") shows no
+    shape at all - just an unresolvable member reference.
+
+    Member ways' node lists/coordinates come from the local osm2pgsql import
+    (query_ways_nodes()/query_nodes_coords()), not the live-API tag cache - that
+    cache is only ever populated for an element a provider's own row directly
+    matched, never for a relation's member ways or their vertices.
+
+    A member can itself be another relation (e.g. a multipolygon nested inside a
+    boundary/route relation - rare for a shop/amenity outline, but real), so this
+    recurses into those too, capped at max_depth to bound pathological/cyclic data
+    (OSM data shouldn't have relation cycles, but nothing here relies on that).
+
+    Args:
+        osm_xml_data: The root <osm> lxml Element new <way>/<node> elements are
+            appended to (they must be top-level siblings of <relation>, not nested
+            inside it, to be valid OSM XML).
+        db (POIBase): Database handle for the local-extract lookups.
+        members (list[dict] | None): This relation's members, as returned by
+            osm.relationer() - each {'type', 'ref', 'role'}.
+        added_nodes (list): Node ids already emitted anywhere in this file so far
+            (shared across every row/relation processed - a node/way common to two
+            different geometries must still only be defined once). Mutated in place.
+        added_ways (set): Way ids already emitted as relation-member geometry so
+            far. Mutated in place.
+        added_relations (set): Relation ids already recursed into, so a diamond of
+            nested relations (or a genuine cycle) can't cause repeat work or
+            infinite recursion even within max_depth. Mutated in place.
+        depth (int): Current recursion depth (0 for the relation's direct members).
+        max_depth (int): Recursion depth cap.
+    """
+    if members is None:
+        return
+    if depth > max_depth:
+        logging.warning('Relation nesting exceeded max depth (%d) - stopping recursion.', max_depth)
+        return
+    direct_node_ids = []
+    way_ids = []
+    sub_relation_ids = []
+    for member in members:
+        try:
+            ref = int(member.get('ref'))
+        except (TypeError, ValueError):
+            continue
+        member_type = member.get('type')
+        if member_type == 'node':
+            direct_node_ids.append(ref)
+        elif member_type == 'way':
+            way_ids.append(ref)
+        elif member_type == 'relation':
+            sub_relation_ids.append(ref)
+
+    way_vertex_ids = []
+    for way_id in way_ids:
+        if way_id in added_ways:
+            continue
+        nodes = db.query_ways_nodes(way_id)
+        if nodes is None:
+            logging.warning('Missing nodes for relation member way %s.', way_id)
+            continue
+        way_elem = etree.SubElement(osm_xml_data, 'way', id=str(way_id), version='99999')
+        for n in nodes:
+            etree.SubElement(way_elem, 'nd', ref=str(n))
+            way_vertex_ids.append(int(n))
+        added_ways.add(way_id)
+
+    # Adjacent ways in a multipolygon share their endpoint nodes, so way_vertex_ids
+    # alone can repeat an id several times within this same call - dict.fromkeys()
+    # dedupes while keeping order, which a plain "not in added_nodes" filter can't
+    # do on its own since added_nodes is only updated once a node is actually
+    # emitted, further down.
+    needed_node_ids = [n for n in dict.fromkeys(direct_node_ids + way_vertex_ids) if n not in added_nodes]
+    coords = db.query_nodes_coords(needed_node_ids) if needed_node_ids else {}
+    for n in needed_node_ids:
+        if n not in coords:
+            logging.warning('Missing coordinates for relation member node %s.', n)
+            continue
+        lat, lon = coords[n]
+        etree.SubElement(osm_xml_data, 'node', list_osm_node(n, {'osm_lat': lat, 'osm_lon': lon}, 'osm'))
+        added_nodes.append(n)
+
+    for sub_relation_id in sub_relation_ids:
+        if sub_relation_id in added_relations:
+            continue
+        added_relations.add(sub_relation_id)
+        sub_members_raw = db.query_relation_nodes(sub_relation_id)
+        if sub_members_raw is None:
+            logging.warning('Missing members for nested relation %s.', sub_relation_id)
+            continue
+        _emit_relation_geometry(osm_xml_data, db, relationer(sub_members_raw), added_nodes, added_ways,
+                                added_relations, depth + 1, max_depth)
+
+
 def generate_osm_xml(df, session=None):
     """Crete OpenStreetMap (OSM XML) file from passed Panda Dataframe
 
@@ -365,6 +468,8 @@ def generate_osm_xml(df, session=None):
     default_osm_id = -1
     current_osm_id = default_osm_id
     added_nodes = []
+    added_ways = set()
+    added_relations = set()
     try:
         for row in df.itertuples(index=True):
             index = row.Index
@@ -444,6 +549,13 @@ def generate_osm_xml(df, session=None):
                         for i in relations:
                             data = etree.SubElement(main_data, 'member', type=i.get('type'), ref=i.get('ref'),
                                                     role=i.get('role'))
+                        # Give the relation's member ways/nodes real geometry (see
+                        # _emit_relation_geometry()'s docstring) - without this, the
+                        # <member> refs above point at ids never defined anywhere in
+                        # the file, and the relation renders as an empty shape when
+                        # this file is opened standalone in JOSM.
+                        _emit_relation_geometry(osm_xml_data, db, relations, added_nodes, added_ways,
+                                                added_relations)
                     except TypeError as e:
                         logging.warning('Missing nodes on this relation: %s.', row.osm_id)
                         logging.exception('Exception occurred: {}'.format(e))
