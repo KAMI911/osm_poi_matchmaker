@@ -175,11 +175,12 @@ class TestResolveConflict(unittest.TestCase):
     def test_resolve_clears_all_osm_derived_fields(self):
         """The demoted (farthest) row must come back to a clean 'never matched'
         state - not just osm_id/osm_node cleared while osm_version/osm_timestamp/
-        osm_live_tags/osm_nodes/osm_changeset are left over from the match that was
-        just revoked. Left uncleared, file_output.py exports the row as "new" (a
-        negative placeholder id, since osm_id is None) while it still carries a
-        real OSM version/timestamp/live-tag payload from the element it no longer
-        matches - looking like, and partly being, an already-existing element.
+        osm_live_tags/osm_nodes/osm_changeset/osm_lat/osm_lon/poi_distance are left
+        over from the match that was just revoked. Left uncleared, file_output.py
+        exports the row as "new" (a negative placeholder id, since osm_id is None)
+        while it still carries a real OSM version/timestamp/live-tag payload - and a
+        real 'OSM <-> POI distance: 0.0 m' comment - from the element it no longer
+        matches, looking like, and partly being, an already-existing element.
 
         Columns use dtype=object throughout, matching real pipeline data: STAGE 7
         (create_db.py) initializes osm_id/osm_version/etc. to None for every row
@@ -199,6 +200,9 @@ class TestResolveConflict(unittest.TestCase):
         self.df['osm_nodes'] = pd.array([None, None, None], dtype=object)
         self.df['osm_id'] = self.df['osm_id'].astype(object)
         self.df['poi_new'] = pd.array([False, False, False], dtype=object)
+        # A real match's distance is 0 m or more, never missing - matches the real
+        # pipeline column set by online_poi_matching.py's find_osm_matches().
+        self.df['poi_distance'] = pd.array([0, 0, 12], dtype=object)
 
         # Force row 0 to be the farthest, so it's the one that gets demoted.
         self.df.loc[0, 'osm_lon'] = 19.1
@@ -212,7 +216,8 @@ class TestResolveConflict(unittest.TestCase):
         # and it correctly treats every one of those sentinels as "no value".
         demoted = self.df.loc[0]
         for col in ('osm_id', 'osm_node', 'osm_version', 'osm_changeset',
-                    'osm_timestamp', 'osm_live_tags', 'osm_nodes'):
+                    'osm_timestamp', 'osm_live_tags', 'osm_nodes',
+                    'osm_lat', 'osm_lon', 'poi_distance'):
             with self.subTest(col=col):
                 self.assertFalse(has_value(demoted[col]), f'{col} was not cleared on the demoted row')
         # poi_new was False (set back when this row still held its now-revoked
@@ -226,6 +231,7 @@ class TestResolveConflict(unittest.TestCase):
         self.assertEqual(winner['osm_id'], 100)
         self.assertEqual(winner['osm_version'], '23')
         self.assertEqual(winner['osm_live_tags'], {'shop': 'supermarket'})
+        self.assertEqual(winner['poi_distance'], 0)
         self.assertFalse(winner['poi_new'])
 
     def test_resolve_missing_osm_columns_does_not_crash(self):
