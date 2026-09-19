@@ -56,7 +56,7 @@ class hu_mol_plugee_ev(DataProvider):
         self.link = 'https://account.molplugee.eu/stationFacade/findSitesInBounds'
         self.tags = {'amenity': 'charging_station', 'authentication:app': 'yes', 'authentication:none': 'yes',
                      'brand': 'MOL', 'operator': 'MOL Nyrt.',
-                     'operator:addr': '1117 Budapest, Október huszonharmadika utca 18.', 'fee': 'yes',
+                     'operator:addr': '1117 Budapest, Dombóvári út 28.', 'fee': 'yes',
                      'parking:fee': 'no', 'opening_hours': '24/7', 'ref:vatin': 'HU10625790',
                      'ref:HU:vatin': '10625790-4-44', 'ref:HU:company': '01-10-041683',
                      'contact:email': 'info@molplugee.hu', 'contact:phone': '+36 1 998 9888',
