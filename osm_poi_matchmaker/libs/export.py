@@ -14,6 +14,16 @@ except ImportError as err:
     sys.exit(128)
 
 
+def _output_dir(subdir=''):
+    """config.get_directory_output(), optionally with a subdirectory (e.g.
+    'prematch', 'new', 'existing', 'combined' - see create_db.py's STAGE 8/10/11)
+    joined on and created if missing. exist_ok=True since multiple worker
+    processes can race to create the same subdir concurrently."""
+    path = os.path.join(config.get_directory_output(), subdir) if subdir else config.get_directory_output()
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
 def _write_osm_and_geojson(output_dir, filename, rows):
     """Write OSM XML and GeoJSON files to output_dir/{filename}.osm and .geojson."""
     with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
@@ -22,36 +32,37 @@ def _write_osm_and_geojson(output_dir, filename, rows):
         gf.write(generate_geojson(rows))
 
 
-def export_raw_poi_data(addr_data, comm_data, postfix=''):
+def export_raw_poi_data(addr_data, comm_data, postfix='', subdir=''):
     """Save the full (ungrouped) POI and common-type dataframes as CSV files
     (poi_address{postfix}.csv, poi_common{postfix}.csv) - not filtered by
     matched/new status, unlike export_new_poi_data()/export_existing_poi_data()."""
     try:
         logging.info('Exporting CSV files ...')
+        output_dir = _output_dir(subdir)
         # And merge and them into one Dataframe and save it to a CSV file
-        save_csv_file(config.get_directory_output(), 'poi_common{}.csv'.format(postfix), comm_data, 'poi_common')
-        save_csv_file(config.get_directory_output(), 'poi_address{}.csv'.format(postfix), addr_data, 'poi_address')
+        save_csv_file(output_dir, 'poi_common{}.csv'.format(postfix), comm_data, 'poi_common')
+        save_csv_file(output_dir, 'poi_address{}.csv'.format(postfix), addr_data, 'poi_address')
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
 
 
-def export_raw_poi_data_xml(addr_data, postfix=''):
+def export_raw_poi_data_xml(addr_data, postfix='', subdir=''):
     """Save the full (ungrouped) POI dataframe as one OSM XML file
     (poi_address{postfix}.osm)."""
     try:
-        with open(os.path.join(config.get_directory_output(), 'poi_address{}.osm'.format(postfix)), 'wb') as oxf:
+        with open(os.path.join(_output_dir(subdir), 'poi_address{}.osm'.format(postfix)), 'wb') as oxf:
             oxf.write(generate_osm_xml(addr_data))
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
 
 
-def export_raw_poi_data_geojson(addr_data, postfix=''):
+def export_raw_poi_data_geojson(addr_data, postfix='', subdir=''):
     """Save the full (ungrouped) POI dataframe as one GeoJSON file
     (poi_address{postfix}.geojson)."""
     try:
-        geojson_path = os.path.join(config.get_directory_output(), 'poi_address{}.geojson'.format(postfix))
+        geojson_path = os.path.join(_output_dir(subdir), 'poi_address{}.geojson'.format(postfix))
         logging.info('Saving GeoJSON to file: poi_address%s.geojson', postfix)
         with open(geojson_path, 'wb') as gf:
             gf.write(generate_geojson(addr_data))
@@ -124,13 +135,13 @@ def _export_split_by_match_status(rows, matched, output_dir, filename, empty_log
     _write_osm_and_geojson(output_dir, filename, filtered)
 
 
-def export_new_poi_data(addr_data, postfix=''):
+def export_new_poi_data(addr_data, postfix='', subdir=''):
     """Export only new (unmatched) POIs — those with no osm_id — to XML and GeoJSON."""
     if addr_data is None:
         logging.warning('No addr_data provided to export_new_poi_data.')
         return
     try:
-        _export_split_by_match_status(addr_data, False, config.get_directory_output(),
+        _export_split_by_match_status(addr_data, False, _output_dir(subdir),
                                       'poi_address_new{}'.format(postfix),
                                       empty_log='No new POIs to export.', count_log='Exporting %d new POIs.')
     except Exception as e:
@@ -138,13 +149,13 @@ def export_new_poi_data(addr_data, postfix=''):
         logging.exception(traceback.format_exc())
 
 
-def export_existing_poi_data(addr_data, postfix=''):
+def export_existing_poi_data(addr_data, postfix='', subdir=''):
     """Export only existing (matched) POIs — those with an osm_id — to XML and GeoJSON."""
     if addr_data is None:
         logging.warning('No addr_data provided to export_existing_poi_data.')
         return
     try:
-        _export_split_by_match_status(addr_data, True, config.get_directory_output(),
+        _export_split_by_match_status(addr_data, True, _output_dir(subdir),
                                       'poi_address_existing{}'.format(postfix),
                                       empty_log='No existing POIs to export.',
                                       count_log='Exporting %d existing POIs.')

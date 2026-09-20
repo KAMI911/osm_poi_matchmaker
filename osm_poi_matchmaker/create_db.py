@@ -221,7 +221,7 @@ class WorkflowManager(object):
             self.harvest_duration = phase_timer.end()
 
     def start_exporter(self, data: pd.DataFrame, postfix: str = '', to_do=export_grouped_poi_data,
-                       infix: str = ''):
+                       infix: str = '', subdir: str = ''):
         """Export data in parallel, split into one job per distinct poi_code (STAGE 8/10/11).
 
         Args:
@@ -231,11 +231,16 @@ class WorkflowManager(object):
                 of data. Defaults to export_grouped_poi_data.
             infix (str): Additional filename segment inserted between postfix and poi_code
                 (e.g. 'new_', 'existing_'). Defaults to ''.
+            subdir (str): Subdirectory under config.get_directory_output() to write into
+                (e.g. 'prematch', 'new', 'existing', 'combined'). Defaults to '' (the output
+                root). Created if missing.
         """
         logging.debug(data.to_string())
         logging.info('Preparing export jobs…')
+        output_dir = os.path.join(config.get_directory_output(), subdir) if subdir else config.get_directory_output()
+        os.makedirs(output_dir, exist_ok=True)
         poi_codes = data['poi_code'].unique()
-        modules = [[config.get_directory_output(), f'poi_address_{postfix}{infix}{c}', data[data.poi_code == c],
+        modules = [[output_dir, f'poi_address_{postfix}{infix}{c}', data[data.poi_code == c],
                     'poi_address'] for c in poi_codes]
         try:
             logging.info('Starting processing export.')
@@ -529,11 +534,11 @@ def main():
 
         # --- STAGE 8 ---
         logging.info('Starting STAGE 8 – Exporting.')
-        export_raw_poi_data(poi_addr_data, poi_common_data)
-        export_raw_poi_data_xml(poi_addr_data)
-        export_raw_poi_data_geojson(poi_addr_data)
+        export_raw_poi_data(poi_addr_data, poi_common_data, subdir='prematch')
+        export_raw_poi_data_xml(poi_addr_data, subdir='prematch')
+        export_raw_poi_data_geojson(poi_addr_data, subdir='prematch')
         logging.info('Saving POI code grouped filesets…')
-        manager.start_exporter(poi_addr_data)
+        manager.start_exporter(poi_addr_data, subdir='prematch')
         manager.join()
         logging.info("STAGE 8 – Exporting has finished successfully.")
         mem_info.log_top_memory_snapshot('STAGE 8')
@@ -576,21 +581,22 @@ def main():
         # --- STAGE 10 ---
         logging.info('Starting STAGE 10 – Exporting matched POI.')
         prefix = 'merge_'
-        export_raw_poi_data(poi_addr_data, poi_common_data, prefix)
-        export_raw_poi_data_geojson(poi_addr_data, prefix)
-        export_new_poi_data(poi_addr_data, prefix)
-        export_existing_poi_data(poi_addr_data, prefix)
+        export_raw_poi_data(poi_addr_data, poi_common_data, prefix, subdir='combined')
+        export_raw_poi_data_geojson(poi_addr_data, prefix, subdir='combined')
+        export_new_poi_data(poi_addr_data, prefix, subdir='new')
+        export_existing_poi_data(poi_addr_data, prefix, subdir='existing')
 
-        manager.start_exporter(poi_addr_data, prefix)
-        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_new, infix='new_')
-        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_existing, infix='existing_')
+        manager.start_exporter(poi_addr_data, prefix, subdir='combined')
+        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_new, infix='new_', subdir='new')
+        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_existing, infix='existing_',
+                               subdir='existing')
         manager.join()
         logging.info("STAGE 10 – Matched POI exported successfully.")
         mem_info.log_top_memory_snapshot('STAGE 10')
 
         # --- STAGE 11 ---
         logging.info('Starting STAGE 11 – Exporting grouped matched POI.')
-        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups)
+        manager.start_exporter(poi_addr_data, prefix, export_grouped_poi_data_with_postcode_groups, subdir='combined')
         manager.join()
         logging.info("STAGE 11 – Grouped POI exported successfully.")
         mem_info.log_top_memory_snapshot('STAGE 11')
