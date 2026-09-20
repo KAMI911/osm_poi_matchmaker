@@ -93,7 +93,7 @@ class hu_ofotert(DataProvider):
                     json.dump(stores, file)
             for poi_data in stores or []:
                 try:
-                    self.data.code = 'huofoteopt'
+                    self.data.code = 'ofoteopt'
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('geo_lat'), poi_data.get('geo_lng'))
                     self.data.postcode = clean_string(poi_data.get('address_zip'))
                     self.data.branch = clean_string(poi_data.get('name'))
