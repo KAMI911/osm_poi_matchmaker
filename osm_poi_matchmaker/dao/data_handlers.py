@@ -924,14 +924,7 @@ def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = Tru
 
     df_count = len(poi_df)
     model = POI_address_raw if raw else POI_address
-    db_count = count(session, model)
-
-    logging.debug(f'poi address raw={raw} db_count={db_count} patch_count={df_count}')
-
-    if db_count == df_count:
-        logging.debug(f'poi address raw={raw} dataframe count same as db row count, skipping processing data')
-        session.close()
-        return {'inserted': 0, 'errors': 0, 'skipped': df_count}
+    logging.debug(f'poi address raw={raw}: inserting {df_count} row(s)')
 
     # City/POI_common are fully populated by STAGE 0/1 before any harvesting starts and
     # aren't written to again here, so it's safe to load each as a single in-memory dict

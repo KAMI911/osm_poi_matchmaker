@@ -4,9 +4,10 @@ try:
     import unittest
     import logging
     import sys
+    import pandas as pd
     from datetime import datetime, timedelta, timezone
     from unittest.mock import MagicMock, patch
-    from osm_poi_matchmaker.dao.data_handlers import _safe_str, get_or_create_cache
+    from osm_poi_matchmaker.dao.data_handlers import _safe_str, get_or_create_cache, insert_poi_dataframe
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -114,3 +115,46 @@ class TestGetOrCreateCache(unittest.TestCase):
         result = get_or_create_cache(self.session, _FakeCacheRow, osm_id=None, osm_object_type='node')
         self.assertIsNone(result)
         self.session.query.assert_not_called()
+
+
+class TestInsertPoiDataframeNoCoincidentalSkip(unittest.TestCase):
+    """Regression test for a real production bug: insert_poi_dataframe() used to
+    open with `if count(session, model) == len(poi_df): skip everything`, meant
+    as an idempotency guard - but count(session, model) counts every row in the
+    ENTIRE shared poi_address_raw/poi_address table (across every provider,
+    never scoped to this call's own data), while len(poi_df) is just this one
+    provider's own small harvested batch. With ~90 providers inserting into that
+    same table - many of them concurrently, in a multiprocessing pool - the
+    table's constantly-changing running total landing on the exact same number
+    as some unrelated provider's own row count is a real, if non-deterministic,
+    coincidence: confirmed live against a real run where several small
+    providers (Ofotért among them) logged a fully successful harvest+insert yet
+    ended up with zero rows in the database. get_or_create_poi() already
+    provides real per-row idempotency (find-by-identifying-fields, create only
+    if missing), so this whole-table-vs-one-batch shortcut was both wrong and
+    unnecessary - removed entirely."""
+
+    def _make_session(self):
+        session = MagicMock()
+        # City/POI_common lookups: nothing to resolve, empty is fine for this test.
+        session.query.return_value = []
+        return session
+
+    def test_every_row_is_processed_even_when_table_total_equals_batch_size(self):
+        # Two rows in this batch AND (simulating the coincidence) the shared
+        # table's total row count also happens to be 2 - must NOT be treated as
+        # "already inserted".
+        df = pd.DataFrame([
+            {'poi_code': 'ofoteopt', 'poi_city': 'Cegléd', 'poi_postcode': '2700', 'poi_addr_city': None},
+            {'poi_code': 'ofoteopt', 'poi_city': 'Szeged', 'poi_postcode': '6720', 'poi_addr_city': None},
+        ])
+        session = self._make_session()
+        with patch('osm_poi_matchmaker.dao.data_handlers.get_or_create_poi') as mock_get_or_create, \
+             patch('osm_poi_matchmaker.dao.data_handlers.count') as mock_count:
+            mock_count.return_value = len(df)  # the coincidence
+            result = insert_poi_dataframe(session, df, raw=False)
+
+        mock_count.assert_not_called()
+        self.assertEqual(mock_get_or_create.call_count, 2, 'not every row was processed')
+        self.assertEqual(result['inserted'], 2)
+        self.assertEqual(result.get('skipped', 0), 0)
