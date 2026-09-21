@@ -4,13 +4,13 @@ try:
     import logging
     import sys
     import os
-    import json
     import traceback
     import requests
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
         clean_string, clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
+    from osm_poi_matchmaker.libs.json_cache import load_or_fetch_json
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
@@ -88,15 +88,9 @@ class hu_shell(DataProvider):
 
         try:
             cache_file = os.path.join(self.download_cache, self.filename)
-            if config.get_download_use_cached_data() is True and os.path.isfile(cache_file):
-                with open(cache_file, mode='r', encoding='utf-8') as file:
-                    stations = json.load(file)
-            else:
-                stations = list(self.__fetch_locations().values())
-                if not os.path.exists(self.download_cache):
-                    os.makedirs(self.download_cache)
-                with open(cache_file, mode='w', encoding='utf-8') as file:
-                    json.dump(stations, file)
+            stations = load_or_fetch_json(cache_file, self.download_cache,
+                                          lambda: list(self.__fetch_locations().values()),
+                                          config.get_download_use_cached_data())
             if stations is not None:
                 for poi_data in stations:
                     try:

@@ -8,6 +8,7 @@ try:
     import pandas as pd
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.soup import download_content
+    from osm_poi_matchmaker.libs.download_guard import looks_like_html
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -41,6 +42,10 @@ def save_downloaded_pd(link, file, verify=config.get_download_verify_link(), hea
     else:
         if link is not None:
             cvs = download_content(link, verify, None, None, 'utf-16')
+            if cvs is not None and looks_like_html(cvs):
+                logging.warning('%s looks like an HTML page, not a TSV dataset (source '
+                                'likely down/under maintenance) - ignoring it.', link)
+                cvs = None
             if cvs is not None:
                 logging.info('We got content, write to file.')
                 if not os.path.exists(config.get_directory_cache_url()):

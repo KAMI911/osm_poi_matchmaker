@@ -5,7 +5,6 @@ try:
     import sys
     import os
     import re
-    import json
     import math
     import time
     import random
@@ -14,6 +13,7 @@ try:
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import clean_city, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
+    from osm_poi_matchmaker.libs.json_cache import load_or_fetch_json
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
 except ImportError as err:
@@ -190,16 +190,9 @@ class hu_dpd(DataProvider):
     def process(self):
         try:
             cache_file = os.path.join(self.download_cache, self.filename)
-            if config.get_download_use_cached_data() is True and os.path.isfile(cache_file):
-                with open(cache_file, mode='r', encoding='utf-8') as file:
-                    stores = json.load(file)
-            else:
-                stores = self.__fetch_stores()
-                if not os.path.exists(self.download_cache):
-                    os.makedirs(self.download_cache)
-                with open(cache_file, mode='w', encoding='utf-8') as file:
-                    json.dump(stores, file)
-            for shop in stores:
+            stores = load_or_fetch_json(cache_file, self.download_cache, self.__fetch_stores,
+                                        config.get_download_use_cached_data())
+            for shop in stores or []:
                 try:
                     self.data.code = 'hudpdcso' if shop.get('pudoType') == LOCKER_PUDO_TYPE else 'hudpdpp'
                     self.data.branch = clean_string(shop.get('name'))

@@ -6,12 +6,14 @@ try:
     import sys
     import requests
     import os
+    import json
     import shutil
     import traceback
     from bs4 import BeautifulSoup
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.utils.enums import FileType
     from osm_poi_matchmaker.utils.cache import get_cached, set_cached
+    from osm_poi_matchmaker.libs.download_guard import looks_like_html
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -134,6 +136,27 @@ def is_downloaded(link: str, verify_link=config.get_download_verify_link(), head
     return False
 
 
+def _is_usable_content(content, filetype, link):
+    """True if `content` doesn't look like an HTML error/maintenance page
+    substituted for a non-HTML feed (see download_guard.looks_like_html - the
+    same class of failure hit live with Magyar Posta's XML feeds can happen to
+    any format, on an otherwise-200 response), and, for JSON, is syntactically
+    valid. Only called for filetypes that are never legitimately HTML
+    themselves (xml/csv/json) - a real FileType.html scrape is left alone.
+    """
+    if looks_like_html(content):
+        logging.warning('%s looks like an HTML page, not %s (source likely '
+                        'down/under maintenance) - ignoring it.', link, filetype.name)
+        return False
+    if filetype == FileType.json:
+        try:
+            json.loads(content)
+        except Exception as e:
+            logging.warning('%s did not parse as JSON (%s) - ignoring it.', link, e)
+            return False
+    return True
+
+
 def save_downloaded_soup(link, file, filetype, skip_download=False, post_data=None, verify=config.get_download_verify_link(),
                          headers=None, json_body=False):
     """The main entry point data providers use to fetch and cache a source file, then
@@ -147,7 +170,11 @@ def save_downloaded_soup(link, file, filetype, skip_download=False, post_data=No
         matches, the existing file is reused.
       - Otherwise, `link` is fetched via download_content() and written to `file`
         (as pretty-printed HTML/XML, or raw text for csv/json). If the fetch fails
-        but `file` already exists, that stale copy is used as a fallback.
+        but `file` already exists, that stale copy is used as a fallback. A
+        non-html filetype whose content looks like an HTML error/maintenance page,
+        or JSON that fails to parse, is treated the same as a failed fetch (see
+        _is_usable_content()) - the existing cache file is read back and never
+        overwritten with the bad response.
       - If `link` is None, only the local `file` is read (useful for a
         manually/externally populated cache with no live source).
 
@@ -182,6 +209,9 @@ def save_downloaded_soup(link, file, filetype, skip_download=False, post_data=No
                     return True
             else:
                 content = download_content(link, verify, post_data, headers, json_body=json_body)
+                if content is not None and filetype != FileType.html and filetype != FileType.zip \
+                        and not _is_usable_content(content, filetype, link):
+                    content = None
                 if content is not None:
                     logging.info('We got content, write to file.')
                     if not os.path.exists(config.get_directory_cache_url()):

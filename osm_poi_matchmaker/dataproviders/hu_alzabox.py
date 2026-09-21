@@ -4,7 +4,6 @@ try:
     import logging
     import sys
     import os
-    import json
     import re
     import time
     import random
@@ -13,6 +12,7 @@ try:
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import extract_all_address_waxeye, clean_string, clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
+    from osm_poi_matchmaker.libs.json_cache import load_or_fetch_json
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.utils.enums import FileType
@@ -124,16 +124,9 @@ class hu_alzabox(DataProvider):
     def process(self):
         try:
             cache_file = os.path.join(self.download_cache, self.filename)
-            if config.get_download_use_cached_data() is True and os.path.isfile(cache_file):
-                with open(cache_file, mode='r', encoding='utf-8') as file:
-                    places = json.load(file)
-            else:
-                places = self.__fetch_places()
-                if not os.path.exists(self.download_cache):
-                    os.makedirs(self.download_cache)
-                with open(cache_file, mode='w', encoding='utf-8') as file:
-                    json.dump(places, file)
-            for poi_data in places:
+            places = load_or_fetch_json(cache_file, self.download_cache, self.__fetch_places,
+                                        config.get_download_use_cached_data())
+            for poi_data in places or []:
                 try:
                     self.data.code = 'hualzabcso'
                     self.data.branch = clean_string(poi_data.get('name'))

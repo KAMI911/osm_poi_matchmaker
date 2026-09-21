@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import traceback
 
 try:
     import logging
@@ -19,6 +18,24 @@ except ImportError as err:
 
 POI_COLS_CITY = ['city_post_code', 'city_name']
 POI_COLS_STREET_TYPE = ['street_type']
+
+
+def _safe_parse_xml(xml):
+    """etree.fromstring(), returning None instead of raising on malformed input -
+    e.g. Magyar Posta's feeds occasionally serve an HTML "under maintenance" page
+    (HTTP 200, so save_downloaded_xml() has no reason to treat it as a failed
+    download) in place of the real XML.
+
+    :param xml: Raw XML content (bytes or str), or None.
+    :return: The parsed root Element, or None if xml is None or doesn't parse.
+    """
+    if xml is None:
+        return None
+    try:
+        return etree.fromstring(xml)
+    except Exception as e:
+        logging.warning('XML did not parse: {}'.format(e))
+        return None
 
 
 class hu_city_postcode():
@@ -59,15 +76,20 @@ class hu_city_postcode_from_xml():
         self.filename = filename
 
     def process(self):
-        xml = save_downloaded_xml('{}'.format(self.link), os.path.join(
-            self.download_cache, self.filename))
+        cache_path = os.path.join(self.download_cache, self.filename)
+        # save_downloaded_xml() already falls back to this file's previously cached
+        # content (without overwriting it) if the live fetch fails or comes back
+        # malformed - see libs/xml.py. root is still re-parsed here in case the
+        # cached copy itself is missing/corrupt for some other reason.
+        xml = save_downloaded_xml('{}'.format(self.link), cache_path)
+        root = _safe_parse_xml(xml)
+        if root is None:
+            logging.error('No usable city/postcode data (live fetch failed and no valid '
+                          'cached copy exists) - skipping this update. Existing city data '
+                          'from a previous run, if any, is left untouched in the database.')
+            return
+
         insert_data = []
-        try:
-            root = etree.fromstring(xml)
-        except Exception as e:
-            logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.format_exc())
-            logging.error(xml)
         for e in root.findall('zipCode'):
             cities = e[1].text
             postcode = e[0].text.strip()
@@ -88,15 +110,18 @@ class hu_street_types_from_xml():
         self.filename = filename
 
     def process(self):
-        xml = save_downloaded_xml('{}'.format(self.link), os.path.join(
-            self.download_cache, self.filename))
+        cache_path = os.path.join(self.download_cache, self.filename)
+        # See hu_city_postcode_from_xml.process() - save_downloaded_xml() already
+        # handles the fallback-to-previous-cache dance.
+        xml = save_downloaded_xml('{}'.format(self.link), cache_path)
+        root = _safe_parse_xml(xml)
+        if root is None:
+            logging.error('No usable street-type data (live fetch failed and no valid '
+                          'cached copy exists) - skipping this update. Existing street_type '
+                          'data from a previous run, if any, is left untouched in the database.')
+            return
+
         insert_data = []
-        try:
-            root = etree.fromstring(xml)
-        except Exception as e:
-            logging.exception('Exception occurred: {}'.format(e))
-            logging.exception(traceback.format_exc())
-            logging.error(xml)
         for e in root.findall('streetType'):
             if e.text is not None:
                 street_type = e.text.strip()
