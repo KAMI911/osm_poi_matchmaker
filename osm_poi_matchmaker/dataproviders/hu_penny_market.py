@@ -22,6 +22,8 @@ except ImportError as err:
 
 PENNY_DAY_INDEX = {'HÉ': 0, 'KE': 1, 'SZE': 2, 'CSÜT': 3, 'PÉ': 4, 'SZO': 5, 'VAS': 6}
 
+AVOID_NAME = '(aldi|auchan|cba|príma|prima|coop|lidl|reál|real|spar|tesco|s-market|smarket|tom market|tommarket)'
+
 
 class hu_penny_market(DataProvider):
     """Imports Penny Market supermarket locations in Hungary from penny.hu's stores API."""
@@ -47,6 +49,7 @@ class hu_penny_market(DataProvider):
         self.__types = [
             {'poi_code': 'hupennysup', 'poi_common_name': 'Penny Market', 'poi_type': 'shop',
              'poi_tags': hupennysup, 'poi_url_base': 'https://www.penny.hu', 'poi_search_name': 'penny',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
         ]

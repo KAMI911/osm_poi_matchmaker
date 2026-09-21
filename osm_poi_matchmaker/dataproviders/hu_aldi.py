@@ -18,6 +18,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(auchan|cba|príma|prima|coop|lidl|penny|reál|real|spar|tesco|s-market|smarket|tom market|tommarket)'
+
 
 class hu_aldi(DataProvider):
     """Imports Aldi supermarket locations in Hungary from the Uberall store-finder API."""
@@ -56,6 +58,7 @@ class hu_aldi(DataProvider):
         self.__types = [
             {'poi_code': 'hualdisup', 'poi_common_name': 'Aldi', 'poi_type': 'shop', 'poi_tags': hualdisup,
              'poi_url_base': 'https://www.aldi.hu', 'poi_search_name': 'aldi', 'additional_ref_name': 'ref',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 1000, 'osm_search_distance_safe': 400
             },
         ]

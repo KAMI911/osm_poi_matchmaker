@@ -5,13 +5,13 @@ try:
     import sys
     import os
     import re
-    import json
     import traceback
     import requests
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
         clean_opening_hours, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
+    from osm_poi_matchmaker.libs.json_cache import load_or_fetch_json
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.enums import WeekDaysLong
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -43,6 +43,8 @@ query stores {
 }
 '''
 
+AVOID_NAME = '(dm|müller|muller)'
+
 
 class hu_rossmann(DataProvider):
     """Imports Rossmann drugstore locations in Hungary from Rossmann's GraphQL API."""
@@ -67,31 +69,22 @@ class hu_rossmann(DataProvider):
         self.__types = [
             {'poi_code': 'hurossmche', 'poi_common_name': 'Rossmann', 'poi_type': 'chemist',
              'poi_tags': hurossmche, 'poi_url_base': 'https://www.rossmann.hu', 'poi_search_name': 'rossmann',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 3},
         ]
         return self.__types
 
+    def __fetch_stores(self):
+        response = requests.post(GRAPHQL_URL, json={'query': STORES_QUERY}, timeout=60)
+        response.raise_for_status()
+        return response.json().get('data', {}).get('stores')
+
     def process(self):
         try:
             cache_file = os.path.join(self.download_cache, self.filename)
-            pois = None
-            if config.get_download_use_cached_data() is True and os.path.isfile(cache_file):
-                with open(cache_file, mode='r', encoding='utf-8') as file:
-                    pois = json.load(file)
-            else:
-                try:
-                    response = requests.post(GRAPHQL_URL, json={'query': STORES_QUERY}, timeout=60)
-                    response.raise_for_status()
-                    pois = response.json().get('data', {}).get('stores')
-                except Exception as e:
-                    logging.exception('Exception occurred: {}'.format(e))
-                    logging.exception(traceback.format_exc())
-                if pois is not None:
-                    if not os.path.exists(self.download_cache):
-                        os.makedirs(self.download_cache)
-                    with open(cache_file, mode='w', encoding='utf-8') as file:
-                        json.dump(pois, file)
+            pois = load_or_fetch_json(cache_file, self.download_cache, self.__fetch_stores,
+                                      config.get_download_use_cached_data())
             if pois is not None:
                 for poi_data in pois:
                     try:

@@ -20,6 +20,8 @@ except ImportError as err:
 
 WEEKDAY_INDEX = {'MONDAY': 0, 'TUESDAY': 1, 'WEDNESDAY': 2, 'THURSDAY': 3, 'FRIDAY': 4, 'SATURDAY': 5, 'SUNDAY': 6}
 
+AVOID_NAME = '(h&m|pepco|sinsay|takko|zara|c&a)'
+
 
 class hu_new_yorker(DataProvider):
     """Imports New Yorker clothing store locations in Hungary from the brand's own
@@ -41,6 +43,7 @@ class hu_new_yorker(DataProvider):
             {'poi_code': 'hunewyork', 'poi_common_name': 'New Yorker', 'poi_type': 'clothes',
              'poi_tags': hunewyork, 'poi_url_base': 'https://www.newyorker.de',
              'poi_search_name': '(new yorker|newyorker)', 'additional_ref_name': 'ref',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 500, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 20},
         ]

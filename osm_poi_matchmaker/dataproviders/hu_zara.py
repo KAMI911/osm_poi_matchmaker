@@ -18,6 +18,11 @@ except ImportError as err:
 
     sys.exit(128)
 
+# bershka/pull&bear/stradivarius/massimo dutti/oysho are Zara's own sibling brands
+# under the same Inditex group, distinct standalone stores in Hungary too.
+AVOID_NAME = ('(h&m|new yorker|newyorker|pepco|sinsay|takko|c&a|bershka|pull&bear|pull and bear|'
+             'stradivarius|massimo dutti|oysho)')
+
 
 class hu_zara(DataProvider):
     """Imports Zara clothing store locations in Hungary from Zara's own store-locator
@@ -42,6 +47,7 @@ class hu_zara(DataProvider):
         self.__types = [
             {'poi_code': 'huzara', 'poi_common_name': 'Zara', 'poi_type': 'clothes', 'poi_tags': huzara,
              'poi_url_base': 'https://www.zara.com/hu', 'poi_search_name': 'zara', 'additional_ref_name': 'ref',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 500, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 20},
         ]

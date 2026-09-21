@@ -18,6 +18,11 @@ except ImportError as err:
 
     sys.exit(128)
 
+# No 'coop' here deliberately - Reál is itself a COOP Hungary franchise brand (see the
+# class docstring below), so a real Reál store's own listing could plausibly mention
+# "Coop" somewhere without that being a different, competing chain.
+AVOID_NAME = '(aldi|auchan|cba|príma|prima|lidl|penny|spar|tesco|s-market|smarket|tom market|tommarket)'
+
 
 class hu_real(DataProvider):
     """Imports Reál convenience store locations in Hungary from the WordPress MapsMarkerPro
@@ -43,6 +48,7 @@ class hu_real(DataProvider):
             {'poi_code': 'hurealcon', 'poi_common_name': 'Reál', 'poi_type': 'shop', 'poi_tags': hurealcon,
              'poi_url_base': 'https://real.hu',
              'poi_search_name': '(reál pont|reálpont|reál élelmiszer|reál abc|reál)',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 20, 'preserve_original_name': True},
         ]

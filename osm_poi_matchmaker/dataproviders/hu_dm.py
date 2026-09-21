@@ -19,6 +19,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(rossmann|müller|muller)'
+
 
 class hu_dm(DataProvider):
     """Imports dm drugstore locations in Hungary from dmTECH's store-data bounding-box API."""
@@ -43,6 +45,7 @@ class hu_dm(DataProvider):
         self.__types = [
             {'poi_code': 'hudmche', 'poi_common_name': 'dm', 'poi_type': 'chemist',
              'poi_tags': hudmche, 'poi_url_base': 'https://www.dm.hu', 'poi_search_name': 'dm',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 15},

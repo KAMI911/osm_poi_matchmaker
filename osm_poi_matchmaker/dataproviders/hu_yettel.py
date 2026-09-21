@@ -18,6 +18,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(vodafone|telekom|t-mobile|digi)'
+
 
 class hu_yettel(DataProvider):
     """Imports Yettel telecom shop locations in Hungary from the JSON markers embedded
@@ -38,6 +40,7 @@ class hu_yettel(DataProvider):
         self.__types = [
             {'poi_code': 'huyettel', 'poi_common_name': 'Yettel', 'poi_type': 'mobile_phone', 'poi_tags': huyettel,
              'poi_url_base': 'https://www.yettel.hu', 'poi_search_name': 'yettel',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref', 'osm_search_distance_perfect': 500,
              'osm_search_distance_safe': 100, 'osm_search_distance_unsafe': 20},
         ]

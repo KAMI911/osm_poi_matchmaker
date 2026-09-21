@@ -26,6 +26,8 @@ AUTH_HEADERS = {'Brand': 'PH', 'Source': 'WEB'}
 AUTH_BODY = {'deviceUuid': 'FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF', 'deviceUuidSource': 'FINGERPRINT',
             'source': 'WEB_PH'}
 
+AVOID_NAME = "(burger king|bk|kfc|mcdonald's|mcdonalds|subway|domino's|dominos)"
+
 
 class hu_pizza_hut(DataProvider):
     """Imports Pizza Hut restaurant locations in Hungary from AmRest's ordering-platform
@@ -45,6 +47,7 @@ class hu_pizza_hut(DataProvider):
         self.__types = [
             {'poi_code': 'huphfaf', 'poi_common_name': 'Pizza Hut', 'poi_type': 'fastfood', 'poi_tags': huphfaf,
              'poi_url_base': 'https://pizzahut.hu', 'poi_search_name': '(pizza hut|pizzahut)',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref', 'osm_search_distance_perfect': 300,
              'osm_search_distance_safe': 100, 'osm_search_distance_unsafe': 20},
         ]

@@ -19,6 +19,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(praktiker|bauhaus)'
+
 
 class hu_obi(DataProvider):
     """Imports OBI DIY store locations in Hungary from OBI's store-locator REST API."""
@@ -42,6 +44,7 @@ class hu_obi(DataProvider):
         self.__types = [
             {'poi_code': 'huobidiy', 'poi_common_name': 'OBI', 'poi_type': 'doityourself',
              'poi_tags': huobidiy, 'poi_url_base': 'https://www.obi.hu', 'poi_search_name': 'obi',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
         ]

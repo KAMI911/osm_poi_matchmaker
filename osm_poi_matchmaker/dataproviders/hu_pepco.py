@@ -24,6 +24,8 @@ except ImportError as err:
 WEEKDAY_INDEX = {'monday': 0, 'tuesday': 1, 'wednesday': 2, 'thursday': 3,
                  'friday': 4, 'saturday': 5, 'sunday': 6}
 
+AVOID_NAME = '(h&m|new yorker|newyorker|sinsay|takko|zara|c&a)'
+
 
 class hu_pepco(DataProvider):
     """Imports Pepco clothing store locations in Hungary from pepco.hu's stores API."""
@@ -47,6 +49,7 @@ class hu_pepco(DataProvider):
         self.__types = [
             {'poi_code': 'hupepcoclo', 'poi_common_name': 'Pepco', 'poi_type': 'clothes',
              'poi_tags': hupepcoclo, 'poi_url_base': 'https://pepco.hu', 'poi_search_name': 'pepco',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 5},
         ]

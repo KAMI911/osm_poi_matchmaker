@@ -21,6 +21,8 @@ except ImportError as err:
 
 company_types = [' e.v.', ' ev.', ' kft.', ' KFT', ' bt.', ' bt']
 
+AVOID_NAME = '(aldi|auchan|cba|príma|prima|coop|lidl|penny|reál|real|spar|tesco|s-market|smarket)'
+
 class hu_tom_market(DataProvider):
     """Imports Tom Market convenience store locations in Hungary from tommarket.hu's WP Store Locator AJAX endpoint."""
 
@@ -39,6 +41,7 @@ class hu_tom_market(DataProvider):
         self.__types = [
             {'poi_code': 'hutommacon', 'poi_common_name': 'Tom Market', 'poi_type': 'shop',
              'poi_tags': hutommacon, 'poi_url_base': 'https://tommarket.hu', 'poi_search_name': 'tom market|tommarket',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
         ]
         return self.__types

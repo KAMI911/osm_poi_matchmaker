@@ -19,6 +19,8 @@ except ImportError as err:
 
 DAY_WEEKDAY = {'MON': 0, 'TUE': 1, 'WED': 2, 'THU': 3, 'FRI': 4, 'SAT': 5, 'SUN': 6}
 
+AVOID_NAME = '(jysk)'
+
 
 class hu_ikea(DataProvider):
     """Imports IKEA furniture store locations in Hungary from IKEA's own per-country
@@ -40,6 +42,7 @@ class hu_ikea(DataProvider):
         self.__types = [
             {'poi_code': 'huikea', 'poi_common_name': 'IKEA', 'poi_type': 'furniture', 'poi_tags': huikea,
              'poi_url_base': 'https://www.ikea.com/hu', 'poi_search_name': 'ikea', 'additional_ref_name': 'ref',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 500,
              'osm_search_distance_unsafe': 30},
         ]

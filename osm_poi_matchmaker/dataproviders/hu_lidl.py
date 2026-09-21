@@ -24,6 +24,8 @@ except ImportError as err:
 # taken as this weekday's regular hours.
 REGULAR_HOUR_REASONS = ('REGULAR', 'SUNDAY_REPEAT')
 
+AVOID_NAME = '(aldi|auchan|cba|príma|prima|coop|penny|reál|real|spar|tesco|s-market|smarket|tom market|tommarket)'
+
 
 class hu_lidl(DataProvider):
     """Imports Lidl supermarket locations in Hungary from the Schwarz Group's shared
@@ -47,6 +49,7 @@ class hu_lidl(DataProvider):
         self.__types = [
             {'poi_code': 'hulidlsup', 'poi_common_name': 'Lidl', 'poi_type': 'shop', 'poi_tags': hulidlsup,
              'poi_url_base': 'https://www.lidl.hu', 'poi_search_name': 'lidl', 'additional_ref_name': 'ref',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 1000, 'osm_search_distance_safe': 400},
         ]
         return self.__types

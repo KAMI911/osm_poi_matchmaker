@@ -20,6 +20,8 @@ except ImportError as err:
 
 DAY_WEEKDAY_HU = {'Hétfő': 0, 'Kedd': 1, 'Szerda': 2, 'Csütörtök': 3, 'Péntek': 4, 'Szombat': 5, 'Vasárnap': 6}
 
+AVOID_NAME = "(kfc|pizza hut|pizzahut|mcdonald's|mcdonalds|subway|domino's|dominos)"
+
 
 class hu_burger_king(DataProvider):
     """Imports Burger King restaurant locations in Hungary, scraped from the
@@ -45,6 +47,7 @@ class hu_burger_king(DataProvider):
         self.__types = [
             {'poi_code': 'hubkfaf', 'poi_common_name': 'Burger King', 'poi_type': 'fastfood', 'poi_tags': hubkfaf,
              'poi_url_base': 'https://burgerking.hu', 'poi_search_name': '(burger king|bk)',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref', 'osm_search_distance_perfect': 300,
              'osm_search_distance_safe': 100, 'osm_search_distance_unsafe': 20},
         ]

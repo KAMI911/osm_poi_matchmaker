@@ -17,6 +17,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(new yorker|newyorker|pepco|sinsay|takko|zara|c&a)'
+
 
 class hu_hm(DataProvider):
     """Imports H&M clothing store locations in Hungary from H&M Group's store-locator
@@ -42,6 +44,7 @@ class hu_hm(DataProvider):
         self.__types = [
             {'poi_code': 'huhm', 'poi_common_name': 'H&M', 'poi_type': 'clothes', 'poi_tags': huhm,
              'poi_url_base': 'https://www.hm.com/hu', 'poi_search_name': 'h&m', 'additional_ref_name': 'ref',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 500, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 20},
         ]

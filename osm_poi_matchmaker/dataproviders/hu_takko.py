@@ -19,6 +19,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(h&m|new yorker|newyorker|pepco|sinsay|zara|c&a)'
+
 
 class hu_takko(DataProvider):
     """Imports Takko clothing store locations in Hungary.
@@ -49,7 +51,8 @@ class hu_takko(DataProvider):
         hutakkocl.update(PAY_CASH)
         self.__types = [
             {'poi_code': 'hutakkocl', 'poi_common_name': 'Takko', 'poi_type': 'clothes',
-             'poi_tags': hutakkocl, 'poi_url_base': 'https://takko.hu', 'poi_search_name': 'takko'},
+             'poi_tags': hutakkocl, 'poi_url_base': 'https://takko.hu', 'poi_search_name': 'takko',
+             'poi_search_avoid_name': AVOID_NAME},
         ]
         return self.__types
 

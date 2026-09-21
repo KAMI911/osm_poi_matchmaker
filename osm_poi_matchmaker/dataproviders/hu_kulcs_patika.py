@@ -19,6 +19,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(alma|benu|pingvin|plus|unipatika)'
+
 
 class hu_kulcs_patika(DataProvider):
     """Imports Kulcs Patika pharmacy locations in Hungary, scraped from kulcspatikak.hu's pharmacy finder."""
@@ -40,6 +42,7 @@ class hu_kulcs_patika(DataProvider):
             {'poi_code': 'hukulcspha', 'poi_common_name': 'Kulcs Patika', 'poi_type': 'pharmacy',
              'poi_tags': hukulcspha,
              'poi_url_base': 'https://www.kulcspatikak.hu/', 'poi_search_name': '(kulcs patikák|kulcs patika|kulcs)',
+             'poi_search_avoid_name': AVOID_NAME,
              'poi_search_name_strip_words': r'patikák|patika|fiókgyógyszertár\w*|fiók|gyógyszertár\w*|gyogyszertar',
              'preserve_original_name': True, 'additional_ref_name': 'ref'},
         ]

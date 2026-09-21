@@ -4,7 +4,6 @@ try:
     import logging
     import sys
     import os
-    import json
     import time
     import random
     import traceback
@@ -13,6 +12,7 @@ try:
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
         clean_phone_to_str, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
+    from osm_poi_matchmaker.libs.json_cache import load_or_fetch_json
     from osm_poi_matchmaker.utils.data_provider import DataProvider
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_OTP, PAY_CASH
     from osm_poi_matchmaker.utils.enums import FileType
@@ -50,6 +50,8 @@ REQUEST_HEADERS = {
 }
 STORE_TYPE_TO_CODE = {'Express': 'hutescoexp', 'Hypermarket': 'hutescoext', 'Supermarket': 'hutescosup'}
 DAY_ORDER = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
+
+AVOID_NAME = '(aldi|auchan|cba|príma|prima|coop|lidl|penny|reál|real|spar|tom market|tommarket)'
 
 
 class hu_tesco(DataProvider):
@@ -98,24 +100,29 @@ class hu_tesco(DataProvider):
         self.__types = [
             {'poi_code': 'hutescoexp', 'poi_common_name': 'Tesco Expressz', 'poi_type': 'shop',
              'poi_tags': hutescoexp, 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
             {'poi_code': 'hutescoext', 'poi_common_name': 'Tesco Extra', 'poi_type': 'shop',
              'poi_tags': hutescoext, 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100},
             {'poi_code': 'hutescosup', 'poi_common_name': 'Tesco', 'poi_type': 'shop',
              'poi_tags': hutescosup, 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100},
             {'poi_code': 'husmrktexp', 'poi_common_name': 'S-Market', 'poi_type': 'shop',
              'poi_tags': husmrktexp, 'poi_url_base': 'https://tesco.hu',
              'poi_search_name': '(tesco|smarket|s-market|s market)',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
             {'poi_code': 'husmrktsup', 'poi_common_name': 'S-Market', 'poi_type': 'shop',
              'poi_tags': husmrktsup, 'poi_url_base': 'https://tesco.hu',
              'poi_search_name': '(tesco|smarket|s-market|s market)',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
         ]
@@ -161,16 +168,9 @@ class hu_tesco(DataProvider):
     def process(self):
         try:
             cache_file = os.path.join(self.download_cache, self.filename)
-            if config.get_download_use_cached_data() is True and os.path.isfile(cache_file):
-                with open(cache_file, mode='r', encoding='utf-8') as file:
-                    stores = json.load(file)
-            else:
-                stores = self.__fetch_stores()
-                if not os.path.exists(self.download_cache):
-                    os.makedirs(self.download_cache)
-                with open(cache_file, mode='w', encoding='utf-8') as file:
-                    json.dump(stores, file)
-            for profile in stores:
+            stores = load_or_fetch_json(cache_file, self.download_cache, self.__fetch_stores,
+                                        config.get_download_use_cached_data())
+            for profile in stores or []:
                 try:
                     name = profile.get('name') or ''
                     address = profile.get('address') or {}

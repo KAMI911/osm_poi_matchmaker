@@ -23,6 +23,13 @@ DAYS_EN = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 HOURS_LINE_RE = re.compile(r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:-(Mon|Tue|Wed|Thu|Fri|Sat|Sun))?\s+'
                            r'(\d{1,2}:\d{2})-(\d{1,2}:\d{2})')
 
+# reserved/cropp/mohito are Sinsay's own sibling brands under the same LPP group,
+# distinct standalone stores in Hungary too - not the same chain despite the
+# shared parent. ('house', LPP's 4th sibling brand, is deliberately left out -
+# too generic a substring, and collides with the real "Fashion House Outlet"
+# mall branding also present in Hungary.)
+AVOID_NAME = '(h&m|new yorker|newyorker|pepco|takko|zara|c&a|reserved|cropp|mohito)'
+
 
 class hu_sinsay(DataProvider):
     """Imports Sinsay clothing store locations in Hungary from the same global KML
@@ -46,6 +53,7 @@ class hu_sinsay(DataProvider):
         self.__types = [
             {'poi_code': 'husinsay', 'poi_common_name': 'Sinsay', 'poi_type': 'clothes', 'poi_tags': husinsay,
              'poi_url_base': 'https://www.sinsay.com', 'poi_search_name': 'sinsay',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 500, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 20},
         ]

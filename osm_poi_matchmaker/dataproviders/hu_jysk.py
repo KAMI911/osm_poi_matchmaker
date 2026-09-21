@@ -20,6 +20,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(ikea)'
+
 
 class hu_jysk(DataProvider):
     """Imports Jysk furniture store locations in Hungary, scraped from jysk.hu's store listing page."""
@@ -41,6 +43,7 @@ class hu_jysk(DataProvider):
         self.__types = [
             {'poi_code': 'hujyskfur', 'poi_common_name': 'Jysk', 'poi_type': 'furniture',
              'poi_tags': hujyskfur, 'poi_url_base': 'https://jysk.hu', 'poi_search_name': 'jysk',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 800, 'osm_search_distance_safe': 300,
              'osm_search_distance_unsafe': 80},

@@ -26,6 +26,8 @@ except ImportError as err:
 # 10:00-18:00" hours notation, mapped to Monday=0..Sunday=6.
 DAY_ABBR = {'h': 0, 'k': 1, 'sze': 2, 'cs': 3, 'p': 4, 'szo': 5, 'v': 6}
 
+AVOID_NAME = '(douglas|marionnaud|l\'occitane|occitane|the body shop|rituals)'
+
 # Matches one `{ name:"...", addr:"...", city:"...", phone:"...", hours:"...", q:"..." }`
 # record from the page's embedded `var stores = [...]` array - see process().
 STORE_RE = re.compile(
@@ -138,6 +140,7 @@ class hu_yves_rocher(DataProvider):
             {'poi_code': 'huyvesrcos', 'poi_common_name': 'Yves Rocher', 'poi_type': 'cosmetics',
              'poi_tags': huyvesrcos, 'poi_url_base': 'https://www.yves-rocher.hu/',
              'poi_search_name': 'yves rocher',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 15},
         ]

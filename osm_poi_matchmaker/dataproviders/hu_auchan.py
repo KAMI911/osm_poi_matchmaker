@@ -22,6 +22,7 @@ except ImportError as err:
 MAPS_LINK_COORDS_RE = re.compile(r'query=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)')
 
 FUEL_AVOID_NAME = '(mol|shell|m. petrol|avia|lukoil|hunoil|orlen|omv|oil)'
+GROCERY_AVOID_NAME = '(aldi|cba|príma|prima|coop|lidl|penny|reál|real|spar|tesco|s-market|smarket|tom market|tommarket)'
 
 
 class hu_auchan(DataProvider):
@@ -51,6 +52,7 @@ class hu_auchan(DataProvider):
         self.__types = [
             {'poi_code': 'huauchsup', 'poi_common_name': 'Auchan', 'poi_type': 'shop', 'poi_tags': huauchsup,
              'poi_url_base': 'https://auchan.hu', 'poi_search_name': 'auchan', 'additional_ref_name': 'ref',
+             'poi_search_avoid_name': GROCERY_AVOID_NAME,
              'osm_search_distance_perfect': 1000, 'osm_search_distance_safe': 400},
             {'poi_code': 'huauchfu', 'poi_common_name': 'Auchan', 'poi_type': 'fuel', 'poi_tags': huauchfu,
              'poi_url_base': 'https://auchan.hu', 'poi_search_name': 'auchan', 'additional_ref_name': 'ref',

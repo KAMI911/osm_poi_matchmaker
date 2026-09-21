@@ -28,6 +28,8 @@ AUTH_HEADERS = {'Brand': 'KFC', 'Source': 'WEB'}
 AUTH_BODY = {'deviceUuid': 'FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF', 'deviceUuidSource': 'FINGERPRINT',
             'source': 'WEB_KFC'}
 
+AVOID_NAME = "(burger king|bk|pizza hut|pizzahut|mcdonald's|mcdonalds|subway|domino's|dominos)"
+
 
 class hu_kfc(DataProvider):
     """Imports KFC restaurant locations in Hungary from AmRest's ordering-platform API
@@ -49,6 +51,7 @@ class hu_kfc(DataProvider):
         self.__types = [
             {'poi_code': 'hukfcfaf', 'poi_common_name': 'KFC', 'poi_type': 'fastfood', 'poi_tags': hukfcfaf,
              'poi_url_base': 'https://kfc.hu', 'poi_search_name': 'kfc', 'additional_ref_name': 'ref',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 20},
         ]

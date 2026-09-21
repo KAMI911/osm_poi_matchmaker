@@ -20,6 +20,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(aldi|auchan|coop|lidl|penny|reál|real|spar|tesco|s-market|smarket|tom market|tommarket)'
+
 
 class hu_cba(DataProvider):
     """Imports CBA convenience store locations in Hungary, scraped from cba.hu's store listing page."""
@@ -44,20 +46,24 @@ class hu_cba(DataProvider):
         self.__types = [
             {'poi_code': 'hucbacon', 'poi_common_name': 'CBA', 'poi_type': 'shop',
              'poi_tags': hucbacon, 'poi_url_base': 'https://www.cba.hu', 'poi_search_name': '(cba abc|cba)',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 5,
              'preserve_original_name': True},
             {'poi_code': 'hucbasup', 'poi_common_name': 'CBA', 'poi_type': 'shop',
              'poi_tags': hucbasup, 'poi_url_base': 'https://www.cba.hu', 'poi_search_name': '(cba abc|cba)',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 5,
              'preserve_original_name': True},
             {'poi_code': 'huprimacon', 'poi_common_name': 'Príma', 'poi_type': 'shop',
              'poi_tags': huprimacon, 'poi_url_base': 'https://www.prima.hu',
              'poi_search_name': '(príma abc|prima abc|príma|prima)',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 23,
              'preserve_original_name': True},
             {'poi_code': 'huprimasup', 'poi_common_name': 'Príma', 'poi_type': 'shop',
              'poi_tags': huprimasup, 'poi_url_base': 'https://www.prima.hu',
              'poi_search_name': '(príma abc|prima abc|príma|prima)',
+             'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 23,
              'preserve_original_name': True},
         ]
