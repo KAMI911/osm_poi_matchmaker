@@ -3,7 +3,10 @@
 """Regression test for a real production bug found in hu_ofotert.py:
 types() declared poi_code 'ofoteopt' (used to create/find its poi_common row),
 but process() tagged every harvested row with self.data.code = 'huofoteopt' -
-a different string. insert_poi_dataframe() resolves poi_common_id by looking
+a different string (and, per every other provider's 'hu' + brand + type
+convention, 'huofoteopt' was actually the correct one of the two - the fix
+was to make types() declare that, not to make process() match the
+inconsistent 'ofoteopt'). insert_poi_dataframe() resolves poi_common_id by looking
 the row's poi_code up in a dict keyed by every *declared* poi_code
 (dao/data_handlers.py's common_lookup); a code process() invented that types()
 never declared always misses that lookup, so every row silently got inserted

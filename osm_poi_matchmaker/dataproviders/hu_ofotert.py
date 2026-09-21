@@ -4,7 +4,6 @@ try:
     import logging
     import sys
     import os
-    import json
     import traceback
     import requests
     from bs4 import BeautifulSoup
@@ -12,6 +11,7 @@ try:
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
         clean_string, clean_street, clean_opening_hours, clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
+    from osm_poi_matchmaker.libs.json_cache import load_or_fetch_json
     from osm_poi_matchmaker.libs.osm import query_osm_city_name
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -30,6 +30,8 @@ except ImportError as err:
 # pagination or bounding-box tiling is needed here.
 SEARCH_PAGE_URL = 'https://www.ofotert.hu/hu/uzletkereso'
 API_URL = 'https://www.ofotert.hu/hu/api/store-locator'
+
+AVOID_NAME = '(vision|optic world)'
 
 
 class hu_ofotert(DataProvider):
@@ -54,9 +56,9 @@ class hu_ofotert(DataProvider):
         huofoteopt.update(POS_HU_GEN)
         huofoteopt.update(PAY_CASH)
         self.__types = [
-            {'poi_code': 'ofoteopt', 'poi_common_name': 'Ofotért', 'poi_type': 'optician',
+            {'poi_code': 'huofoteopt', 'poi_common_name': 'Ofotért', 'poi_type': 'optician',
              'poi_tags': huofoteopt, 'poi_url_base': 'https://www.ofotert.hu', 'poi_search_name': 'ofotért',
-             'poi_search_avoid_name': '(vision)',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
              'osm_search_distance_unsafe': 50},
@@ -82,18 +84,11 @@ class hu_ofotert(DataProvider):
     def process(self):
         try:
             cache_file = os.path.join(self.download_cache, self.filename)
-            if config.get_download_use_cached_data() is True and os.path.isfile(cache_file):
-                with open(cache_file, mode='r', encoding='utf-8') as file:
-                    stores = json.load(file)
-            else:
-                stores = self.__fetch_stores()
-                if not os.path.exists(self.download_cache):
-                    os.makedirs(self.download_cache)
-                with open(cache_file, mode='w', encoding='utf-8') as file:
-                    json.dump(stores, file)
+            stores = load_or_fetch_json(cache_file, self.download_cache, self.__fetch_stores,
+                                        config.get_download_use_cached_data())
             for poi_data in stores or []:
                 try:
-                    self.data.code = 'ofoteopt'
+                    self.data.code = 'huofoteopt'
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('geo_lat'), poi_data.get('geo_lng'))
                     self.data.postcode = clean_string(poi_data.get('address_zip'))
                     self.data.branch = clean_string(poi_data.get('name'))
