@@ -215,6 +215,32 @@ class TestFindOsmMatches(unittest.TestCase):
         result = opm.find_osm_matches((data, self.comm_data))
         self.assertTrue(result.at[0, 'addr_changed_from_osm'])
 
+    def test_existing_street_is_not_overwritten_by_matched_poi_own_tag(self):
+        """Regression test for a real production bug: an Avia fuel station's own
+        addr:street on the matched OSM POI ('Rákóczi utca') was a day behind a real
+        OSM edit that already matched the provider's own, process_street()-validated
+        value ('Rákóczi út', confirmed against the real nearby road segment) - yet
+        find_osm_matches() blindly overwrote the already-validated value with the
+        matched POI's own (stale) tag anyway, proposing to revert a correct, already-
+        live-confirmed edit. Unlike housenumber/city/conscriptionnumber, street has
+        no reason to ever be overwritten here when we already have one: process_street()
+        (STAGE 2) already validated it against the real road network, which is a more
+        reliable source for what a street is called than any individual matched POI's
+        own possibly-mistagged/stale addr:street."""
+        data = _candidate_row(poi_addr_street='Rákóczi út')
+        result = opm.find_osm_matches((data, self.comm_data))
+        self.assertEqual(result.at[0, 'poi_addr_street'], 'Rákóczi út')
+
+    def test_missing_street_is_still_filled_in_from_matched_poi(self):
+        """A provider that never had a street name at all (poi_addr_street missing)
+        should still get one filled in from the matched OSM POI's own addr:street -
+        there's no process_street()-validated value to protect in that case, so this
+        remains a legitimate gap-fill, not an overwrite of something already trusted."""
+        data = _candidate_row(poi_addr_street=None)
+        result = opm.find_osm_matches((data, self.comm_data))
+        self.assertEqual(result.at[0, 'poi_addr_street'], 'Szilágyi Erzsébet fasor')
+        self.assertTrue(result.at[0, 'addr_changed_from_osm'])
+
     def test_no_match_marks_new_without_touching_building_query(self):
         """Building-relocation/postcode-refinement for a genuinely-new POI now
         happens in enrich_matched_pois(), not here - a demoted row needs the exact

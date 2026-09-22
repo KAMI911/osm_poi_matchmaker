@@ -283,12 +283,22 @@ def find_osm_matches(args):
                         except Exception as err_row:
                             logging.exception('Exception occurred during OSM city query: {}'.format(err_row))
                             logging.warning(traceback.format_exc())
-                        # Overwrite street import data with OSM truth
+                        # Fill in street from the matched OSM POI's own addr:street only
+                        # when we don't already have one. Unlike housenumber/city/
+                        # conscriptionnumber, our own street value (when present) already
+                        # went through process_street()'s dedicated validation against the
+                        # real nearby road network (exact/metaphone/proximity match against
+                        # planet_osm_line) back in STAGE 2 - a check with no equivalent for
+                        # those other fields, and a more reliable source for what a street is
+                        # actually called than any individual matched POI's own tag, which can
+                        # independently lag a real edit (confirmed live: an Avia station's own
+                        # addr:street was a day behind a real OSM edit that already matched our
+                        # source data, while the real road segment right next to it - the one
+                        # process_street() checks against - was already correctly named).
                         try:
-                            if osm_query.get('addr:street') is not None:
+                            if not has_value(row.poi_addr_street) and osm_query.get('addr:street') is not None:
                                 if osm_query.get('addr:street').values[0] is not None and \
-                                   osm_query.get('addr:street').values[0] != '' and \
-                                   osm_query.get('addr:street').values[0] != row.poi_addr_street:
+                                   osm_query.get('addr:street').values[0] != '':
                                     data.at[i, 'poi_addr_street'] = osm_query.get('addr:street').values[0]
                                     changed_from_osm = True
                         except Exception as err_row:
