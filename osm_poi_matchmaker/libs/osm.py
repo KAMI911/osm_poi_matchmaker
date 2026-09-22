@@ -86,8 +86,16 @@ def query_osm_postcode_gpd(session, lon, lat):
 
 def query_postcode_osm_external(prefer_osm, prefer_original, session, lon, lat, postcode_ext, postcode_original):
     """Decide which postcode to use for a POI, choosing between the data provider's
-    value, OSM's own boundary polygon at that point, and the POI's existing OSM
-    postcode - in an order controlled by the two preference flags.
+    value, OSM's own boundary=postal_code polygon at that point, and the POI's
+    existing OSM postcode - in an order controlled by the two preference flags.
+
+    OSM's postal_code boundary polygons in Hungary are hand-drawn/community-
+    maintained, not an authoritative government dataset, and can be imprecise near
+    their edges - confirmed live: an address a few meters inside the real "1117"
+    zone landed inside OSM's own "1116" polygon. So even with prefer_osm=True this
+    only wins when it actually has a candidate; whichever of postcode_ext/the
+    boundary polygon is NOT the preferred one is still used as a fallback if the
+    preferred one comes up empty, instead of being silently dropped.
 
     Args:
         prefer_osm (bool): If True, prefer the OSM boundary polygon's postcode over
@@ -101,23 +109,20 @@ def query_postcode_osm_external(prefer_osm, prefer_original, session, lon, lat, 
         postcode_original: The POI's existing (already-in-OSM) postcode, if any.
 
     Returns:
-        str | None: The chosen postcode (cleaned via clean_postcode()), or None if no
-        candidate matched any of the conditions below.
+        str | None: The chosen postcode (cleaned via clean_postcode()), or None if
+        neither postcode_ext nor the boundary polygon has anything usable.
     """
     if prefer_original is True and clean_postcode(postcode_original) is not None:
         return clean_postcode(postcode_original)
     if prefer_osm is False and clean_postcode(postcode_ext) is not None:
         return clean_postcode(postcode_ext)
-    query_postcode = query_osm_postcode_gpd(session, lon, lat)
-    if prefer_original is True and clean_postcode(postcode_original) is None:
-        if prefer_osm is True and clean_postcode(query_postcode) is not None:
-            return clean_postcode(query_postcode)
-        elif prefer_osm is True and clean_postcode(query_postcode) is None:
-            return clean_postcode(postcode_ext)
-    if prefer_osm is True and clean_postcode(query_postcode) is not None:
-        return clean_postcode(query_postcode)
-    elif prefer_osm is True and clean_postcode(query_postcode) is None:
-        return clean_postcode(postcode_ext)
+    query_postcode = clean_postcode(query_osm_postcode_gpd(session, lon, lat))
+    if prefer_osm is True and query_postcode is not None:
+        return query_postcode
+    # Either prefer_osm is False (and postcode_ext, checked above, was empty) or
+    # prefer_osm is True but the boundary polygon query came up empty - either
+    # way, fall back to whichever of the two candidates is still usable.
+    return clean_postcode(postcode_ext) if clean_postcode(postcode_ext) is not None else query_postcode
 
 
 def relationer(relation_text):

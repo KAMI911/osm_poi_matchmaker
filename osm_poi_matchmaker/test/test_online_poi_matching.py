@@ -79,6 +79,32 @@ class TestSmartOnlinePOIMatching(unittest.TestCase):
                 self.assertEqual(postcode, self.good_codes[i], 'Case {}'.format(case))
 
 
+class TestSmartPostcodeCheckPreferOriginal(unittest.TestCase):
+    """geo.prefer.osm.original.postcode (smart_postcode_check()'s prefer_original
+    parameter) - whether a postcode already tagged on the matched OSM POI itself
+    beats the provider's own. Defaults to True (existing behaviour, covered by
+    TestSmartOnlinePOIMatching above); these cover the False case."""
+
+    def setUp(self):
+        self.curr_data = pd.Series(
+            data=['1016', 'Budapest', 'Hunyadi János út', '19', None], index=POI_ADDR_COLS)
+        self.osm_data = pd.DataFrame([['1017', 'Budapest', 'Hunyadi János út', '19', None]])
+        self.osm_data.columns = OSM_ADDR_COLS
+
+    def test_default_prefers_existing_osm_postcode(self):
+        self.assertEqual(smart_postcode_check(self.curr_data, self.osm_data, '1017'), '1017')
+
+    def test_prefer_original_false_prefers_providers_own_postcode(self):
+        self.assertEqual(
+            smart_postcode_check(self.curr_data, self.osm_data, '1017', prefer_original=False), '1016')
+
+    def test_prefer_original_false_still_falls_back_to_existing_osm_postcode_if_provider_has_none(self):
+        curr_data_no_postcode = pd.Series(
+            data=[None, 'Budapest', 'Hunyadi János út', '19', None], index=POI_ADDR_COLS)
+        self.assertEqual(
+            smart_postcode_check(curr_data_no_postcode, self.osm_data, '1017', prefer_original=False), '1017')
+
+
 class TestOrderedPostcodeCheck(unittest.TestCase):
     """Regression tests for ordered_postcode_check()'s NaN handling.
 
@@ -230,6 +256,23 @@ class TestFindOsmMatches(unittest.TestCase):
         data = _candidate_row(poi_addr_street='Rákóczi út')
         result = opm.find_osm_matches((data, self.comm_data))
         self.assertEqual(result.at[0, 'poi_addr_street'], 'Rákóczi út')
+
+    def test_geo_prefer_osm_original_postcode_config_controls_priority(self):
+        """geo.prefer.osm.original.postcode (default True) decides whether a
+        postcode already tagged on the matched OSM POI itself beats the
+        provider's own - previously hardcoded True (query_postcode_osm_external's
+        prefer_original argument), now wired through config."""
+        data = _candidate_row(poi_postcode='1016', preserve_original_post_code=False)
+        with patch('osm_poi_matchmaker.libs.online_poi_matching.config.get_geo_prefer_osm_original_postcode',
+                   return_value=True):
+            result = opm.find_osm_matches((data, self.comm_data))
+        self.assertEqual(result.at[0, 'poi_postcode'], '1026')  # osm_query's addr:postcode wins
+
+        data = _candidate_row(poi_postcode='1016', preserve_original_post_code=False)
+        with patch('osm_poi_matchmaker.libs.online_poi_matching.config.get_geo_prefer_osm_original_postcode',
+                   return_value=False):
+            result = opm.find_osm_matches((data, self.comm_data))
+        self.assertEqual(result.at[0, 'poi_postcode'], '1016')  # provider's own postcode wins instead
 
     def test_missing_street_is_still_filled_in_from_matched_poi(self):
         """A provider that never had a street name at all (poi_addr_street missing)

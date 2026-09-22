@@ -76,6 +76,7 @@ KEY_GEO_AMENITY_ATM_POI_DISTANCE = 'geo.amenity.atm.poi.distance'
 KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE = 'geo.shop.convenience.poi.distance'
 KEY_GEO_AMENITY_POST_OFFICE_POI_DISTANCE = 'geo.amenity.post.office.poi.distance'
 KEY_GEO_PREFER_OSM_POSTCODE = 'geo.prefer.osm.postcode'
+KEY_GEO_PREFER_OSM_ORIGINAL_POSTCODE = 'geo.prefer.osm.original.postcode'
 KEY_GEO_ALTERNATIVE_OPENING_HOURS = 'geo.alternative.opening.hours'
 KEY_GEO_ALTERNATIVE_OPENING_HOURS_TAG = 'geo.alternative.opening.hours.tag'
 KEY_DOWNLOAD_VERIFY_LINK = 'download.verify.link'
@@ -521,11 +522,40 @@ def get_geo_amenity_post_office_poi_distance():
 
 
 def get_geo_prefer_osm_postcode():
-    """Whether to prefer OSM's own postcode over the data provider's when they disagree.
+    """Whether to prefer OSM's own boundary=postal_code polygon lookup over the
+    data provider's postcode when both have a candidate.
 
-    Config key 'geo.prefer.osm.postcode', defaults to True.
+    Defaults to False: OSM's postal_code boundary polygons in Hungary are hand-
+    drawn/community-maintained, not an authoritative dataset, and can be
+    imprecise near their edges - confirmed live incorrectly overriding a correct
+    provider-supplied postcode with a neighbouring zone's. query_postcode_osm_
+    external() still falls back to the polygon lookup when the provider has
+    nothing, so this doesn't lose the old True behaviour's only real benefit.
+
+    Config key 'geo.prefer.osm.postcode'.
     """
     setting = get_config_bool(KEY_GEO_PREFER_OSM_POSTCODE)
+    if setting is not None:
+        return setting
+    else:
+        return False
+
+
+def get_geo_prefer_osm_original_postcode():
+    """Whether to trust a postcode already tagged directly on the matched OSM
+    element itself (addr:postcode on that exact node/way) over everything else -
+    the data provider's postcode and the boundary=postal_code polygon lookup
+    both included.
+
+    Defaults to True: a postcode already present on the specific POI being
+    matched is normally a human-verified, precise value - a stronger signal than
+    either the provider's own data or a geometric polygon-membership guess, so it
+    should win whenever it exists. See get_geo_prefer_osm_postcode() for the
+    separate setting controlling the fallback order when this one has nothing.
+
+    Config key 'geo.prefer.osm.original.postcode'.
+    """
+    setting = get_config_bool(KEY_GEO_PREFER_OSM_ORIGINAL_POSTCODE)
     if setting is not None:
         return setting
     else:

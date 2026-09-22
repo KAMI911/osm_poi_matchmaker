@@ -223,7 +223,8 @@ def find_osm_matches(args):
                                 # Current OSM postcode based on lat,long query.
                                 try:
                                     postcode = None
-                                    postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
+                                    postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(),
+                                                                           config.get_geo_prefer_osm_original_postcode(),
                                                                            session, lon, lat,
                                                                            row.poi_postcode, osm_postcode)
                                 except Exception as err:
@@ -243,7 +244,8 @@ def find_osm_matches(args):
                                         data.at[i, 'poi_postcode'] = postcode
                                 else:
                                     # Try to use smart method for postcode check
-                                    ch_postcode = smart_postcode_check(row, osm_query, postcode)
+                                    ch_postcode = smart_postcode_check(row, osm_query, postcode,
+                                                                       config.get_geo_prefer_osm_original_postcode())
                                     if ch_postcode is not None:
                                         data.at[i, 'poi_postcode'] = ch_postcode
                                         if 'osm_data' in locals():
@@ -630,7 +632,8 @@ def enrich_matched_pois(args):
                     if row.preserve_original_post_code is not True:
                         try:
                             postcode = None
-                            postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(), True,
+                            postcode = query_postcode_osm_external(config.get_geo_prefer_osm_postcode(),
+                                                                   config.get_geo_prefer_osm_original_postcode(),
                                                                    session,
                                                                    row.poi_lon, row.poi_lat,
                                                                    addr_postcode, osm_postcode)
@@ -668,12 +671,23 @@ def enrich_matched_pois(args):
         logging.exception('Exception occurred')
 
 
-def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
+def smart_postcode_check(curr_data, osm_data, osm_query_postcode, prefer_original=True):
     """
     Enhancement for the former problem: addr:postcode was changed without
     changing any other parts of address. Issue #78
 
     When address or conscription number change or postcode is empty.
+
+    Args:
+        prefer_original (bool): geo.prefer.osm.original.postcode - if True
+            (default), a postcode already tagged directly on the matched OSM
+            POI (osm_db_postcode) always wins over osm_query_postcode/the
+            provider's own postcode. If False, the provider's own postcode is
+            tried first instead, falling back to osm_db_postcode only if the
+            provider has nothing either. Without this, osm_db_postcode always
+            won here regardless of what query_postcode_osm_external() (which
+            computed osm_query_postcode) already decided from the very same
+            flag - silently discarding a correct provider postcode again.
     """
     # Change postcode when there is no postcode in OSM or the address was changed
     changed = 0
@@ -712,7 +726,10 @@ def smart_postcode_check(curr_data, osm_data, osm_query_postcode):
         logging.debug('Address has changed via data provider so use calculated postcode if possible.')
     else:
         logging.debug('Address has not changed via data provider so use its postcode if possible.')
-    postcode = ordered_postcode_check([osm_db_postcode, osm_query_postcode, current_postcode])
+    if prefer_original:
+        postcode = ordered_postcode_check([osm_db_postcode, osm_query_postcode, current_postcode])
+    else:
+        postcode = ordered_postcode_check([current_postcode, osm_query_postcode, osm_db_postcode])
     if postcode is None or postcode == '0' or postcode == 0:
         return None
     if postcode == osm_query_postcode:

@@ -25,7 +25,8 @@ geo.default.poi.road.trust.distance=30
 geo.amenity.atm.poi.distance=20
 geo.shop.convenience.poi.distance=50
 geo.amenity.post.office.poi.distance=200
-geo.prefer.osm.postcode=True
+geo.prefer.osm.postcode=False
+geo.prefer.osm.original.postcode=True
 geo.alternative.opening.hours=False
 geo.alternative.opening.hours.tag=opening_hours:covid19
 
