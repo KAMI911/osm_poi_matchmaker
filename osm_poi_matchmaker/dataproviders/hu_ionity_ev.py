@@ -38,10 +38,10 @@ class hu_ionity_ev(DataProvider):
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        huionitychs = self.tags.copy()
+        huionitchs = self.tags.copy()
         self.__types = [
-            {'poi_code': 'huionitychs', 'poi_common_name': 'IONITY', 'poi_type': 'charging_station',
-             'poi_tags': huionitychs, 'poi_url_base': 'https://ionity.eu', 'poi_search_name': '(ionity)',
+            {'poi_code': 'huionitchs', 'poi_common_name': 'IONITY', 'poi_type': 'charging_station',
+             'poi_tags': huionitchs, 'poi_url_base': 'https://ionity.eu', 'poi_search_name': '(ionity)',
              'poi_search_avoid_name': '(mobiliti|mobility|e-mobi|emobi|e-töltőpont|plugee|tesla|supercharger|tea|'
                                       'e.on|eon|e-on|shell|alte-go|parkl|elektro profi|elmű|omv|emotion|'
                                       'optimum way|lidl|ev24|freecharger|ecotap|penny|polyfazer|rolecev|rollin|'
@@ -66,7 +66,7 @@ class hu_ionity_ev(DataProvider):
                         continue
                     if poi_data.get('state') != 'active':
                         continue
-                    self.data.code = 'huionitychs'
+                    self.data.code = 'huionitchs'
                     self.data.branch = poi_data.get('name')
                     self.data.lat, self.data.lon = check_hu_boundary(
                         poi_data.get('latitude'), poi_data.get('longitude'))
