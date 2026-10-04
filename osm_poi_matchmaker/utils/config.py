@@ -523,14 +523,18 @@ def get_geo_amenity_post_office_poi_distance():
 
 def get_geo_prefer_osm_postcode():
     """Whether to prefer OSM's own boundary=postal_code polygon lookup over the
-    data provider's postcode when both have a candidate.
+    data provider's postcode when both have a candidate and neither is already
+    tagged on the matched element itself (see get_geo_prefer_osm_original_
+    postcode() for that, higher-priority case).
 
-    Defaults to False: OSM's postal_code boundary polygons in Hungary are hand-
-    drawn/community-maintained, not an authoritative dataset, and can be
+    Defaults to True. Note: OSM's postal_code boundary polygons in Hungary are
+    hand-drawn/community-maintained, not an authoritative dataset, and can be
     imprecise near their edges - confirmed live incorrectly overriding a correct
-    provider-supplied postcode with a neighbouring zone's. query_postcode_osm_
-    external() still falls back to the polygon lookup when the provider has
-    nothing, so this doesn't lose the old True behaviour's only real benefit.
+    provider-supplied postcode with a neighbouring zone's (see 4ac508e). Setting
+    this to False prefers the provider's own postcode instead whenever it has
+    one; query_postcode_osm_external() falls back to the other source either way
+    if its preferred one has nothing, so no candidate is ever silently dropped
+    regardless of this setting.
 
     Config key 'geo.prefer.osm.postcode'.
     """
@@ -538,7 +542,7 @@ def get_geo_prefer_osm_postcode():
     if setting is not None:
         return setting
     else:
-        return False
+        return True
 
 
 def get_geo_prefer_osm_original_postcode():

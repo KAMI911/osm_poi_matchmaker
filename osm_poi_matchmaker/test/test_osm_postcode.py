@@ -20,6 +20,16 @@ prefer_osm=True) at least got the polygon-derived guess.
 This file covers both: the preferred source always wins when it has a candidate,
 and the *other* source is always used as a fallback instead of being silently
 dropped.
+
+Also covers a separate, third bug in the same area: query_osm_postcode_gpd()'s
+SQL picked among several overlapping boundary=postal_code polygons with `ORDER
+BY name LIMIT 1` - an alphabetical, geometrically-meaningless tie-break. Hand-
+drawn OSM postal boundaries do overlap in practice (confirmed live: Budapest's
+1044/1047 IV. kerület polygons do), and this is how a real Hatvan pharmacy
+(postcode 3000, a provider that never supplies its own postcode at all) once
+got tagged 2173 - a neighbouring town's polygon apparently also covered that
+point, and '2173' sorts before '3000'. Fixed to prefer the smallest (most
+specific) containing polygon instead, via `ORDER BY ST_Area(way)`.
 """
 
 try:
@@ -27,7 +37,7 @@ try:
     import logging
     import sys
     from unittest.mock import MagicMock, patch
-    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
+    from osm_poi_matchmaker.libs.osm import query_postcode_osm_external, query_osm_postcode_gpd
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -87,6 +97,32 @@ class TestQueryPostcodeOsmExternal(unittest.TestCase):
         with self._with_boundary(1116):
             result = query_postcode_osm_external(False, True, self.session, 19.04, 47.43, '10003 - Mobiliti', None)
         self.assertEqual(result, '1116')
+
+
+class TestQueryOsmPostcodeGpd(unittest.TestCase):
+    """query_osm_postcode_gpd() must break ties between overlapping
+    boundary=postal_code polygons by picking the smallest (most specific) one,
+    not whichever sorts first alphabetically by name - see the module docstring."""
+
+    def test_orders_by_area_not_by_name(self):
+        session = MagicMock()
+        session.execute.return_value.first.return_value = None
+        query_osm_postcode_gpd(session, 19.08, 47.57)
+
+        sql_text = str(session.execute.call_args[0][0])
+        self.assertIn('ST_Area', sql_text)
+        self.assertNotIn('ORDER BY name', sql_text)
+
+    def test_returns_the_smaller_overlapping_polygons_postcode(self):
+        """Regression case for the real Hatvan/Kartal mix-up: two overlapping
+        polygons both contain the point - the smaller one's postcode must win."""
+        session = MagicMock()
+        # ORDER BY ST_Area(way) LIMIT 1 means the DB itself only ever returns the
+        # winning (smallest) row - simulate that DB-side selection directly.
+        session.execute.return_value.first.return_value = MagicMock(
+            _mapping={'name': '1047 Budapest IV. kerület'})
+        result = query_osm_postcode_gpd(session, 19.08, 47.57)
+        self.assertEqual(result, 1047)
 
 
 if __name__ == '__main__':

@@ -55,21 +55,32 @@ def query_osm_postcode_gpd(session, lon, lat):
     """Look up the postal code of the OSM boundary=postal_code polygon containing a
     point, from the local osm2pgsql-imported database.
 
+    Hand-drawn/community-maintained postal_code polygons in Hungary sometimes
+    overlap (confirmed live: 1044/1047 Budapest IV. kerület do) - when a point
+    falls inside more than one, the smallest (most specific/tightly-drawn)
+    containing polygon is preferred, not whichever sorts first alphabetically by
+    name. The latter is what this used to do, and it's how a real, otherwise-
+    correctly-geocoded POI in Hatvan (postcode 3000) once got tagged with a
+    neighbouring town's postcode (2173) instead - its point apparently also fell
+    inside that other, coarser polygon at the time, and '2173' < '3000' alphabetically.
+
     Args:
         session: SQLAlchemy session (raw connection, not the ORM).
         lon: Point longitude.
         lat: Point latitude.
 
     Returns:
-        int | None: The leading numeric part of the matching polygon's name (e.g.
-        1011 from '1011 Budapest'), or None if lon/lat are missing or nothing matched.
+        int | None: The leading numeric part of the smallest matching polygon's
+        name (e.g. 1011 from '1011 Budapest'), or None if lon/lat are missing or
+        nothing matched.
     """
     if lat is None or lat == '' or lon == '' or lon is None:
         return None
     query = sqlalchemy.text('''
         SELECT name
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat),4326) as geom) point
-        WHERE boundary='postal_code' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
+        WHERE boundary='postal_code' and ST_Contains(way, point.geom)
+        ORDER BY ST_Area(way) LIMIT 1;''')
     data = None
     try:
         data = session.execute(query, {'lon': float(lon), 'lat': float(lat)}).first()
