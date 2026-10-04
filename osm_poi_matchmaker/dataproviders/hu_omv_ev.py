@@ -33,6 +33,13 @@ DETAILS_REQUEST_SLEEP = 0.2
 # extracted best-effort and left None when the text doesn't spell them out.
 POWER_RE = re.compile(r'(\d+)\s*kw', re.IGNORECASE)
 CCS_COUNT_RE = re.compile(r'(\d+)\s*x?\s*ccs', re.IGNORECASE)
+# Charger hardware manufacturers seen in real siteFeatures text (confirmed live
+# against every cached site detail) - add to this as new ones show up. A plain
+# substring search rather than a comma-position parse, since the manufacturer's
+# position/formatting in the free text varies ('Alpitronic, 200kW; 4CCS' vs
+# '1 x HYC150 Alpitronic' vs 'ALPITRONIC HYC 200 kW 2 CCS').
+_MANUFACTURER_CANONICAL = {'alpitronic': 'Alpitronic', 'ekoenergetyka': 'Ekoenergetyka', 'flexpole': 'Flexpole'}
+MANUFACTURER_RE = re.compile('|'.join(_MANUFACTURER_CANONICAL), re.IGNORECASE)
 
 
 class hu_omv_ev(DataProvider):
@@ -132,11 +139,13 @@ class hu_omv_ev(DataProvider):
 
                     power_match = POWER_RE.search(charging_feature)
                     ccs_match = CCS_COUNT_RE.search(charging_feature)
+                    manufacturer_match = MANUFACTURER_RE.search(charging_feature)
                     if ccs_match is not None:
                         self.data.socket_type2_combo = int(ccs_match.group(1))
                     if power_match is not None:
                         self.data.socket_type2_combo_output = '{} kW'.format(power_match.group(1))
-                    self.data.model = charging_feature
+                    if manufacturer_match is not None:
+                        self.data.manufacturer = _MANUFACTURER_CANONICAL[manufacturer_match.group(0).lower()]
                     self.data.add()
                 except Exception as e:
                     logging.exception('Exception occurred: {}'.format(e))
