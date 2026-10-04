@@ -92,17 +92,30 @@ EXCLUDED_BRANDS = frozenset({
     'aldi', 'alzabox', 'amplifon', 'auchan', 'avia', 'benu', 'benugyogyszertar',
     'budapestbank', 'burgerking', 'cba', 'ccc', 'cibbank', 'decathlon', 'deichmann',
     'dm', 'dpd', 'easybox', 'erstebank', 'foxpost', 'foxpostabox', 'foxpostzbox',
-    'freshcorner', 'gls', 'hm', 'handm', 'ikea', 'ionity', 'jysk', 'kfc', 'kh',
+    'freshcorner', 'gls', 'hm', 'handm', 'ikea', 'ionity', 'jysk', 'kfc', 'kh', 'kik',
     'khbank', 'kulcspatikak', 'kulcspatika', 'lidl', 'magnetbank', 'magyarposta',
-    'mavstart', 'mav', 'mbhbank', 'mkbbank', 'mobiliti', 'mobilpetrol',
+    'mavstart', 'mav', 'mbhbank', 'mkbbank', 'mobiliti', 'mobilpetrol', 'moneygram',
     'mobilposta', 'mol', 'molbubi', 'mpl', 'newyorker', 'obi', 'ofotert', 'oil',
     'omv', 'omvemotion', 'otpbank', 'otp', 'packeta', 'packetazbox', 'penny',
     'pennymarket', 'pepco', 'pingvinpatika', 'pizzahut', 'posta', 'postapont',
-    'prima', 'raiffeisenbank', 'raiffeisen', 'real', 'rossmann', 'sberbank',
-    'shell', 'sinsay', 'spar', 'starbucks', 'takarekbank', 'takko', 'takkofashion',
-    'tesco', 'tommarket', 'unicredit', 'volanbusz', 'yettel', 'yvesrocher', 'zara',
-    'zbox',
+    'prima', 'raiffeisenbank', 'raiffeisen', 'real', 'renault', 'repont', 'rossmann',
+    'sberbank', 'shell', 'sinsay', 'spar', 'starbucks', 'takarekbank', 'takko',
+    'takkofashion', 'tesco', 'tommarket', 'unicredit', 'volanbusz', 'volkswagen',
+    'yettel', 'yvesrocher', 'zara', 'zbox',
 })
+
+# Every other dataprovider in this project pairs its poi_search_name with a
+# poi_search_avoid_name (see e.g. hu_avia.py's AVOID_NAME) so the OSM-side match
+# query itself won't grab a candidate belonging to one of those already-covered
+# brands - most load-bearing at exactly the no-name/no-street last-resort distance
+# tier (see poi_base.py's "NO NAME, NO STREETNAME, NO HOUSENUMBER" stage), which is
+# what let a mislabeled ATP spider steal an hu_avia.py match in the first place
+# (confirmed live - see the per-feature EXCLUDED_BRANDS check above, which stops
+# the wrong brand from being harvested at all, but doesn't protect any *other*,
+# not-yet-identified mislabeled spider from the same failure mode). Built once from
+# EXCLUDED_BRANDS - same entries, same substring-match tradeoff the hand-curated
+# AVOID_NAME lists elsewhere already accept (e.g. hu_avia.py's bare 'oil').
+EXCLUDED_BRANDS_AVOID_NAME = '({})'.format('|'.join(sorted(EXCLUDED_BRANDS)))
 
 _DIACRITIC_MAP = str.maketrans('áéíóöőúüű', 'aeiooouuu')
 
@@ -123,6 +136,8 @@ _OSM_TAG_TO_POI_TYPE = {
     ('amenity', 'bicycle_rental'): 'bicycle_rental',
     ('amenity', 'vending_machine'): 'vending_machine',
     ('amenity', 'fire_station'): 'fire_station',
+    ('amenity', 'money_transfer'): 'money_transfer',
+    ('shop', 'car'): 'car',
     ('shop', 'chemist'): 'chemist',
     ('shop', 'clothes'): 'clothes',
     ('shop', 'fashion'): 'clothes',
@@ -329,6 +344,19 @@ class hu_alltheplaces(DataProvider):
                 coords = geometry.get('coordinates') or []
                 if len(coords) < 2 or not _is_hu_feature(props, coords):
                     continue
+                # EXCLUDED_BRANDS above only screens the spider's own catalog brand
+                # (e.g. "Orlen") - not enough for a generic multi-brand aggregator
+                # spider (confirmed live: ATP's "Orlen" spider is actually a DKV/Maes
+                # Mobility fuel-card-acceptance locator whose individual features
+                # each carry their own real station brand, e.g. name="AVIA Station" -
+                # already covered by hu_avia.py). Re-check per feature so one mixed
+                # spider can still contribute its other, not-yet-covered brands
+                # instead of being excluded (or not) as a single all-or-nothing unit.
+                # name and brand are checked independently (not name-or-brand) - a
+                # feature can have a generic/descriptive name ("Fuel Station 123")
+                # while its separate brand property is the real, already-covered one.
+                if _is_excluded_brand(props.get('name') or '') or _is_excluded_brand(props.get('brand') or ''):
+                    continue
                 resolved = _resolve_feature_type(props)
                 if resolved is None:
                     continue
@@ -349,6 +377,7 @@ class hu_alltheplaces(DataProvider):
                         'poi_tags': poi_tags,
                         'poi_url_base': 'https://alltheplaces.xyz',
                         'poi_search_name': (brand_name or spider_name).lower(),
+                        'poi_search_avoid_name': EXCLUDED_BRANDS_AVOID_NAME,
                         'osm_search_distance_perfect': 200,
                         'osm_search_distance_safe': 100,
                         'osm_search_distance_unsafe': 20,
