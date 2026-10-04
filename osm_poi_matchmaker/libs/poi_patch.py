@@ -93,6 +93,11 @@ def apply_poi_patches(poi_df, patch_df):
     vectorized boolean mask over all still-unpatched POI rows and writes the
     new_* values in a single indexed assignment. An `unpatched` mask carried
     across patch rows preserves "first matching patch wins".
+
+    See config.get_poi_patch_enabled() (checked by the STAGE 6 caller in
+    create_db.py, not here) to skip poi_patch corrections entirely - e.g. once
+    a row is suspected stale, since it can go out of date when the real-world/
+    OSM state it was generated from later changes.
     """
     if poi_df is None or len(poi_df) == 0:
         return poi_df

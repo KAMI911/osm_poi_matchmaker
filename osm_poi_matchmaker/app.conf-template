@@ -30,6 +30,9 @@ geo.prefer.osm.original.postcode=True
 geo.alternative.opening.hours=False
 geo.alternative.opening.hours.tag=opening_hours:covid19
 
+# STAGE 6 (poi_patch address overrides) - see get_poi_patch_enabled() in utils/config.py
+poi_patch.enabled=True
+
 download.verify.link=True
 download.use.cached.data=False
 

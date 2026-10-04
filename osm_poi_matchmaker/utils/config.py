@@ -77,6 +77,7 @@ KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE = 'geo.shop.convenience.poi.distance'
 KEY_GEO_AMENITY_POST_OFFICE_POI_DISTANCE = 'geo.amenity.post.office.poi.distance'
 KEY_GEO_PREFER_OSM_POSTCODE = 'geo.prefer.osm.postcode'
 KEY_GEO_PREFER_OSM_ORIGINAL_POSTCODE = 'geo.prefer.osm.original.postcode'
+KEY_POI_PATCH_ENABLED = 'poi_patch.enabled'
 KEY_GEO_ALTERNATIVE_OPENING_HOURS = 'geo.alternative.opening.hours'
 KEY_GEO_ALTERNATIVE_OPENING_HOURS_TAG = 'geo.alternative.opening.hours.tag'
 KEY_DOWNLOAD_VERIFY_LINK = 'download.verify.link'
@@ -560,6 +561,24 @@ def get_geo_prefer_osm_original_postcode():
     Config key 'geo.prefer.osm.original.postcode'.
     """
     setting = get_config_bool(KEY_GEO_PREFER_OSM_ORIGINAL_POSTCODE)
+    if setting is not None:
+        return setting
+    else:
+        return True
+
+
+def get_poi_patch_enabled():
+    """Whether STAGE 6 (poi_patch address overrides, see create_db.py and
+    libs/poi_patch.py's apply_poi_patches()) runs at all.
+
+    Defaults to True. Set to False to skip loading/applying the poi_patch
+    table entirely - e.g. once a row is suspected stale, since a poi_patch row
+    can go out of date when the real-world/OSM state it was generated from
+    later changes.
+
+    Config key 'poi_patch.enabled'.
+    """
+    setting = get_config_bool(KEY_POI_PATCH_ENABLED)
     if setting is not None:
         return setting
     else:

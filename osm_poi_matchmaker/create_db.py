@@ -514,10 +514,13 @@ def main():
         mem_info.log_top_memory_snapshot('STAGE 5')
 
         # --- STAGE 6 ---
-        logging.info('Starting STAGE 6 – Applying poi_patch address overrides.')
-        patch_df = load_poi_patches_from_db(db)
-        poi_addr_data = apply_poi_patches(poi_addr_data, patch_df)
-        logging.info("STAGE 6 – POI address patching has finished successfully.")
+        if config.get_poi_patch_enabled():
+            logging.info('Starting STAGE 6 – Applying poi_patch address overrides.')
+            patch_df = load_poi_patches_from_db(db)
+            poi_addr_data = apply_poi_patches(poi_addr_data, patch_df)
+            logging.info("STAGE 6 – POI address patching has finished successfully.")
+        else:
+            logging.info('Skipping STAGE 6 – poi_patch.enabled is False.')
         mem_info.log_top_memory_snapshot('STAGE 6')
 
         # --- STAGE 7 ---
