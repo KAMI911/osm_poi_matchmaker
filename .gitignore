@@ -110,3 +110,6 @@ ENV/
 
 # application configuration
 app.conf
+
+# downloaded source data cache (dir.cache_url in app.conf)
+cache_url/
