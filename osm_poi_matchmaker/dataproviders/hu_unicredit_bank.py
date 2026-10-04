@@ -41,6 +41,9 @@ class hu_unicredit_bank(DataProvider):
         self.link = API
         self.tags = {'brand': 'UniCredit', 'brand:wikidata': 'Q45568',
                      'contact:website': 'https://www.unicreditbank.hu'}
+        # group.unicreditbanking.net returns 403 for the default Requests library
+        # User-Agent (confirmed live) - a plain browser UA is enough to pass.
+        self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'}
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
@@ -70,7 +73,8 @@ class hu_unicredit_bank(DataProvider):
                   'neLng': ne_lng, 'zoomLevel': 13}
         cache_name = 'hu_unicredit_cell_{:.4f}_{:.4f}_{:.4f}_{:.4f}.json'.format(*bbox)
         url = '{}?{}'.format(self.link, urlencode(params))
-        soup = save_downloaded_soup(url, os.path.join(self.download_cache, cache_name), self.filetype, False)
+        soup = save_downloaded_soup(url, os.path.join(self.download_cache, cache_name), self.filetype, False,
+                                    headers=self.headers)
         if soup is None:
             return []
         try:

@@ -93,6 +93,9 @@ class hu_helyi_kozlekedes(DataProvider):
 
     def contains(self):
         self.tags = {'source': 'gtfs.menetbrand.com'}
+        # gtfs.menetbrand.com returns 403 for the default Requests library
+        # User-Agent (confirmed live) - a plain browser UA is enough to pass.
+        self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'}
         self.filetype = FileType.zip
         self.filename = 'hu_helyi_kozlekedes.zip'
         # {poi_code: (poi_type, slug, city_name, operator, [stop_row, ...])} -
@@ -153,7 +156,7 @@ class hu_helyi_kozlekedes(DataProvider):
         entry per distinct mode actually found in that town."""
         link = 'https://gtfs.menetbrand.com/download/{}/'.format(slug)
         cache_file = os.path.join(self.download_cache, 'hu_helyi_kozlekedes_{}.zip'.format(slug))
-        save_downloaded_soup(link, cache_file, FileType.zip, False)
+        save_downloaded_soup(link, cache_file, FileType.zip, False, headers=self.headers)
         if not os.path.isfile(cache_file):
             return []
 
