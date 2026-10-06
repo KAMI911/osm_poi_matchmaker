@@ -55,6 +55,7 @@ currentConfig = config[__mode.name]
 
 KEY_DIRECTORY_OUTPUT = 'dir.output'
 KEY_DIRECTORY_CACHE_URL = 'dir.cache_url'
+KEY_EXPORT_CHUNK_SIZE = 'export.chunk.size'
 KEY_DATABASE_TYPE = 'db.type'
 KEY_DATABASE_WRITE_HOST = 'db.write.host'
 KEY_DATABASE_WRITE_PORT = 'db.write.port'
@@ -207,6 +208,26 @@ def get_directory_cache_url():
         return setting
     else:
         return os.path.join('.', 'cache_url')
+
+
+def get_export_chunk_size():
+    """Row count above which generate_osm_xml()/generate_geojson() output for a
+    whole, ungrouped POI dataset gets split into numbered chunk files instead of
+    one single call - see libs/export.py's _iter_chunks() for why (a single call
+    on tens of thousands of rows holds the entire lxml tree/feature list in
+    memory at once; confirmed live, one such write was OOM-killed partway through
+    a 46000+-row file, taking the whole pipeline down with it).
+
+    Config key 'export.chunk.size' (env OPM_EXPORT_CHUNK_SIZE), defaults to 5000.
+    """
+    setting = get_config_int(KEY_EXPORT_CHUNK_SIZE)
+    env_setting = os.environ.get('OPM_EXPORT_CHUNK_SIZE')
+    if env_setting is not None:
+        return int(env_setting)
+    if setting is not None:
+        return setting
+    else:
+        return 5000
 
 
 def get_database_type():

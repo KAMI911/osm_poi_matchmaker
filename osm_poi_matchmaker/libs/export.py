@@ -24,12 +24,48 @@ def _output_dir(subdir=''):
     return path
 
 
-def _write_osm_and_geojson(output_dir, filename, rows):
-    """Write OSM XML and GeoJSON files to output_dir/{filename}.osm and .geojson."""
-    with open(os.path.join(output_dir, '{}.osm'.format(filename)), 'wb') as oxf:
-        oxf.write(generate_osm_xml(rows))
-    with open(os.path.join(output_dir, '{}.geojson'.format(filename)), 'wb') as gf:
-        gf.write(generate_geojson(rows))
+def _iter_chunks(rows, filename, chunk_size=None):
+    """Yield (chunk_filename, chunk_df) pairs splitting rows into <chunk_size>-row
+    pieces (filename_00000-04999, filename_05000-09999, ...), or just (filename,
+    rows) unsplit when rows already fits in one chunk. chunk_size defaults to
+    config.get_export_chunk_size() when not given explicitly.
+
+    generate_osm_xml() builds one lxml tree (and generate_geojson() one feature
+    list) for its *entire* input in memory before writing anything out - fine for
+    the per-poi_code grouped exports (a few hundred/thousand rows), but the
+    whole-dataset callers here (export_raw_poi_data_xml()/_geojson(),
+    export_new_poi_data(), export_existing_poi_data()) can hand it tens of
+    thousands of rows at once. Confirmed live: one such single-shot write was
+    OOM-killed by the kernel partway through a 46000+-row file, taking down the
+    whole STAGE 10 export (and the rest of the pipeline with it, via
+    create_db.py's uncaught-exception exit). Chunking bounds each
+    generate_osm_xml()/generate_geojson() call's peak memory to roughly
+    chunk_size rows' worth, regardless of the total dataset size - the same
+    "don't make one file too huge" technique
+    export_grouped_poi_data_with_postcode_groups() already uses, just applied
+    here too (postcode-grouped there since it also keeps JOSM review files
+    manageable; plain row-index chunking here since memory, not reviewability,
+    is the point).
+    """
+    if chunk_size is None:
+        chunk_size = config.get_export_chunk_size()
+    total = len(rows)
+    if total <= chunk_size:
+        yield filename, rows
+        return
+    for start in range(0, total, chunk_size):
+        chunk = rows.iloc[start:start + chunk_size]
+        yield '{}_{:05d}-{:05d}'.format(filename, start, start + len(chunk) - 1), chunk
+
+
+def _write_osm_and_geojson(output_dir, filename, rows, chunk_size=None):
+    """Write OSM XML and GeoJSON files to output_dir/{filename}.osm and .geojson,
+    chunked via _iter_chunks() when rows is large."""
+    for chunk_filename, chunk in _iter_chunks(rows, filename, chunk_size):
+        with open(os.path.join(output_dir, '{}.osm'.format(chunk_filename)), 'wb') as oxf:
+            oxf.write(generate_osm_xml(chunk))
+        with open(os.path.join(output_dir, '{}.geojson'.format(chunk_filename)), 'wb') as gf:
+            gf.write(generate_geojson(chunk))
 
 
 def export_raw_poi_data(addr_data, comm_data, postfix='', subdir=''):
@@ -48,25 +84,29 @@ def export_raw_poi_data(addr_data, comm_data, postfix='', subdir=''):
 
 
 def export_raw_poi_data_xml(addr_data, postfix='', subdir=''):
-    """Save the full (ungrouped) POI dataframe as one OSM XML file
-    (poi_address{postfix}.osm)."""
+    """Save the full (ungrouped) POI dataframe as OSM XML file(s)
+    (poi_address{postfix}.osm, chunked per _iter_chunks() when large)."""
     try:
-        with open(os.path.join(_output_dir(subdir), 'poi_address{}.osm'.format(postfix)), 'wb') as oxf:
-            oxf.write(generate_osm_xml(addr_data))
+        output_dir = _output_dir(subdir)
+        for chunk_filename, chunk in _iter_chunks(addr_data, 'poi_address{}'.format(postfix)):
+            with open(os.path.join(output_dir, '{}.osm'.format(chunk_filename)), 'wb') as oxf:
+                oxf.write(generate_osm_xml(chunk))
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())
 
 
 def export_raw_poi_data_geojson(addr_data, postfix='', subdir=''):
-    """Save the full (ungrouped) POI dataframe as one GeoJSON file
-    (poi_address{postfix}.geojson)."""
+    """Save the full (ungrouped) POI dataframe as GeoJSON file(s)
+    (poi_address{postfix}.geojson, chunked per _iter_chunks() when large)."""
     try:
-        geojson_path = os.path.join(_output_dir(subdir), 'poi_address{}.geojson'.format(postfix))
-        logging.info('Saving GeoJSON to file: poi_address%s.geojson', postfix)
-        with open(geojson_path, 'wb') as gf:
-            gf.write(generate_geojson(addr_data))
-        logging.info('The poi_address%s.geojson was successfully saved', postfix)
+        output_dir = _output_dir(subdir)
+        for chunk_filename, chunk in _iter_chunks(addr_data, 'poi_address{}'.format(postfix)):
+            geojson_path = os.path.join(output_dir, '{}.geojson'.format(chunk_filename))
+            logging.info('Saving GeoJSON to file: %s.geojson', chunk_filename)
+            with open(geojson_path, 'wb') as gf:
+                gf.write(generate_geojson(chunk))
+            logging.info('The %s.geojson was successfully saved', chunk_filename)
     except Exception as e:
         logging.exception('Exception occurred: {}'.format(e))
         logging.exception(traceback.format_exc())

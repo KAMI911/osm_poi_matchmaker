@@ -15,6 +15,7 @@ db.osm_cache.max_age_days=7
 # Directory settings
 dir.output=output
 dir.cache_url=cache_url
+export.chunk.size=5000
 
 geo.default.projection=3857
 geo.default.poi.distance=70
