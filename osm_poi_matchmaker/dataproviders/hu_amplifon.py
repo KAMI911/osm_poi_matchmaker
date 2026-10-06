@@ -69,8 +69,14 @@ class hu_amplifon(DataProvider):
                 data = json.loads(block)
             except (json.JSONDecodeError, ValueError):
                 continue
-            if data.get('@type') == 'MedicalBusiness':
-                return data
+            # A JSON-LD block is sometimes a single object, sometimes a list of
+            # them (schema.org allows both) - confirmed live: most Amplifon store
+            # pages use the list form, which crashed every single store's import
+            # with AttributeError ('list' object has no attribute 'get').
+            candidates = data if isinstance(data, list) else [data]
+            for candidate in candidates:
+                if isinstance(candidate, dict) and candidate.get('@type') == 'MedicalBusiness':
+                    return candidate
         return None
 
     def process(self):
