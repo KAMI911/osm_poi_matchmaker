@@ -56,6 +56,7 @@ currentConfig = config[__mode.name]
 KEY_DIRECTORY_OUTPUT = 'dir.output'
 KEY_DIRECTORY_CACHE_URL = 'dir.cache_url'
 KEY_EXPORT_CHUNK_SIZE = 'export.chunk.size'
+KEY_PARALLEL_PROCESS_DIVIDER = 'parallel.process.divider'
 KEY_DATABASE_TYPE = 'db.type'
 KEY_DATABASE_WRITE_HOST = 'db.write.host'
 KEY_DATABASE_WRITE_PORT = 'db.write.port'
@@ -228,6 +229,35 @@ def get_export_chunk_size():
         return setting
     else:
         return 5000
+
+
+def get_parallel_process_divider():
+    """Divides the host's CPU count to determine create_db.py's multiprocessing
+    pool size (at least 1 process either way) for every pipeline phase (harvest,
+    matcher, exporter) - see create_db.py's WorkflowManager._create_pool().
+
+    Defaults to 4 (so e.g. a 16-core host runs 4 workers, not 16). The previous
+    default of 1 (i.e. use every CPU) meant as many as NUMBER_OF_PROCESSES
+    workers could be alive at once, each holding its own copy of whatever
+    per-provider/per-chunk data it's processing - confirmed live, the combined
+    RSS of 16 concurrent workers (made worse once hu_alltheplaces.py/hu_repont.py
+    started actually succeeding instead of failing early) repeatedly exceeded
+    the container's memory limit and got OOM-killed, restarting STAGE 0 from
+    scratch each time. Lower is safer (less peak memory, more OOM headroom) at
+    the cost of wall-clock time; raise it back toward 1 only once memory isn't
+    the constraint (e.g. a higher container memory limit, or a host with memory
+    to spare for it).
+
+    Config key 'parallel.process.divider' (env OPM_PARALLEL_PROCESS_DIVIDER).
+    """
+    setting = get_config_int(KEY_PARALLEL_PROCESS_DIVIDER)
+    env_setting = os.environ.get('OPM_PARALLEL_PROCESS_DIVIDER')
+    if env_setting is not None:
+        return int(env_setting)
+    if setting is not None:
+        return setting
+    else:
+        return 4
 
 
 def get_database_type():

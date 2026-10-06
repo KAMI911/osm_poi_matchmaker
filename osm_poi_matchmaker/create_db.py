@@ -42,8 +42,6 @@ RETRY = 3
 POI_COLS = poi_array_structure.POI_DB
 POI_COLS_RAW = poi_array_structure.POI_DB_RAW
 
-PROCESS_DIVIDER = 1
-
 
 def import_basic_data(session):
     """Import the static reference datasets (patches, countries, cities, street types) needed before harvesting.
@@ -151,15 +149,18 @@ class WorkflowManager(object):
         self.conflict_stats = {}
         self.conflict_duration = None
 
-    def _create_pool(self, process_divider=PROCESS_DIVIDER, initializer=None):
+    def _create_pool(self, process_divider=None, initializer=None):
         """Create a new multiprocessing.Pool, closing any pre-existing pool first.
 
         Args:
-            process_divider (int): Divides the host's CPU count to determine the pool size
-                (at least 1 process). Defaults to PROCESS_DIVIDER (1, i.e. use all CPUs).
+            process_divider (int, optional): Divides the host's CPU count to determine the
+                pool size (at least 1 process). Defaults to
+                config.get_parallel_process_divider() when not given explicitly.
             initializer (callable, optional): Function run once in each worker process on
                 startup, e.g. init_matcher_worker to set up a per-worker DB connection.
         """
+        if process_divider is None:
+            process_divider = config.get_parallel_process_divider()
         if self.pool is not None:
             logging.warning('Existing pool found, closing it first.')
             self.pool.close()

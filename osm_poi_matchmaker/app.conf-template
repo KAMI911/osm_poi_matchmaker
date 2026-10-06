@@ -16,6 +16,7 @@ db.osm_cache.max_age_days=7
 dir.output=output
 dir.cache_url=cache_url
 export.chunk.size=5000
+parallel.process.divider=4
 
 geo.default.projection=3857
 geo.default.poi.distance=70
