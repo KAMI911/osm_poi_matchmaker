@@ -75,7 +75,6 @@ class hu_mol_plugee_ev(DataProvider):
                                       'freecharger|ecotap|penny|polyfazer|rolecev|rollin|toka|voltie|zse|audi|'
                                       'chargepoint|city gecko|greengo|innogy|joinon|enel|virta|stormi|hep elen|'
                                       'cyeb|ampernative|mvm)',
-             'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 30,
              'osm_search_distance_unsafe': 10},
         ]
@@ -129,14 +128,12 @@ class hu_mol_plugee_ev(DataProvider):
                     if poi_data.get('adric') != 'HUN':
                         continue
                     self.data.code = 'humolplchs'
-                    # The API's siteId is a bare int (e.g. 177) - OSM tags these stations
-                    # with the zero-padded 'HUMOL0177' form (confirmed live against the
-                    # local OSM extract), so the bare number never equality-matched the
-                    # real ref tag and this provider's additional_ref_name='ref' search
-                    # never found anything.
-                    site_id = poi_data.get('siteId')
-                    self.data.ref = 'HUMOL{:04d}'.format(site_id) if isinstance(site_id, int) \
-                        else clean_string(site_id)
+                    # The API's siteId has no reliable relationship to OSM's "HUMOL0177"-style
+                    # ref (checked live: siteId-derived refs land tens to hundreds of km from
+                    # the OSM nodes they'd supposedly identify, across several countries) - the
+                    # API exposes no field that actually carries that code, so there's nothing
+                    # genuine to set poi_ref to here. Matching for this provider relies on
+                    # name + distance only (no additional_ref_name in types()).
                     self.data.branch = clean_string(poi_data.get('dn'))
                     self.data.city = clean_city(poi_data.get('adrc'))
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
