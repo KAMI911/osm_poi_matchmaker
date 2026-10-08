@@ -60,7 +60,7 @@ class hu_ofotert(DataProvider):
              'poi_tags': huofoteopt, 'poi_url_base': 'https://www.ofotert.hu', 'poi_search_name': 'ofotért',
              'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200,
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 240,
              'osm_search_distance_unsafe': 50},
         ]
         return self.__types
