@@ -447,7 +447,14 @@ class POIBase:
             # The bare 'ref' sentinel matches the plain "ref" tag; anything else is a
             # literal, fully-spelled-out OSM tag key (e.g. ref:bkk, gtfs:stop_id:HU-VOLAN).
             ref_column = 'ref' if ref_name_candidate == 'ref' else '"{}"'.format(ref_name_candidate)
-            query_unique_ref = ' AND LOWER(TEXT({})) = LOWER(TEXT(:unique_ref))'.format(ref_column)
+            # OSM bundles multiple logical refs onto one node as a ';'-separated list
+            # (e.g. one MOL Plugee node's ref="HUMOL0058;HUMOL0158;HUMOL0159" for three
+            # charging posts at the same site) - a plain '=' would never match any of
+            # them individually, so split on ';' (and drop stray spaces) and check
+            # membership instead. A single-value ref still matches fine, since
+            # splitting it just yields a one-element array.
+            query_unique_ref = (" AND LOWER(TEXT(:unique_ref)) = ANY(string_to_array("
+                               "REPLACE(LOWER(TEXT({})), ' ', ''), ';'))").format(ref_column)
             query_params.update({'unique_ref': unique_ref})
             query_text = '''
             --- WITH ADDITIONAL REF
