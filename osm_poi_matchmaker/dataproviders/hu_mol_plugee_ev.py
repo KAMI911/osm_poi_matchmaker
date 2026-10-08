@@ -129,7 +129,14 @@ class hu_mol_plugee_ev(DataProvider):
                     if poi_data.get('adric') != 'HUN':
                         continue
                     self.data.code = 'humolplchs'
-                    self.data.ref = clean_string(poi_data.get('siteId'))
+                    # The API's siteId is a bare int (e.g. 177) - OSM tags these stations
+                    # with the zero-padded 'HUMOL0177' form (confirmed live against the
+                    # local OSM extract), so the bare number never equality-matched the
+                    # real ref tag and this provider's additional_ref_name='ref' search
+                    # never found anything.
+                    site_id = poi_data.get('siteId')
+                    self.data.ref = 'HUMOL{:04d}'.format(site_id) if isinstance(site_id, int) \
+                        else clean_string(site_id)
                     self.data.branch = clean_string(poi_data.get('dn'))
                     self.data.city = clean_city(poi_data.get('adrc'))
                     self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
