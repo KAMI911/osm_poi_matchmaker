@@ -404,18 +404,18 @@ class POIBase:
             query_params.update({'unique_name': unique_name})
         else:
             query_unique_name = ''
+        ref_name_candidates = []
         if additional_ref_name is not None and not pd.isna(additional_ref_name) and additional_ref_name != '' \
                 and unique_ref is not None and not pd.isna(unique_ref) and unique_ref != '':
-            # additional_ref_name is the literal OSM tag key to match on, except the bare
-            # 'ref' sentinel (matches the plain "ref" tag). A composite key like a real
-            # ref:mav or a GTFS-conflation gtfs:stop_id:HU-VOLAN tag must be spelled out in
-            # full by the caller - it's no longer auto-prefixed with "ref:".
-            ref_column = 'ref' if additional_ref_name == 'ref' else '"{}"'.format(additional_ref_name)
-            query_unique_ref = ' AND LOWER(TEXT({})) = LOWER(TEXT(:unique_ref))'.format(ref_column)
-            query_params.update({'unique_ref': unique_ref})
-        else:
-            query_unique_ref = ''
-            ref_column = None
+            # additional_ref_name is normally a single literal OSM tag key to match on
+            # (or the bare 'ref' sentinel for the plain "ref" tag), but it can also be a
+            # comma-separated list of tag keys to try in turn against the same unique_ref
+            # value - e.g. hu_bkv.py's BKK stops ('gtfs:stop_id:HU-BKK,ref:bkk'): the first
+            # tag doesn't exist in the current osm2pgsql import (always fails over), the
+            # second one does and actually disambiguates same-named stops. A composite key
+            # like a real ref:mav or a GTFS-conflation gtfs:stop_id:HU-VOLAN tag must be
+            # spelled out in full - it's not auto-prefixed with "ref:".
+            ref_name_candidates = [r.strip() for r in additional_ref_name.split(',') if r.strip() != '']
         if with_metadata is True:
             metadata_fields = ' osm_user, osm_uid, osm_version, osm_changeset, osm_timestamp, '
         else:
@@ -443,8 +443,12 @@ class POIBase:
         logging.debug('POI search: coords=%.5f,%.5f type=%s name=%s avoid=%s city=%s street=%s housenumber=%s conscript=%s | distances: perfect=%sm safe=%sm unsafe=%sm',
                       lon, lat, ptype, name, avoid_name, city, street_name, housenumber, conscriptionnumber,
                       distance_perfect, distance_safe, distance_unsafe)
-        if additional_ref_name is not None and not pd.isna(additional_ref_name) and additional_ref_name != '' \
-                and unique_ref is not None and not pd.isna(unique_ref) and unique_ref != '':
+        for ref_name_candidate in ref_name_candidates:
+            # The bare 'ref' sentinel matches the plain "ref" tag; anything else is a
+            # literal, fully-spelled-out OSM tag key (e.g. ref:bkk, gtfs:stop_id:HU-VOLAN).
+            ref_column = 'ref' if ref_name_candidate == 'ref' else '"{}"'.format(ref_name_candidate)
+            query_unique_ref = ' AND LOWER(TEXT({})) = LOWER(TEXT(:unique_ref))'.format(ref_column)
+            query_params.update({'unique_ref': unique_ref})
             query_text = '''
             --- WITH ADDITIONAL REF
             --- The way selector with additional ref
@@ -455,7 +459,7 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
-            WHERE ({query_type}) AND osm_id > 0 {query_unique_ref}
+            WHERE ({query_type}) AND osm_id > 0 {query_unique_ref} {query_avoid_name}
             UNION ALL
             --- The node selector with with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'node' AS node,
@@ -465,7 +469,7 @@ class POIBase:
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
             FROM planet_osm_point
-            WHERE ({query_type}) AND osm_id > 0 {query_unique_ref}
+            WHERE ({query_type}) AND osm_id > 0 {query_unique_ref} {query_avoid_name}
             UNION ALL
             --- The relation selector with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'relation' AS node,
@@ -475,12 +479,18 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon
-            WHERE ({query_type}) AND osm_id < 0 {query_unique_ref}
+            WHERE ({query_type}) AND osm_id < 0 {query_unique_ref} {query_avoid_name}
             '''
-            query = sqlalchemy.text(query_text.format(query_type=query_type,
-                                                      metadata_fields=metadata_fields,
-                                                      ref_column=ref_column,
-                                                      query_unique_ref=query_unique_ref))
+            try:
+                query = sqlalchemy.text(query_text.format(query_type=query_type,
+                                                          metadata_fields=metadata_fields,
+                                                          query_avoid_name=query_avoid_name,
+                                                          ref_column=ref_column,
+                                                          query_unique_ref=query_unique_ref))
+            except Exception as err:
+                logging.warning('Exception occurred')
+                logging.exception(err)
+                continue
             logging.debug(str(query))
             #  Make EXPLAIN ANALYZE of long queries configurable with issue #99
             if config.get_database_enable_analyze() is True:
@@ -488,6 +498,7 @@ class POIBase:
                     perf_query = sqlalchemy.text('EXPLAIN ANALYZE ' +
                                                  query_text.format(query_type=query_type,
                                                                    metadata_fields=metadata_fields,
+                                                                   query_avoid_name=query_avoid_name,
                                                                    ref_column=ref_column,
                                                                    query_unique_ref=query_unique_ref))
                     perf = self.session.execute(perf_query, query_params)
@@ -501,24 +512,24 @@ class POIBase:
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
             except Exception as err:
-                logging.warning('Exception occurred')
+                logging.warning('Exception occurred: tag %r may not exist in this OSM import', ref_name_candidate)
                 logging.exception(err)
                 # Roll back to recover the connection - a failed statement leaves
                 # Postgres in an aborted-transaction state where every later query on
                 # this same conn (i.e. every remaining fallback stage below) would
                 # fail with InFailedSqlTransaction otherwise, not just this one.
                 conn.rollback()
+                continue
             if not data.empty:
                 logging.info('Match found via additional-ref search: searched %s -> found %s',
-                            self._format_search_criteria(name=name, ref_field=additional_ref_name, ref=unique_ref),
+                            self._format_search_criteria(name=name, ref_field=ref_name_candidate, ref=unique_ref),
                             self._format_match_result(data.iloc[0]))
                 if logging.getLogger().isEnabledFor(logging.DEBUG):
-                    if logging.getLogger().isEnabledFor(logging.DEBUG):
-                        logging.debug(data.to_string())
+                    logging.debug(data.to_string())
                 return data.iloc[[0]]
             else:
                 logging.info('No match via additional-ref search: searched %s',
-                            self._format_search_criteria(name=name, ref_field=additional_ref_name, ref=unique_ref))
+                            self._format_search_criteria(name=name, ref_field=ref_name_candidate, ref=unique_ref))
         if unique_name is not None and not pd.isna(unique_name) and unique_name != '':
             query_text = '''
             --- WITH UNIQUE NAME
@@ -744,8 +755,7 @@ class POIBase:
                             self._format_search_criteria(name=name, city=city, conscriptionnumber=conscriptionnumber),
                             self._format_match_result(data.iloc[0]))
                 if logging.getLogger().isEnabledFor(logging.DEBUG):
-                    if logging.getLogger().isEnabledFor(logging.DEBUG):
-                        logging.debug(data.to_string())
+                    logging.debug(data.to_string())
                 return data.iloc[[0]]
             else:
                 logging.info('No match via name+conscriptionnumber+city search: searched %s',
@@ -834,8 +844,7 @@ class POIBase:
                                                         housenumber=housenumber), lon, lat,
                             self._format_match_result(data.iloc[0]))
                 if logging.getLogger().isEnabledFor(logging.DEBUG):
-                    if logging.getLogger().isEnabledFor(logging.DEBUG):
-                        logging.debug(data.to_string())
+                    logging.debug(data.to_string())
                 return data.iloc[[0]]
             else:
                 logging.info('No match via exact address search: searched %s near %s,%s',
@@ -1142,8 +1151,7 @@ class POIBase:
                 poi_id = f"{query_type}:{query_name}:{stage}"
                 stats.record_found(poi_id, stage)
                 if logging.getLogger().isEnabledFor(logging.DEBUG):
-                    if logging.getLogger().isEnabledFor(logging.DEBUG):
-                        logging.debug(data.to_string())
+                    logging.debug(data.to_string())
                 return data.iloc[[0]]
             else:
                 logging.info('No match via fallback stage batch %s: searched %s near %s,%s',

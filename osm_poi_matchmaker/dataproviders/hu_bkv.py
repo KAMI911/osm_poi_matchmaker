@@ -78,7 +78,12 @@ class hu_bkv(DataProvider):
 
     def types(self):
         common = {'preserve_original_name': True, 'do_not_export_addr_tags': True,
-                  'additional_ref_name': 'gtfs:stop_id:HU-BKK', 'gtfs_feed_id': 'HU-BKK'}
+                  # gtfs:stop_id:HU-BKK doesn't exist as a column in the current osm2pgsql
+                  # import (BKK stops are essentially never tagged with it) - tried first
+                  # anyway in case that changes, then ref:bkk, which IS a real, populated
+                  # tag in OSM and - unlike the shared stop/platform name - uniquely
+                  # identifies each BKK stop_id. See poi_base.py's ref_name_candidates.
+                  'additional_ref_name': 'gtfs:stop_id:HU-BKK,ref:bkk', 'gtfs_feed_id': 'HU-BKK'}
         hubkvbus = {'highway': 'bus_stop', 'public_transport': 'platform', 'bus': 'yes'}
         hubkvbus.update(self.tags)
         hubkvtram = {'railway': 'tram_stop', 'public_transport': 'platform', 'tram': 'yes'}
