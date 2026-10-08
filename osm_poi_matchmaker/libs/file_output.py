@@ -520,7 +520,8 @@ def generate_osm_xml(df, session=None):
             index = row.Index
             try:
                 logging.info('Start processing: {}. item'.format(index + 1))
-                logging.debug(str(row._asdict()))
+                if logging.getLogger().isEnabledFor(logging.DEBUG):
+                    logging.debug(str(row._asdict()))
                 tags = {}
                 xml_node_tags = None
                 osm_live_tags = {}

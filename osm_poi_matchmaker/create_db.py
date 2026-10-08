@@ -236,7 +236,8 @@ class WorkflowManager(object):
                 (e.g. 'prematch', 'new', 'existing', 'combined'). Defaults to '' (the output
                 root). Created if missing.
         """
-        logging.debug(data.to_string())
+        if logging.getLogger().isEnabledFor(logging.DEBUG):
+            logging.debug(data.to_string())
         logging.info('Preparing export jobs…')
         output_dir = os.path.join(config.get_directory_output(), subdir) if subdir else config.get_directory_output()
         os.makedirs(output_dir, exist_ok=True)

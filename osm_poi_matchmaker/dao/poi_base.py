@@ -512,7 +512,9 @@ class POIBase:
                 logging.info('Match found via additional-ref search: searched %s -> found %s',
                             self._format_search_criteria(name=name, ref_field=additional_ref_name, ref=unique_ref),
                             self._format_match_result(data.iloc[0]))
-                logging.debug(data.to_string())
+                if logging.getLogger().isEnabledFor(logging.DEBUG):
+                    if logging.getLogger().isEnabledFor(logging.DEBUG):
+                        logging.debug(data.to_string())
                 return data.iloc[[0]]
             else:
                 logging.info('No match via additional-ref search: searched %s',
@@ -585,7 +587,8 @@ class POIBase:
                     logging.info('Match found via unique-name search: searched %s -> found %s',
                                 self._format_search_criteria(unique_name=unique_name),
                                 self._format_match_result(data.iloc[0]))
-                    logging.debug(data.to_string())
+                    if logging.getLogger().isEnabledFor(logging.DEBUG):
+                        logging.debug(data.to_string())
                     return data.iloc[[0]]
             else:
                 logging.info('No match via unique-name search: searched %s',
@@ -663,7 +666,8 @@ class POIBase:
                     logging.info('Match found via fuzzy unique-name search: searched core=%r (from %r) within %sm -> found %s (similarity=%.2f)',
                                 fuzzy_core_name, unique_name, query_params['fuzzy_distance'],
                                 self._format_match_result(best), best['fuzzy_sim'])
-                    logging.debug(data.to_string())
+                    if logging.getLogger().isEnabledFor(logging.DEBUG):
+                        logging.debug(data.to_string())
                     return data.iloc[[0]]
                 else:
                     logging.info('No match via fuzzy unique-name search: searched core=%r (from %r) within %sm',
@@ -739,7 +743,9 @@ class POIBase:
                 logging.info('Match found via name+conscriptionnumber+city search: searched %s -> found %s',
                             self._format_search_criteria(name=name, city=city, conscriptionnumber=conscriptionnumber),
                             self._format_match_result(data.iloc[0]))
-                logging.debug(data.to_string())
+                if logging.getLogger().isEnabledFor(logging.DEBUG):
+                    if logging.getLogger().isEnabledFor(logging.DEBUG):
+                        logging.debug(data.to_string())
                 return data.iloc[[0]]
             else:
                 logging.info('No match via name+conscriptionnumber+city search: searched %s',
@@ -827,7 +833,9 @@ class POIBase:
                             self._format_search_criteria(name=name, city=city, street=street_name,
                                                         housenumber=housenumber), lon, lat,
                             self._format_match_result(data.iloc[0]))
-                logging.debug(data.to_string())
+                if logging.getLogger().isEnabledFor(logging.DEBUG):
+                    if logging.getLogger().isEnabledFor(logging.DEBUG):
+                        logging.debug(data.to_string())
                 return data.iloc[[0]]
             else:
                 logging.info('No match via exact address search: searched %s near %s,%s',
@@ -1133,7 +1141,9 @@ class POIBase:
                 # Record: POI found in this stage
                 poi_id = f"{query_type}:{query_name}:{stage}"
                 stats.record_found(poi_id, stage)
-                logging.debug(data.to_string())
+                if logging.getLogger().isEnabledFor(logging.DEBUG):
+                    if logging.getLogger().isEnabledFor(logging.DEBUG):
+                        logging.debug(data.to_string())
                 return data.iloc[[0]]
             else:
                 logging.info('No match via fallback stage batch %s: searched %s near %s,%s',
@@ -1306,10 +1316,11 @@ class POIBase:
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)
-            logging.debug({'lon': lon, 'lat': lat, 'distance': distance, 'name': name,
-                           'similarity_threshold': similarity_threshold, 'levenshtein_threshold': levenshtein_threshold})
-            logging.debug(f'Returned data:')
-            logging.debug(f'{data.to_string()}')
+            if logging.getLogger().isEnabledFor(logging.DEBUG):
+                logging.debug({'lon': lon, 'lat': lat, 'distance': distance, 'name': name,
+                               'similarity_threshold': similarity_threshold, 'levenshtein_threshold': levenshtein_threshold})
+                logging.debug('Returned data:')
+                logging.debug(data.to_string())
 
         return data
 
