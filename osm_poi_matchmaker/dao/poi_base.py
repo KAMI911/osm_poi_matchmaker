@@ -359,6 +359,9 @@ class POIBase:
             distance_safe = config.get_geo_default_poi_distance()
         query_params.update({'distance_safe': distance_safe})
         query_params.update({'distance_safe_deg': distance_safe / 70000.0})
+        if distance_perfect is None or distance_perfect == '' or math.isnan(distance_perfect):
+            distance_perfect = config.get_geo_default_poi_perfect_distance()
+        query_params.update({'distance_perfect': distance_perfect})
         if lon is not None and lon != '':
             query_params.update({'lon': lon})
         if lat is not None and lat != '':
@@ -462,31 +465,35 @@ class POIBase:
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'way' AS node,
                    highway, {ref_column},
                    "addr:postcode", "addr:housenumber", "addr:city", "addr:street", "addr:conscriptionnumber",
-                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
-            FROM planet_osm_polygon
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE ({query_type}) AND osm_id > 0 {query_unique_ref} {query_avoid_name}
+              AND ST_DistanceSphere(way, point.geom) < :distance_perfect
             UNION ALL
             --- The node selector with with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'node' AS node,
                    highway, {ref_column},
                    "addr:postcode", "addr:housenumber", "addr:city", "addr:street", "addr:conscriptionnumber",
-                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
-            FROM planet_osm_point
+            FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE ({query_type}) AND osm_id > 0 {query_unique_ref} {query_avoid_name}
+              AND ST_DistanceSphere(way, point.geom) < :distance_perfect
             UNION ALL
             --- The relation selector with additional ref
             SELECT name, osm_id, {metadata_fields} 930 AS priority, 'relation' AS node,
                    highway, {ref_column},
                    "addr:postcode", "addr:housenumber", "addr:city", "addr:street", "addr:conscriptionnumber",
-                   0 as distance, way, ST_AsEWKT(way) as way_ewkt,
+                   ST_DistanceSphere(way, point.geom) as distance, way, ST_AsEWKT(way) as way_ewkt,
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
-            FROM planet_osm_polygon
+            FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
             WHERE ({query_type}) AND osm_id < 0 {query_unique_ref} {query_avoid_name}
+              AND ST_DistanceSphere(way, point.geom) < :distance_perfect
+            ORDER BY distance ASC
             '''
             try:
                 query = sqlalchemy.text(query_text.format(query_type=query_type,
