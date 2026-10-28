@@ -17,7 +17,7 @@ except ImportError as err:
 
     sys.exit(128)
 
-AVOID_NAME = '(new yorker|newyorker|pepco|sinsay|takko|zara|c&a)'
+AVOID_NAME = '(new yorker|newyorker|pepco|sinsay|takko|zara|c&a|reserved|cropp|mohito|kik|stradivarius|fashion)'
 
 
 class hu_hm(DataProvider):

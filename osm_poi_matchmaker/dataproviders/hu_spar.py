@@ -23,6 +23,7 @@ except ImportError as err:
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
 
 AVOID_NAME = '(aldi|auchan|cba|príma|prima|coop|lidl|penny|reál|real|tesco|s-market|smarket|tom market|tommarket)'
+AVOID_NAME_NOT_INTERSPAR = AVOID_NAME[:-1] + '|interspar)'
 
 
 class hu_spar(DataProvider):
@@ -55,7 +56,7 @@ class hu_spar(DataProvider):
             {'poi_code': 'husparecon', 'poi_common_name': 'Spar Expressz', 'poi_type': 'shop',
              'poi_tags': husparecon, 'poi_url_base': 'https://www.spar.hu',
              'poi_search_name': '(spar|spar express|spar expressz)', 'additional_ref_name': 'ref',
-             'poi_search_avoid_name': AVOID_NAME,
+             'poi_search_avoid_name': AVOID_NAME_NOT_INTERSPAR,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
             {'poi_code': 'husparisup', 'poi_common_name': 'Interspar', 'poi_type': 'shop',
              'poi_tags': husparisup, 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|interspar)',
@@ -65,12 +66,12 @@ class hu_spar(DataProvider):
             {'poi_code': 'husparsup', 'poi_common_name': 'Spar', 'poi_type': 'shop',
              'poi_tags': husparsup, 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|spar supermarket)',
              'additional_ref_name': 'ref',
-             'poi_search_avoid_name': AVOID_NAME,
+             'poi_search_avoid_name': AVOID_NAME_NOT_INTERSPAR,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
             {'poi_code': 'huspardcon', 'poi_common_name': 'DeSpar', 'poi_type': 'shop',
              'poi_tags': huspardcon, 'poi_url_base': 'https://www.spar.hu', 'poi_search_name': '(spar|despar)',
              'additional_ref_name': 'ref',
-             'poi_search_avoid_name': AVOID_NAME,
+             'poi_search_avoid_name': AVOID_NAME_NOT_INTERSPAR,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 15},
         ]
         return self.__types

@@ -18,7 +18,7 @@ except ImportError as err:
 
     sys.exit(128)
 
-AVOID_NAME = '(vodafone|telekom|t-mobile|digi)'
+AVOID_NAME = '(vodafone|telekom|t-mobile|digi|(^| )one( |$)|gsm|phone|tele-m)'
 
 
 class hu_yettel(DataProvider):

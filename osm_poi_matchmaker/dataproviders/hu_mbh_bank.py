@@ -25,7 +25,7 @@ DAY_FIELDS = [('mon', 0), ('tue', 1), ('wed', 2), ('thu', 3), ('fri', 4), ('sat'
 
 # MKB/Takarékbank/Budapest Bank are MBH's own predecessor names (see poi_search_name below),
 # not competitors, so they're deliberately left out of this list.
-AVOID_NAME = '(otp|cib|k&h|kh bank|raiffeisen|unicredit|erste|gránit|sberbank|magnet)'
+AVOID_NAME = '(otp|cib|k&h|kh bank|raiffeisen|unicredit|erste|gránit|sberbank|magnet|kereskedelmi és hitel|coinatm|bitcoin|dt bank)'
 
 
 class hu_mbh_bank(DataProvider):

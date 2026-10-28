@@ -26,7 +26,7 @@ AUTH_HEADERS = {'Brand': 'PH', 'Source': 'WEB'}
 AUTH_BODY = {'deviceUuid': 'FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF', 'deviceUuidSource': 'FINGERPRINT',
             'source': 'WEB_PH'}
 
-AVOID_NAME = "(burger king|bk|kfc|mcdonald's|mcdonalds|subway|domino's|dominos)"
+AVOID_NAME = "(burger king|bk|kfc|mcdonald's|mcdonalds|subway|domino's|dominos|burger|hong kong)"
 
 
 class hu_pizza_hut(DataProvider):

@@ -20,7 +20,7 @@ except ImportError as err:
 
 WEEKDAY_INDEX = {'MONDAY': 0, 'TUESDAY': 1, 'WEDNESDAY': 2, 'THURSDAY': 3, 'FRIDAY': 4, 'SATURDAY': 5, 'SUNDAY': 6}
 
-AVOID_NAME = '(h&m|pepco|sinsay|takko|zara|c&a)'
+AVOID_NAME = '(h&m|pepco|sinsay|takko|zara|c&a|reserved|cropp|mohito|kik|stradivarius|(^| )diva( |$))'
 
 
 class hu_new_yorker(DataProvider):

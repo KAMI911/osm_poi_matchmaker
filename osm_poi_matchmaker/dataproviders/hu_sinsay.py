@@ -28,7 +28,7 @@ HOURS_LINE_RE = re.compile(r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:-(Mon|Tue|Wed|Thu|F
 # shared parent. ('house', LPP's 4th sibling brand, is deliberately left out -
 # too generic a substring, and collides with the real "Fashion House Outlet"
 # mall branding also present in Hungary.)
-AVOID_NAME = '(h&m|new yorker|newyorker|pepco|takko|zara|c&a|reserved|cropp|mohito)'
+AVOID_NAME = '(h&m|new yorker|newyorker|pepco|takko|zara|c&a|reserved|cropp|mohito|orsay|fashion|kik|stradivarius|háda)'
 
 
 class hu_sinsay(DataProvider):

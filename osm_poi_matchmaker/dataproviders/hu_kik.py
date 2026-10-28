@@ -18,6 +18,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+AVOID_NAME = '(takko|pepco|sinsay|h&m|new yorker|newyorker|zara|c&a|vesper|fashion|(^| )house( |$)|(^| )gas( |$))'
+
 
 class hu_kik(DataProvider):
     """Imports KiK discount clothing store locations in Hungary from KiK's own
@@ -38,6 +40,7 @@ class hu_kik(DataProvider):
         self.__types = [
             {'poi_code': 'hukik', 'poi_common_name': 'KiK', 'poi_type': 'clothes', 'poi_tags': hukik,
              'poi_url_base': 'https://www.kik.hu', 'poi_search_name': 'kik',
+             'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 200, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 20},
