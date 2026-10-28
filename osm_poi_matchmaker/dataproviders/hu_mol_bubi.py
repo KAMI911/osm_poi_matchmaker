@@ -74,9 +74,8 @@ class hu_mol_bubi(DataProvider):
                         self.data.name = None
                         self.data.code = 'hububibir'
                         self.data.city = 'Budapest'
-                        title = poi_data.get('title')
-                        if title is not None and clean_string(title) is not None:
-                            self.data.ref = clean_string(title)
+                        # The feed has no station number (the OSM ref, e.g. '0103'): its 'title' is the station's
+                        # address, which must not be written as ref.
                         # self.data.capacity = clean_string(poi_data.get('bike_racks'))
                         self.data.nonstop = True
                         coord = poi_data.get('coord') or {}

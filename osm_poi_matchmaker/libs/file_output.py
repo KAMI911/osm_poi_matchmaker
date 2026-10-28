@@ -96,6 +96,16 @@ COMPLEX_OH_PATTERNS = [
 ]
 
 
+def keep_osm_ref_spelling(poi_ref, osm_ref):
+    """Return the ref tag value to write: the OSM node's own ref if the provider's one is the same value
+    apart from letter case (e.g. OSM 'HU53' vs provider 'hu53') or is one entry of its ';'-separated list
+    (e.g. one MOL Plugee node's ref="HUMOL0058;HUMOL0158"), so an already correct ref is neither rewritten
+    nor reduced to a single value. Otherwise the provider's ref."""
+    if osm_ref and str(poi_ref).lower() in [part.strip().lower() for part in str(osm_ref).split(';')]:
+        return osm_ref
+    return poi_ref
+
+
 def is_complex_opening_hours(oh_value):
     """ Heuristic check to see if opening_hours is too complex for automatic processing. """
     for pattern in COMPLEX_OH_PATTERNS:
@@ -777,7 +787,7 @@ def generate_osm_xml(df, session=None):
                 logging.exception(traceback.format_exc())
             try:
                 if has_value(row.poi_ref) and row.poi_ref:
-                    tags['ref'] = row.poi_ref
+                    tags['ref'] = keep_osm_ref_spelling(row.poi_ref, osm_live_tags.get('ref'))
                     logging.debug('Added ref tag.')
 
                 # additional_ref_name is the literal tag key to write poi_additional_ref under
