@@ -31,7 +31,7 @@ except ImportError as err:
 SEARCH_PAGE_URL = 'https://www.ofotert.hu/hu/uzletkereso'
 API_URL = 'https://www.ofotert.hu/hu/api/store-locator'
 
-AVOID_NAME = '(vision|optic world)'
+AVOID_NAME = '(vision|optic world|papp optika)'
 
 
 class hu_ofotert(DataProvider):
