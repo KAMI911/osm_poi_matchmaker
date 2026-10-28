@@ -12,7 +12,7 @@ try:
     import numpy as np
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type
     from osm_poi_matchmaker.utils import config
-    from osm_poi_matchmaker.libs.address import clean_url
+    from osm_poi_matchmaker.libs.address import clean_url, is_non_street_address
     from osm_poi_matchmaker.libs.string import has_value
     from osm_poi_matchmaker.libs.file_output_helper import url_tag_generator
     from osm_poi_matchmaker.libs.osm import relationer, timestamp_now
@@ -31,7 +31,7 @@ except ImportError as err:
 
 
 POI_TAGS = {'poi_common_name': 'name', 'poi_city': 'addr:city', 'poi_postcode': 'addr:postcode',
-            'poi_addr_street': 'addr:street', 'poi_addr_housenumber': 'addr:housenumber',
+            'poi_addr_street': 'addr:street', 'poi_addr_place': 'addr:place', 'poi_addr_housenumber': 'addr:housenumber',
             'poi_conscriptionnumber': 'addr:conscriptionnumber', 'poi_branch': 'branch', 'poi_email': 'email'}
 
 # Extra POI fields mapped to their OSM tag equivalents (used in GeoJSON export)
@@ -768,6 +768,14 @@ def generate_osm_xml(df, session=None):
                             tr_removed.append(tr)
                     if len(tr_removed) >= 1:
                         logging.debug('Removed tags are: {}'.format(','.join(tr_removed)))
+            except Exception as e:
+                logging.exception('Exception occurred: {}'.format(e))
+                logging.exception(traceback.format_exc())
+            try:
+                # addr:place is only for addresses that have no street (motorway, rest area, ...): if the node
+                # ended up with a real addr:street (e.g. its own, kept from OSM), that wins
+                if tags.get('addr:place') and tags.get('addr:street'):
+                    tags.pop('addr:place')
             except Exception as e:
                 logging.exception('Exception occurred: {}'.format(e))
                 logging.exception(traceback.format_exc())

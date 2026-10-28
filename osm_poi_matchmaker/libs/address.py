@@ -1043,3 +1043,18 @@ def clean_branch(clearable):
         return branch
     else:
         return None
+
+
+# A "street" that is really a motorway, a numbered main road or a rest area is not a street name in OSM,
+# so it belongs into addr:place. Deliberately strict: a genuine street that merely has "főút" in its name
+# (e.g. 'Bolyki főút') must stay addr:street, so numbered main roads must start with their number.
+NON_STREET_ADDRESS = re.compile(
+    r'(autópálya|autóút|gyorsforgalmi|aupá|pihenő(hely)?\.?$)'
+    r'|^(m\s?/?\s?\d+\b)'
+    r'|^(külterület\s+)?\d+([/-]?[a-z]+)?\.?\s*(-?es\s+|-?s\s+|sz\.?\s+|számú\s+)*(főközlekedési út|főút)\b',
+    re.IGNORECASE)
+
+
+def is_non_street_address(street) -> bool:
+    """True if `street` names a motorway, a numbered main road or a rest area rather than a street."""
+    return bool(street) and NON_STREET_ADDRESS.search(str(street).strip()) is not None

@@ -183,6 +183,9 @@ class POI_address_raw(Base):
     # coordinate to find a UIC station code and the station's Wikidata item.
     poi_uic_ref = Column(Unicode(16))
     poi_wikidata = Column(Unicode(16))
+    # Motorway / numbered main road / rest area 'street' values go here instead of poi_addr_street (addr:place);
+    # appended last to match the physical column order of a database migrated with ALTER TABLE ADD COLUMN.
+    poi_addr_place = Column(Unicode(128))
 
     common = relationship('POI_common', primaryjoin='POI_address_raw.poi_common_id == POI_common.pc_id',
                           backref='poi_address_raw')
@@ -329,6 +332,9 @@ class POI_address(Base):
     # see the matching note in dao/poi_array_structure.py's POI_DB list, which this must stay
     # positionally aligned with.
     poi_search_name_strip_words = Column(Unicode(256))
+    # Motorway / numbered main road / rest area 'street' values go here instead of poi_addr_street (addr:place);
+    # appended last to match the physical column order of a database migrated with ALTER TABLE ADD COLUMN.
+    poi_addr_place = Column(Unicode(128))
     common = relationship('POI_common', primaryjoin='POI_address.poi_common_id == POI_common.pc_id',
                           backref='poi_address')
     city = relationship('City', primaryjoin='POI_address.poi_addr_city == City.city_id', backref='poi_address')

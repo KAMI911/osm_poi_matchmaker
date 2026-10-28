@@ -18,7 +18,10 @@ try:
     from osm_poi_matchmaker.dataproviders import hu_dpd, hu_shell
     from osm_poi_matchmaker.dataproviders.hu_mobiliti_ev import hu_mobiliti_ev
     from osm_poi_matchmaker.dataproviders import hu_mol_bubi
-    from osm_poi_matchmaker.libs.file_output import keep_osm_ref_spelling
+    import pandas as pd
+    from osm_poi_matchmaker.libs.address import is_non_street_address
+    from osm_poi_matchmaker.libs.file_output import keep_osm_ref_spelling, generate_geojson
+    from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRaw
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -148,6 +151,59 @@ class TestRefHandling(unittest.TestCase):
         self.assertEqual('0218', keep_osm_ref_spelling('0218', '0230'))
         self.assertEqual('hu53', keep_osm_ref_spelling('hu53', None))
         self.assertEqual('hu53', keep_osm_ref_spelling('hu53', ''))
+
+
+class TestNonStreetAddress(unittest.TestCase):
+    """Motorways, numbered main roads and rest areas are not streets: they go to addr:place, not addr:street."""
+
+    def test_non_street_values(self):
+        for value in ('M7 autópálya', 'M0 Annahegyi pihenő', 'Velencei pihenőhely', '4. számú főközlekedési út',
+                      '8 sz. számú főközlekedési út', '4-es főút', '2/a főút', 'Külterület 3 Számú főút',
+                      'Pihenő M1 autópálya', 'M7-s aupá. Fvári pihenő'):
+            self.assertTrue(is_non_street_address(value), value)
+
+    def test_real_streets_stay_streets(self):
+        # 'Bolyki főút' and 'Pihenő utca' are genuine street names
+        for value in ('Bolyki főút', 'Pihenő utca', 'Fő utca', 'M. Petrol utca', 'Kossuth Lajos utca', '', None):
+            self.assertFalse(is_non_street_address(value), value)
+
+    def test_geojson_exports_addr_place(self):
+        df = pd.DataFrame([
+            {'poi_lon': 19.0, 'poi_lat': 47.5, 'poi_addr_place': 'M7 autópálya', 'poi_addr_housenumber': '167'},
+            {'poi_lon': 19.1, 'poi_lat': 47.6, 'poi_addr_street': 'Fő utca', 'poi_addr_housenumber': '1'},
+        ])
+        features = json.loads(generate_geojson(df))['features']
+        self.assertEqual({'addr:place': 'M7 autópálya', 'addr:housenumber': '167'}, features[0]['properties'])
+        self.assertEqual({'addr:street': 'Fő utca', 'addr:housenumber': '1'}, features[1]['properties'])
+
+    def test_process_street_moves_non_street_to_place_without_road_lookup(self):
+        with patch('osm_poi_matchmaker.libs.poi_dataset.POIBase') as poi_base:
+            data = POIDatasetRaw()
+            data.street = 'M0 Annahegyi pihenő'
+            data.process_street()
+            self.assertEqual('M0 Annahegyi pihenő', data.addr_place)
+            self.assertIsNone(data.street)
+            poi_base.return_value.query_name_road_around.assert_not_called()
+
+    def test_added_row_matches_the_column_list(self):
+        # one place in add()'s row tuple and POI_COLS_RAW going out of step would silently shift every column
+        with patch('osm_poi_matchmaker.libs.poi_dataset.POIBase'):
+            data = POIDatasetRaw()
+            data.code, data.lat, data.lon, data.city, data.postcode = 'x', 47.5, 19.0, 'Budapest', '1011'
+            data.street, data.housenumber = 'M7 autópálya', '167'
+            data.add()
+            row = data.process().iloc[0]
+        self.assertEqual('M7 autópálya', row['poi_addr_place'])
+        self.assertIsNone(row['poi_addr_street'])
+        self.assertEqual('167', row['poi_addr_housenumber'])
+
+    def test_clear_all_resets_addr_place(self):
+        with patch('osm_poi_matchmaker.libs.poi_dataset.POIBase'):
+            data = POIDatasetRaw()
+            data.street = 'M7 autópálya'
+            data.process_street()
+            data.clear_all()
+            self.assertIsNone(data.addr_place)
 
 
 class TestPoiTagsHoldOnlyOsmTags(unittest.TestCase):

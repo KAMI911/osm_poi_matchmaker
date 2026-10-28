@@ -11,7 +11,8 @@ try:
     from osm_poi_matchmaker.utils.enums import WeekDaysShort, OpenClose
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
-    from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch, clean_phone_to_str, clean_email, clean_postcode
+    from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch, clean_phone_to_str, clean_email, \
+        clean_postcode, is_non_street_address
     from osm_poi_matchmaker.libs.string import has_value
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
@@ -122,6 +123,7 @@ class POIDatasetRaw:
         self.__gtfs_location_type = None
         self.__uic_ref = None
         self.__wikidata = None
+        self.__addr_place = None
         self.__phone = None
         self.__mobile = None
         self.__email = None
@@ -192,6 +194,7 @@ class POIDatasetRaw:
         self.__gtfs_location_type = None
         self.__uic_ref = None
         self.__wikidata = None
+        self.__addr_place = None
         self.__phone = None
         self.__mobile = None
         self.__email = None
@@ -696,6 +699,11 @@ class POIDatasetRaw:
         self.__uic_ref = clean_string(data)
 
     @property
+    def addr_place(self) -> str:
+        """addr:place value, set by process_street() for motorway / main road / rest area 'streets'."""
+        return self.__addr_place
+
+    @property
     def wikidata(self) -> str:
         return self.__wikidata
 
@@ -1114,6 +1122,12 @@ class POIDatasetRaw:
         Called from add()."""
         cache_key = None
         data = clean_string(self.__street)
+        if is_non_street_address(data):
+            # Motorway, numbered main road or rest area: not a street, so skip the road lookup (it would
+            # 'correct' it to some similarly named road, e.g. 'M0 Annahegyi pihenő' -> 'Annahegyi pihenőhely')
+            self.__addr_place = data
+            self.__street = None
+            return
         if data is not None and data != 'None' and data != '':
             cache_key = 'street:{}-{}-{}'.format(self.__lat, self.__lon, data)
             # Try to find street name around
@@ -1227,7 +1241,7 @@ class POIDatasetRaw:
                  self.__manufacturer, self.__model,
                  self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
                  self.__ref, self.__poi_additional_ref, self.__gtfs_parent_station, self.__gtfs_location_type,
-                 self.__uic_ref, self.__wikidata,
+                 self.__uic_ref, self.__wikidata, self.__addr_place,
                  self.__phone, self.__mobile, self.__email, self.__geom, self.__nonstop,
                  self.__oh.at[WeekDaysShort.mo, OpenClose.open],
                  self.__oh.at[WeekDaysShort.tu, OpenClose.open],
