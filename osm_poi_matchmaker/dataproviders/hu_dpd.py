@@ -64,6 +64,10 @@ DAY_ORDER = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY',
 # is a staffed retail partner hosting a Pickup point (confirmed by cross-checking real
 # entries, e.g. a wine shop and a shoe-repair kiosk both come back as 100/200).
 LOCKER_PUDO_TYPE = 400
+# DPD lists Foxpost A-BOX and AlzaBox lockers as "DPD FOX ..." / "DPD AlzaBox ..." pudo points. They are
+# the very same physical lockers hu_foxpost.py / hu_alzabox.py already import (~97% have one within 60 m),
+# and avoid_name keeps them from ever matching those, so importing them here only creates duplicates.
+PARTNER_LOCKER_NAME = re.compile(r'\b(fox|alza)', re.IGNORECASE)
 
 
 class hu_dpd(DataProvider):
@@ -194,6 +198,8 @@ class hu_dpd(DataProvider):
                                         config.get_download_use_cached_data())
             for shop in stores or []:
                 try:
+                    if shop.get('pudoType') == LOCKER_PUDO_TYPE and PARTNER_LOCKER_NAME.search(shop.get('name') or ''):
+                        continue
                     self.data.code = 'hudpdcso' if shop.get('pudoType') == LOCKER_PUDO_TYPE else 'hudpdpp'
                     self.data.branch = clean_string(shop.get('name'))
                     self.data.ref = clean_string(shop.get('id'))
