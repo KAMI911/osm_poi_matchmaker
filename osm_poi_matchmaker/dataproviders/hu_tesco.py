@@ -52,6 +52,7 @@ STORE_TYPE_TO_CODE = {'Express': 'hutescoexp', 'Hypermarket': 'hutescoext', 'Sup
 DAY_ORDER = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
 
 AVOID_NAME = '(aldi|auchan|cba|príma|prima|coop|lidl|penny|reál|real|spar|tom market|tommarket)'
+AVOID_NAME_NOT_EXTRA = AVOID_NAME[:-1] + '|extra)'
 
 
 class hu_tesco(DataProvider):
@@ -84,7 +85,7 @@ class hu_tesco(DataProvider):
             self.__class__.__name__, self.filetype.name)
 
     def types(self):
-        hutescoexp = {'shop': 'convenience', 'brand:wikidata': 'Q98456772', 'additional_ref_name': 'ref'}
+        hutescoexp = {'shop': 'convenience', 'brand:wikidata': 'Q98456772'}
         hutescoexp.update(self.tags)
         hutescoext = {'shop': 'supermarket',
                       'wheelchair': 'yes', 'source:wheelchair': 'website', 'brand:wikidata': 'Q25172225'}
@@ -100,7 +101,7 @@ class hu_tesco(DataProvider):
         self.__types = [
             {'poi_code': 'hutescoexp', 'poi_common_name': 'Tesco Expressz', 'poi_type': 'shop',
              'poi_tags': hutescoexp, 'poi_url_base': 'https://tesco.hu', 'poi_search_name': 'tesco',
-             'poi_search_avoid_name': AVOID_NAME,
+             'poi_search_avoid_name': AVOID_NAME_NOT_EXTRA,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 200},
             {'poi_code': 'hutescoext', 'poi_common_name': 'Tesco Extra', 'poi_type': 'shop',
