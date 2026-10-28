@@ -52,13 +52,48 @@ class hu_mobiliti_ev(DataProvider):
         ]
         return self.__types
 
+    @staticmethod
+    def merge_nearby_sites(locations, max_distance=50):
+        """The OCPI feed lists every charge point as its own location, so one site shows up as several
+        records with different ids a few meters apart. OSM maps a site as a single node, so merge records of
+        the same operator and postcode within max_distance meters (single linkage) into one, the one with the
+        lowest id as the representative, collecting the evses of all of them."""
+        def coords(loc):
+            try:
+                return float(loc.get('latitude')), float(loc.get('longitude'))
+            except (TypeError, ValueError):
+                return None
+
+        def key(loc):
+            return (loc.get('operator') or {}).get('name'), loc.get('postalCode')
+
+        ordered = sorted((loc for loc in locations if coords(loc) is not None), key=lambda loc: str(loc.get('id')))
+        merged = [loc for loc in locations if coords(loc) is None]
+        sites = []  # [representative, [(lat, lon), ...]]
+        for loc in ordered:
+            lat, lon = coords(loc)
+            cos_lat = math.cos(math.radians(lat))
+            for site in sites:
+                if key(site[0]) == key(loc) and any(
+                        math.hypot((lon - lon2) * 111320 * cos_lat, (lat - lat2) * 110540) < max_distance
+                        for lat2, lon2 in site[1]):
+                    site[1].append((lat, lon))
+                    site[0]['evses'] = (site[0].get('evses') or []) + (loc.get('evses') or [])
+                    break
+            else:
+                site_loc = dict(loc)
+                site_loc['evses'] = list(loc.get('evses') or [])
+                sites.append([site_loc, [(lat, lon)]])
+        merged.extend(site[0] for site in sites)
+        return merged
+
     def process(self):
         try:
             logging.info('Processing file: {}'.format(self.link))
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
                                         self.filetype)
             if soup is not None:
-                text = json.loads(soup)
+                text = self.merge_nearby_sites(json.loads(soup))
                 for poi_data in text:
                     try:
                         self.data.code = 'humobilchs'
