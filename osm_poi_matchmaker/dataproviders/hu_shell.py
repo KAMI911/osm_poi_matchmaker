@@ -99,6 +99,9 @@ class hu_shell(DataProvider):
                         else:
                             logging.info('Shell fuel station NOT in Hungary')
                             continue
+                        # "EV TESCO ..." Shell Recharge sites are EV chargers only (no fuel pumps), not stations
+                        if poi_data.get('site_category') == 'destination_charging_ev':
+                            continue
                         self.data.code = 'hushellfu'
                         self.data.website = clean_url(poi_data.get('website_url')) if ('website_url' in poi_data and poi_data.get('website_url') != '') else 'https://shell.hu/'
                         self.data.postcode = clean_string(poi_data.get('postcode')) if ('postcode' in poi_data and poi_data.get('postcode') != '') else None
