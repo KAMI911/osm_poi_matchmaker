@@ -4,7 +4,7 @@ try:
     import logging
     import sys
     import unittest
-    from osm_poi_matchmaker.libs.file_output_helper import url_tag_generator
+    from osm_poi_matchmaker.libs.file_output_helper import url_tag_generator, source_date_domain
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
     logging.exception('Exception occurred')
@@ -29,6 +29,16 @@ class TestURLTagGenerator(unittest.TestCase):
             a = url_tag_generator(poi_url_base, poi_website)
             with self.subTest():
                 self.assertEqual(url, a)
+
+
+class TestSourceDateDomain(unittest.TestCase):
+    def test_host_of_an_absolute_url(self):
+        self.assertEqual('www.lidl.hu', source_date_domain('https://www.lidl.hu'))
+        self.assertEqual('www.amplifon.com', source_date_domain(' https://www.amplifon.com/hu '))
+
+    def test_missing_or_unusable_base_url_gives_none(self):
+        for value in (None, '', '  ', float('nan'), 'www.lidl.hu', 'lidl'):
+            self.assertIsNone(source_date_domain(value), value)
 
 
 if __name__ == '__main__':

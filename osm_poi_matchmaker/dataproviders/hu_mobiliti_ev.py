@@ -96,26 +96,26 @@ def summarize_evses(evses):
 
 # The feed carries the whole OCPI roaming network, not just Mobiliti's own stations. The other operators'
 # sites are imported under their own name instead of as 'Mobiliti' (code, name, operator tag, feed operator
-# pattern). Operators with their own dedicated import (MOL, OMV, IONITY) are skipped as duplicates.
+# pattern, website - '' where the operator's own site is not known). Operators with their own dedicated import (MOL, OMV, IONITY) are skipped as duplicates.
 FOREIGN_OPERATORS = [
-    ('huteachs', 'TEA', 'TEA Mobilitás Kft.', r'^(tea mobilit|hu\*tea)'),
-    ('hulidlchs', 'Lidl', 'Lidl Magyarország Bt.', r'^(lidl|hu\*ldl)'),
-    ('hueonchs', 'E.ON', 'E.ON', r'^e\.?on\b'),
-    ('huelmuchs', 'ELMŰ', 'ELMŰ', r'^elm[űu]\b'),
-    ('huparklchs', 'Parkl', 'Parkl', r'^parkl'),
-    ('hushellrchs', 'Shell Recharge', 'Shell Recharge', r'^shell'),
-    ('huv4pluschs', 'V4plus', 'V4plus Kft.', r'^v4plus'),
-    ('huoptimumchs', 'Optimum Way', 'Optimum Way', r'^optimum way'),
-    ('huevsolchs', 'EVsOLUTION', 'EVsOLUTION Kft.', r'^evsolution'),
-    ('hupennychs', 'Penny', 'Penny Market', r'^penny'),
-    ('huevdirchs', 'evDirect', 'evDirect', r'^evdirect'),
-    ('huevoprochs', 'evopro', 'evopro', r'^evopro'),
-    ('huaudichs', 'Audi', 'Audi Hungária Zrt.', r'^hu\*aud'),
-    ('hutslachs', 'Tesla Supercharger', 'Tesla', r'^tesla$'),
+    ('huteachs', 'TEA', 'TEA Mobilitás Kft.', r'^(tea mobilit|hu\*tea)', 'https://www.teapont.hu'),
+    ('hulidlchs', 'Lidl', 'Lidl Magyarország Bt.', r'^(lidl|hu\*ldl)', 'https://www.lidl.hu'),
+    ('hueonchs', 'E.ON', 'E.ON', r'^e\.?on\b', 'https://www.eon.hu'),
+    ('huelmuchs', 'ELMŰ', 'ELMŰ', r'^elm[űu]\b', 'https://www.elmu.hu'),
+    ('huparklchs', 'Parkl', 'Parkl', r'^parkl', 'https://parkl.net'),
+    ('hushelrchs', 'Shell Recharge', 'Shell Recharge', r'^shell', 'https://www.shell.hu'),
+    ('huv4plchs', 'V4plus', 'V4plus Kft.', r'^v4plus', ''),
+    ('huoptwchs', 'Optimum Way', 'Optimum Way', r'^optimum way', ''),
+    ('huevsolchs', 'EVsOLUTION', 'EVsOLUTION Kft.', r'^evsolution', ''),
+    ('hupennychs', 'Penny', 'Penny Market', r'^penny', 'https://www.penny.hu'),
+    ('huevdirchs', 'evDirect', 'evDirect', r'^evdirect', ''),
+    ('huevopchs', 'evopro', 'evopro', r'^evopro', ''),
+    ('huaudichs', 'Audi', 'Audi Hungária Zrt.', r'^hu\*aud', 'https://www.audi.hu'),
+    ('hutslachs', 'Tesla Supercharger', 'Tesla', r'^tesla$', 'https://www.tesla.com'),
 ]
 SKIPPED_OPERATORS = re.compile(r'^(mol\b|omv\b|hu\*ioy|ionity)', re.IGNORECASE)
 MOBILITI_OPERATOR = re.compile(r'mobil[it]+i|^mvm|^nkm', re.IGNORECASE)
-OTHER_OPERATOR_CODE = 'humobothchs'
+OTHER_OPERATOR_CODE = 'humobochs'
 # Not publicly usable (company car parks, bus depots): tagged access=private whoever operates them
 PRIVATE_CODE = 'hupvtchs'
 PRIVATE_USAGE_TYPES = ('PRIVATE', 'BUS_CHARGER')
@@ -130,7 +130,7 @@ def classify_operator(operator_name):
         return 'humobilchs', None
     if SKIPPED_OPERATORS.search(name):
         return None
-    for code, display, _, pattern in FOREIGN_OPERATORS:
+    for code, display, _, pattern, _ in FOREIGN_OPERATORS:
         if re.search(pattern, name, re.IGNORECASE):
             return code, display
     return OTHER_OPERATOR_CODE, name
@@ -163,11 +163,11 @@ class hu_mobiliti_ev(DataProvider):
              'osm_search_distance_perfect': 400,
              'osm_search_distance_safe': 150, 'osm_search_distance_unsafe': 10},
         ]
-        for code, display, operator, pattern in FOREIGN_OPERATORS:
+        for code, display, operator, pattern, url_base in FOREIGN_OPERATORS:
             self.__types.append(
                 {'poi_code': code, 'poi_common_name': display, 'poi_type': 'charging_station',
                  'poi_tags': {'amenity': 'charging_station', 'operator': operator},
-                 'poi_url_base': '', 'poi_search_name': '(' + display.lower().replace('.', '.?') + ')',
+                 'poi_url_base': url_base, 'poi_search_name': '(' + display.lower().replace('.', '.?') + ')',
                  'poi_search_avoid_name': '(mobiliti)',
                  'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 150,
                  'osm_search_distance_unsafe': 10})

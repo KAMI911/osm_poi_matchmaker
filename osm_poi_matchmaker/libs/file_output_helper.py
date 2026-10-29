@@ -4,6 +4,8 @@ try:
     import logging
     import traceback
     import math
+    from urllib.parse import urlparse
+    from osm_poi_matchmaker.libs.string import has_value
     from osm_poi_matchmaker.libs.address import clean_url
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -41,3 +43,11 @@ def url_tag_generator(poi_url_base: str, poi_website: str) -> str:
             return clean_url('{}'.format(poi_url_base))
     else:
         return None
+
+
+def source_date_domain(poi_url_base) -> str:
+    """Host part of a provider's base URL for the source:<host>:date tag, or None when the provider has no
+    usable base URL (empty, NaN, or not an absolute URL)."""
+    if not has_value(poi_url_base):
+        return None
+    return urlparse(str(poi_url_base).strip()).netloc or None

@@ -14,7 +14,7 @@ try:
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import clean_url, is_non_street_address
     from osm_poi_matchmaker.libs.string import has_value
-    from osm_poi_matchmaker.libs.file_output_helper import url_tag_generator
+    from osm_poi_matchmaker.libs.file_output_helper import url_tag_generator, source_date_domain
     from osm_poi_matchmaker.libs.osm import relationer, timestamp_now
     from osm_poi_matchmaker.libs.compare_strings import compare_strings
     from sqlalchemy.orm import scoped_session, sessionmaker
@@ -851,8 +851,9 @@ def generate_osm_xml(df, session=None):
                 # Short URL for source OSM tag
                 # Can disable in app.conf via use.general.source.website.date key (deafault)
                 logging.debug('Add source OSM tag.')
-                if row.poi_url_base is not None and config.get_use_general_source_website_date() is False:
-                    source_url = 'source:{}:date'.format(row.poi_url_base.split('/')[2])
+                url_domain = source_date_domain(row.poi_url_base)
+                if url_domain is not None and config.get_use_general_source_website_date() is False:
+                    source_url = 'source:{}:date'.format(url_domain)
                 else:
                     # Issue #97: Remove source:(website):date tag and add source:website:date tag
                     # Then make it configurable via issue #98
@@ -860,9 +861,8 @@ def generate_osm_xml(df, session=None):
                         source_url = 'source:date'
                     else:
                         source_url = config.get_use_general_source_website_date_tag()
-                    if row.poi_url_base is not None:
-                        source_url_2 = 'source:{}:date'.format(row.poi_url_base.split('/')[2])
-                        tags.pop(source_url_2, None)
+                    if url_domain is not None:
+                        tags.pop('source:{}:date'.format(url_domain), None)
                 tags[source_url] = '{:{dfmt}}'.format(datetime.datetime.now(), dfmt=DATE_FORMAT)
                 # Add source tag, issue #101 and not just overwrite as #103
                 if tags.get('source') is None:

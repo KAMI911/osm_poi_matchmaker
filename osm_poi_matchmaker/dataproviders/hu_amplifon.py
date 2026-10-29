@@ -75,7 +75,10 @@ class hu_amplifon(DataProvider):
             # with AttributeError ('list' object has no attribute 'get').
             candidates = data if isinstance(data, list) else [data]
             for candidate in candidates:
-                if isinstance(candidate, dict) and candidate.get('@type') == 'MedicalBusiness':
+                # A city/region listing page carries a bare MedicalBusiness with only a text address (no
+                # geo, no branch code); only a store page has the structured PostalAddress object.
+                if isinstance(candidate, dict) and candidate.get('@type') == 'MedicalBusiness' \
+                        and isinstance(candidate.get('address'), dict):
                     return candidate
         return None
 

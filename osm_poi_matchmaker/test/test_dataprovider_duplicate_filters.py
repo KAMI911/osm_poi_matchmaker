@@ -242,9 +242,9 @@ class TestBranch(unittest.TestCase):
         self.assertEqual('14006', by_code['humobilchs']['ref'])
         self.assertEqual('Oroszlány, Uszoda', by_code['humobilchs']['branch'])
         # another operator's site keeps its own name and gets no Mobiliti station ref
-        self.assertEqual('Audi', by_code['humobothchs']['name'])
-        self.assertIsNone(by_code['humobothchs'].get('ref'))
-        self.assertEqual('Győr, Audi Hungária út - Audi Hungária Zrt.', by_code['humobothchs']['branch'])
+        self.assertEqual('Audi', by_code['humobochs']['name'])
+        self.assertIsNone(by_code['humobochs'].get('ref'))
+        self.assertEqual('Győr, Audi Hungária út - Audi Hungária Zrt.', by_code['humobochs']['branch'])
 
 
     def test_posta_automata_number_is_the_ref(self):
@@ -382,7 +382,7 @@ class TestMobilitiOperators(unittest.TestCase):
         self.assertEqual(('hulidlchs', 'Lidl'), classify_operator('LIDL Magyarország Bt.'))
         self.assertEqual(('huteachs', 'TEA'), classify_operator('HU*TEA'))
         self.assertEqual(('hutslachs', 'Tesla Supercharger'), classify_operator('Tesla'))
-        self.assertEqual(('humobothchs', 'Hungexpo'), classify_operator('Hungexpo'))
+        self.assertEqual(('humobochs', 'Hungexpo'), classify_operator('Hungexpo'))
 
     def test_operators_with_their_own_import_are_skipped(self):
         from osm_poi_matchmaker.dataproviders.hu_mobiliti_ev import classify_operator
@@ -465,3 +465,41 @@ class TestRefConflictExclusion(unittest.TestCase):
         ref_stage = [c for c in captured if 'WITH ADDITIONAL REF' in c[0]]
         self.assertTrue(ref_stage)
         self.assertNotIn('TEXT(operator)', ref_stage[0][0])
+
+
+class TestMobilitiForeignOperatorTypes(unittest.TestCase):
+    def _types(self):
+        with patch('osm_poi_matchmaker.utils.data_provider.POIDatasetRaw', RecordingData):
+            provider = hu_mobiliti_ev(None, '/nonexistent')
+        return provider.types()
+
+    def test_poi_codes_fit_the_database_column(self):
+        for t in self._types():
+            self.assertLessEqual(len(t['poi_code']), 10, t['poi_code'])
+
+    def test_known_operators_have_their_own_website(self):
+        by_code = {t['poi_code']: t for t in self._types()}
+        self.assertEqual('https://www.lidl.hu', by_code['hulidlchs']['poi_url_base'])
+        self.assertEqual('https://www.eon.hu', by_code['hueonchs']['poi_url_base'])
+        self.assertIn('hushelrchs', by_code)
+
+
+class TestAmplifonListingPage(unittest.TestCase):
+    PAGE = '<script type="application/ld+json">{}</script>'
+
+    def _fetch(self, block):
+        from osm_poi_matchmaker.dataproviders import hu_amplifon
+        with patch('osm_poi_matchmaker.utils.data_provider.POIDatasetRaw', RecordingData):
+            provider = hu_amplifon.hu_amplifon(None, '/nonexistent')
+        page = self.PAGE.format(json.dumps(block))
+        with patch.object(hu_amplifon, 'save_downloaded_soup', return_value=page):
+            return provider._hu_amplifon__fetch_store_data('https://www.amplifon.com/hu/x')
+
+    def test_city_listing_with_text_address_is_not_a_store(self):
+        self.assertIsNone(self._fetch({'@type': 'MedicalBusiness', 'name': 'Amplifon Eger',
+                                       'address': 'Dr. Sándor Imre utca 4., 3300, Eger'}))
+
+    def test_store_page_with_postal_address_is_kept(self):
+        store = {'@type': 'MedicalBusiness', 'name': 'Amplifon Eger',
+                 'address': {'@type': 'PostalAddress', 'addressCountry': 'HU'}}
+        self.assertEqual(store, self._fetch(store))
