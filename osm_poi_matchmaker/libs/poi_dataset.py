@@ -1184,7 +1184,7 @@ class POIDatasetRaw:
                     #    return
                     query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'name')
                     if query is None or query.empty:
-                        logging.warning('There is no street around with the same name, trying metaphone name…')
+                        logging.debug('There is no street around with the same name, trying metaphone name…')
                         query = self.__db.query_name_road_around(self.__lon, self.__lat, data, True, 'all')
                         if query is None or query.empty:
                             # Name-based matching (exact/metaphone/similarity/levenshtein) failed -

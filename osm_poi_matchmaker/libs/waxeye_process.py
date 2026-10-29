@@ -34,6 +34,10 @@ def waxeye_process(ast_items):
         processed = dict()
         for index, ast_item in enumerate(getattr(ast_items, 'children', [])):  # Children must exits here
             if hasattr(ast_item, 'children'):
+                # Marker rules such as 'ground' (fszt.) or 'halfLevel' match text the grammar does not
+                # keep, so the node is empty and there is nothing to record.
+                if len(ast_item.children) == 0:
+                    continue
                 try:
                     stri = 0
                     if isinstance(ast_item.children[0], AST) and ast_item.children[0] != []:

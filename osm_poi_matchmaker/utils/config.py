@@ -308,6 +308,17 @@ def get_database_writer_port():
         return '5432'
 
 
+_warned_default_credentials = set()
+
+
+def _warn_default_credential_once(kind, message):
+    """The getters run on every database connection (hundreds of times per import), so warn once per
+    process instead of on each call."""
+    if kind not in _warned_default_credentials:
+        _warned_default_credentials.add(kind)
+        logging.warning(message)
+
+
 def get_database_writer_username():
     """Username for the writable POI database connection.
 
@@ -321,8 +332,9 @@ def get_database_writer_username():
     if setting is None:
         return 'poi'
     if setting == 'poi':
-        logging.warning(
-            'Using default username. For security concerns please change default username in the config file and the database.')
+        _warn_default_credential_once(
+            'username', 'Using default username. For security concerns please change default username in the '
+                        'config file and the database.')
     return setting
 
 
@@ -337,8 +349,9 @@ def get_database_writer_password():
     if env_setting is not None:
         setting = env_setting
     if setting == 'poitest':
-        logging.warning(
-            'Using default password. For security concerns please change default password in the config file and the database.')
+        _warn_default_credential_once(
+            'password', 'Using default password. For security concerns please change default password in the '
+                        'config file and the database.')
     if setting is not None:
         return setting
     else:

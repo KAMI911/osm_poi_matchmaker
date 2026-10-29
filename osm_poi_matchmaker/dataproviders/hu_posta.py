@@ -146,7 +146,7 @@ class hu_posta(DataProvider):
                                 # Skip days that are not exist at data provider's
                                 if day_key is None:
                                     logging.warning('Cannot find any opening hours information for day {}.'.
-                                                    format(rd.name))
+                                                    format(d.day.get_text() if d.day is not None else None))
                                     continue
                                 else:
                                     # Extract from and to information
