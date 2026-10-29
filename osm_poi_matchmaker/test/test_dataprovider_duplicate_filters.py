@@ -416,3 +416,52 @@ class TestUniqueNameDistance(unittest.TestCase):
         self.assertEqual(3000, limit)
         # a few hundred meters is the same place
         self.assertLess(distance_m(19.0310798, 47.49138709, 19.0310806, 47.49140065), limit)
+
+
+class TestRefConflictExclusion(unittest.TestCase):
+    def _captured_sql(self, exclude_other_ref, require_ref_network=False, name='foxpost'):
+        import geopandas as gpd
+        from osm_poi_matchmaker.dao.poi_base import POIBase
+        captured = []
+
+        def fake_from_postgis(query, conn, geom_col='way', params=None):
+            captured.append((str(query), params))
+            return gpd.GeoDataFrame()
+
+        base = POIBase.__new__(POIBase)
+        base.one_session = None  # __del__ closes it
+        with patch.object(gpd.GeoDataFrame, 'from_postgis', side_effect=fake_from_postgis):
+            base._query_osm_shop_poi_gpd_impl(
+                MagicMock(), 19.0, 47.5, 'vending_machine_parcel_locker_and_mail_in', name, None, None,
+                'ref', 'hu6002', None, None, None, None, 300, 100, 10, True, None,
+                exclude_other_ref=exclude_other_ref, require_ref_network=require_ref_network)
+        return captured
+
+    def test_other_hu_ref_is_excluded_for_foxpost(self):
+        captured = self._captured_sql(True)
+        named = [c for c in captured if "(^|;)hu[0-9]+(;|$)" in c[0]]
+        self.assertTrue(named)
+        self.assertTrue(all(params.get('conflict_ref') == 'hu6002' for _, params in named))
+
+    def test_not_applied_unless_requested(self):
+        captured = self._captured_sql(False)
+        self.assertFalse([c for c in captured if "(^|;)hu[0-9]+(;|$)" in c[0]])
+
+    def test_only_foxpost_types_are_listed(self):
+        from osm_poi_matchmaker.dao.poi_base import REF_CONFLICT_POI_CODES
+        self.assertEqual(('hufoxpocso', 'hufoxpzcso'), REF_CONFLICT_POI_CODES)
+
+    def test_ref_stage_requires_the_searched_network(self):
+        captured = self._captured_sql(False, require_ref_network=True, name='gls')
+        ref_stage = [c for c in captured if 'WITH ADDITIONAL REF' in c[0]]
+        self.assertTrue(ref_stage)
+        sql = ref_stage[0][0]
+        self.assertIn('TEXT(operator) ILIKE :name_0', sql)
+        self.assertIn("COALESCE(TEXT(operator), '') = ''", sql)
+        self.assertEqual('%gls%', ref_stage[0][1]['name_0'])
+
+    def test_ref_stage_unrestricted_for_other_providers(self):
+        captured = self._captured_sql(False, require_ref_network=False, name='gls')
+        ref_stage = [c for c in captured if 'WITH ADDITIONAL REF' in c[0]]
+        self.assertTrue(ref_stage)
+        self.assertNotIn('TEXT(operator)', ref_stage[0][0])

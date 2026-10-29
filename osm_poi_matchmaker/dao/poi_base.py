@@ -28,6 +28,12 @@ except ImportError as err:
 _DB_POOL_SIZE = multiprocessing.cpu_count()
 
 
+# Types whose source ref identifies one machine of a site that often holds several (Foxpost A-BOX/Z-BOX
+# lockers, refs 'HU169'): an OSM element that already carries another 'HU<number>' ref is the neighbouring
+# machine, not this one, so it must not be matched (and re-labelled) by name/address/distance.
+REF_CONFLICT_POI_CODES = ('hufoxpocso', 'hufoxpzcso')
+
+
 def distance_m(lon1, lat1, lon2, lat2):
     """Approximate distance in meters between two WGS84 points (equirectangular, fine below ~100 km and
     only used here to tell 'same town' from 'other end of the country')."""
@@ -303,7 +309,8 @@ class POIBase:
                                street_name: str = None, housenumber: str = None, conscriptionnumber: str = None,
                                city: str = None, distance_perfect: int = None, distance_safe: int = None,
                                distance_unsafe: int = None, with_metadata: bool = True,
-                               unique_name_strip_words: str = None):
+                               unique_name_strip_words: str = None, exclude_other_ref: bool = False,
+                               require_ref_network: bool = False):
         """
         Search for POI in OpenStreetMap database based on POI type and geom within preconfigured distance
         :param lon:
@@ -326,6 +333,8 @@ class POIBase:
             strip from unique_name (and from each OSM candidate's name) before a fuzzy WITH FUZZY UNIQUE
             NAME fallback stage - see _query_osm_shop_poi_gpd_impl(). Only runs when both this and
             unique_name are set; the exact-match WITH UNIQUE NAME stage is unaffected either way.
+        :param exclude_other_ref: do not match OSM elements that carry a different 'HU<number>' ref than
+            unique_ref (see REF_CONFLICT_POI_CODES). Has no effect without unique_ref.
         :return:
         """
         # Thin wrapper: `with` guarantees conn is closed on every exit path (normal
@@ -336,7 +345,7 @@ class POIBase:
             return self._query_osm_shop_poi_gpd_impl(
                 conn, lon, lat, ptype, name, avoid_name, unique_name, additional_ref_name, unique_ref,
                 street_name, housenumber, conscriptionnumber, city, distance_perfect, distance_safe,
-                distance_unsafe, with_metadata, unique_name_strip_words)
+                distance_unsafe, with_metadata, unique_name_strip_words, exclude_other_ref, require_ref_network)
 
     def _query_osm_shop_poi_gpd_impl(self, conn, lon: float, lat: float, ptype: str = 'shop', name: str = None,
                                      avoid_name: str = None, unique_name: str = None,
@@ -345,7 +354,8 @@ class POIBase:
                                      conscriptionnumber: str = None,
                                      city: str = None, distance_perfect: int = None, distance_safe: int = None,
                                      distance_unsafe: int = None, with_metadata: bool = True,
-                                     unique_name_strip_words: str = None):
+                                     unique_name_strip_words: str = None, exclude_other_ref: bool = False,
+                                     require_ref_network: bool = False):
         """Implementation body for query_osm_shop_poi_gpd(), run inside its `with self.connection()` block."""
         buffer = 10
         query_arr = []
@@ -375,6 +385,7 @@ class POIBase:
         if lat is not None and lat != '':
             query_params.update({'lat': lat})
         query_params.update({'buffer': buffer})
+        query_ref_network = ''
         # Do not match with other specified names, brand names, network names
         if name is not None and not pd.isna(name) and name != '':
             # poi_search_name is always either a plain term or a parenthesized '(a|b|c)'
@@ -392,6 +403,12 @@ class POIBase:
                     'OR TEXT(network) ILIKE :{param})'.format(param=param))
                 query_params.update({param: '%{}%'.format(term)})
             query_name = 'AND (' + ' OR '.join(name_clauses) + ') '
+            if require_ref_network:
+                network_clauses = [c[:-1] + " OR TEXT(operator) ILIKE :name_{})".format(i)
+                                   for i, c in enumerate(name_clauses)]
+                query_ref_network = 'AND (' + ' OR '.join(network_clauses) + \
+                    " OR (COALESCE(TEXT(name), '') = '' AND COALESCE(TEXT(brand), '') = '' " \
+                    "AND COALESCE(TEXT(network), '') = '' AND COALESCE(TEXT(operator), '') = '')) "
             # If we have PO common defined safe search radius distance, then use it (or use defaults specified above)
             if distance_perfect is None or distance_perfect == '' or math.isnan(distance_perfect):
                 distance_perfect = config.get_geo_default_poi_perfect_distance()
@@ -410,6 +427,15 @@ class POIBase:
             query_params.update({'avoid_name': '.*{}.*'.format(avoid_name)})
         else:
             query_avoid_name = ''
+        if exclude_other_ref and unique_ref is not None and not pd.isna(unique_ref) and unique_ref != '':
+            # Another machine of the same site: its ref is a different HU<number>. Appended to both clauses
+            # because the named stages use query_name, the no-name last resort query_avoid_name.
+            query_ref_conflict = " AND NOT (REPLACE(LOWER(TEXT(ref)), ' ', '') ~ '(^|;)hu[0-9]+(;|$)' " \
+                                 "AND NOT (LOWER(TEXT(:conflict_ref)) = ANY(string_to_array(" \
+                                 "REPLACE(LOWER(TEXT(ref)), ' ', ''), ';')))) "
+            query_params.update({'conflict_ref': str(unique_ref).replace(' ', '')})
+            query_name += query_ref_conflict
+            query_avoid_name += query_ref_conflict
         if unique_name is not None and not pd.isna(unique_name) and unique_name != '':
             query_unique_name = ' AND LOWER(TEXT(name)) = LOWER(TEXT(:unique_name))'
             query_params.update({'unique_name': unique_name})
@@ -477,7 +503,7 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE ({query_type}) AND osm_id > 0 {query_unique_ref} {query_avoid_name}
+            WHERE ({query_type}) AND osm_id > 0 {query_unique_ref} {query_avoid_name} {query_ref_network}
               AND ST_DistanceSphere(way, point.geom) < :distance_perfect
             UNION ALL
             --- The node selector with with additional ref
@@ -488,7 +514,7 @@ class POIBase:
                    ST_X(planet_osm_point.way) as lon,
                    ST_Y(planet_osm_point.way) as lat
             FROM planet_osm_point, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE ({query_type}) AND osm_id > 0 {query_unique_ref} {query_avoid_name}
+            WHERE ({query_type}) AND osm_id > 0 {query_unique_ref} {query_avoid_name} {query_ref_network}
               AND ST_DistanceSphere(way, point.geom) < :distance_perfect
             UNION ALL
             --- The relation selector with additional ref
@@ -499,7 +525,7 @@ class POIBase:
                    ST_X(ST_PointOnSurface(planet_osm_polygon.way)) as lon,
                    ST_Y(ST_PointOnSurface(planet_osm_polygon.way)) as lat
             FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lon,:lat), 4326) as geom) point
-            WHERE ({query_type}) AND osm_id < 0 {query_unique_ref} {query_avoid_name}
+            WHERE ({query_type}) AND osm_id < 0 {query_unique_ref} {query_avoid_name} {query_ref_network}
               AND ST_DistanceSphere(way, point.geom) < :distance_perfect
             ORDER BY distance ASC
             '''
@@ -508,7 +534,8 @@ class POIBase:
                                                           metadata_fields=metadata_fields,
                                                           query_avoid_name=query_avoid_name,
                                                           ref_column=ref_column,
-                                                          query_unique_ref=query_unique_ref))
+                                                          query_unique_ref=query_unique_ref,
+                                                          query_ref_network=query_ref_network))
             except Exception as err:
                 logging.warning('Exception occurred')
                 logging.exception(err)
@@ -522,7 +549,8 @@ class POIBase:
                                                                    metadata_fields=metadata_fields,
                                                                    query_avoid_name=query_avoid_name,
                                                                    ref_column=ref_column,
-                                                                   query_unique_ref=query_unique_ref))
+                                                                   query_unique_ref=query_unique_ref,
+                                                          query_ref_network=query_ref_network))
                     perf = self.session.execute(perf_query, query_params)
                 except Exception as err:
                     logging.warning('Exception occurred')

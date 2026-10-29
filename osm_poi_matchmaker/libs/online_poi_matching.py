@@ -11,7 +11,7 @@ try:
     from sqlalchemy.orm import scoped_session, sessionmaker
     from sqlalchemy.exc import SQLAlchemyError
     from osmapi import OsmApi
-    from osm_poi_matchmaker.dao.poi_base import POIBase
+    from osm_poi_matchmaker.dao.poi_base import POIBase, REF_CONFLICT_POI_CODES
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.dao.data_structure import OSM_object_type, POI_OSM_cache
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
@@ -149,7 +149,9 @@ def find_osm_matches(args):
                                                       distance_safe,
                                                       distance_unsafe,
                                                       unique_name_strip_words=getattr(
-                                                          row, 'poi_search_name_strip_words', None))
+                                                          row, 'poi_search_name_strip_words', None),
+                                                      exclude_other_ref=getattr(row, 'poi_code', None) in REF_CONFLICT_POI_CODES,
+                                                      require_ref_network=row.additional_ref_name == 'ref')
                 # Enrich our data with OSM database POI metadata
                 if osm_query is not None:
                     changed_from_osm = False
