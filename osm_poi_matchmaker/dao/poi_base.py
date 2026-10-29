@@ -28,6 +28,14 @@ except ImportError as err:
 _DB_POOL_SIZE = multiprocessing.cpu_count()
 
 
+def distance_m(lon1, lat1, lon2, lat2):
+    """Approximate distance in meters between two WGS84 points (equirectangular, fine below ~100 km and
+    only used here to tell 'same town' from 'other end of the country')."""
+    return math.hypot((float(lon1) - float(lon2)) * 111320 * math.cos(math.radians(float(lat1))),
+                      (float(lat1) - float(lat2)) * 110540)
+
+
+
 class POIBase:
     """Represents the full database.
 
@@ -608,6 +616,11 @@ class POIBase:
                 if len(data) > 1:
                     logging.info('Multiple items found via unique-name search for name=%r - ambiguous, skipping this method.',
                                 unique_name)
+                elif distance_m(lon, lat, data.iloc[0]['lon'], data.iloc[0]['lat']) > \
+                        config.get_geo_unique_name_max_distance():
+                    logging.info('Unique-name match for name=%r is %.0f m away - another place with the same '
+                                'name, skipping this method.', unique_name,
+                                distance_m(lon, lat, data.iloc[0]['lon'], data.iloc[0]['lat']))
                 else:
                     logging.info('Match found via unique-name search: searched %s -> found %s',
                                 self._format_search_criteria(unique_name=unique_name),

@@ -403,3 +403,16 @@ class TestMobilitiPrivate(unittest.TestCase):
         self.assertEqual(['10587'], [r['ref'] for r in rows if 'ref' in r])
         # (the recording fake does not reset fields between rows, so only check that the name was set)
         self.assertIn('Audi', [r.get('name') for r in rows])
+
+
+class TestUniqueNameDistance(unittest.TestCase):
+    def test_distance_separates_same_town_from_other_end_of_country(self):
+        from osm_poi_matchmaker.dao.poi_base import distance_m
+        from osm_poi_matchmaker.utils import config
+        limit = config.get_geo_unique_name_max_distance()
+        # Rábatamási POI vs the OSM node it was matched to in the 2026-10 run (360 km away)
+        self.assertGreater(distance_m(17.17074, 47.58608, 21.9493676, 48.141071), 300000)
+        self.assertGreater(distance_m(17.17074, 47.58608, 21.9493676, 48.141071), limit)
+        self.assertEqual(3000, limit)
+        # a few hundred meters is the same place
+        self.assertLess(distance_m(19.0310798, 47.49138709, 19.0310806, 47.49140065), limit)

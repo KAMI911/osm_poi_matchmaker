@@ -24,6 +24,7 @@ geo.default.poi.unsafe.distance=5
 geo.default.poi.perfect.distance=300
 geo.default.poi.road.distance=600
 geo.default.poi.road.trust.distance=30
+geo.unique.name.max.distance=3000
 geo.amenity.atm.poi.distance=20
 geo.shop.convenience.poi.distance=50
 geo.amenity.post.office.poi.distance=200

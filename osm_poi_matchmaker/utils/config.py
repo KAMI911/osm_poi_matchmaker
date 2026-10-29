@@ -74,6 +74,7 @@ KEY_GEO_DEFAULT_POI_UNSAFE_DISTANCE = 'geo.default.poi.unsafe.distance'
 KEY_GEO_DEFAULT_POI_PERFECT_DISTANCE = 'geo.default.poi.perfect.distance'
 KEY_GEO_DEFAULT_POI_ROAD_DISTANCE = 'geo.default.poi.road.distance'
 KEY_GEO_DEFAULT_POI_ROAD_TRUST_DISTANCE = 'geo.default.poi.road.trust.distance'
+KEY_GEO_UNIQUE_NAME_MAX_DISTANCE = 'geo.unique.name.max.distance'
 KEY_GEO_AMENITY_ATM_POI_DISTANCE = 'geo.amenity.atm.poi.distance'
 KEY_GEO_SHOP_CONVENIENCE_POI_DISTANCE = 'geo.shop.convenience.poi.distance'
 KEY_GEO_AMENITY_POST_OFFICE_POI_DISTANCE = 'geo.amenity.post.office.poi.distance'
@@ -535,6 +536,22 @@ def get_geo_default_poi_road_trust_distance():
         return setting
     else:
         return 30
+
+
+def get_geo_unique_name_max_distance():
+    """Maximum distance in meters between a POI and the OSM element the nationwide exact
+    unique-name search found for it. Names like 'Éva ABC' or 'Szent Teréz Gyógyszertár' are
+    unique in OSM yet belong to another place; in the 2026-10 run every correct match was
+    within 3 km and every wrong one beyond 10 km.
+
+    Config key 'geo.unique.name.max.distance', defaults to 3000.
+    """
+    try:
+        setting = get_config_int(KEY_GEO_UNIQUE_NAME_MAX_DISTANCE)
+    except (configparser.NoOptionError, KeyError):
+        # an app.conf older than this option
+        setting = None
+    return setting if setting is not None else 3000
 
 
 def get_geo_amenity_atm_poi_distance():
