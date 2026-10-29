@@ -388,3 +388,18 @@ class TestMobilitiOperators(unittest.TestCase):
         from osm_poi_matchmaker.dataproviders.hu_mobiliti_ev import classify_operator
         for name in ('MOL', 'OMV Hungária Kft.', 'HU*IOY'):
             self.assertIsNone(classify_operator(name))
+
+
+class TestMobilitiPrivate(unittest.TestCase):
+    def test_private_usage_gets_the_private_code_but_keeps_station_ref(self):
+        location = mobiliti_location('HU_MMV_9', 47.5, 19.0, [])
+        location.update({'name': 'Budapest, BOSCH, 10587 - Mobiliti', 'city': 'Budapest', 'address': 'Fő utca 1.',
+                         'usageType': 'PRIVATE'})
+        audi = mobiliti_location('HU_AUD_3', 47.6, 19.1, [], operator='HU*AUD', postal_code='9027')
+        audi.update({'name': 'Győr, Audi', 'city': 'Győr', 'address': 'Audi út 1', 'usageType': 'PRIVATE'})
+        rows = run_process(sys.modules[hu_mobiliti_ev.__module__], hu_mobiliti_ev,
+                           json.dumps([location, audi]), loader='save_downloaded_soup')
+        self.assertEqual(['hupvtchs', 'hupvtchs'], [r['code'] for r in rows])
+        self.assertEqual(['10587'], [r['ref'] for r in rows if 'ref' in r])
+        # (the recording fake does not reset fields between rows, so only check that the name was set)
+        self.assertIn('Audi', [r.get('name') for r in rows])

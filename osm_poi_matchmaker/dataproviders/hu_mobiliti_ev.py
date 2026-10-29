@@ -116,6 +116,9 @@ FOREIGN_OPERATORS = [
 SKIPPED_OPERATORS = re.compile(r'^(mol\b|omv\b|hu\*ioy|ionity)', re.IGNORECASE)
 MOBILITI_OPERATOR = re.compile(r'mobil[it]+i|^mvm|^nkm', re.IGNORECASE)
 OTHER_OPERATOR_CODE = 'humobothchs'
+# Not publicly usable (company car parks, bus depots): tagged access=private whoever operates them
+PRIVATE_CODE = 'hupvtchs'
+PRIVATE_USAGE_TYPES = ('PRIVATE', 'BUS_CHARGER')
 
 
 def classify_operator(operator_name):
@@ -168,6 +171,11 @@ class hu_mobiliti_ev(DataProvider):
                  'poi_search_avoid_name': '(mobiliti)',
                  'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 150,
                  'osm_search_distance_unsafe': 10})
+        self.__types.append(
+            {'poi_code': PRIVATE_CODE, 'poi_common_name': 'Mobiliti', 'poi_type': 'charging_station',
+             'poi_tags': {'amenity': 'charging_station', 'access': 'private'}, 'poi_url_base': '',
+             'poi_search_name': None, 'poi_search_avoid_name': '(mobiliti)',
+             'osm_search_distance_perfect': 100, 'osm_search_distance_safe': 50, 'osm_search_distance_unsafe': 10})
         self.__types.append(
             {'poi_code': OTHER_OPERATOR_CODE, 'poi_common_name': 'EV töltő', 'poi_type': 'charging_station',
              'poi_tags': {'amenity': 'charging_station'}, 'poi_url_base': '', 'poi_search_name': None,
@@ -223,15 +231,18 @@ class hu_mobiliti_ev(DataProvider):
                         if classified is None:
                             continue
                         self.data.code, operator_name = classified
+                        own_station = self.data.code == 'humobilchs'
+                        if poi_data.get('usageType') in PRIVATE_USAGE_TYPES:
+                            self.data.code = PRIVATE_CODE
                         if operator_name is not None:
                             self.data.name = operator_name
                         # Only Mobiliti's own stations have a ref that is meaningful in OSM
-                        if self.data.code == 'humobilchs':
+                        if own_station:
                             self.data.ref = clean_string(poi_data.get('id'))
                         # 'Oroszlány, Uszoda, 14006 - Mobiliti': in OSM the station number is the ref, the branch is
                         # only the place (the ' - Mobiliti' suffix repeats the name)
                         station = PATTERN_STATION.match(poi_data.get('name') or '')
-                        if self.data.code == 'humobilchs' and station and station.group('place'):
+                        if own_station and station and station.group('place'):
                             self.data.ref = station.group('num')
                             self.data.branch = clean_string(station.group('place'))
                         else:
