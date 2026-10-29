@@ -33,6 +33,9 @@ DETAILS_REQUEST_SLEEP = 0.2
 # extracted best-effort and left None when the text doesn't spell them out.
 POWER_RE = re.compile(r'(\d+)\s*kw', re.IGNORECASE)
 CCS_COUNT_RE = re.compile(r'(\d+)\s*x?\s*ccs', re.IGNORECASE)
+# '1 x HYC150 Alpitronic': the Alpitronic model number is the kW rating, the count has no 'CCS' next to it
+HYC_POWER_RE = re.compile(r'hyc\s*(\d+)', re.IGNORECASE)
+LEADING_COUNT_RE = re.compile(r'(?:^|,)\s*(\d+)\s*x\s', re.IGNORECASE)
 # Charger hardware manufacturers seen in real siteFeatures text (confirmed live
 # against every cached site detail) - add to this as new ones show up. A plain
 # substring search rather than a comma-position parse, since the manufacturer's
@@ -140,8 +143,13 @@ class hu_omv_ev(DataProvider):
                     power_match = POWER_RE.search(charging_feature)
                     ccs_match = CCS_COUNT_RE.search(charging_feature)
                     manufacturer_match = MANUFACTURER_RE.search(charging_feature)
+                    if power_match is None:
+                        power_match = HYC_POWER_RE.search(charging_feature)
+                    if ccs_match is None:
+                        ccs_match = LEADING_COUNT_RE.search(charging_feature)
                     if ccs_match is not None:
                         self.data.socket_type2_combo = int(ccs_match.group(1))
+                        self.data.capacity = int(ccs_match.group(1))
                     if power_match is not None:
                         self.data.socket_type2_combo_output = '{} kW'.format(power_match.group(1))
                     if manufacturer_match is not None:

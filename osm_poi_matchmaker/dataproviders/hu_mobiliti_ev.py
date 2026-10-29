@@ -26,6 +26,113 @@ except ImportError as err:
 
 PATTERN_STATION = re.compile(r'^(?P<place>.*?)[,\s]*(?P<num>\d{4,6})\s*-\s*Mobiliti$')
 
+PLUG_FIELD = {('type2', True): 'socket_type2_cable', ('type2', False): 'socket_type2_cableless',
+              ('chademo', None): 'socket_chademo', ('ccs', None): 'socket_type2_combo',
+              ('schuko', None): 'socket_schuko'}
+# Socket types that only have a count and an output column (their current/voltage is fixed by the standard)
+COUNT_OUTPUT_ONLY = ('socket_schuko', 'socket_cee_red_16a', 'socket_cee_red_32a')
+
+
+def format_kw(watt):
+    """22000 -> '22 kW', 7400 -> '7.4 kW' (no truncation to whole kW)."""
+    return '{:g} kW'.format(round(watt / 1000, 1))
+
+
+def plug_field(port):
+    """Map an OCPI EVSE to the POIDataset socket field it is counted in, or None if there is no field
+    for it. Tesla's connectors are the standard European ones, and an IEC 60309 5-pin socket is the red CEE
+    one, tagged by its amperage."""
+    plug = (port.get('plugType') or '').lower()
+    if plug == 'type2':
+        return PLUG_FIELD[(plug, bool(port.get('cableAttached')))]
+    if plug == 'tesla':
+        # OSM: socket:tesla_supercharger is deprecated, in the EU use the standard connector instead. Tesla's
+        # DC chargers here are CCS, the AC (destination/wall connector) ones have a Type 2 cable.
+        return 'socket_type2_combo' if (port.get('currentType') or '').upper() == 'DC' else 'socket_type2_cable'
+    if plug == 'iec60309_5':
+        current = port.get('current') or 0
+        return 'socket_cee_red_16a' if current <= 16 else 'socket_cee_red_32a' if current <= 32 else None
+    return PLUG_FIELD.get((plug, None))
+
+
+def join_desc(values, fmt=str):
+    """Distinct values, highest first, as an OSM ';' list ('22 kW;11 kW')."""
+    return ';'.join(fmt(v) for v in sorted(set(values), reverse=True))
+
+
+def summarize_evses(evses):
+    """Collapse the EVSE list of a (merged) site into POIDataset socket fields: the connector count per
+    socket type is summed, output/current/voltage list every distinct value of that type, highest first,
+    and capacity is the total number of connectors, plug types we have no tag for (IEC 60309 over 32 A)
+    included."""
+    fields = {}
+    values = {}
+    seen = set()
+    capacity = 0
+    for port in evses or []:
+        evse_id = port.get('evseId')
+        if evse_id is not None:
+            if evse_id in seen:
+                continue
+            seen.add(evse_id)
+        quantity = port.get('quantity') or 1
+        capacity += quantity
+        field = plug_field(port)
+        if field is None:
+            continue
+        fields[field] = fields.get(field, 0) + quantity
+        for key in ('power', 'current', 'voltage'):
+            if port.get(key):
+                values.setdefault((field, key), []).append(int(port[key]))
+    for (field, key), found in values.items():
+        if key == 'power':
+            fields[field + '_output'] = join_desc(found, format_kw)
+        elif field not in COUNT_OUTPUT_ONLY:
+            fields['{}_{}'.format(field, key)] = join_desc(found)
+    if capacity:
+        fields['capacity'] = capacity
+    return fields
+
+
+# The feed carries the whole OCPI roaming network, not just Mobiliti's own stations. The other operators'
+# sites are imported under their own name instead of as 'Mobiliti' (code, name, operator tag, feed operator
+# pattern). Operators with their own dedicated import (MOL, OMV, IONITY) are skipped as duplicates.
+FOREIGN_OPERATORS = [
+    ('huteachs', 'TEA', 'TEA Mobilitás Kft.', r'^(tea mobilit|hu\*tea)'),
+    ('hulidlchs', 'Lidl', 'Lidl Magyarország Bt.', r'^(lidl|hu\*ldl)'),
+    ('hueonchs', 'E.ON', 'E.ON', r'^e\.?on\b'),
+    ('huelmuchs', 'ELMŰ', 'ELMŰ', r'^elm[űu]\b'),
+    ('huparklchs', 'Parkl', 'Parkl', r'^parkl'),
+    ('hushellrchs', 'Shell Recharge', 'Shell Recharge', r'^shell'),
+    ('huv4pluschs', 'V4plus', 'V4plus Kft.', r'^v4plus'),
+    ('huoptimumchs', 'Optimum Way', 'Optimum Way', r'^optimum way'),
+    ('huevsolchs', 'EVsOLUTION', 'EVsOLUTION Kft.', r'^evsolution'),
+    ('hupennychs', 'Penny', 'Penny Market', r'^penny'),
+    ('huevdirchs', 'evDirect', 'evDirect', r'^evdirect'),
+    ('huevoprochs', 'evopro', 'evopro', r'^evopro'),
+    ('huaudichs', 'Audi', 'Audi Hungária Zrt.', r'^hu\*aud'),
+    ('hutslachs', 'Tesla Supercharger', 'Tesla', r'^tesla$'),
+]
+SKIPPED_OPERATORS = re.compile(r'^(mol\b|omv\b|hu\*ioy|ionity)', re.IGNORECASE)
+MOBILITI_OPERATOR = re.compile(r'mobil[it]+i|^mvm|^nkm', re.IGNORECASE)
+OTHER_OPERATOR_CODE = 'humobothchs'
+
+
+def classify_operator(operator_name):
+    """Return (poi_code, display name) for a feed record by its operator, or None for a record that
+    another import covers. No operator name, or an MVM/NKM Mobiliti one, is Mobiliti's own station;
+    a not listed operator goes to the generic code and keeps its own name."""
+    name = (operator_name or '').strip()
+    if not name or MOBILITI_OPERATOR.search(name):
+        return 'humobilchs', None
+    if SKIPPED_OPERATORS.search(name):
+        return None
+    for code, display, _, pattern in FOREIGN_OPERATORS:
+        if re.search(pattern, name, re.IGNORECASE):
+            return code, display
+    return OTHER_OPERATOR_CODE, name
+
+
 class hu_mobiliti_ev(DataProvider):
     """Imports Mobiliti EV charging station locations in Hungary from Mobiliti's OCPI locations API."""
 
@@ -53,6 +160,19 @@ class hu_mobiliti_ev(DataProvider):
              'osm_search_distance_perfect': 400,
              'osm_search_distance_safe': 150, 'osm_search_distance_unsafe': 10},
         ]
+        for code, display, operator, pattern in FOREIGN_OPERATORS:
+            self.__types.append(
+                {'poi_code': code, 'poi_common_name': display, 'poi_type': 'charging_station',
+                 'poi_tags': {'amenity': 'charging_station', 'operator': operator},
+                 'poi_url_base': '', 'poi_search_name': '(' + display.lower().replace('.', '.?') + ')',
+                 'poi_search_avoid_name': '(mobiliti)',
+                 'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 150,
+                 'osm_search_distance_unsafe': 10})
+        self.__types.append(
+            {'poi_code': OTHER_OPERATOR_CODE, 'poi_common_name': 'EV töltő', 'poi_type': 'charging_station',
+             'poi_tags': {'amenity': 'charging_station'}, 'poi_url_base': '', 'poi_search_name': None,
+             'poi_search_avoid_name': '(mobiliti)',
+             'osm_search_distance_perfect': 100, 'osm_search_distance_safe': 50, 'osm_search_distance_unsafe': 10})
         return self.__types
 
     @staticmethod
@@ -99,16 +219,19 @@ class hu_mobiliti_ev(DataProvider):
                 text = self.merge_nearby_sites(json.loads(soup))
                 for poi_data in text:
                     try:
-                        self.data.code = 'humobilchs'
-                        try:
+                        classified = classify_operator((poi_data.get('operator') or {}).get('name'))
+                        if classified is None:
+                            continue
+                        self.data.code, operator_name = classified
+                        if operator_name is not None:
+                            self.data.name = operator_name
+                        # Only Mobiliti's own stations have a ref that is meaningful in OSM
+                        if self.data.code == 'humobilchs':
                             self.data.ref = clean_string(poi_data.get('id'))
-                        except Exception as e:
-                            logging.exception('Exception occurred: {}'.format(e))
-                            logging.exception(traceback.format_exc())
                         # 'Oroszlány, Uszoda, 14006 - Mobiliti': in OSM the station number is the ref, the branch is
                         # only the place (the ' - Mobiliti' suffix repeats the name)
                         station = PATTERN_STATION.match(poi_data.get('name') or '')
-                        if station and station.group('place'):
+                        if self.data.code == 'humobilchs' and station and station.group('place'):
                             self.data.ref = station.group('num')
                             self.data.branch = clean_string(station.group('place'))
                         else:
@@ -123,64 +246,10 @@ class hu_mobiliti_ev(DataProvider):
                         self.data.original = poi_data.get('address')
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('latitude'), poi_data.get('longitude'))
-                        self.data.socket_type2_cable = None
-                        self.data.socket_type2_cable_output = None
-                        self.data.socket_type2_cable_current = None
-                        self.data.socket_type2_cable_coltage = None
-                        
-                        self.data.socket_type2_cableless = None
-                        self.data.socket_type2_cableless_output = None
-                        self.data.socket_type2_cableless_current =None
-                        self.data.socket_type2_cableless_voltage = None
-
-                        self.data.socket_type2_combo = None
-                        self.data.socket_type2_combo_output = None
-                        self.data.socket_type2_combo_current = None
-                        self.data.socket_type2_combo_voltage = None
-
-                        self.data.socket_chademo = None
-                        self.data.socket_chademo_output = None
-                        self.data.socket_chademo_current = None
-                        self.data.socket_chademo_voltage = None
-                        for port in poi_data.get('evses'):
-                            if port.get('plugType').upper() == 'TYPE2':
-                                if port.get('cableAttached'):
-                                    if self.data.socket_type2_cable is None:
-                                        self.data.socket_type2_cable = port.get('quantity')
-                                    else:
-                                        self.data.socket_type2_cable = self.data.socket_type2_cable + port.get('quantity')
-                                    self.data.socket_type2_cable_output = '{0:d} kW'.format(int(port.get('power')) // 1000)
-                                    self.data.socket_type2_cable_current = int(port.get('current'))
-                                    self.data.socket_type2_cable_voltage = int(port.get('voltage'))
-                                else:
-                                    if self.data.socket_type2_cableless is None:
-                                        self.data.socket_type2_cableless = port.get('quantity')
-                                    else:
-                                        self.data.socket_type2_cableless = self.data.socket_type2_cableless + port.get('quantity')
-                                    self.data.socket_type2_cableless_output = '{0:d} kW'.format(int(port.get('power')) // 1000)
-                                    self.data.socket_type2_cableless_current = int(port.get('current'))
-                                    self.data.socket_type2_cableless_voltage = int(port.get('voltage'))
-                            elif port.get('plugType').upper() == 'CHADEMO':
-                                if self.data.socket_chademo is None:
-                                    self.data.socket_chademo = port.get('quantity')
-                                else:
-                                    self.data.socket_chademo = self.data.socket_chademo + port.get('quantity')
-                                self.data.socket_chademo_output = '{0:d} kW'.format(int(port.get('power')) // 1000)
-                                self.data.socket_chademo_current = int(port.get('current'))
-                                self.data.socket_chademo_voltage = int(port.get('voltage'))
-                            elif port.get('plugType').upper() == 'CCS':
-                                if self.data.socket_type2_combo is None:
-                                    self.data.socket_type2_combo = port.get('quantity')
-                                else:
-                                    self.data.socket_type2_combo = self.data.socket_type2_combo + port.get('quantity')
-                                self.data.socket_type2_combo_output = '{0:d} kW'.format(int(port.get('power')) // 1000)
-                                self.data.socket_type2_combo_current = int(port.get('current'))
-                                self.data.socket_type2_combo_voltage = int(port.get('voltage'))
-                            else:
-                                logging.debug('Non processed EV port type.')
+                        for field, value in summarize_evses(poi_data.get('evses')).items():
+                            setattr(self.data, field, value)
                         self.data.manufacturer = poi_data.get('manufacturer')
                         #self.data.model = poi_data.get('Típus')
-                        #self.data.capacity = 0
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))

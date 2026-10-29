@@ -140,6 +140,9 @@ class hu_mol_plugee_ev(DataProvider):
                         extract_street_housenumber_better_2(poi_data.get('adr1'))
                     self.data.original = clean_string(poi_data.get('adr1'))
                     self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('la'), poi_data.get('lo'))
+                    # 'ns' is the number of charging stations (vehicles charging at once) of the site;
+                    # 'nss' counts every connector, including the ones sharing a station.
+                    self.data.capacity = poi_data.get('ns')
                     for socket in poi_data.get('smstdlst', []):
                         field = SOCKET_TYPE_FIELD.get(socket.get('st'))
                         if field is None:

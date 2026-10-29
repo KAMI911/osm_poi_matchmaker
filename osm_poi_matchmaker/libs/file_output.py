@@ -75,6 +75,13 @@ POI_EV_TAGS = {'poi_capacity': 'capacity',
                'poi_socket_type2_cableless_current': 'socket:type2:current',
                'poi_socket_type2_cableless_voltage': 'socket:type2:voltage',
 
+               'poi_socket_schuko': 'socket:schuko',
+               'poi_socket_schuko_output': 'socket:schuko:output',
+               'poi_socket_cee_red_16a': 'socket:cee_red_16a',
+               'poi_socket_cee_red_16a_output': 'socket:cee_red_16a:output',
+               'poi_socket_cee_red_32a': 'socket:cee_red_32a',
+               'poi_socket_cee_red_32a_output': 'socket:cee_red_32a:output',
+
                'poi_manufacturer': 'manufacturer', 'poi_model': 'model'}
 
 TESTCASE_GEN_KEYS = ('original', 'poi_postcode', 'poi_city', 'poi_addr_street', 'poi_addr_housenumber',
@@ -322,6 +329,9 @@ def generate_geojson(df):
         for col, tag in POI_EV_TAGS.items():
             val = row.get(col)
             if _valid(val):
+                # Integer columns come back as float once NaN is in the column ('2.0', '230.0')
+                if isinstance(val, float) and val.is_integer():
+                    val = int(val)
                 properties[tag] = str(val)
 
         for col, tag in POI_EXTRA_TAGS.items():

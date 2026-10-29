@@ -238,9 +238,13 @@ class TestBranch(unittest.TestCase):
         foreign.update({'name': 'Győr, Audi Hungária út - Audi Hungária Zrt.', 'city': 'Győr', 'address': 'Audi út 1'})
         rows = run_process(sys.modules[hu_mobiliti_ev.__module__], hu_mobiliti_ev,
                            json.dumps([location, foreign]), loader='save_downloaded_soup')
-        by_ref = {r['ref']: r['branch'] for r in rows}
-        self.assertEqual('Oroszlány, Uszoda', by_ref['14006'])
-        self.assertEqual('Győr, Audi Hungária út - Audi Hungária Zrt.', by_ref['HU_AUD_2'])
+        by_code = {r['code']: r for r in rows}
+        self.assertEqual('14006', by_code['humobilchs']['ref'])
+        self.assertEqual('Oroszlány, Uszoda', by_code['humobilchs']['branch'])
+        # another operator's site keeps its own name and gets no Mobiliti station ref
+        self.assertEqual('Audi', by_code['humobothchs']['name'])
+        self.assertIsNone(by_code['humobothchs'].get('ref'))
+        self.assertEqual('Győr, Audi Hungária út - Audi Hungária Zrt.', by_code['humobothchs']['branch'])
 
 
     def test_posta_automata_number_is_the_ref(self):
@@ -309,3 +313,78 @@ class TestExpandStreetU(unittest.TestCase):
         from osm_poi_matchmaker.libs.address import expand_street_u
         for street in ('Fő út', 'Tulipán köz', 'Kossuth utca', None, ''):
             self.assertEqual(street, expand_street_u(street))
+
+
+class TestEvSockets(unittest.TestCase):
+    def test_mixed_values_listed_highest_first_and_counts_summed(self):
+        from osm_poi_matchmaker.dataproviders.hu_mobiliti_ev import summarize_evses
+        evses = [
+            {'evseId': 'A', 'plugType': 'Type2', 'cableAttached': False, 'quantity': 1,
+             'power': 11000, 'current': 16, 'voltage': 230},
+            {'evseId': 'B', 'plugType': 'type2', 'cableAttached': False, 'quantity': 1,
+             'power': 22000, 'current': 32, 'voltage': 230},
+            {'evseId': 'C', 'plugType': 'CCS', 'cableAttached': True, 'quantity': 2,
+             'power': 150000, 'current': 300, 'voltage': 500},
+            {'evseId': 'C', 'plugType': 'CCS', 'cableAttached': True, 'quantity': 2,
+             'power': 150000, 'current': 300, 'voltage': 500},
+            {'plugType': 'schuko', 'cableAttached': False, 'quantity': 1, 'power': 3600, 'current': 16,
+             'voltage': 230},
+        ]
+        fields = summarize_evses(evses)
+        self.assertEqual(2, fields['socket_type2_cableless'])
+        self.assertEqual('22 kW;11 kW', fields['socket_type2_cableless_output'])
+        self.assertEqual('32;16', fields['socket_type2_cableless_current'])
+        self.assertEqual('230', fields['socket_type2_cableless_voltage'])
+        self.assertEqual(2, fields['socket_type2_combo'])
+        self.assertEqual('150 kW', fields['socket_type2_combo_output'])
+        self.assertEqual(1, fields['socket_schuko'])
+        self.assertEqual('3.6 kW', fields['socket_schuko_output'])
+        self.assertNotIn('socket_schuko_current', fields)
+        self.assertEqual(5, fields['capacity'])
+
+    def test_tesla_and_cee_sockets(self):
+        from osm_poi_matchmaker.dataproviders.hu_mobiliti_ev import summarize_evses
+        fields = summarize_evses([
+            {'plugType': 'tesla', 'currentType': 'DC', 'quantity': 1, 'power': 250000, 'current': 500, 'voltage': 500},
+            {'plugType': 'tesla', 'currentType': 'DC', 'quantity': 1, 'power': 150000, 'current': 350, 'voltage': 480},
+            {'plugType': 'Tesla', 'currentType': 'AC', 'quantity': 1, 'power': 11000, 'current': 16, 'voltage': 400},
+            {'plugType': 'iec60309_5', 'currentType': 'AC', 'quantity': 1, 'power': 11000, 'current': 16,
+             'voltage': 400},
+            {'plugType': 'iec60309_5', 'currentType': 'AC', 'quantity': 1, 'power': 22000, 'current': 32,
+             'voltage': 400},
+        ])
+        self.assertEqual(2, fields['socket_type2_combo'])
+        self.assertEqual('250 kW;150 kW', fields['socket_type2_combo_output'])
+        self.assertEqual(1, fields['socket_type2_cable'])
+        self.assertEqual('11 kW', fields['socket_type2_cable_output'])
+        self.assertEqual(1, fields['socket_cee_red_16a'])
+        self.assertEqual('22 kW', fields['socket_cee_red_32a_output'])
+
+    def test_fractional_kw_not_truncated(self):
+        from osm_poi_matchmaker.dataproviders.hu_mobiliti_ev import format_kw
+        self.assertEqual('7.4 kW', format_kw(7400))
+        self.assertEqual('3.7 kW', format_kw(3700))
+        self.assertEqual('22 kW', format_kw(22000))
+
+    def test_cableless_current_column_name(self):
+        from osm_poi_matchmaker.dao import poi_array_structure as s
+        for cols in (s.POI_COLS, s.POI_DB, s.POI_DB_RAW):
+            self.assertFalse([c for c in cols if 'curent' in c])
+
+
+class TestMobilitiOperators(unittest.TestCase):
+    def test_classification(self):
+        from osm_poi_matchmaker.dataproviders.hu_mobiliti_ev import classify_operator
+        self.assertEqual(('humobilchs', None), classify_operator(None))
+        self.assertEqual(('humobilchs', None), classify_operator('MVM Mobiliti Kft.'))
+        self.assertEqual(('humobilchs', None), classify_operator('MVM MOBILITI KFT.'))
+        self.assertEqual(('hueonchs', 'E.ON'), classify_operator('E.ON'))
+        self.assertEqual(('hulidlchs', 'Lidl'), classify_operator('LIDL Magyarország Bt.'))
+        self.assertEqual(('huteachs', 'TEA'), classify_operator('HU*TEA'))
+        self.assertEqual(('hutslachs', 'Tesla Supercharger'), classify_operator('Tesla'))
+        self.assertEqual(('humobothchs', 'Hungexpo'), classify_operator('Hungexpo'))
+
+    def test_operators_with_their_own_import_are_skipped(self):
+        from osm_poi_matchmaker.dataproviders.hu_mobiliti_ev import classify_operator
+        for name in ('MOL', 'OMV Hungária Kft.', 'HU*IOY'):
+            self.assertIsNone(classify_operator(name))

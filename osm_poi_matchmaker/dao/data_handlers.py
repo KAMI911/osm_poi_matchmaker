@@ -32,11 +32,11 @@ POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
 # each row still gets its own SAVEPOINT so a bad row can't affect the rest of the batch.
 INSERT_BATCH_COMMIT_SIZE = 500
 INTEGER_FIELDS = [
-    'poi_capacity', 'poi_socket_chademo', 'poi_socket_chademo_current', 'poi_socket_chademo_voltage',
-    'poi_socket_type2_combo', 'poi_socket_type2_combo_current', 'poi_socket_type2_combo_voltage',
-    'poi_socket_type2_cable', 'poi_socket_type2_cable_current', 'poi_socket_type2_cable_voltage',
-    'poi_socket_type2_cableless', 'poi_socket_type2_cableless_current',
-    'poi_socket_type2_cableless_voltage',
+    'poi_capacity', 'poi_socket_chademo', 'poi_socket_type2_combo', 'poi_socket_type2_cable',
+    'poi_socket_type2_cableless',
+    'poi_socket_schuko',
+    'poi_socket_cee_red_16a',
+    'poi_socket_cee_red_32a',
 ]
 
 def count(session, model):

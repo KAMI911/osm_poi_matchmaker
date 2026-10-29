@@ -74,6 +74,7 @@ class hu_ionity_ev(DataProvider):
                     ac_count = poi_data.get('connectorsAC') or 0
                     combo_count = (poi_data.get('connectorsTotal') or 0) - ac_count
                     self.data.socket_type2_cable = ac_count if ac_count > 0 else None
+                    self.data.capacity = poi_data.get('connectorsTotal')
                     if combo_count > 0:
                         self.data.socket_type2_combo = combo_count
                         for tier in COMBO_POWER_TIERS_KW:

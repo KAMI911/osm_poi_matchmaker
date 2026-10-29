@@ -35,6 +35,19 @@ POI_COLS_RAW = poi_array_structure.POI_COLS_RAW
 INTEGER_GEO = 100000
 
 
+def clean_int_list(data):
+    """Normalize a socket current/voltage value to '32' or, for several distinct values, '32;16'
+    (OSM's list form, as given: highest first). Accepts ints, floats and ';' separated strings."""
+    value = clean_string(data)
+    if value is None:
+        return None
+    try:
+        parts = [str(int(float(part))) for part in str(value).split(';') if part.strip() != '']
+    except ValueError:
+        return None
+    return ';'.join(parts) if parts else None
+
+
 class POIDatasetRaw:
     """Accumulator every data provider writes into: set a POI's fields one at a time
     via the many @property setters below (poi_name, poi_postcode, lat/lon, day_open()/
@@ -111,6 +124,12 @@ class POIDatasetRaw:
         self.__socket_type2_cableless_output = None
         self.__socket_type2_cableless_current = None
         self.__socket_type2_cableless_voltage = None
+        self.__socket_schuko = None
+        self.__socket_schuko_output = None
+        self.__socket_cee_red_16a = None
+        self.__socket_cee_red_16a_output = None
+        self.__socket_cee_red_32a = None
+        self.__socket_cee_red_32a_output = None
         self.__manufacturer = None
         self.__model = None
         self.__original = None
@@ -182,6 +201,12 @@ class POIDatasetRaw:
         self.__socket_type2_cableless_output = None
         self.__socket_type2_cableless_current = None
         self.__socket_type2_cableless_voltage = None
+        self.__socket_schuko = None
+        self.__socket_schuko_output = None
+        self.__socket_cee_red_16a = None
+        self.__socket_cee_red_16a_output = None
+        self.__socket_cee_red_32a = None
+        self.__socket_cee_red_32a_output = None
         self.__manufacturer = None
         self.__model = None
         self.__original = None
@@ -441,28 +466,20 @@ class POIDatasetRaw:
         self.__socket_chademo_output = clean_string(data)
 
     @property
-    def socket_chademo_current(self) -> int:
-        if self.__socket_chademo_current is None:
-            return None
-        else:
-            return int(self.__socket_chademo_current)
+    def socket_chademo_current(self) -> str:
+        return self.__socket_chademo_current
 
     @socket_chademo_current.setter
-    def socket_chademo_current(self, data: int):
-        if clean_string(data) is not None:
-            self.__socket_chademo_current = int(float(clean_string(data)))
+    def socket_chademo_current(self, data):
+        self.__socket_chademo_current = clean_int_list(data)
 
     @property
-    def socket_chademo_voltage(self) -> int:
-        if self.__socket_chademo_voltage is None:
-            return None
-        else:
-            return int(self.__socket_chademo_voltage)
+    def socket_chademo_voltage(self) -> str:
+        return self.__socket_chademo_voltage
 
     @socket_chademo_voltage.setter
-    def socket_chademo_voltage(self, data: int):
-        if clean_string(data) is not None:
-            self.__socket_chademo_voltage = int(float(clean_string(data)))
+    def socket_chademo_voltage(self, data):
+        self.__socket_chademo_voltage = clean_int_list(data)
 
     @property
     def socket_type2_combo(self) -> int:
@@ -485,28 +502,20 @@ class POIDatasetRaw:
         self.__socket_type2_combo_output = clean_string(data)
 
     @property
-    def socket_type2_combo_current(self) -> int:
-        if self.__socket_type2_combo_current is None:
-            return None
-        else:
-            return int(self.__socket_type2_combo_current)
+    def socket_type2_combo_current(self) -> str:
+        return self.__socket_type2_combo_current
 
     @socket_type2_combo_current.setter
-    def socket_type2_combo_current(self, data: int):
-        if clean_string(data) is not None:
-            self.__socket_type2_combo_current = int(float(clean_string(data)))
+    def socket_type2_combo_current(self, data):
+        self.__socket_type2_combo_current = clean_int_list(data)
 
     @property
-    def socket_type2_combo_voltage(self) -> int:
-        if self.__socket_type2_combo_voltage is None:
-            return None
-        else:
-            return int(self.__socket_type2_combo_voltage)
+    def socket_type2_combo_voltage(self) -> str:
+        return self.__socket_type2_combo_voltage
 
     @socket_type2_combo_voltage.setter
-    def socket_type2_combo_voltage(self, data: int):
-        if clean_string(data) is not None:
-            self.__socket_type2_combo_voltage = int(float(clean_string(data)))
+    def socket_type2_combo_voltage(self, data):
+        self.__socket_type2_combo_voltage = clean_int_list(data)
 
     @property
     def socket_type2_cable(self) -> int:
@@ -532,28 +541,20 @@ class POIDatasetRaw:
         self.__socket_type2_cable_output = clean_string(data)
 
     @property
-    def socket_type2_cable_current(self) -> int:
-        if self.__socket_type2_cable_current is None:
-            return None
-        else:
-            return int(self.__socket_type2_cable_current)
+    def socket_type2_cable_current(self) -> str:
+        return self.__socket_type2_cable_current
 
     @socket_type2_cable_current.setter
-    def socket_type2_cable_current(self, data: int):
-        if clean_string(data) is not None:
-            self.__socket_type2_cable_current = int(float(clean_string(data)))
+    def socket_type2_cable_current(self, data):
+        self.__socket_type2_cable_current = clean_int_list(data)
 
     @property
-    def socket_type2_cable_voltage(self) -> int:
-        if self.__socket_type2_cable_voltage is None:
-            return None
-        else:
-            return int(self.__socket_type2_cable_voltage)
+    def socket_type2_cable_voltage(self) -> str:
+        return self.__socket_type2_cable_voltage
 
     @socket_type2_cable_voltage.setter
-    def socket_type2_cable_voltage(self, data: int):
-        if clean_string(data) is not None:
-            self.__socket_type2_cable_voltage = int(float(clean_string(data)))
+    def socket_type2_cable_voltage(self, data):
+        self.__socket_type2_cable_voltage = clean_int_list(data)
 
     @property
     def socket_type2_cableless(self) -> int:
@@ -576,28 +577,71 @@ class POIDatasetRaw:
         self.__socket_type2_cableless_output = clean_string(data)
 
     @property
-    def socket_type2_cableless_current(self) -> int:
-        if self.__socket_type2_cableless_current is None:
-            return None
-        else:
-            return int(self.__socket_type2_cableless_current)
+    def socket_type2_cableless_current(self) -> str:
+        return self.__socket_type2_cableless_current
 
     @socket_type2_cableless_current.setter
-    def socket_type2_cableless_current(self, data: int):
-        if clean_string(data) is not None:
-            self.__socket_type2_cableless_current = int(float(clean_string(data)))
+    def socket_type2_cableless_current(self, data):
+        self.__socket_type2_cableless_current = clean_int_list(data)
 
     @property
-    def socket_type2_cableless_voltage(self) -> int:
-        if self.__socket_type2_cableless_voltage is None:
-            return None
-        else:
-            return int(self.__socket_type2_cableless_voltage)
+    def socket_type2_cableless_voltage(self) -> str:
+        return self.__socket_type2_cableless_voltage
 
     @socket_type2_cableless_voltage.setter
-    def socket_type2_cableless_voltage(self, data: int):
+    def socket_type2_cableless_voltage(self, data):
+        self.__socket_type2_cableless_voltage = clean_int_list(data)
+
+    @property
+    def socket_schuko(self) -> int:
+        return self.__socket_schuko
+
+    @socket_schuko.setter
+    def socket_schuko(self, data: int):
         if clean_string(data) is not None:
-            self.__socket_type2_cableless_voltage = int(float(clean_string(data)))
+            self.__socket_schuko = int(float(clean_string(data)))
+
+    @property
+    def socket_schuko_output(self) -> str:
+        return self.__socket_schuko_output
+
+    @socket_schuko_output.setter
+    def socket_schuko_output(self, data: str):
+        self.__socket_schuko_output = clean_string(data)
+
+    @property
+    def socket_cee_red_16a(self) -> int:
+        return self.__socket_cee_red_16a
+
+    @socket_cee_red_16a.setter
+    def socket_cee_red_16a(self, data: int):
+        if clean_string(data) is not None:
+            self.__socket_cee_red_16a = int(float(clean_string(data)))
+
+    @property
+    def socket_cee_red_16a_output(self) -> str:
+        return self.__socket_cee_red_16a_output
+
+    @socket_cee_red_16a_output.setter
+    def socket_cee_red_16a_output(self, data: str):
+        self.__socket_cee_red_16a_output = clean_string(data)
+
+    @property
+    def socket_cee_red_32a(self) -> int:
+        return self.__socket_cee_red_32a
+
+    @socket_cee_red_32a.setter
+    def socket_cee_red_32a(self, data: int):
+        if clean_string(data) is not None:
+            self.__socket_cee_red_32a = int(float(clean_string(data)))
+
+    @property
+    def socket_cee_red_32a_output(self) -> str:
+        return self.__socket_cee_red_32a_output
+
+    @socket_cee_red_32a_output.setter
+    def socket_cee_red_32a_output(self, data: str):
+        self.__socket_cee_red_32a_output = clean_string(data)
 
     @property
     def manufacturer(self) -> str:
@@ -1238,6 +1282,9 @@ class POIDatasetRaw:
                  self.__socket_type2_cable_current, self.__socket_type2_cable_voltage,
                  self.__socket_type2_cableless, self.__socket_type2_cableless_output,
                  self.__socket_type2_cableless_current, self.__socket_type2_cableless_voltage,
+                 self.__socket_schuko, self.__socket_schuko_output,
+                 self.__socket_cee_red_16a, self.__socket_cee_red_16a_output,
+                 self.__socket_cee_red_32a, self.__socket_cee_red_32a_output,
                  self.__manufacturer, self.__model,
                  self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
                  self.__ref, self.__poi_additional_ref, self.__gtfs_parent_station, self.__gtfs_location_type,
@@ -1414,6 +1461,9 @@ class POIDataset(POIDatasetRaw):
                  self.__socket_type2_cable_current, self.__socket_type2_cable_voltage,
                  self.__socket_type2_cableless, self.__socket_type2_cableless_output,
                  self.__socket_type2_cableless_current, self.__socket_type2_cableless_voltage,
+                 self.__socket_schuko, self.__socket_schuko_output,
+                 self.__socket_cee_red_16a, self.__socket_cee_red_16a_output,
+                 self.__socket_cee_red_32a, self.__socket_cee_red_32a_output,
                  self.__manufacturer, self.__model,
                  self.__original, self.__street, self.__housenumber, self.__conscriptionnumber,
                  self.__ref, self.__poi_additional_ref, self.__phone, self.__mobile, self.__email, self.__geom, self.__nonstop,
