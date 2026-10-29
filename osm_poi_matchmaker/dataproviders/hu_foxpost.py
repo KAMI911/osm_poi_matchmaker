@@ -9,7 +9,7 @@ try:
     import re
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
-        clean_string, extract_all_address_waxeye
+        clean_string, extract_all_address_waxeye, strip_branch_prefix
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.enums import WeekDaysLongHUUnAccented
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN
@@ -157,7 +157,8 @@ class hu_foxpost(DataProvider):
                             poi_data.get('geolat'), poi_data.get('geolng'))
                         self.data.postcode = clean_string(poi_data.get('zip'))
                         self.data.city = clean_city(poi_data.get('city'))
-                        self.data.branch = clean_string(poi_data.get('name'))
+                        self.data.branch = strip_branch_prefix(poi_data.get('name'), 'FOXPOST A-BOX', 'FOXPOST Z-BOX',
+                                                               'Packeta Z-Pont')
                         self.data.description = clean_string(poi_data.get('findme'))
                         payment_options = poi_data.get('paymentOptions') or []
                         payment_method = 'only' if len(payment_options) <= 1 else 'yes'

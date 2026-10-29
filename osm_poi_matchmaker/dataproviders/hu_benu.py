@@ -8,7 +8,7 @@ try:
     import requests
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
-        clean_string
+        clean_string, strip_branch_prefix
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.json_cache import load_or_fetch_json
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
@@ -104,7 +104,7 @@ class hu_benu(DataProvider):
                         self.data.name = name
                         self.data.branch = None
                     else:
-                        self.data.branch = name
+                        self.data.branch = strip_branch_prefix(name, 'BENU Gyógyszertár')
                     self.data.code = 'hubenupha'
                     self.data.website = None
                     self.data.postcode = clean_string(poi_data.get('zip_code'))

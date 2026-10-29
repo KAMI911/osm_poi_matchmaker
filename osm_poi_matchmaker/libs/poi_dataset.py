@@ -12,7 +12,7 @@ try:
     from osm_poi_matchmaker.libs.opening_hours import OpeningHours
     from osm_poi_matchmaker.libs.geo import check_geom
     from osm_poi_matchmaker.libs.address import clean_string, clean_url, clean_branch, clean_phone_to_str, clean_email, \
-        clean_postcode, is_non_street_address
+        clean_postcode, is_non_street_address, expand_street_u
     from osm_poi_matchmaker.libs.string import has_value
     from osm_poi_matchmaker.libs.osm import query_postcode_osm_external
     from osm_poi_matchmaker.dao import poi_array_structure
@@ -1121,7 +1121,7 @@ class POIDatasetRaw:
         lat/lon/street-name. Leaves self.street unchanged if no coordinates are set.
         Called from add()."""
         cache_key = None
-        data = clean_string(self.__street)
+        data = expand_street_u(clean_string(self.__street))
         if is_non_street_address(data):
             # Motorway, numbered main road or rest area: not a street, so skip the road lookup (it would
             # 'correct' it to some similarly named road, e.g. 'M0 Annahegyi pihenő' -> 'Annahegyi pihenőhely')

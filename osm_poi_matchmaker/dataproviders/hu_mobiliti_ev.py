@@ -6,6 +6,7 @@ try:
     import sys
     import os
     import math
+    import re
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
@@ -22,6 +23,8 @@ except ImportError as err:
 
     sys.exit(128)
 
+
+PATTERN_STATION = re.compile(r'^(?P<place>.*?)[,\s]*(?P<num>\d{4,6})\s*-\s*Mobiliti$')
 
 class hu_mobiliti_ev(DataProvider):
     """Imports Mobiliti EV charging station locations in Hungary from Mobiliti's OCPI locations API."""
@@ -102,7 +105,14 @@ class hu_mobiliti_ev(DataProvider):
                         except Exception as e:
                             logging.exception('Exception occurred: {}'.format(e))
                             logging.exception(traceback.format_exc())
-                        self.data.branch = clean_string(poi_data.get('name'))
+                        # 'Oroszlány, Uszoda, 14006 - Mobiliti': in OSM the station number is the ref, the branch is
+                        # only the place (the ' - Mobiliti' suffix repeats the name)
+                        station = PATTERN_STATION.match(poi_data.get('name') or '')
+                        if station and station.group('place'):
+                            self.data.ref = station.group('num')
+                            self.data.branch = clean_string(station.group('place'))
+                        else:
+                            self.data.branch = clean_string(poi_data.get('name'))
                         self.data.postcode = clean_string(poi_data.get('postalCode'))
                         self.data.city = clean_city(poi_data.get('city'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \

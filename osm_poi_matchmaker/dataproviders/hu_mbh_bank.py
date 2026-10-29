@@ -5,6 +5,7 @@ try:
     import sys
     import os
     import json
+    import re
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
@@ -87,7 +88,8 @@ class hu_mbh_bank(DataProvider):
                         self.data.public_holiday_open = True
                     elif category in (1, 3):
                         self.data.code = 'humbhbank'
-                        self.data.branch = clean_string(name)
+                        # '504 Győr, Lehel': the leading number is the internal branch code, not part of the name
+                        self.data.branch = clean_string(re.sub(r'^\d{3}\s+', '', name or ''))
                         self.data.public_holiday_open = False
                     else:
                         logging.debug('Unexpected point_category: %s', category)

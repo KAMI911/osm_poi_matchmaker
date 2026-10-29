@@ -19,7 +19,8 @@ try:
     from osm_poi_matchmaker.dataproviders.hu_mobiliti_ev import hu_mobiliti_ev
     from osm_poi_matchmaker.dataproviders import hu_mol_bubi
     import pandas as pd
-    from osm_poi_matchmaker.libs.address import is_non_street_address
+    from osm_poi_matchmaker.libs.address import is_non_street_address, strip_branch_prefix, tidy_branch_case
+    from osm_poi_matchmaker.dataproviders import hu_oil, hu_posta
     from osm_poi_matchmaker.libs.file_output import keep_osm_ref_spelling, generate_geojson
     from osm_poi_matchmaker.libs.poi_dataset import POIDatasetRaw
 except ImportError as err:
@@ -88,7 +89,7 @@ class TestShellEvOnlySites(unittest.TestCase):
             shell_station('2', 'ALKOTÁS utca', 'conventional_fuel_site'),
             shell_station('3', 'GYŐR', 'conventional_fuel_site_with_ev'),
         ])
-        self.assertEqual(['ALKOTÁS utca', 'GYŐR'], [r['branch'] for r in rows])
+        self.assertEqual(['Alkotás utca', 'Győr'], [r['branch'] for r in rows])
 
 
 def mobiliti_location(loc_id, lat, lon, evses, operator='MVM Mobiliti Kft.', postal_code='1024'):
@@ -206,6 +207,55 @@ class TestNonStreetAddress(unittest.TestCase):
             self.assertIsNone(data.addr_place)
 
 
+class TestBranch(unittest.TestCase):
+    """branch should only tell the location apart: no repeated brand, internal numbers or ALL CAPS."""
+
+    def test_strip_branch_prefix(self):
+        self.assertEqual('Balkány X40 Shop', strip_branch_prefix('FOXPOST A-BOX Balkány X40 Shop', 'FOXPOST A-BOX'))
+        self.assertEqual('Carol Art Cafe', strip_branch_prefix('Packeta Z-Pont - Carol Art Cafe', 'Packeta Z-Pont'))
+        self.assertEqual('Zalaegerszeg Belváros',
+                         strip_branch_prefix('BENU Gyógyszertár Zalaegerszeg Belváros', 'BENU Gyógyszertár'))
+        self.assertEqual('Veszprém', strip_branch_prefix('Veszprém', 'BENU Gyógyszertár'))
+        self.assertIsNone(strip_branch_prefix('FOXPOST A-BOX', 'FOXPOST A-BOX'))
+        self.assertIsNone(strip_branch_prefix(None, 'FOXPOST A-BOX'))
+
+    def test_tidy_branch_case(self):
+        self.assertEqual('Hédervár', tidy_branch_case('HÉDERVÁR'))
+        self.assertEqual('Kiskunfél II', tidy_branch_case('KISKUNFÉL II'))
+        self.assertEqual('Budapest Corvin', tidy_branch_case('Budapest Corvin'))
+        self.assertIsNone(tidy_branch_case(None))
+
+    def test_oil_branch_is_the_town_not_a_quote_character(self):
+        store = {'store': 'OIL! MAGLÓD', 'lat': '47.44', 'lng': '19.35', 'address': 'Liszt Ferenc utca 6/A.',
+                 'city': 'Maglód', 'zip': '2234', 'phone': '', 'id': '908', 'url': ''}
+        rows = run_process(hu_oil, hu_oil.hu_oil, json.dumps([store]), loader='save_downloaded_soup')
+        self.assertEqual(['Maglód'], [r['branch'] for r in rows])
+
+    def test_mobiliti_station_number_is_the_ref(self):
+        location = mobiliti_location('HU_MMV_1', 47.5, 19.0, [])
+        location.update({'name': 'Oroszlány, Uszoda, 14006 - Mobiliti', 'city': 'Oroszlány', 'address': 'Fő utca 1.'})
+        foreign = mobiliti_location('HU_AUD_2', 47.6, 19.1, [], operator='Audi', postal_code='9027')
+        foreign.update({'name': 'Győr, Audi Hungária út - Audi Hungária Zrt.', 'city': 'Győr', 'address': 'Audi út 1'})
+        rows = run_process(sys.modules[hu_mobiliti_ev.__module__], hu_mobiliti_ev,
+                           json.dumps([location, foreign]), loader='save_downloaded_soup')
+        by_ref = {r['ref']: r['branch'] for r in rows}
+        self.assertEqual('Oroszlány, Uszoda', by_ref['14006'])
+        self.assertEqual('Győr, Audi Hungária út - Audi Hungária Zrt.', by_ref['HU_AUD_2'])
+
+
+    def test_posta_automata_number_is_the_ref(self):
+        from bs4 import BeautifulSoup
+        xml = '''<postinfo><post ispostpoint="1" zipcode="1826"><id>107852</id>
+            <name>277 sz. automata - XIX. Citroen u Mobil Petrol</name><city>Budapest</city>
+            <street><name>Citroen</name><type>utca</type><housenumber>2</housenumber></street>
+            <gpsdata><wgslat>47,438068</wgslat><wgslon>19,145779</wgslon></gpsdata>
+            <servicepointtype>CS</servicepointtype></post></postinfo>'''
+        rows = run_process(hu_posta, hu_posta.hu_posta, BeautifulSoup(xml, 'lxml'), loader='save_downloaded_soup')
+        self.assertEqual('hupostacso', rows[0]['code'])
+        self.assertEqual('277', rows[0]['ref'])
+        self.assertEqual('XIX. Citroen u Mobil Petrol', rows[0]['branch'])
+
+
 class TestPoiTagsHoldOnlyOsmTags(unittest.TestCase):
     """hu_tesco.py's hutescoexp once had 'additional_ref_name': 'ref' (a poi_common column, already set one level up)
     inside its poi_tags dict, so it was written to the OSM nodes as a real tag."""
@@ -245,3 +295,17 @@ class TestPoiTagsHoldOnlyOsmTags(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestExpandStreetU(unittest.TestCase):
+    def test_abbreviation_expanded(self):
+        from osm_poi_matchmaker.libs.address import expand_street_u
+        self.assertEqual('Béke utca', expand_street_u('Béke u.'))
+        self.assertEqual('ZRÍNYI utca', expand_street_u('ZRÍNYI u'))
+        self.assertEqual('Jókai M. utca', expand_street_u('Jókai M.u.'))
+        self.assertEqual('Lugos utca, 5', expand_street_u('Lugos u, 5'))
+
+    def test_other_streets_unchanged(self):
+        from osm_poi_matchmaker.libs.address import expand_street_u
+        for street in ('Fő út', 'Tulipán köz', 'Kossuth utca', None, ''):
+            self.assertEqual(street, expand_street_u(street))

@@ -21,6 +21,8 @@ except ImportError as err:
     sys.exit(128)
 
 
+PATTERN_AUTOMATA = re.compile(r'^(\d+)\s*sz\.\s*automata\s*-\s*(.+)$')
+
 class hu_posta(DataProvider):
     """Imports Magyar Posta post office locations in Hungary from Hungarian Post's PostInfo.xml feed."""
 
@@ -116,6 +118,13 @@ class hu_posta(DataProvider):
                         if self.data.code == 'hupostapo':
                             self.data.branch = re.sub(
                                 r"(\d{1,3})", r"\1. számú", self.data.branch)
+                        elif self.data.code == 'hupostacso':
+                            # '389 sz. automata - Rákoshegy vasútállomás': in OSM the machine number is the ref
+                            # and the branch is only the place name
+                            automata = PATTERN_AUTOMATA.match(self.data.branch or '')
+                            if automata:
+                                self.data.ref = automata.group(1)
+                                self.data.branch = automata.group(2)
                         days = poi_data.findAll('days') if poi_data.findAll(
                             'days') is not None else None
                         nonstop_num = 0

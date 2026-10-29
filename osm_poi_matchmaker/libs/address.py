@@ -318,6 +318,23 @@ def extract_street_housenumber(clearable):
     return street, housenumber
 
 
+PATTERN_STREET_U_ABBR = re.compile(r'(?:(?<=[^\W\d_])\s+|(?<=\.)\s*)u\.?(?=\s|$|,)', re.IGNORECASE)
+
+
+def expand_street_u(street):
+    """Expand a trailing 'u' / 'u.' / '.u.' street type abbreviation to 'utca'
+    ('Béke u.' -> 'Béke utca', 'ZRÍNYI u' -> 'ZRÍNYI utca', 'Jókai M.u.' -> 'Jókai M. utca').
+    The abbreviation can only mean 'utca'; whether the real road is an 'út', a 'tér' or has a
+    longer name is decided later by the nearby-road lookup in POIDataset.process_street().
+
+    :param street: Street string, may be None
+    :return: Street with the abbreviation expanded, other strings unchanged
+    """
+    if not street:
+        return street
+    return PATTERN_STREET_U_ABBR.sub(' utca', street).strip()
+
+
 def discard_placeholder_street(street):
     """Return None if street is only a district/cadastral marker (e.g. 'II. ker.',
     'Belterület', 'HRSZ') with no real place name attached, otherwise return street
@@ -1058,3 +1075,34 @@ NON_STREET_ADDRESS = re.compile(
 def is_non_street_address(street) -> bool:
     """True if `street` names a motorway, a numbered main road or a rest area rather than a street."""
     return bool(street) and NON_STREET_ADDRESS.search(str(street).strip()) is not None
+
+
+def strip_branch_prefix(branch, *prefixes):
+    """Remove a leading brand/type prefix (case-insensitive) that only repeats the POI's name, e.g.
+    'FOXPOST A-BOX Balkány X40 Shop' -> 'Balkány X40 Shop'. Returns None if nothing is left."""
+    branch = clean_string(branch)
+    if branch is None:
+        return None
+    for prefix in prefixes:
+        if branch.lower().startswith(prefix.lower()):
+            return clean_string(branch[len(prefix):].lstrip(' -,')) or None
+    return branch
+
+
+BRANCH_ACRONYMS = {'ATM', 'MOL', 'OMV', 'OTP', 'MBH', 'CIB', 'KFC', 'BP', 'DM', 'KRT'}
+
+
+def tidy_branch_case(branch):
+    """Capitalize the ALL-CAPS words of a branch ('ALKOTÁS utca' -> 'Alkotás utca', 'KISKUNFÉL II' -> 'Kiskunfél II').
+    Roman numerals, short words (<= 2 letters, e.g. 'DT') and well-known acronyms stay as they are."""
+    branch = clean_string(branch)
+    if branch is None:
+        return None
+
+    def tidy(word):
+        letters = re.sub(r'[^\wÀ-ž]', '', word)
+        if (len(letters) <= 2 or not letters.isupper() or letters in BRANCH_ACRONYMS
+                or re.fullmatch(r'[IVXL]+', letters)):
+            return word
+        return word.capitalize()
+    return ' '.join(tidy(word) for word in branch.split(' '))

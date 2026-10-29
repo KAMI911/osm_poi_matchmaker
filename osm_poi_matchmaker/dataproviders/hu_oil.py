@@ -74,8 +74,9 @@ class hu_oil(DataProvider):
                         self.data.ref = clean_string(poi_data.get('id'))
                         website = clean_string(poi_data.get('url'))
                         self.data.website = website if website is not None else 'https://www.oil-benzinkutak.hu'
-                        tmp = clean_string(poi_data.get('store').split(' ', 1))
-                        self.data.branch = tmp[1].strip().capitalize()
+                        # 'OIL! MAGLÓD' -> 'Maglód' (clean_string() of the split() list used to leave just "'")
+                        tmp = poi_data.get('store').split(' ', 1)
+                        self.data.branch = tmp[1].strip().capitalize() if len(tmp) > 1 else None
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))
