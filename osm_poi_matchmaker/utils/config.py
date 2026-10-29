@@ -113,17 +113,17 @@ def get_config(key):
 
 def get_config_bool(key):
     """Return a key from the active app.conf section, parsed as a boolean."""
-    return config.getboolean(__mode.name, key)
+    return config.getboolean(__mode.name, key, fallback=None)
 
 
 def get_config_int(key):
     """Return a key from the active app.conf section, parsed as an int."""
-    return config.getint(__mode.name, key)
+    return config.getint(__mode.name, key, fallback=None)
 
 
 def get_config_string(key):
     """Return a key from the active app.conf section as a raw string."""
-    return config.get(__mode.name, key)
+    return config.get(__mode.name, key, fallback=None)
 
 
 def get_config_list(key):

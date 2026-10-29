@@ -550,7 +550,7 @@ class POIBase:
                                                                    query_avoid_name=query_avoid_name,
                                                                    ref_column=ref_column,
                                                                    query_unique_ref=query_unique_ref,
-                                                          query_ref_network=query_ref_network))
+                                                                   query_ref_network=query_ref_network))
                     perf = self.session.execute(perf_query, query_params)
                 except Exception as err:
                     logging.warning('Exception occurred')
