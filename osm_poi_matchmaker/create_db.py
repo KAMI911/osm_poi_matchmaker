@@ -209,7 +209,7 @@ class WorkflowManager(object):
         phase_timer = timing.Timing()
         try:
             logging.info('Starting processing POI harvest.')
-            self._create_pool()
+            self._create_pool(initializer=config.init_log)
             # Start multiprocessing in case multiple cores
             # process_count = 1
             self.results = self.pool.map_async(import_poi_data_module, config.get_dataproviders_modules_enable(),)
