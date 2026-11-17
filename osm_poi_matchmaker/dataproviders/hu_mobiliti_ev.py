@@ -250,9 +250,6 @@ class hu_mobiliti_ev(DataProvider):
                         self.data.postcode = clean_string(poi_data.get('postalCode'))
                         self.data.city = clean_city(poi_data.get('city'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
-                            extract_street_housenumber_better_2(
-                                poi_data.get('Cím'))
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = \
                             extract_street_housenumber_better_2(poi_data.get('address'))
                         self.data.original = poi_data.get('address')
                         self.data.lat, self.data.lon = check_hu_boundary(
