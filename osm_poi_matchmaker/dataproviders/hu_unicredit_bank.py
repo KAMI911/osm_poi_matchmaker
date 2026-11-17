@@ -104,7 +104,13 @@ class hu_unicredit_bank(DataProvider):
     def __parse_address(address_html):
         """Split UniCredit's <br/>-joined address blob into (street, postcode, city).
         The last line is always "<postcode> <city>"; a leading "Felújítás miatt ..."
-        temporary-relocation notice (a full sentence, not a street) is dropped."""
+        temporary-relocation notice (a full sentence, not a street) is dropped.
+
+        The remaining first line is always an internal branch/ATM code (e.g. 'SZAB',
+        'CAATM75'), never the street - confirmed across every cached record - so it is
+        dropped too. What's left after that is the street, optionally followed by one
+        landmark/building-name line (e.g. 'Egészségház') which is not itself a street
+        and is ignored - only the first remaining line is used."""
         if not address_html:
             return None, None, None
         lines = [line.strip() for line in re.split(r'<br\s*/?>', address_html) if line.strip()]
@@ -116,6 +122,8 @@ class hu_unicredit_bank(DataProvider):
             postcode, city = match.group(1), match.group(2)
             lines = lines[:-1]
         lines = [line for line in lines if 'Felújítás' not in line]
+        # Drop the leading branch/ATM code line.
+        lines = lines[1:]
         street = lines[0] if lines else None
         return street, postcode, city
 
