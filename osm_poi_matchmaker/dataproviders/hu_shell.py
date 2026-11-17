@@ -121,7 +121,8 @@ class hu_shell(DataProvider):
                         if 'name' in poi_data and poi_data.get('name') != '':
                             # 'KISKUNFÉL II 560': all caps, ends with the internal site number
                             self.data.branch = tidy_branch_case(re.sub(r'\s+\d{3}$', '', poi_data.get('name').strip()))
-                        if 'twenty_four_hour' in poi_data.get('amenities'):
+                        amenities = poi_data.get('amenities') or []
+                        if 'twenty_four_hour' in amenities:
                             self.data.nonstop = True
                             self.data.public_holiday_open = True
                         self.data.original = poi_data.get('address') if ('address' in poi_data and poi_data.get('address') != '') else None
@@ -135,16 +136,16 @@ class hu_shell(DataProvider):
                         self.data.fuel_diesel = True
                         self.data.fuel_octane_100 = True
                         self.data.fuel_diesel_gtl = True
-                        if 'air_and_water' in poi_data.get('amenities'):
+                        if 'air_and_water' in amenities:
                             self.data.compressed_air = True
                         # TODO: Separete adblue_pack, adblue_car and adblue_truck
-                        if 'adblue_pack' in poi_data.get('amenities') or 'adblue_car' in poi_data.get('amenities') or 'adblue_truck' in poi_data.get('amenities'):
+                        if 'adblue_pack' in amenities or 'adblue_car' in amenities or 'adblue_truck' in amenities:
                             self.data.fuel_adblue = True
-                        if 'hot_food' in poi_data.get('amenities'):
+                        if 'hot_food' in amenities:
                             self.data.restaurant = True
-                        if 'bakery_shop' in poi_data.get('amenities') or 'food_offerings' in poi_data.get('amenities'):
+                        if 'bakery_shop' in amenities or 'food_offerings' in amenities:
                             self.data.food = True
-                        if 'hgv_lane' in poi_data.get('amenities'):
+                        if 'hgv_lane' in amenities:
                             self.data.truck = True
                         self.data.add()
                     except Exception as e:
