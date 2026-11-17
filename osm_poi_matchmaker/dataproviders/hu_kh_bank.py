@@ -90,7 +90,7 @@ class hu_kh_bank(DataProvider):
                                 extract_all_address_waxeye(
                                     poi_data.get(first_element)['address'])
                             data.original = clean_string(poi_data.get(first_element)['address'])
-                        data.phone = clean_phone_to_str(poi_data.get(first_element)['phoneNumber'])
+                        data.phone = clean_phone_to_str(poi_data.get(first_element).get('phoneNumber'))
                         data.add()
                     stats['harvested'] = data.length()
                     stats['harvest_errors'] = data.add_errors
