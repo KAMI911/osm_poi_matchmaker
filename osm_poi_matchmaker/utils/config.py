@@ -264,7 +264,7 @@ def get_parallel_process_divider():
 def get_database_type():
     """SQLAlchemy dialect name for the POI database.
 
-    Config key 'db.type' (env OPM_DATABASE_TYPE), defaults to 'postgresql'.
+    Config key 'db.type' (env OPM_DATABASE_TYPE), defaults to 'postgresql+psycopg2'.
     """
     setting = get_config_string(KEY_DATABASE_TYPE)
     env_setting = os.environ.get('OPM_DATABASE_TYPE')
@@ -273,7 +273,7 @@ def get_database_type():
     if setting is not None:
         return setting
     else:
-        return 'postgresql'
+        return 'postgresql+psycopg2'
 
 
 def get_database_writer_host():
