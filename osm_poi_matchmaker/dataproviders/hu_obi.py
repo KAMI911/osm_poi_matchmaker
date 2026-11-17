@@ -70,8 +70,8 @@ class hu_obi(DataProvider):
                             self.data.phone = clean_phone_to_str(poi_data.get('phone'))
                         self.data.ref = clean_string(poi_data.get('storeNumber'))
                         self.data.email = clean_email(poi_data.get('email'))
-                        if 'path' in poi_data and poi_data.get('path') != '':
-                            self.data.website = clean_url(poi_data.get('path'))
+                        if 'url' in poi_data and poi_data.get('url') != '':
+                            self.data.website = clean_url(poi_data.get('url'))
                         # TODO: opening hour parser for poi_data.get('hours'), format is like:
                         #  Hétfő - Szombat: 8:00 - 20:00\nVasárnap: 08:00 - 18:00
                         # self.data.public_holiday_open = False
