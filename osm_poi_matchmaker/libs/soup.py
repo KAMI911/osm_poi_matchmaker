@@ -105,7 +105,13 @@ def download_content(link, verify_link=config.get_download_verify_link(), post_p
             f"{link} returned a {page.status_code} redirection status code. Please update the URL if it has been moved permanently!"
         )
 
-    if page.headers.get("Content-Type") == "application/zip":
+    content_type = (page.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+    # Some servers serve a real ZIP under a Content-Type other than the exact
+    # "application/zip" (e.g. "application/x-zip-compressed", or a generic
+    # "application/octet-stream") - trust the ZIP file signature over the header
+    # so callers expecting FileType.zip still get bytes back instead of text that
+    # later fails to write in binary mode.
+    if content_type == "application/zip" or page.content[:4] in (b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08"):
         logging.debug("Returning a ZIP file content.")
         return page.content
     else:
