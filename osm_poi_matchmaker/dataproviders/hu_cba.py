@@ -75,8 +75,11 @@ class hu_cba(DataProvider):
                                         self.filetype, verify=self.verify_link, headers=self.headers)
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
-                text = json.loads(
-                    extract_javascript_variable(soup, 'boltok_nyers'))
+                raw = extract_javascript_variable(soup, 'boltok_nyers')
+                if raw is None:
+                    logging.warning('Could not find the boltok_nyers JS object. Skipping ...')
+                    return
+                text = json.loads(raw)
                 for poi_data in text:
                     try:
                         # Assign: code, postcode, city, name, branch, website, original, street, housenumber, conscriptionnumber, ref, geom

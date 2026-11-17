@@ -63,6 +63,9 @@ class hu_pingvin_patika(DataProvider):
             if soup is not None:
                 # parse the html using beautiful soap and store in variable `soup`
                 extract = extract_javascript_variable(soup, 'pharmacies')
+                if extract is None:
+                    logging.warning('Could not find the pharmacies JS object. Skipping ...')
+                    return
                 # extract = extract[:-1]
                 extract = extract.replace('">', '\">')
                 extract = extract.replace('="', '=\"')
