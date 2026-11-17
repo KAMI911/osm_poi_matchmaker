@@ -135,7 +135,6 @@ class hu_mol(DataProvider):
                             poi_data.get('gpsPosition').get('latitude'), poi_data.get('gpsPosition').get('longitude'))
                         self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
                             poi_data['address'])
-                        self.data.public_holiday_open = True
                         self.data.truck = True if 'TRUCK_PARK' in service_ids else False
                         self.data.food = has_fresh_corner
                         self.data.rent_lpg_bottles = True if 'CYLINDER_PB_GAS' in service_ids else False
