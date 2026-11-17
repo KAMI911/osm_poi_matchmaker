@@ -19,9 +19,9 @@ except ImportError as err:
     sys.exit(128)
 
 POI_POSTA = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=posta'
-POI_CSEKK = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata',
-POI_CSOMAG = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postamachine',
-POI_POSTA_PONT = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postapoint',
+POI_CSEKK = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata'
+POI_CSOMAG = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postamachine'
+POI_POSTA_PONT = 'https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postapoint'
 
 
 class hu_posta_json(DataProvider):
@@ -80,6 +80,7 @@ class hu_posta_json(DataProvider):
                 if poi_data['type'] == 'posta':
                     if 'mobilposta' in poi_data['name']:
                         data.code = 'hupostamp'
+                        data.public_holiday_open = False
                     else:
                         data.code = 'hupostapo'
                         data.public_holiday_open = False
@@ -94,6 +95,7 @@ class hu_posta_json(DataProvider):
                     data.public_holiday_open = False
                 else:
                     logging.error('Non existing Posta type.')
+                    continue
                 data.postcode = poi_data['zipCode'].strip()
                 data.city = clean_city(poi_data['city'])
                 data.branch = poi_data['name']

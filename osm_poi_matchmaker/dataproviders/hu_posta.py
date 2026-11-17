@@ -105,6 +105,7 @@ class hu_posta(DataProvider):
                             self.data.public_holiday_open = False
                         else:
                             logging.error('Non existing Posta type: {}'.format(poi_data.servicepointtype.get_text().upper()))
+                            continue
                         self.data.postcode = clean_string(poi_data.get('zipcode'))
                         self.data.housenumber = poi_data.street.housenumber.get_text().split('(', 1)[0].strip() \
                             if poi_data.street.housenumber is not None else None
@@ -162,7 +163,7 @@ class hu_posta(DataProvider):
                                         if from2 is None or to2 is None:
                                             self.data.day_close(day_key, from1)
                                             # Count opening hours with nonstop like settings
-                                            if from1 in '0:00' and to1 in ['0:00', '23:59', '24:00']:
+                                            if from1 in ('0:00', '00:00') and to1 in ('0:00', '23:59', '24:00'):
                                                 nonstop_num += 1
                                         else:
                                             # Check on Wednesday if there is a lunch break
@@ -172,7 +173,7 @@ class hu_posta(DataProvider):
                                                 self.data.lunch_break_stop = from2
                                             self.data.day_close(day_key, to2)
                                             # Count opening hours with nonstop like settings
-                                            if from1 in '0:00' and to2 in ['0:00', '23:59', '24:00']:
+                                            if from1 in ('0:00', '00:00') and to2 in ('0:00', '23:59', '24:00'):
                                                 nonstop_num += 1
                                     else:
                                         # It seems there are duplications in Posta data source
