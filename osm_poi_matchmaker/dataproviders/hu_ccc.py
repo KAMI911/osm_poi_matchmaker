@@ -30,6 +30,7 @@ class hu_ccc(DataProvider):
         # instead. FrontendID=18 is CCC's per-market tenant id for Hungary (found by probing the
         # endpoint - it 400s without one and 404s "Shops not found" for every other market's id).
         self.link = 'https://ccc.eu/api/Configuration/GetShops?FrontendID=18'
+        self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'}
         self.tags = {
             'shop': 'shoes',
             'operator': 'MODIVO HUNGARY Kft.',
@@ -67,7 +68,7 @@ class hu_ccc(DataProvider):
     def process(self):
         try:
             soup = save_downloaded_soup('{}'.format(self.link), os.path.join(self.download_cache, self.filename),
-                                        self.filetype)
+                                        self.filetype, headers=self.headers)
             if soup is not None:
                 text = json.loads(soup)
                 for poi_data in text.get('data') or []:
