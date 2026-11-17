@@ -20,6 +20,27 @@ except ImportError as err:
 
     sys.exit(128)
 
+# The source's "type" field (not "category" - no such field exists) carries the
+# station abbreviation directly as a string, mapped here to (poi_code, full Hungarian name):
+# HTP = Hivatásos Tűzoltó-parancsnokság (main_station)
+# KvŐ = Katasztrófavédelmi Őrs (local_station)
+# ÖTE = Önkéntes Tűzoltó Egyesület (voluntary)
+# ÖTP = Önkormányzati Tűzoltó-parancsnokság (municipal)
+# LTP = Létesítményi Tűzoltó-parancsnokság (concern) - documented, but never seen in the feed
+# KvK = Katasztrófavédelmi Kirendeltség (district_office)
+# MKI = Megyei Katasztrófavédelmi Igazgatóság (county_directorate)
+# OKF = Országos Katasztrófavédelmi Főigazgatóság (national_directorate)
+FIRE_STATION_TYPE_CODES = {
+    'HTP': ('hufiremsta', 'Hivatásos Tűzoltó-parancsnokság'),
+    'KvŐ': ('hufirelsta', 'Katasztrófavédelmi Őrs'),
+    'ÖTE': ('hufirevsta', 'Önkéntes Tűzoltó Egyesület'),
+    'ÖTP': ('hufireusta', 'Önkormányzati Tűzoltó-parancsnokság'),
+    'LTP': ('hufirecsta', 'Létesítményi Tűzoltó-parancsnokság'),
+    'KvK': ('hufirekvk', 'Katasztrófavédelmi Kirendeltség'),
+    'MKI': ('hufiremki', 'Megyei Katasztrófavédelmi Igazgatóság'),
+    'OKF': ('hufireokf', 'Országos Katasztrófavédelmi Főigazgatóság'),
+}
+
 
 class hu_fire_station(DataProvider):
     """Imports professional fire station locations in Hungary, scraped from the National Directorate for Disaster Management site."""
@@ -29,23 +50,6 @@ class hu_fire_station(DataProvider):
         self.tags = {'amenity': 'fire_station'}
         self.filetype = FileType.html
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
-
-    '''
-    HTP = Hivatásos Tűzoltó-parancsnokság (1)
-    KVŐ = Katasztrófavédelmi Őrs (2)
-    ÖTE = Önkéntes Tűzoltó Egyesület (5)
-    ÖTP = Önkormányzati Tűzoltó-parancsnokság (3)
-    LTP = Létesítményi Tűzoltó-parancsnokság (?)
-
-    fire_station:type=HTP | KVŐ | ÖTE | ÖTP | LTP`?
-    
-    Angol elnevezésekkel:
-    HTP = main_station
-    KVŐ = local_station
-    ÖTE = voluntary
-    ÖTP = municipal
-    LTP = concern
-    '''
 
     def types(self):
         hufiremsta = self.tags.copy()
@@ -58,6 +62,12 @@ class hu_fire_station(DataProvider):
         hufireusta.update({'fire_station:type': 'municipal'})
         hufirecsta = self.tags.copy()
         hufirecsta.update({'fire_station:type': 'concern'})
+        hufirekvk = self.tags.copy()
+        hufirekvk.update({'fire_station:type': 'district_office'})
+        hufiremki = self.tags.copy()
+        hufiremki.update({'fire_station:type': 'county_directorate'})
+        hufireokf = self.tags.copy()
+        hufireokf.update({'fire_station:type': 'national_directorate'})
         self.__types = [
             {'poi_code': 'hufiremsta', 'poi_common_name': 'Hivatásos Tűzoltó-parancsnokság',
              'poi_type': 'fire_station',
@@ -89,6 +99,24 @@ class hu_fire_station(DataProvider):
              'poi_search_name': '(tűzoltó|létesítményi)',
              'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100,
              'osm_search_distance_unsafe': 100},
+            {'poi_code': 'hufirekvk', 'poi_common_name': 'Katasztrófavédelmi Kirendeltség',
+             'poi_type': 'fire_station',
+             'poi_tags': hufirekvk, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
+             'poi_search_name': '(katasztrófavédelmi|kirendeltség)',
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100,
+             'osm_search_distance_unsafe': 100},
+            {'poi_code': 'hufiremki', 'poi_common_name': 'Megyei Katasztrófavédelmi Igazgatóság',
+             'poi_type': 'fire_station',
+             'poi_tags': hufiremki, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
+             'poi_search_name': '(katasztrófavédelmi|igazgatóság)',
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100,
+             'osm_search_distance_unsafe': 100},
+            {'poi_code': 'hufireokf', 'poi_common_name': 'Országos Katasztrófavédelmi Főigazgatóság',
+             'poi_type': 'fire_station',
+             'poi_tags': hufireokf, 'poi_url_base': 'https://www.katasztrofavedelem.hu',
+             'poi_search_name': '(katasztrófavédelmi|főigazgatóság)',
+             'preserve_original_name': True, 'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 1100,
+             'osm_search_distance_unsafe': 100},
         ]
         return self.__types
 
@@ -114,36 +142,15 @@ class hu_fire_station(DataProvider):
                     return None
                 for poi_data in pois:
                     try:
-                        category = clean_string(poi_data.get('category'))
-                        # Önkéntes Tűzoltó Egyesület
-                        if category == '5':
-                            self.data.code = 'hufirevsta'
-                        elif category == '4':
-                            logging.warning('Maybe this is not existing')
-                        # Önkormányzati Tűzoltó-parancsnokság
-                        elif category == '3':
-                            self.data.code = 'hufireusta'
-                            try:
-                                self.data.name = poi_data.get('name').replace('ÖTP',
-                                                                              'Önkormányzati Tűzoltó-parancsnokság')
-                            except Exception as err:
-                                continue
-                        # Katasztrófavédelmi Őrs
-                        elif category == '2':
-                            self.data.code = 'hufirelsta'
-                            try:
-                                self.data.name = poi_data.get('name').replace('KŐ', 'Katasztrófavédelmi Őrs')
-                            except Exception as err:
-                                continue
-                        # Hivatásos Tűzoltó-parancsnokság
-                        elif category == '1':
-                            self.data.code = 'hufiremsta'
-                            try:
-                                self.data.name = poi_data.get('name').replace('HTP', 'Hivatásos Tűzoltó-parancsnokság')
-                            except Exception as err:
-                                continue
-                        else:
-                            logging.warning('Unknown fire station category: {}'.format(poi_data.get('category')))
+                        station_type = clean_string(poi_data.get('type'))
+                        if station_type not in FIRE_STATION_TYPE_CODES:
+                            logging.warning('Unknown fire station type: {}'.format(poi_data.get('type')))
+                            continue
+                        self.data.code, full_name = FIRE_STATION_TYPE_CODES[station_type]
+                        try:
+                            self.data.name = poi_data.get('name').replace(station_type, full_name)
+                        except Exception as err:
+                            continue
                         self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('latitude'),
                                                                          poi_data.get('longitude'))
                         self.data.postcode, self.data.city, self.data.street, self.data.housenumber, \
