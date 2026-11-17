@@ -65,12 +65,24 @@ def find_osm_id_conflicts(data):
             has_high_conf = (group_data['priority'] <= 970).any()
             has_low_conf = (group_data['priority'] >= 980).any()
 
-            # Mixed confidence: only high-confidence matches remain (discard low-confidence)
+            # Mixed confidence: a single high-confidence match (e.g. an exact ref/name
+            # hit) should always beat any number of low-confidence fallback matches on
+            # the same osm_id - but that still has to go through resolve_conflict()
+            # below (not be skipped here) so its priority-based sort actually demotes
+            # the low-confidence row(s). Skipping here used to leave both sides holding
+            # the same osm_id untouched - see issue: two co-located Tesco branches, one
+            # matched by exact ref (priority 930), the other by a geocoding-error-driven
+            # name-only fallback (priority 980) onto the SAME OSM element; with the old
+            # `continue` here neither got demoted, so the low-confidence match silently
+            # won the subsequent distance tie-break (both at 0m) about as often as not.
             if has_high_conf and has_low_conf:
                 high_conf_rows = group_data[group_data['priority'] <= 970].index.tolist()
-                if len(high_conf_rows) <= 1:
-                    continue  # Only one high-confidence match, no conflict
-                conflict_rows = high_conf_rows
+                if len(high_conf_rows) > 1:
+                    # 2+ high-confidence matches collided - compare only among those,
+                    # the low-confidence rows lose either way and don't need comparing.
+                    conflict_rows = high_conf_rows
+                # else: keep conflict_rows as the full mixed group; resolve_conflict()'s
+                # priority sort demotes every low-confidence row, one per iteration.
 
         conflicts[key] = conflict_rows
     return conflicts
@@ -186,7 +198,7 @@ def resolve_conflict(data, group_key, conflict_indices, db_session=None):
     # as an exact existing match despite every tag being reported as new. See STAGE 7
     # in create_db.py for the matching set of columns matching starts from.
     for col in ('osm_id', 'osm_node', 'osm_version', 'osm_changeset', 'osm_timestamp',
-                'osm_live_tags', 'osm_nodes', 'osm_lat', 'osm_lon', 'poi_distance'):
+                'osm_live_tags', 'osm_nodes', 'osm_lat', 'osm_lon', 'poi_distance', 'priority'):
         if col in data.columns:
             data.at[farthest_idx, col] = None
     # This row's osm_id was set (poi_new=False) before the conflict was detected -

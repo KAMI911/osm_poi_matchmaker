@@ -121,6 +121,17 @@ def find_osm_matches(args):
         data['osm_lon'] = None
     if 'orig_addr_captured' not in data.columns:
         data['orig_addr_captured'] = False
+    if 'priority' not in data.columns:
+        # Confidence tier of the match stage that found this row's current osm_id (see
+        # poi_base.py's _STAGE_PRIORITY_LABELS) - match_conflict_resolution.py's
+        # find_osm_id_conflicts() uses this to protect an exact ref/name match (<=970)
+        # from being treated as a tie-break-by-distance conflict against a same-osm_id,
+        # low-confidence fallback match (>=980) from a different row (see issue: two
+        # co-located Tesco branches, one matched by exact ref, the other by a
+        # geocoding-error-driven name-only fallback, both landing on distance=0m -
+        # without this column the two are indistinguishable by distance and whichever
+        # row happens to be demoted is arbitrary).
+        data['priority'] = None
     for col in ('orig_poi_postcode', 'orig_poi_city', 'orig_poi_addr_street',
                 'orig_poi_addr_housenumber', 'orig_poi_conscriptionnumber'):
         if col not in data.columns:
@@ -208,6 +219,8 @@ def find_osm_matches(args):
                         logging.warning('Illegal state: %s', osm_query.get('node').values[0])
                     data.at[i, 'osm_id'] = osm_id
                     data.at[i, 'osm_node'] = osm_node
+                    data.at[i, 'priority'] = (osm_query['priority'].values[0]
+                                              if osm_query.get('priority') is not None else None)
                     # Snapshot the provider's own address fields before the OSM
                     # overwrite below can touch them, and record that this row
                     # went through this branch at all (orig_addr_captured survives a
