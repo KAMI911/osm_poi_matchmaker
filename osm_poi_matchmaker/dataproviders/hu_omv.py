@@ -2,12 +2,13 @@
 
 try:
     import logging
+    import re
     import sys
     import os
     import json
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
-    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
+    from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, \
         clean_phone_to_str, clean_string
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
@@ -68,21 +69,27 @@ class hu_omv(DataProvider):
                         self.data.code = 'huomvfu'
                         self.data.postcode = clean_string(poi_data.get('postcode'))
                         self.data.city = clean_city(poi_data.get('town_l'))
-                        if poi_data.get('open_hours') is not None:
-                            oho, ohc = clean_opening_hours(
-                                poi_data.get('open_hours'))
-                            if oho == '00:00' and ohc == '24:00':
-                                self.data.nonstop = True
-                                self.data.public_holiday_open = True
-                                oho, ohc = None, None
-                            else:
-                                self.data.public_holiday_open = False
+                        # Real feed field/format: 'dayOfWeek=1,closed=FALSE,from=06:00,to=22:00#...'
+                        # (dayOfWeek 1..7 = Mon..Sun, dayOfWeek=8 = public holiday) - not the
+                        # 'HH:MM-HH:MM'-shaped text clean_opening_hours() expects.
+                        day_entries = {}
+                        for segment in (poi_data.get('opening_hours') or '').split('#'):
+                            m = re.match(r'dayOfWeek=(\d+),closed=(\w+),from=([\d:]+),to=([\d:]+)', segment)
+                            if m:
+                                day_entries[int(m.group(1))] = (m.group(2).upper() == 'TRUE', m.group(3), m.group(4))
+                        is_nonstop = all(
+                            day_entries.get(d) == (False, '00:00', '24:00') for d in range(1, 8))
+                        if is_nonstop:
+                            self.data.nonstop = True
+                            self.data.public_holiday_open = True
                         else:
-                            oho, ohc = None, None
-                            self.data.public_holiday_open = False
-                        for i in range(0, 7):
-                            self.data.day_open(i, oho)
-                            self.data.day_close(i, ohc)
+                            for d in range(1, 8):
+                                closed, oho, ohc = day_entries.get(d, (True, None, None))
+                                if not closed:
+                                    self.data.day_open(d - 1, oho)
+                                    self.data.day_close(d - 1, ohc)
+                            holiday = day_entries.get(8)
+                            self.data.public_holiday_open = holiday is not None and not holiday[0]
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('y'), poi_data.get('x'))
                         self.data.original = clean_string(poi_data.get('address_l'))
