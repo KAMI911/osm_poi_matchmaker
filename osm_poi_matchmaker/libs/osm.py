@@ -87,8 +87,13 @@ def query_osm_postcode_gpd(session, lon, lat):
     except Exception as e:
         logging.error(e)
         logging.exception('Exception occurred')
-    finally:
-        session.commit()
+        # Roll back, don't commit, on failure - this session is shared across
+        # every POI a dataprovider's process() loop hands to the same
+        # POIDatasetRaw instance (see issue #142). committing here would try to
+        # commit an aborted transaction after a failed query, raising a new
+        # exception that masks this one and still leaves the session unusable
+        # for the next POI's query.
+        session.rollback()
     if data is None:
         return None
     row = dict(data._mapping)
@@ -198,13 +203,19 @@ def query_osm_city_name_gpd(session, lon, lat):
         SELECT name
         FROM planet_osm_polygon, (SELECT ST_SetSRID(ST_MakePoint(:lat,:lon),4326) as geom) point
         WHERE admin_level='8' and ST_Contains(way, point.geom) ORDER BY name LIMIT 1;''')
+    data = None
     try:
         data = session.execute(query, {'lon': float(lon), 'lat': float(lat)}).first()
     except Exception as e:
         logging.error(e)
         logging.exception('Exception occurred')
-    finally:
-        session.commit()
+        # Roll back, don't commit, on failure - see issue #142: committing
+        # here would try to commit an aborted transaction after a failed
+        # query, raising a new exception that masks this one and leaves the
+        # session unusable for whoever reuses it next. Also, `data` is now
+        # pre-initialized above so a failed query here doesn't also raise
+        # UnboundLocalError on the `if data is None` check below.
+        session.rollback()
     if data is None:
         return None
     else:
@@ -226,13 +237,15 @@ def query_osm_city_name(session, name):
     query = sqlalchemy.text('''
         SELECT name
         FROM planet_osm_polygon WHERE admin_level='8' and name=:name ORDER BY name LIMIT 1;''')
+    data = None
     try:
         data = session.execute(query, {'name': name}).first()
     except Exception as e:
         logging.error(e)
         logging.exception('Exception occurred')
-    finally:
-        session.commit()
+        # Roll back, don't commit - see issue #142 and query_osm_city_name_gpd()
+        # above (same two bugs: aborted-session commit, and `data` left unbound).
+        session.rollback()
     if data is None:
         return None
     else:

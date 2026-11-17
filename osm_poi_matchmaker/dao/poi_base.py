@@ -380,6 +380,7 @@ class POIBase:
         if distance_perfect is None or distance_perfect == '' or math.isnan(distance_perfect):
             distance_perfect = config.get_geo_default_poi_perfect_distance()
         query_params.update({'distance_perfect': distance_perfect})
+        query_params.update({'distance_perfect_deg': distance_perfect / 70000.0})
         if lon is not None and lon != '':
             query_params.update({'lon': lon})
         if lat is not None and lat != '':
@@ -409,11 +410,6 @@ class POIBase:
                 query_ref_network = 'AND (' + ' OR '.join(network_clauses) + \
                     " OR (COALESCE(TEXT(name), '') = '' AND COALESCE(TEXT(brand), '') = '' " \
                     "AND COALESCE(TEXT(network), '') = '' AND COALESCE(TEXT(operator), '') = '')) "
-            # If we have PO common defined safe search radius distance, then use it (or use defaults specified above)
-            if distance_perfect is None or distance_perfect == '' or math.isnan(distance_perfect):
-                distance_perfect = config.get_geo_default_poi_perfect_distance()
-            query_params.update({'distance_perfect': distance_perfect})
-            query_params.update({'distance_perfect_deg': distance_perfect / 70000.0})
         else:
             query_name = ''
         # Do not match with other specified names, brand names, network names
@@ -551,13 +547,21 @@ class POIBase:
                                                                    ref_column=ref_column,
                                                                    query_unique_ref=query_unique_ref,
                                                                    query_ref_network=query_ref_network))
-                    perf = self.session.execute(perf_query, query_params)
+                    perf = conn.execute(perf_query, query_params)
+                    # logging.critical(perf.mappings().all())
+                    perf_rows = [str(row.values()) for row in perf.mappings().all()]
+                    logging.debug('\n'.join(perf_rows))
                 except Exception as err:
                     logging.warning('Exception occurred')
                     logging.exception(err)
-                # logging.critical(perf.mappings().all())
-                perf_rows = [str(row.values()) for row in perf.mappings().all()]
-                logging.debug('\n'.join(perf_rows))
+                    # Roll back conn too, on the same connection the real query below reuses -
+                    # otherwise a failed EXPLAIN ANALYZE here (e.g. additional_ref_name pointing
+                    # at a tag not materialized as a column in this osm2pgsql import) leaves it
+                    # in an aborted-transaction state for the real query right after. Using conn
+                    # (not self.session, see issue #142) keeps this contained to the current
+                    # POI's own connection, closed by the caller's `with` block either way,
+                    # instead of poisoning the long-lived scoped session for every POI after it.
+                    conn.rollback()
             data = gpd.GeoDataFrame()
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
@@ -622,13 +626,16 @@ class POIBase:
                                                  query_text.format(query_type=query_type,
                                                                    metadata_fields=metadata_fields,
                                                                    query_unique_name=query_unique_name))
-                    perf = self.session.execute(perf_query, query_params)
+                    perf = conn.execute(perf_query, query_params)
+                    # logging.critical(perf.mappings().all())
+                    perf_rows = [str(row.values()) for row in perf.mappings().all()]
+                    logging.debug('\n'.join(perf_rows))
                 except Exception as err:
                     logging.warning('Exception occurred')
                     logging.exception(err)
-                # logging.critical(perf.mappings().all())
-                perf_rows = [str(row.values()) for row in perf.mappings().all()]
-                logging.debug('\n'.join(perf_rows))
+                    # conn, not self.session - see issue #142: a failed debug query here must
+                    # only poison this POI's own connection, not the worker's long-lived session.
+                    conn.rollback()
             data = gpd.GeoDataFrame()
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
@@ -787,13 +794,16 @@ class POIBase:
                                                                    metadata_fields=metadata_fields,
                                                                    conscriptionnumber_query=conscriptionnumber_query,
                                                                    city_query=city_query))
-                    perf = self.session.execute(perf_query, query_params)
+                    perf = conn.execute(perf_query, query_params)
+                    # logging.critical(perf.mappings().all())
+                    perf_rows = [str(row.values()) for row in perf.mappings().all()]
+                    logging.debug('\n'.join(perf_rows))
                 except Exception as err:
                     logging.warning('Exception occurred')
                     logging.exception(err)
-                # logging.critical(perf.mappings().all())
-                perf_rows = [str(row.values()) for row in perf.mappings().all()]
-                logging.debug('\n'.join(perf_rows))
+                    # conn, not self.session - see issue #142: a failed debug query here must
+                    # only poison this POI's own connection, not the worker's long-lived session.
+                    conn.rollback()
             data = gpd.GeoDataFrame()
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
@@ -875,13 +885,16 @@ class POIBase:
                                                                    street_query=street_query,
                                                                    city_query=city_query,
                                                                    housenumber_query=housenumber_query))
-                    perf = self.session.execute(perf_query, query_params)
+                    perf = conn.execute(perf_query, query_params)
                     logging.debug(perf.mappings().all())
                     perf_rows = [str(row.values()) for row in perf]
                     logging.debug('\n'.join(perf_rows))
                 except Exception as err:
                     logging.warning('Exception occurred')
                     logging.exception(err)
+                    # conn, not self.session - see issue #142: a failed debug query here must
+                    # only poison this POI's own connection, not the worker's long-lived session.
+                    conn.rollback()
             data = gpd.GeoDataFrame()
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
@@ -1174,13 +1187,16 @@ class POIBase:
                                                       street_query=street_query,
                                                       city_query=city_query,
                                                       housenumber_query=housenumber_query))
-                    perf = self.session.execute(perf_query, query_params)
+                    perf = conn.execute(perf_query, query_params)
+                    # logging.critical(perf.mappings().all())
+                    perf_rows = [str(row.values()) for row in perf.mappings().all()]
+                    logging.debug('\n'.join(perf_rows))
                 except Exception as err:
                     logging.warning('Exception occurred')
                     logging.exception(err)
-                # logging.critical(perf.mappings().all())
-                perf_rows = [str(row.values()) for row in perf.mappings().all()]
-                logging.debug('\n'.join(perf_rows))
+                    # conn, not self.session - see issue #142: a failed debug query here must
+                    # only poison this POI's own connection, not the worker's long-lived session.
+                    conn.rollback()
             data = gpd.GeoDataFrame()
             try:
                 data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way', params=query_params)
@@ -1218,12 +1234,6 @@ class POIBase:
         poi_id = f"{query_type}:{query_name}"
         stats.record_not_found(poi_id)
         logging.info('Item not found at all.')
-        try:
-            self.session.commit()
-            self.session.close()
-        except Exception as err:
-            logging.warning('Exception occurred')
-            logging.exception(err)
         return None
 
     def query_osm_building_poi_gpd(self, lon, lat, city, postcode, street_name='', housenumber='',
@@ -1270,14 +1280,19 @@ class POIBase:
             WHERE building <> '' AND osm_id > 0 AND ST_DistanceSphere(way, point.geom) < :distance
                 {street_query} {housenumber_query}
             ORDER BY distance ASC LIMIT 1'''.format(street_query=street_query, housenumber_query=housenumber_query))
-        with self.connection() as conn:
-            data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way',
-                                                 params={'lon': lon, 'lat': lat,
-                                                         'distance': distance,
-                                                         'buffer': buffer,
-                                                         'street_name': street_name,
-                                                         'housenumber': housenumber,
-                                                         'ibp': in_building_percentage})
+        try:
+            with self.connection() as conn:
+                data = gpd.GeoDataFrame.from_postgis(query, conn, geom_col='way',
+                                                     params={'lon': lon, 'lat': lat,
+                                                             'distance': distance,
+                                                             'buffer': buffer,
+                                                             'street_name': street_name,
+                                                             'housenumber': housenumber,
+                                                             'ibp': in_building_percentage})
+        except Exception as err:
+            logging.warning('Exception occurred')
+            logging.exception(err)
+            return None
         if data.empty:
             return None
         else:

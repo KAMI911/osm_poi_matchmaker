@@ -9,7 +9,6 @@ try:
     import traceback
     import pandas as pd
     from sqlalchemy.orm import scoped_session, sessionmaker
-    from sqlalchemy.exc import SQLAlchemyError
     from osmapi import OsmApi
     from osm_poi_matchmaker.dao.poi_base import POIBase, REF_CONFLICT_POI_CODES
     from osm_poi_matchmaker.utils import config
@@ -44,7 +43,16 @@ _worker_osm_live_query = None
 
 
 def init_matcher_worker():
-    """Pool(initializer=...) target: set up one DB connection per worker process."""
+    """Pool(initializer=...) target: set up one DB connection per worker process.
+
+    Also re-runs config.init_log() - a Pool worker process does not reliably
+    inherit the main process's logging configuration (observed losing it under
+    multiprocessing with the debugpy/cProfile wrapping in opm_create.sh), so
+    without this, logging calls made from inside this worker fall back to
+    Python's unconfigured "lastResort" handler (bare `LEVEL:root:message`
+    instead of log.conf's timestamped format).
+    """
+    config.init_log()
     global _worker_db, _worker_session, _worker_osm_live_query
     _worker_db = POIBase('{}://{}:{}@{}:{}/{}'.format(config.get_database_type(), config.get_database_writer_username(),
                                                        config.get_database_writer_password(),
@@ -230,8 +238,12 @@ def find_osm_matches(args):
                                                                            session, lon, lat,
                                                                            row.poi_postcode, osm_postcode)
                                 except Exception as err:
-                                    if isinstance(err, SQLAlchemyError):
-                                        session.rollback()
+                                    # Roll back regardless of exception type (not just
+                                    # SQLAlchemyError) - a non-SQLAlchemy bug raised after a
+                                    # failed statement on this session still leaves it in an
+                                    # aborted-transaction state for every later query reusing
+                                    # it (see issue #142).
+                                    session.rollback()
                                     logging.exception('Exception occurred during postcode query (1): {}'.format(err))
                                     logging.exception(traceback.format_exc())
                                 force_postcode_change = False  # TODO: Has to be a setting in app.conf
@@ -261,8 +273,8 @@ def find_osm_matches(args):
                             else:
                                 logging.info('Preserving original postcode %s', row.poi_postcode)
                         except Exception as err_row:
-                            if isinstance(err_row, SQLAlchemyError):
-                                session.rollback()
+                            # See issue #142 - roll back regardless of exception type.
+                            session.rollback()
                             logging.exception('Exception occurred during postcode query (2): {}'.format(err_row))
                             logging.warning(traceback.format_exc())
                         # Overwrite housenumber import data with OSM truth
@@ -389,19 +401,26 @@ def find_osm_matches(args):
                 else:
                     data.at[i, 'poi_new'] = True
             except Exception as e:
-                if isinstance(e, SQLAlchemyError):
-                    session.rollback()
+                # See issue #142 - roll back regardless of exception type: a non-
+                # SQLAlchemy bug raised after a failed statement on this session
+                # still leaves it aborted for every row processed after this one.
+                session.rollback()
                 data.at[i, 'match_error'] = True
                 logging.error(e)
                 logging.error(row)
                 logging.exception('Exception occurred')
-            finally:
+            else:
+                # Commit only on the success path - a `finally: session.commit()`
+                # here would run right after the rollback() above too, and
+                # committing an already-rolled-back-from-aborted session can
+                # itself raise, masking the real error and leaving the session
+                # unusable for every row still to come (see issue #142).
                 session.commit()
         session.commit()
         logging.info("Finished candidate OSM matching!")
         return data
     except Exception as e:
-        if session is not None and isinstance(e, SQLAlchemyError):
+        if session is not None:
             session.rollback()
         logging.error(e)
         logging.exception('Exception occurred')
@@ -563,8 +582,8 @@ def enrich_matched_pois(args):
                             logging.warning('Invalid state for live tags.')
 
                     except Exception as e:
-                        if isinstance(e, SQLAlchemyError):
-                            session.rollback()
+                        # See issue #142 - roll back regardless of exception type.
+                        session.rollback()
                         logging.warning('There was an error during OSM request: %s.', e)
                         logging.exception('Exception occurred')
                         _cached = locals().get('cached_node') or locals().get('cached_way')
@@ -640,8 +659,8 @@ def enrich_matched_pois(args):
                                                                    row.poi_lon, row.poi_lat,
                                                                    addr_postcode, osm_postcode)
                         except Exception as e:
-                            if isinstance(e, SQLAlchemyError):
-                                session.rollback()
+                            # See issue #142 - roll back regardless of exception type.
+                            session.rollback()
                             logging.exception('Exception occurred during postcode query (1): {}'.format(e))
                             logging.exception(traceback.format_exc())
                         if postcode is not None and postcode != addr_postcode:
@@ -655,19 +674,26 @@ def enrich_matched_pois(args):
                                  _disp(addr_city), _disp(addr_street), _disp(addr_housenumber),
                                  _disp(addr_conscriptionnumber))
             except Exception as e:
-                if isinstance(e, SQLAlchemyError):
-                    session.rollback()
+                # See issue #142 - roll back regardless of exception type: a non-
+                # SQLAlchemy bug raised after a failed statement on this session
+                # still leaves it aborted for every row processed after this one.
+                session.rollback()
                 data.at[i, 'match_error'] = True
                 logging.error(e)
                 logging.error(row)
                 logging.exception('Exception occurred')
-            finally:
+            else:
+                # Commit only on the success path - see issue #142: a
+                # `finally: session.commit()` here would also run right after
+                # the rollback() above, and committing an already-rolled-back
+                # session can itself raise, masking the real error and leaving
+                # the session unusable for every row still to come.
                 session.commit()
         session.commit()
         logging.info("Finished OSM enrichment!")
         return data
     except Exception as e:
-        if session is not None and isinstance(e, SQLAlchemyError):
+        if session is not None:
             session.rollback()
         logging.error(e)
         logging.exception('Exception occurred')

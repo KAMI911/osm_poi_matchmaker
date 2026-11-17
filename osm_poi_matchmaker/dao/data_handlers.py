@@ -655,9 +655,13 @@ def query_city_name_external(session, city_name: str, zip_code: str,
     except Exception as e:
         logging.error(f'Error during city name query: {e}')
         logging.exception('Exception traceback:')
+        # Roll back, don't commit, on failure - see issue #142: this session
+        # is reused across every POI in a dataprovider's process() loop, and
+        # committing here would try to commit an aborted transaction after a
+        # failed query, raising a new exception that masks this one and still
+        # leaves the session unusable for the next POI's query.
+        session.rollback()
         return None
-    finally:
-        session.commit()
 
 
 def insert_street_type_dataframe(session: Session, street_df: pd.DataFrame):
@@ -881,9 +885,12 @@ def search_for_postcode(session: Session, city_name: str) -> str | None:
     except Exception as e:
         logging.error('Error: %s.', e)
         logging.exception('Exception occurred')
+        # Roll back, don't commit, on failure - see issue #142: committing
+        # here would try to commit an aborted transaction after a failed
+        # query, raising a new exception that masks this one and leaves the
+        # session unusable for whoever reuses it next.
+        session.rollback()
         return None
-    finally:
-        session.commit()
 
 
 def insert_poi_dataframe(session: Session, poi_df: pd.DataFrame, raw: bool = True) -> dict:
