@@ -66,7 +66,11 @@ class hu_kulcs_patika(DataProvider):
                     for poi_data in text or []:
                         try:
                             name = clean_string(poi_data.get('marker-title'))
-                            if name is not None and 'Kulcs patika' not in name:
+                            # Case/spacing varies in the feed ('Kulcs Patika', 'KulcsPatika',
+                            # 'Kulcspatika', 'KulcsPatikák', ...) - normalize before matching,
+                            # since the exact-case 'Kulcs patika' substring never actually occurs.
+                            normalized_name = (name or '').lower().replace(' ', '')
+                            if name is not None and 'kulcspatik' not in normalized_name:
                                 self.data.name = name
                                 self.data.branch = None
                             else:
