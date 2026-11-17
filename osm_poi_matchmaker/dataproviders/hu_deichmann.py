@@ -71,28 +71,32 @@ class hu_deichmann(DataProvider):
                 # text = json.loads(soup)
                 for poi_data in text.get('shops', []):
                     try:
+                        address = poi_data.get('address') or {}
                         self.data.code = 'hudeichsho'
-                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('geoPoint').get('latitude'),
-                                                                         poi_data.get('geoPoint').get('longitude'))
-                        self.data.postcode = clean_string(poi_data.get('address').get('postalCode'))
-                        self.data.city = clean_city(poi_data.get('address').get('town'))
-                        self.data.street = clean_street(poi_data.get('address').get('line1'))
-                        self.data.housenumber = clean_string(poi_data.get('address').get('line2'))
-                        self.data.phone = clean_string(poi_data.get('address').get('phone'))
-                        self.data.original = clean_string(poi_data.get('street'))
+                        self.data.lat, self.data.lon = check_hu_boundary(poi_data.get('geoPoint').get('lat'),
+                                                                         poi_data.get('geoPoint').get('lng'))
+                        self.data.postcode = clean_string(address.get('zipCode'))
+                        self.data.city = clean_city(address.get('city'))
+                        self.data.street = clean_street(address.get('street'))
+                        self.data.housenumber = clean_string(address.get('houseNumber'))
+                        self.data.phone = clean_string(poi_data.get('customData', {}).get('storePhoneNumber'))
+                        self.data.original = clean_string('{} {}'.format(
+                            address.get('street') or '', address.get('houseNumber') or '').strip())
                         try:
-                            for i in range(7):
-                                opening = poi_data.get('openingHours').get('weekDayOpeningList')[i].get('openingTime').get('formattedHour')
-                                closing = poi_data.get('openingHours').get('weekDayOpeningList')[i].get('closingTime').get('formattedHour')
-                                self.data.day_open(i, opening)
-                                self.data.day_close(i, closing)
+                            week_days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+                            opening_times = poi_data.get('openingTimes') or {}
+                            for i, day_key in enumerate(week_days):
+                                ranges = opening_times.get(day_key) or []
+                                if ranges:
+                                    self.data.day_open(i, ranges[0].get('timeFrom'))
+                                    self.data.day_close(i, ranges[0].get('timeUntil'))
                         except AttributeError:
                             logging.info('Non existing opening hours value: {}'.format(poi_data))
                         except Exception as e:
                             logging.exception('Exception occurred: {}'.format(e))
                             logging.exception(traceback.format_exc())
 
-                        self.data.branch = clean_string(poi_data.get('address').get('appartment'))
+                        self.data.branch = clean_string(address.get('additional'))
                         self.data.public_holiday_open = False
                         self.data.ref = clean_string(poi_data.get('name'))
                         self.data.add()
