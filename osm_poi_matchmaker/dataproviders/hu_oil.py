@@ -8,7 +8,7 @@ try:
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_opening_hours, \
-        clean_phone_to_str, clean_string
+        clean_phone_to_str, clean_string, clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -72,7 +72,7 @@ class hu_oil(DataProvider):
                         self.data.fuel_octane_95 = True
                         self.data.fuel_diesel = True
                         self.data.ref = clean_string(poi_data.get('id'))
-                        website = clean_string(poi_data.get('url'))
+                        website = clean_url(poi_data.get('url'))
                         self.data.website = website if website is not None else 'https://www.oil-benzinkutak.hu'
                         # 'OIL! MAGLÓD' -> 'Maglód' (clean_string() of the split() list used to leave just "'")
                         tmp = poi_data.get('store').split(' ', 1)

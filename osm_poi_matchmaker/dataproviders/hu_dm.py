@@ -8,7 +8,7 @@ try:
     import traceback
     from osm_poi_matchmaker.libs.soup import save_downloaded_soup
     from osm_poi_matchmaker.libs.address import extract_street_housenumber_better_2, clean_city, clean_phone_to_str, \
-        clean_string
+        clean_string, clean_url
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.libs.osm_tag_sets import POS_HU_GEN, PAY_CASH
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -67,8 +67,8 @@ class hu_dm(DataProvider):
                                 'address')['street'].split(',')[0]
                             self.data.city = clean_city(
                                 poi_data.get('address')['city'])
-                            self.data.website = 'https://www.dm.hu{}'.format(
-                                clean_string(poi_data.get('storeUrlPath')))
+                            self.data.website = clean_url('https://www.dm.hu/store/{}'.format(
+                                poi_data.get('storeUrlPath')))
                             self.data.original = clean_string(poi_data.get('address')['street'])
                             self.data.lat, self.data.lon = \
                                 check_hu_boundary(poi_data.get('location')[
