@@ -157,12 +157,13 @@ class hu_gls(DataProvider):
                             day_number = day[0]
                             self.data.day_open(day_number-1, day[1])
                             self.data.day_close(day_number-1, day[2])
-                        if poi_data.get('features') and 'acceptsCash' in poi_data.get('features'):
-                            self.tags.update({'payment:cash': 'yes'})
-                        if poi_data.get('description') and 'azonnali átutalás' in poi_data.get('description'):
-                            self.tags.update({'payment:wire_transfer': 'no', 'payment:instant_wire_transfer': 'yes', })
-                        elif poi_data.get('features') and 'acceptsCard' in poi_data.get('features'):
-                            self.tags.update(POS_HU_GEN)
+                        # NOTE: per-record payment tags (acceptsCash/acceptsCard/'azonnali
+                        # átutalás' in the feed) can't actually be applied here - self.tags
+                        # is only read once, by types(), to build each poi_code's poi_tags
+                        # dict before process() ever runs; mutating it per-record here was a
+                        # no-op (POIDatasetRaw has no per-record tags field to write into
+                        # instead). Leaving these per-record payment signals unused until the
+                        # pipeline supports per-record tag overrides.
                         self.data.add()
                     except Exception as e:
                         logging.exception('Exception occurred: {}'.format(e))

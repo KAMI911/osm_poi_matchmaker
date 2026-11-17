@@ -160,14 +160,6 @@ class hu_foxpost(DataProvider):
                         self.data.branch = strip_branch_prefix(poi_data.get('name'), 'FOXPOST A-BOX', 'FOXPOST Z-BOX',
                                                                'Packeta Z-Pont')
                         self.data.description = clean_string(poi_data.get('findme'))
-                        payment_options = poi_data.get('paymentOptions') or []
-                        payment_method = 'only' if len(payment_options) <= 1 else 'yes'
-                        if 'card' in payment_options:
-                            self.tags.update(POS_HU_GEN)
-                        if 'link' in payment_options:
-                            self.tags.update({'payment:link': payment_method})
-                        if 'cash' in payment_options:
-                            self.tags.update({'payment:cash': payment_method})
                         if self.data.description:
                             if 'kültéri' in self.data.description:
                                 self.data.nonstop = True
