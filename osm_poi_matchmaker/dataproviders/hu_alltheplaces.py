@@ -66,6 +66,7 @@ try:
         extract_street_housenumber_better_2,
         clean_city,
         clean_string,
+        clean_url,
     )
     from osm_poi_matchmaker.libs.geo import check_hu_boundary
     from osm_poi_matchmaker.utils.data_provider import DataProvider
@@ -439,7 +440,7 @@ class hu_alltheplaces(DataProvider):
         self.data.postcode = clean_string(props.get('addr:postcode', '') or '')
         self.data.phone = clean_string(props.get('phone', '') or props.get('contact:phone', '') or '')
         self.data.email = clean_string(props.get('email', '') or props.get('contact:email', '') or '')
-        self.data.website = clean_string(
+        self.data.website = clean_url(
             props.get('website', '') or props.get('contact:website', '') or props.get('@source_uri', '') or '')
         self.data.ref = clean_string(props.get('ref', '') or props.get('@id', '') or '')
 
