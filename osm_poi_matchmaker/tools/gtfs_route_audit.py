@@ -111,6 +111,12 @@ def build_canonical_routes(zf):
     return routes, canon_df
 
 
+def get_gtfs_stop_info(zf):
+    """{stop_id: (stop_name, lat, lon)} from stops.txt."""
+    stops = _read_gtfs_csv(zf, 'stops.txt', usecols=lambda c: c in ('stop_id', 'stop_name', 'stop_lat', 'stop_lon'))
+    return {row.stop_id: (row.stop_name, row.stop_lat, row.stop_lon) for row in stops.itertuples()}
+
+
 def get_osm_stop_map(engine, stop_ref_tag):
     """{gtfs_stop_id: osm_node_id} for every OSM node carrying stop_ref_tag."""
     query = sqlalchemy.text(
@@ -120,6 +126,56 @@ def get_osm_stop_map(engine, stop_ref_tag):
     # A stop_id could in principle map to more than one node (rare tagging
     # duplicates) - last one wins, good enough for an overlap-based audit.
     return dict(zip(df['ref'], df['osm_id']))
+
+
+def get_osm_stop_map_by_distance(engine, stops_info, distance_m=50):
+    """{gtfs_stop_id: osm_node_id} built by nearest-node lookup instead of a
+    ref tag - for a feed (e.g. hu_helyi_kozlekedes's per-city ones) whose
+    stops carry no ref tag in OSM yet at all, so get_osm_stop_map() alone
+    would find nothing. This mirrors the matcher's own last-resort,
+    name-less distance stage (poi_base.py) directly against raw GTFS
+    coordinates, so route-level work on these feeds doesn't have to wait for
+    an upload+reimport cycle just to get a first, rough coverage estimate -
+    it's not a substitute for the real stop-level matching+upload (no ref
+    tag gets written anywhere by this), just a way to see where things stand
+    today.
+
+    Args:
+        stops_info: {stop_id: (name, lat, lon)} as returned by
+            gtfs_relation_fix_export.get_gtfs_stop_info().
+        distance_m: Search radius in meters - kept tight on purpose (this is
+            a name-less, type-only match, the same risk profile as
+            poi_base.py's own 10-15m last-resort stage for these modes; a
+            little looser here since GTFS coordinates for small local feeds
+            tend to be less precise than BKK/Volánbusz's).
+    """
+    if not stops_info:
+        return {}
+    rows = [(stop_id, float(lat), float(lon)) for stop_id, (_, lat, lon) in stops_info.items()
+           if lat and lon]
+    if not rows:
+        return {}
+    query = sqlalchemy.text('''
+        WITH stops(stop_id, lat, lon) AS (
+            SELECT * FROM unnest(:stop_ids, :lats, :lons)
+        )
+        SELECT s.stop_id, nearest.osm_id
+        FROM stops s,
+        LATERAL (
+            SELECT osm_id, ST_DistanceSphere(way, ST_SetSRID(ST_MakePoint(s.lon, s.lat), 4326)) AS dist
+            FROM planet_osm_point
+            WHERE highway = 'bus_stop' OR railway IN ('tram_stop', 'stop') OR amenity = 'ferry_terminal'
+            ORDER BY way <-> ST_SetSRID(ST_MakePoint(s.lon, s.lat), 4326)
+            LIMIT 1
+        ) nearest
+        WHERE nearest.dist < :distance_m
+    ''')
+    with engine.connect() as conn:
+        df = pd.read_sql(query, conn, params={
+            'stop_ids': [r[0] for r in rows], 'lats': [r[1] for r in rows], 'lons': [r[2] for r in rows],
+            'distance_m': distance_m,
+        })
+    return dict(zip(df['stop_id'], df['osm_id']))
 
 
 def get_osm_route_relations(engine):
@@ -208,17 +264,32 @@ def match_routes(canon_df, stop_map, relations, min_overlap=0.5):
     return pd.DataFrame(results)
 
 
-def run_feed(feed_key, cache_dir, engine, min_overlap=0.5):
+def run_feed(feed_key, cache_dir, engine, min_overlap=0.5, distance_fallback=True, distance_fallback_m=50):
     feed = FEEDS[feed_key]
     zip_path = '{}/{}'.format(cache_dir.rstrip('/'), feed['zip'])
     log.info('[%s] Reading GTFS zip: %s', feed_key, zip_path)
     with zipfile.ZipFile(zip_path) as zf:
         routes, canon_df = build_canonical_routes(zf)
+        stop_info = get_gtfs_stop_info(zf) if distance_fallback else {}
     log.info('[%s] %d routes, %d canonical (route_id, direction_id) patterns', feed_key, len(routes), len(canon_df))
 
     log.info('[%s] Loading OSM stop map (tag %s) ...', feed_key, feed['stop_ref_tag'])
     stop_map = get_osm_stop_map(engine, feed['stop_ref_tag'])
     log.info('[%s] %d OSM nodes carry this feed\'s stop ref tag', feed_key, len(stop_map))
+    if distance_fallback:
+        # For stops with no ref tag at all yet (routine for a feed no one has
+        # uploaded matches for yet, e.g. hu_helyi_kozlekedes's cities), fall
+        # back to a live, name-less nearest-node lookup against their raw
+        # GTFS coordinate - see get_osm_stop_map_by_distance()'s docstring for
+        # why this is a rough estimate, not a substitute for the real
+        # (ref-tag-writing) stop-level match.
+        missing_stop_info = {s: info for s, info in stop_info.items() if s not in stop_map}
+        if missing_stop_info:
+            fallback_map = get_osm_stop_map_by_distance(engine, missing_stop_info, distance_m=distance_fallback_m)
+            if fallback_map:
+                log.info('[%s] +%d more stops matched by distance fallback (no ref tag yet, within %dm)',
+                        feed_key, len(fallback_map), distance_fallback_m)
+                stop_map = {**stop_map, **fallback_map}
 
     log.info('[%s] Loading OSM route/route_master relations ...', feed_key)
     relations = get_osm_route_relations(engine)

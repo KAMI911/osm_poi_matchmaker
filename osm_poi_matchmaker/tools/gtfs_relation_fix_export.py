@@ -36,7 +36,7 @@ try:
     import sqlalchemy
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.tools.gtfs_route_audit import (
-        FEEDS, _read_gtfs_csv, build_canonical_routes, get_osm_stop_map,
+        FEEDS, _read_gtfs_csv, build_canonical_routes, get_osm_stop_map, get_gtfs_stop_info,
     )
 except ImportError as err:
     logging.error('Error %s import module: %s', __name__, err)
@@ -93,10 +93,6 @@ def get_osm_route_relations_full(engine):
     return relations
 
 
-def get_gtfs_stop_info(zf):
-    """{stop_id: (stop_name, lat, lon)} from stops.txt."""
-    stops = _read_gtfs_csv(zf, 'stops.txt', usecols=lambda c: c in ('stop_id', 'stop_name', 'stop_lat', 'stop_lon'))
-    return {row.stop_id: (row.stop_name, row.stop_lat, row.stop_lon) for row in stops.itertuples()}
 
 
 def build_insert_plan(stops_sequence, stop_map, members):
