@@ -27,7 +27,7 @@ try:
     import sqlalchemy
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.tools.gtfs_route_audit import (
-        FEEDS, build_canonical_routes, get_osm_stop_map, get_osm_route_relations, match_routes,
+        FEEDS, build_canonical_routes, get_feed_stop_map, get_osm_route_relations, match_routes,
     )
     from osm_poi_matchmaker.tools.gtfs_relation_fix_export import get_osm_route_relations_full
 except ImportError as err:
@@ -91,7 +91,7 @@ def run_feed(feed_key, cache_dir, engine, min_overlap=0.5):
     zip_path = '{}/{}'.format(cache_dir.rstrip('/'), feed['zip'])
     with zipfile.ZipFile(zip_path) as zf:
         routes, canon_df = build_canonical_routes(zf)
-    stop_map = get_osm_stop_map(engine, feed['stop_ref_tag'])
+        stop_map = get_feed_stop_map(feed_key, feed, zf, engine)
     relations_summary = get_osm_route_relations(engine)
     results = match_routes(canon_df, stop_map, relations_summary, min_overlap=min_overlap)
     matched_ids = set(results.loc[results.note == 'matched', 'osm_relation_id'].dropna().astype(int))
@@ -122,7 +122,11 @@ def run_feed(feed_key, cache_dir, engine, min_overlap=0.5):
             'first_real_gap': '{}/{} (pos {})'.format(real_gaps[0][1], real_gaps[0][2], real_gaps[0][0])
             if real_gaps else '',
         })
-    df = pd.DataFrame(rows)
+    columns = ['osm_relation_id', 'name', 'ref', 'way_count', 'real_gap_count', 'missing_way_count',
+              'first_real_gap']
+    df = pd.DataFrame(rows, columns=columns)  # explicit columns: a feed with 0 matched relations
+                                              # (e.g. no OSM coverage at all yet) would otherwise
+                                              # build a columnless DataFrame from an empty row list.
     broken = (df['real_gap_count'] > 0).sum()
     partly_outside_extract = (df['missing_way_count'] > 0).sum()
     log.info('[%s] %d/%d matched relations have a real way-chain gap (%d more have ways outside this '

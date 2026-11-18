@@ -264,15 +264,15 @@ def match_routes(canon_df, stop_map, relations, min_overlap=0.5):
     return pd.DataFrame(results)
 
 
-def run_feed(feed_key, cache_dir, engine, min_overlap=0.5, distance_fallback=True, distance_fallback_m=50):
-    feed = FEEDS[feed_key]
-    zip_path = '{}/{}'.format(cache_dir.rstrip('/'), feed['zip'])
-    log.info('[%s] Reading GTFS zip: %s', feed_key, zip_path)
-    with zipfile.ZipFile(zip_path) as zf:
-        routes, canon_df = build_canonical_routes(zf)
-        stop_info = get_gtfs_stop_info(zf) if distance_fallback else {}
-    log.info('[%s] %d routes, %d canonical (route_id, direction_id) patterns', feed_key, len(routes), len(canon_df))
-
+def get_feed_stop_map(feed_key, feed, zf, engine, distance_fallback=True, distance_fallback_m=50):
+    """{gtfs_stop_id: osm_node_id} for one feed: the ref-tag map
+    (get_osm_stop_map()), topped up with a distance-based fallback
+    (get_osm_stop_map_by_distance()) for whichever stops have no ref tag at
+    all yet - every caller that needs a feed's stop map (the audit itself,
+    the relation fix exporters, the continuity/gap-fix tools) goes through
+    this one place so they all see the same, consistently-built map instead
+    of each reimplementing the ref-tag-vs-fallback merge slightly differently.
+    """
     log.info('[%s] Loading OSM stop map (tag %s) ...', feed_key, feed['stop_ref_tag'])
     stop_map = get_osm_stop_map(engine, feed['stop_ref_tag'])
     log.info('[%s] %d OSM nodes carry this feed\'s stop ref tag', feed_key, len(stop_map))
@@ -283,6 +283,7 @@ def run_feed(feed_key, cache_dir, engine, min_overlap=0.5, distance_fallback=Tru
         # GTFS coordinate - see get_osm_stop_map_by_distance()'s docstring for
         # why this is a rough estimate, not a substitute for the real
         # (ref-tag-writing) stop-level match.
+        stop_info = get_gtfs_stop_info(zf)
         missing_stop_info = {s: info for s, info in stop_info.items() if s not in stop_map}
         if missing_stop_info:
             fallback_map = get_osm_stop_map_by_distance(engine, missing_stop_info, distance_m=distance_fallback_m)
@@ -290,6 +291,17 @@ def run_feed(feed_key, cache_dir, engine, min_overlap=0.5, distance_fallback=Tru
                 log.info('[%s] +%d more stops matched by distance fallback (no ref tag yet, within %dm)',
                         feed_key, len(fallback_map), distance_fallback_m)
                 stop_map = {**stop_map, **fallback_map}
+    return stop_map
+
+
+def run_feed(feed_key, cache_dir, engine, min_overlap=0.5, distance_fallback=True, distance_fallback_m=50):
+    feed = FEEDS[feed_key]
+    zip_path = '{}/{}'.format(cache_dir.rstrip('/'), feed['zip'])
+    log.info('[%s] Reading GTFS zip: %s', feed_key, zip_path)
+    with zipfile.ZipFile(zip_path) as zf:
+        routes, canon_df = build_canonical_routes(zf)
+        stop_map = get_feed_stop_map(feed_key, feed, zf, engine, distance_fallback, distance_fallback_m)
+    log.info('[%s] %d routes, %d canonical (route_id, direction_id) patterns', feed_key, len(routes), len(canon_df))
 
     log.info('[%s] Loading OSM route/route_master relations ...', feed_key)
     relations = get_osm_route_relations(engine)

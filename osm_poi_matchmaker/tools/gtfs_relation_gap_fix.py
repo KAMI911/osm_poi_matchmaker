@@ -32,7 +32,7 @@ try:
     import sqlalchemy
     from osm_poi_matchmaker.utils import config
     from osm_poi_matchmaker.tools.gtfs_route_audit import (
-        FEEDS, build_canonical_routes, get_osm_stop_map, get_osm_route_relations, match_routes,
+        FEEDS, build_canonical_routes, get_feed_stop_map, get_osm_route_relations, match_routes,
     )
     from osm_poi_matchmaker.tools.gtfs_relation_fix_export import get_osm_route_relations_full, _safe_comment_text
     from osm_poi_matchmaker.tools.gtfs_relation_continuity_check import get_way_nodesets, check_relation_continuity
@@ -283,7 +283,7 @@ def run_feed(feed_key, cache_dir, engine, out_dir, min_overlap=0.5):
     zip_path = '{}/{}'.format(cache_dir.rstrip('/'), feed['zip'])
     with zipfile.ZipFile(zip_path) as zf:
         routes, canon_df = build_canonical_routes(zf)
-    stop_map = get_osm_stop_map(engine, feed['stop_ref_tag'])
+        stop_map = get_feed_stop_map(feed_key, feed, zf, engine)
     relations_summary = get_osm_route_relations(engine)
     results = match_routes(canon_df, stop_map, relations_summary, min_overlap=min_overlap)
     results = results.merge(routes[['route_id', 'route_type']], on='route_id', how='left')
