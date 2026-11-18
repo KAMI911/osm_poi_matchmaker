@@ -145,6 +145,7 @@ def match_routes(canon_df, stop_map, relations, min_overlap=0.5):
     for rel in relations:
         for n in rel['stop_node_ids']:
             node_to_rels[n].append(rel)
+    relations_by_id = {rel['id']: rel for rel in relations}
 
     results = []
     for _, row in canon_df.iterrows():
@@ -170,7 +171,23 @@ def match_routes(canon_df, stop_map, relations, min_overlap=0.5):
                 best_score, best_id = score, rel['id']
         note = 'matched' if best_id is not None and best_score >= min_overlap \
             else 'no OSM relation with enough stop overlap'
-        results.append({**base, 'osm_relation_id': best_id, 'overlap': round(best_score, 3), 'note': note})
+        entry = {**base, 'osm_relation_id': best_id, 'overlap': round(best_score, 3), 'note': note}
+        # Phase 5 diagnostic: for a matched relation, name exactly what's wrong -
+        # which GTFS stops (in route order) already have an OSM node but aren't
+        # among the relation's own members yet, versus stops that have no OSM
+        # node at all (those need the stop itself matched/created first - adding
+        # them to the relation isn't the next step for those).
+        stops_without_osm_node = [s for s in row['stops'] if s not in stop_map]
+        if best_id is not None:
+            rel_nodes = relations_by_id[best_id]['stop_node_ids']
+            missing_in_relation = [(s, stop_map[s]) for s in row['stops']
+                                   if s in stop_map and stop_map[s] not in rel_nodes]
+        else:
+            missing_in_relation = []
+        entry['missing_osm_stop_ids'] = ';'.join(str(n) for _, n in missing_in_relation)
+        entry['missing_in_relation_count'] = len(missing_in_relation)
+        entry['stops_without_osm_node_count'] = len(stops_without_osm_node)
+        results.append(entry)
     return pd.DataFrame(results)
 
 
