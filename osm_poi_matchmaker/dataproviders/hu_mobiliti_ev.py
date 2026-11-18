@@ -143,10 +143,10 @@ class hu_mobiliti_ev(DataProvider):
         self.link = 'https://api.mobiliti.hu/ocpi-location/api/v1/own-and-foreign-locations'
         self.tags = {'amenity': 'charging_station', 'authentication:app': 'yes', 'authentication:none': 'yes',
                      'authentication:membership_card': 'yes', 'operator': 'NKM Mobilitás Kft.',
-                     'operator:addr': '1081 Budapest, II. János Pál pápa tér 20.', 'fee': 'yes', 'parking:fee': 'no',
-                     'opening_hours': '24/7', 'ref:vatin': 'HU23443486', 'ref:HU:vatin': '23443486-2-42',
+                     'operator:addr': '1037 Budapest, Montevideo út. 10.', 'fee': 'yes', 'parking:fee': 'no',
+                     'opening_hours': '24/7', 'ref:vatin': 'HU23443486', 'ref:HU:vatin': '23443486-2-41',
                      'ref:HU:company': '01-09-965868', 'contact:website': 'https://www.mobiliti.hu/emobilitas',
-                     'contact:email': 'help@mobiliti.hu', 'contact:phone': '+36 62 565 758', }
+                     'contact:email': 'help@mobiliti.hu', 'contact:phone': '+36 1 999 1777', }
         self.filetype = FileType.json
         self.filename = '{}.{}'.format(self.__class__.__name__, self.filetype.name)
 
@@ -161,7 +161,7 @@ class hu_mobiliti_ev(DataProvider):
                                       'greengo|innogy|joinon|enel|virta|stormi|hep elen|cyeb|ampernative|mvm)',
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 400,
-             'osm_search_distance_safe': 150, 'osm_search_distance_unsafe': 10},
+             'osm_search_distance_safe': 150, 'osm_search_distance_unsafe': 20},
         ]
         for code, display, operator, pattern, url_base in FOREIGN_OPERATORS:
             self.__types.append(
@@ -170,17 +170,17 @@ class hu_mobiliti_ev(DataProvider):
                  'poi_url_base': url_base, 'poi_search_name': '(' + display.lower().replace('.', '.?') + ')',
                  'poi_search_avoid_name': '(mobiliti)',
                  'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 150,
-                 'osm_search_distance_unsafe': 10})
+                 'osm_search_distance_unsafe': 20})
         self.__types.append(
             {'poi_code': PRIVATE_CODE, 'poi_common_name': 'Mobiliti', 'poi_type': 'charging_station',
              'poi_tags': {'amenity': 'charging_station', 'access': 'private'}, 'poi_url_base': '',
              'poi_search_name': None, 'poi_search_avoid_name': '(mobiliti)',
-             'osm_search_distance_perfect': 100, 'osm_search_distance_safe': 50, 'osm_search_distance_unsafe': 10})
+             'osm_search_distance_perfect': 100, 'osm_search_distance_safe': 50, 'osm_search_distance_unsafe': 20})
         self.__types.append(
             {'poi_code': OTHER_OPERATOR_CODE, 'poi_common_name': 'EV töltő', 'poi_type': 'charging_station',
              'poi_tags': {'amenity': 'charging_station'}, 'poi_url_base': '', 'poi_search_name': None,
              'poi_search_avoid_name': '(mobiliti)',
-             'osm_search_distance_perfect': 100, 'osm_search_distance_safe': 50, 'osm_search_distance_unsafe': 10})
+             'osm_search_distance_perfect': 100, 'osm_search_distance_safe': 50, 'osm_search_distance_unsafe': 20})
         return self.__types
 
     @staticmethod
