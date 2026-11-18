@@ -39,39 +39,50 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(mess
 log = logging.getLogger('gtfs_relation_continuity_check')
 
 
-def get_way_endpoints(engine, way_ids):
-    """{way_id: (first_node_id, last_node_id)} for the given way ids, from
-    planet_osm_ways' own node-sequence array (osm2pgsql slim-mode middle
-    table) - the only place a way's node order survives; planet_osm_line only
-    has geometry, not which OSM nodes it passes through."""
+def get_way_nodesets(engine, way_ids):
+    """{way_id: set(node_id, ...)} for the given way ids, from planet_osm_ways'
+    own node-sequence array (osm2pgsql slim-mode middle table) - the only
+    place a way's node order survives; planet_osm_line only has geometry, not
+    which OSM nodes it passes through.
+
+    The full node set is needed, not just the first/last node: a closed way
+    (a junction=roundabout, routinely part of a bus/rail route) connects to
+    its neighbours at whichever ring node they actually meet, which is almost
+    never the way's own first==last node - checking endpoints only reports a
+    roundabout as broken on both sides even when it's mapped perfectly fine
+    (confirmed live: a Volánbusz relation's roundabout member looked broken
+    purely because of this, with real shared nodes a few positions in).
+    """
     if not way_ids:
         return {}
-    query = sqlalchemy.text('SELECT id, nodes[1] AS first_node, nodes[array_length(nodes,1)] AS last_node '
-                            'FROM planet_osm_ways WHERE id = ANY(:ids)')
+    query = sqlalchemy.text('SELECT id, nodes FROM planet_osm_ways WHERE id = ANY(:ids)')
     with engine.connect() as conn:
         df = pd.read_sql(query, conn, params={'ids': list(way_ids)})
-    return {row.id: (row.first_node, row.last_node) for row in df.itertuples()}
+    return {row.id: set(row.nodes) for row in df.itertuples()}
 
 
-def check_relation_continuity(members, endpoints):
+def check_relation_continuity(members, nodesets):
     """Returns a list of break descriptions - empty if the way chain is fully
     continuous (or has fewer than 2 way members, nothing to check).
 
     Each break is (position, way_a, way_b): way_a and way_b (adjacent 'way'
-    members, ignoring any node/relation members between them) share no
-    endpoint node, so the route visually/physically jumps between them.
+    members, ignoring any node/relation members between them) share no node
+    at all, so the route visually/physically jumps between them. Checking
+    full node sets (not just each way's own first/last node) is required for
+    a closed way (a roundabout) to be recognised as connecting correctly at
+    whichever ring node its neighbours actually meet it at.
     """
     way_members = [ref for mtype, ref, role in members if mtype == 'way']
     breaks = []
     for i in range(len(way_members) - 1):
         way_a, way_b = way_members[i], way_members[i + 1]
-        ends_a = endpoints.get(way_a)
-        ends_b = endpoints.get(way_b)
-        if ends_a is None or ends_b is None:
+        nodes_a = nodesets.get(way_a)
+        nodes_b = nodesets.get(way_b)
+        if nodes_a is None or nodes_b is None:
             breaks.append((i, way_a, way_b, 'way not found in planet_osm_ways (deleted/outdated local extract?)'))
             continue
-        if not (set(ends_a) & set(ends_b)):
-            breaks.append((i, way_a, way_b, 'no shared endpoint node'))
+        if not (nodes_a & nodes_b):
+            breaks.append((i, way_a, way_b, 'no shared node'))
     return breaks
 
 
@@ -89,19 +100,19 @@ def run_feed(feed_key, cache_dir, engine, min_overlap=0.5):
     all_way_ids = {ref for rel in relations_full.values() for mtype, ref, role in rel['members'] if mtype == 'way'}
     log.info('[%s] Checking way continuity for %d matched relations (%d distinct ways)',
             feed_key, len(relations_full), len(all_way_ids))
-    endpoints = get_way_endpoints(engine, all_way_ids)
+    nodesets = get_way_nodesets(engine, all_way_ids)
 
     rows = []
     for rel_id, relation in relations_full.items():
-        breaks = check_relation_continuity(relation['members'], endpoints)
+        breaks = check_relation_continuity(relation['members'], nodesets)
         # A "way not found in planet_osm_ways" break isn't a real routing gap -
         # it just means that way's nodes are outside this (Hungary-only)
         # osm2pgsql extract, which happens routinely for the Hungarian end of a
         # cross-border line (confirmed live: an Austria-Hungary rail relation
         # reports 247/270 "breaks", every one of them this reason, not a real
-        # discontinuity). Only count "no shared endpoint node" as a real gap.
-        real_gaps = [b for b in breaks if b[3] == 'no shared endpoint node']
-        missing_way = [b for b in breaks if b[3] != 'no shared endpoint node']
+        # discontinuity). Only count "no shared node" as a real gap.
+        real_gaps = [b for b in breaks if b[3] == 'no shared node']
+        missing_way = [b for b in breaks if b[3] != 'no shared node']
         way_count = sum(1 for mtype, ref, role in relation['members'] if mtype == 'way')
         rows.append({
             'osm_relation_id': rel_id, 'name': relation['tags'].get('name', ''),
