@@ -44,11 +44,76 @@ except ImportError as err:
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 log = logging.getLogger('gtfs_relation_gap_fix')
 
-# Cross-border feeds excluded on purpose - see module docstring.
-DOMESTIC_FEEDS = ('hu_bkv', 'hu_volanbusz')
+# The gap could sit right at/near the border, where this Hungary-only
+# extract's road/rail network may itself be incomplete - but find_bridge()'s
+# max_gap_m safety cap already refuses to bridge anything implausibly far
+# apart regardless of feed, which covers this case generically: a cross-
+# border gap either resolves within a short, safe distance on the Hungarian
+# side, or gets correctly left for manual review either way.
+DOMESTIC_FEEDS = ('hu_bkv', 'hu_volanbusz', 'hu_mav')
 
 MAX_SEARCH_RADIUS_M = 600  # local-graph bounding box half-size around the gap
 MAX_HOPS = 25  # BFS hop limit - generous for short urban road segments, still bounded by max_gap_m below
+
+ONEWAY_FORWARD_VALUES = frozenset(('yes', 'true', '1'))
+ONEWAY_REVERSE_VALUES = frozenset(('-1', 'reverse'))
+ROUNDABOUT_JUNCTION_VALUES = frozenset(('roundabout', 'circular'))
+
+# GTFS route_type -> which OSM network a route of that mode actually runs on,
+# and which vehicle-specific oneway exemptions apply. Trams/metro/rail don't
+# get bus contraflow-lane exemptions; buses do.
+ROUTE_TYPE_TO_NETWORK = {
+    '0': ('rail', 'rail'),   # tram
+    '1': ('rail', 'rail'),   # subway/metro
+    '2': ('rail', 'rail'),   # rail
+    '3': ('road', 'bus'),    # bus
+    '11': ('road', 'bus'),   # trolleybus
+    '800': ('road', 'bus'),  # Szeged's extended trolleybus code
+}
+
+
+def directed_edges_for_way(nodes, tags, vehicle='bus'):
+    """Return the [(from_node, to_node), ...] edges this way allows a vehicle
+    of the given kind to travel, honouring oneway restrictions - the
+    direction-correctness the route-bridging search depends on so it never
+    routes a bus the wrong way down a one-way street or through a roundabout
+    backwards.
+
+    - junction=roundabout/circular implies oneway=yes along the way's own
+      digitized direction for road vehicles (the OSM-wide convention: a
+      closed way representing a roundabout doesn't need its own explicit
+      oneway tag) - not for rail, where "junction" isn't a road concept.
+    - An explicit oneway tag always overrides the roundabout default.
+    - 'bus'/'psv' vehicles are exempt from an otherwise-standing restriction
+      when oneway:psv=no or oneway:bus=no is set (a bus contraflow lane).
+      Note: this project's current osm2pgsql import doesn't expose these
+      sub-tags on planet_osm_line (not in default.style, no hstore there),
+      but planet_osm_ways.tags (the raw, unfiltered per-way tag list this
+      module reads instead - see build_local_network_graph()) does carry
+      them, so the exemption is honoured for real once a way has one.
+    """
+    oneway = (tags.get('oneway') or '').strip().lower()
+    junction = (tags.get('junction') or '').strip().lower()
+    if vehicle != 'rail' and not oneway and junction in ROUNDABOUT_JUNCTION_VALUES:
+        oneway = 'yes'
+    exempt = False
+    if vehicle in ('bus', 'psv'):
+        for key in ('oneway:psv', 'oneway:bus'):
+            if (tags.get(key) or '').strip().lower() == 'no':
+                exempt = True
+                break
+    forward_only = (not exempt) and oneway in ONEWAY_FORWARD_VALUES
+    reverse_only = (not exempt) and oneway in ONEWAY_REVERSE_VALUES
+    edges = []
+    for a, b in zip(nodes, nodes[1:]):
+        if reverse_only:
+            edges.append((b, a))
+        elif forward_only:
+            edges.append((a, b))
+        else:
+            edges.append((a, b))
+            edges.append((b, a))
+    return edges
 
 
 def get_node_coords(engine, node_ids):
@@ -60,29 +125,39 @@ def get_node_coords(engine, node_ids):
     return {row['id']: (row['lat'], row['lon']) for row in rows}
 
 
-def build_local_road_graph(engine, center_lat, center_lon, radius_m=MAX_SEARCH_RADIUS_M):
-    """{node_id: [(neighbour_node_id, way_id), ...]} for every highway way
-    with any node inside a square of `radius_m` around the given point -
-    rough and generous on purpose (a square, not a precise circle; a bit of
-    extra margin costs nothing here) so a short bridging path is reachable
-    even if our start/end nodes aren't exactly centered."""
+def build_local_network_graph(engine, center_lat, center_lon, network='road', vehicle='bus',
+                              radius_m=MAX_SEARCH_RADIUS_M):
+    """{node_id: [(neighbour_node_id, way_id), ...]} - directed per
+    directed_edges_for_way() - for every way of the right mode (highway for
+    'road', railway for 'rail') with any node inside a square of `radius_m`
+    around the given point (rough and generous on purpose: a square, not a
+    precise circle, so a short bridging path is still reachable even if the
+    start/end nodes aren't exactly centered).
+
+    Reads tags from planet_osm_ways (the osm2pgsql middle table's raw,
+    unfiltered per-way tag list), not planet_osm_line's style-whitelisted
+    typed columns - oneway/junction are in both, but oneway:psv/oneway:bus
+    are only ever in the raw list here.
+    """
     deg = radius_m / 70000.0
+    mode_column = 'railway' if network == 'rail' else 'highway'
     query = sqlalchemy.text('''
-        SELECT w.id, w.nodes
+        SELECT w.id, w.nodes, w.tags
         FROM planet_osm_ways w
         JOIN planet_osm_line l ON l.osm_id = w.id
-        WHERE l.highway IS NOT NULL
+        WHERE l.{mode_column} IS NOT NULL
           AND l.way && ST_Expand(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), :deg)
-    ''')
+    '''.format(mode_column=mode_column))
     with engine.connect() as conn:
         rows = conn.execute(query, {'lon': center_lon, 'lat': center_lat, 'deg': deg}).mappings().all()
     graph = {}
     for row in rows:
         nodes = row['nodes']
         way_id = row['id']
-        for a, b in zip(nodes, nodes[1:]):
+        raw_tags = row['tags'] or []
+        tags = dict(zip(raw_tags[0::2], raw_tags[1::2]))
+        for a, b in directed_edges_for_way(nodes, tags, vehicle=vehicle):
             graph.setdefault(a, []).append((b, way_id))
-            graph.setdefault(b, []).append((a, way_id))
     return graph
 
 
@@ -135,7 +210,7 @@ def _haversine_m(a, b):
     return 2 * r * math.asin(min(1.0, math.sqrt(x)))
 
 
-def find_bridge(engine, way_a_nodes, way_b_nodes, node_coords, max_gap_m=500):
+def find_bridge(engine, way_a_nodes, way_b_nodes, node_coords, network='road', vehicle='bus', max_gap_m=500):
     """Try routing from way_a to way_b through the local road network.
 
     Centers the search on the single closest pair of nodes between the two
@@ -167,7 +242,8 @@ def find_bridge(engine, way_a_nodes, way_b_nodes, node_coords, max_gap_m=500):
     center_lat = (best_pair[0][0] + best_pair[1][0]) / 2
     center_lon = (best_pair[0][1] + best_pair[1][1]) / 2
     radius = max(MAX_SEARCH_RADIUS_M, best_dist * 1.5 + 100)
-    graph = build_local_road_graph(engine, center_lat, center_lon, radius_m=radius)
+    graph = build_local_network_graph(engine, center_lat, center_lon, network=network, vehicle=vehicle,
+                                      radius_m=radius)
     return shortest_way_path(graph, way_a_nodes, way_b_nodes), best_dist
 
 
@@ -210,7 +286,14 @@ def run_feed(feed_key, cache_dir, engine, out_dir, min_overlap=0.5):
     stop_map = get_osm_stop_map(engine, feed['stop_ref_tag'])
     relations_summary = get_osm_route_relations(engine)
     results = match_routes(canon_df, stop_map, relations_summary, min_overlap=min_overlap)
-    matched_ids = set(results.loc[results.note == 'matched', 'osm_relation_id'].dropna().astype(int))
+    results = results.merge(routes[['route_id', 'route_type']], on='route_id', how='left')
+    matched = results[results.note == 'matched'].dropna(subset=['osm_relation_id'])
+    matched_ids = set(matched['osm_relation_id'].astype(int))
+    # A relation can in principle be matched from more than one canon row (two
+    # directions sharing one relation id, etc.) - route_type should always
+    # agree between them since it's the same real-world route either way, so
+    # just take whichever row got there first.
+    route_type_by_rel_id = dict(zip(matched['osm_relation_id'].astype(int), matched['route_type']))
     relations_full = {r['id']: r for r in get_osm_route_relations_full(engine) if r['id'] in matched_ids}
     all_way_ids = {ref for rel in relations_full.values() for mtype, ref, role in rel['members'] if mtype == 'way'}
     nodesets = get_way_nodesets(engine, all_way_ids)
@@ -231,7 +314,8 @@ def run_feed(feed_key, cache_dir, engine, out_dir, min_overlap=0.5):
             failed += 1
             continue
         node_coords = get_node_coords(engine, nodes_a | nodes_b)
-        bridge, gap_dist = find_bridge(engine, nodes_a, nodes_b, node_coords)
+        network, vehicle = ROUTE_TYPE_TO_NETWORK.get(str(route_type_by_rel_id.get(rel_id, '')), ('road', 'bus'))
+        bridge, gap_dist = find_bridge(engine, nodes_a, nodes_b, node_coords, network=network, vehicle=vehicle)
         if not bridge:
             if gap_dist is not None and gap_dist > 500:
                 log.info('[%s] Relation %s: %s/%s are %.0fm apart at their closest - too far for a real '

@@ -39,18 +39,35 @@ log = logging.getLogger('gtfs_route_audit')
 # the matching dataprovider - see hu_bkv.py/hu_volanbusz.py/hu_mav.py) and the OSM
 # tag that holds this feed's GTFS stop_id on an already-matched stop node (see
 # each provider's additional_ref_name / the stop-level matcher).
-#
-# hu_helyi_kozlekedes's per-city feeds are deliberately left out for now: none of
-# their stops currently carry a gtfs:stop_id:HU-<CITY> tag in the live OSM data
-# (checked directly - every one of them is 0 rows), so there is no stop-level
-# anchor to match routes against yet; route matching for those would have to
-# fall back to name/network heuristics alone, which isn't reliable enough to
-# report a real coverage number.
 FEEDS = {
     'hu_bkv': {'zip': 'hu_bkv.zip', 'stop_ref_tag': 'ref:bkk'},
     'hu_volanbusz': {'zip': 'hu_volanbusz.zip', 'stop_ref_tag': 'gtfs:stop_id:HU-VOLAN'},
     'hu_mav': {'zip': 'hu_mav.zip', 'stop_ref_tag': 'ref:mav'},
 }
+
+# hu_helyi_kozlekedes's per-city feeds, one FEEDS entry each (hu_helyi_<slug>) -
+# kept separate from the dict above since the zip filename and stop ref tag
+# both vary per city (see hu_helyi_kozlekedes.py's CITY_FEEDS/additional_ref_name).
+#
+# As of this writing every one of these tags is 0 rows in the live OSM data
+# (checked directly), so running the audit against the CURRENT database will
+# report ~100% of these routes as having "no GTFS stop on this route has a
+# matching OSM node at all" - that's not a bug in the audit, it's the real
+# state: hu_helyi_kozlekedes.py's own poi_search_name bug (fixed, but only in
+# the next pipeline run - see its own commit) was silently preventing these
+# stops from ever matching. These entries exist so the tooling needs no
+# further changes once a future run has actually matched some.
+_HELYI_KOZLEKEDES_CITY_SLUGS = (
+    'pecs', 'miskolc', 'szeged', 'szekesfehervar', 'szombathely', 'veszprem',
+    'tatabanya', 'kaposvar', 'dombovar', 'hodmezovasarhely', 'kiskunhalas',
+    'paks', 'varpalota', 'budaors', 'bahart', 'weekendbus',
+)
+for _slug in _HELYI_KOZLEKEDES_CITY_SLUGS:
+    FEEDS['hu_helyi_{}'.format(_slug)] = {
+        'zip': 'hu_helyi_kozlekedes_{}.zip'.format(_slug),
+        'stop_ref_tag': 'gtfs:stop_id:HU-{}'.format(_slug.upper()),
+    }
+del _slug
 
 
 def _read_gtfs_csv(zf, name, usecols=None):
