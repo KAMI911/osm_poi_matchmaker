@@ -2,6 +2,7 @@
 
 try:
     import logging
+    import re
     import sys
     import os
     import json
@@ -22,6 +23,17 @@ POST_DATA = {'api': 'stations', 'input': 'HU',
              'lang': 'hu', 'mode': 'country'}
 
 AVOID_NAME = '(shell|m. petrol|avia|lukoil|hunoil|orlen|omv|oil|auchan|star petrol|szabi|hermann)'
+
+# stationStatus '2' is NOT a clean "inactive" flag - it's shared by sold-off/rebranded
+# sites (name ends in " Orlen"), explicitly closed ones ("... bezárt"), and otherwise
+# still-real entries (CNG stations, the Zöld Sziget waterway station, internal/test
+# sites), so it can't be used as a blanket skip. Only the name-pattern below is the
+# actual, diagnosed cause of false "new" results: these are former MOL sites whose
+# OSM node is now correctly tagged with a competitor brand that AVOID_NAME excludes
+# as a candidate match, so importing them as 'humolfu' can never match and always
+# reports as a false new POI. See hu_mol_station_status_audit.py for the full list of
+# what stationStatus != '1' contains, including the sites this pattern does NOT skip.
+SKIP_NAME_PATTERN = re.compile(r'(orlen|bezárt)\s*$', re.IGNORECASE)
 
 
 class hu_mol(DataProvider):
@@ -78,7 +90,7 @@ class hu_mol(DataProvider):
              'osm_search_distance_safe': 300, 'osm_search_distance_unsafe': 60},
             {'poi_code': 'humolwfu', 'poi_common_name': 'MOL', 'poi_type': 'waterway_fuel',
              'poi_tags': humolwfu, 'poi_url_base': 'https://www.mol.hu', 'poi_search_name': 'mol',
-             'poi_search_avoid_name': AVOID_NAME,
+             'poi_search_avoid_name': AVOID_NAME, 'do_not_export_addr_tags': True,
              'osm_search_distance_perfect': 2000,
              'osm_search_distance_safe': 200, 'osm_search_distance_unsafe': 100},
             {'poi_code': 'humolfaf', 'poi_common_name': 'Fresh Corner', 'poi_type': 'fastfood_or_cafe',
@@ -105,6 +117,8 @@ class hu_mol(DataProvider):
                 text = json.loads(soup)
                 for poi_data in text or []:
                     try:
+                        if SKIP_NAME_PATTERN.search(poi_data.get('name') or ''):
+                            continue
                         # The API groups tags into separate facets: 'services', 'fuelsAndAdditives'
                         # and 'gastroCategory', each shaped as {'values': [{'id': ..., 'name': ...}, ...]}.
                         service_ids = [v.get('id') for v in (poi_data.get('services') or {}).get('values', [])]
@@ -113,7 +127,13 @@ class hu_mol(DataProvider):
                         has_fresh_corner = any(g.startswith('FRESH_CORNER') for g in gastro_ids)
                         has_cafe = 'FRESH_CORNER_CAFE' in gastro_ids
                         has_restaurant = 'FRESH_CORNER_RESTAURANT' in gastro_ids
-                        if ' Sziget ' in poi_data.get('name'):
+                        # Floating/riverside fuel points are addressed by river-km marker (e.g.
+                        # "1644+600 fkm jobb parti szelvény") instead of a real street, so "fkm"
+                        # in the address is the reliable signal - not the station name (the only
+                        # current example, "Budapest, Zöld Sziget", has no trailing space after
+                        # "Sziget" and was never actually caught by the old ' Sziget ' check).
+                        is_waterway = 'fkm' in (poi_data.get('address') or '').lower()
+                        if is_waterway:
                             self.data.code = 'humolwfu'
                         else:
                             if has_fresh_corner and \
@@ -133,8 +153,15 @@ class hu_mol(DataProvider):
                         self.data.original = clean_string(poi_data.get('address'))
                         self.data.lat, self.data.lon = check_hu_boundary(
                             poi_data.get('gpsPosition').get('latitude'), poi_data.get('gpsPosition').get('longitude'))
-                        self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
-                            poi_data['address'])
+                        if is_waterway:
+                            # No real street/housenumber to extract - the humolwfu type sets
+                            # do_not_export_addr_tags, so keep the river-km text as a description
+                            # instead of feeding it to the street/housenumber parser.
+                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = None, None, None
+                            self.data.description = clean_string(poi_data.get('address'))
+                        else:
+                            self.data.street, self.data.housenumber, self.data.conscriptionnumber = extract_street_housenumber_better_2(
+                                poi_data['address'])
                         self.data.truck = True if 'TRUCK_PARK' in service_ids else False
                         self.data.food = has_fresh_corner
                         self.data.rent_lpg_bottles = True if 'CYLINDER_PB_GAS' in service_ids else False
