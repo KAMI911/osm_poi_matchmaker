@@ -178,11 +178,19 @@ def apply_plan(members, plan, stop_tags, new_node_start_id=-1):
     return members, new_nodes
 
 
+def _safe_comment_text(text):
+    """escape() alone isn't enough inside an XML comment: a literal '--'
+    anywhere in the text (e.g. a real-world relation name like '7 --> Valami',
+    seen live on a Volánbusz relation) is illegal there regardless of what
+    follows, and would make the whole file not well-formed."""
+    return escape(str(text)).replace('--', '- -')
+
+
 def write_relation_fix_osm(path, relation, new_members, new_nodes, feed, ref_tag_key):
     lines = ['<?xml version=\'1.0\' encoding=\'UTF-8\'?>', '<osm version=\'0.6\' generator=\'JOSM\'>']
     lines.append('  <!-- Relation {} ({}): {} missing stop(s) added, {} of them brand-new nodes -->'.format(
-        relation['id'], escape(str(relation['tags'].get('name', ''))), len(new_members) - len(relation['members']),
-        len(new_nodes)))
+        relation['id'], _safe_comment_text(relation['tags'].get('name', '')),
+        len(new_members) - len(relation['members']), len(new_nodes)))
     for n in new_nodes:
         tag_xml = ''.join('\n    <tag k=\'{}\' v=\'{}\'/>'.format(escape(k), escape(str(v)))
                           for k, v in n['tags'].items())
@@ -190,7 +198,7 @@ def write_relation_fix_osm(path, relation, new_members, new_nodes, feed, ref_tag
         ref_tag = '\n    <tag k=\'{}\' v=\'{}\'/>'.format(escape(ref_tag_key), escape(str(n['stop_id'])))
         lines.append('  <!-- GTFS stop {} has no matching OSM node yet - new node created at its raw '
                      'GTFS coordinate (not road-snapped here; review placement before uploading). -->'
-                     .format(n['stop_id']))
+                     .format(_safe_comment_text(n['stop_id'])))
         lines.append('  <node action=\'new\' id=\'{}\' lat=\'{}\' lon=\'{}\' user=\'osm_poi_matchmaker\' '
                      'uid=\'1\' version=\'1\'>{}{}{}\n  </node>'.format(
                          n['tmp_id'], n['lat'], n['lon'], tag_xml, name_tag, ref_tag))
