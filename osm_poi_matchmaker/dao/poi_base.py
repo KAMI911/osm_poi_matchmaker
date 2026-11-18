@@ -274,6 +274,7 @@ class POIBase:
         970: 'name + street, or name + housenumber (partial address)',
         980: 'name only (city/street/housenumber ignored)',
         990: 'no name at all (last resort, nearest same-type POI)',
+        995: 'weak match: name only, ignoring shop/amenity type (OSM element likely missing its tag)',
     }
 
     @staticmethod
@@ -1297,6 +1298,78 @@ class POIBase:
             return None
         else:
             return data
+
+    # Road classes a bus/tram stop could plausibly sit beside - deliberately
+    # excludes footway/cycleway/path/steps/track etc: a stop snapped onto a
+    # footpath or a field track would be placed wrong even though it might be
+    # the nearest linear feature to a raw (sometimes imprecise) GTFS coordinate.
+    ROAD_SNAP_HIGHWAY_TYPES = ('motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'unclassified',
+                              'residential', 'living_street', 'service', 'motorway_link', 'trunk_link',
+                              'primary_link', 'secondary_link', 'tertiary_link')
+
+    def query_osm_road_snap_gpd(self, lon, lat, distance=50, offset=5):
+        """Snap a raw point onto the nearest usable road, then nudge it a few
+        meters off the road's centerline towards whichever side the raw point
+        was already leaning - for placing a brand-new bus/tram stop beside the
+        road it actually serves, instead of at its raw GTFS coordinate (which
+        routinely lands a few meters into the carriageway, the verge, or even a
+        nearby building/field - GTFS stop_lat/stop_lon is rarely surveyed to
+        kerb precision).
+
+        Args:
+            lon: Raw point longitude (e.g. straight from a GTFS feed's stop_lon).
+            lat: Raw point latitude.
+            distance: Search radius in meters for the nearest candidate road.
+            offset: How far (meters) to nudge the result off the road's own
+                centerline. 0 returns the point exactly on the road instead.
+
+        Returns:
+            pd.DataFrame | None: one row (osm_id, name, highway,
+            distance_to_road, lon, lat - the last two are the final, nudged
+            placement) for the nearest matching road, or None if none is
+            within `distance` meters or the query failed.
+        """
+        highway_list = ','.join("'{}'".format(h) for h in self.ROAD_SNAP_HIGHWAY_TYPES)
+        query = sqlalchemy.text('''
+            WITH point AS (SELECT ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geom),
+            candidate AS (
+                SELECT osm_id, name, highway, way,
+                       ST_ClosestPoint(way, point.geom) AS closest
+                FROM planet_osm_line, point
+                WHERE highway IN ({highway_list})
+                  AND way && ST_Expand(point.geom, :distance_deg)
+                ORDER BY way <-> point.geom
+                LIMIT 1
+            )
+            SELECT candidate.osm_id, candidate.name, candidate.highway,
+                   ST_DistanceSphere(candidate.closest, point.geom) AS distance_to_road,
+                   ST_Y(nudged.geom) AS lat, ST_X(nudged.geom) AS lon
+            FROM candidate, point,
+            LATERAL (
+                -- Degenerate case: the raw point already sits (almost) exactly on the
+                -- road - there's no meaningful direction to nudge it in, so just use
+                -- the closest point as-is rather than let ST_Azimuth fault on a
+                -- zero-length vector.
+                SELECT CASE WHEN ST_DistanceSphere(candidate.closest, point.geom) < 0.5 OR :offset <= 0
+                            THEN candidate.closest
+                            ELSE ST_SetSRID(ST_Project(candidate.closest::geography, :offset,
+                                           ST_Azimuth(candidate.closest::geography, point.geom::geography)
+                                           )::geometry, 4326)
+                       END AS geom
+            ) nudged
+        '''.format(highway_list=highway_list))
+        try:
+            with self.connection() as conn:
+                data = pd.read_sql(query, conn, params={'lon': lon, 'lat': lat,
+                                                        'distance_deg': distance / 70000.0,
+                                                        'offset': offset})
+        except Exception as err:
+            logging.warning('Exception occurred')
+            logging.exception(err)
+            return None
+        if data.empty:
+            return None
+        return data
 
     def query_poi_in_water(self, lon, lat):
         """Check whether a point falls on (or within 1m of) an OSM water/waterway

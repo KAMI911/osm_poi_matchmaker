@@ -658,11 +658,35 @@ def enrich_matched_pois(args):
                     if osm_building_q is not None:
                         logging.info('Relocating POI coordinates to the building with same address: %s %s, %s %s',
                                      row.poi_lat, row.poi_lon, osm_building_q.get('lat')[0],
-                                     osm_building_q.get('lon')[0]),
+                                     osm_building_q.get('lon')[0])
+                        # The lookup above was only ever used for this log line - the
+                        # actual poi_lat/poi_lon were never updated, so the "new POI"
+                        # export kept the raw coordinate regardless of a building match.
+                        data.at[i, 'poi_lat'] = osm_building_q.get('lat')[0]
+                        data.at[i, 'poi_lon'] = osm_building_q.get('lon')[0]
                     else:
                         logging.info(
                             'The POI is already in its building or there is no building match. \
                             Keeping POI coordinates as they are.')
+                    # A brand-new stop belongs beside the road it's actually served
+                    # by, not at its raw GTFS coordinate (which routinely lands a
+                    # few meters into the carriageway, the verge, or a nearby
+                    # building/field - stop_lat/stop_lon is rarely surveyed to kerb
+                    # precision). Only for stop-type POIs: the building-relocation
+                    # branch above already covers addressed POIs, and a shop/fuel
+                    # station etc. shouldn't be snapped onto a road at all.
+                    if row.poi_type in ('bus_stop', 'tram_stop', 'ferry_terminal'):
+                        osm_road_q = db.query_osm_road_snap_gpd(row.poi_lon, row.poi_lat, distance=50, offset=5)
+                        if osm_road_q is not None and not osm_road_q.empty:
+                            logging.info('Snapping new %s to the nearest road (%s): %s,%s -> %s,%s',
+                                         row.poi_type, osm_road_q.iloc[0]['name'],
+                                         row.poi_lat, row.poi_lon,
+                                         osm_road_q.iloc[0]['lat'], osm_road_q.iloc[0]['lon'])
+                            data.at[i, 'poi_lat'] = osm_road_q.iloc[0]['lat']
+                            data.at[i, 'poi_lon'] = osm_road_q.iloc[0]['lon']
+                        else:
+                            logging.info('No road within range to snap this new %s to - keeping raw coordinates.',
+                                         row.poi_type)
                     if row.preserve_original_post_code is not True:
                         try:
                             postcode = None
