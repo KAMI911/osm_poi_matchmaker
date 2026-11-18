@@ -263,9 +263,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--feed', choices=list(FEEDS) + ['all'], default='all')
     parser.add_argument('--min-overlap', type=float, default=0.5)
-    parser.add_argument('--out-dir', default='gtfs_relation_fixes')
+    parser.add_argument('--out-dir', default=None,
+                        help='Base output directory (default: <dir.output>/gtfs_relation_fixes, i.e. alongside '
+                             'the regular pipeline output - combined/, new/, existing/, etc).')
     args = parser.parse_args()
 
+    out_dir = args.out_dir or os.path.join(config.get_directory_output(), 'gtfs_relation_fixes')
     cache_dir = config.get_directory_cache_url()
     engine = sqlalchemy.create_engine('{}://{}:{}@{}:{}/{}'.format(
         config.get_database_type(), config.get_database_writer_username(),
@@ -274,7 +277,7 @@ def main():
 
     feed_keys = list(FEEDS) if args.feed == 'all' else [args.feed]
     for feed_key in feed_keys:
-        run_feed(feed_key, cache_dir, engine, args.out_dir, min_overlap=args.min_overlap)
+        run_feed(feed_key, cache_dir, engine, out_dir, min_overlap=args.min_overlap)
 
 
 if __name__ == '__main__':
