@@ -74,7 +74,7 @@ class hu_raiffeisen(DataProvider):
              'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 100, 'osm_search_distance_safe': 30,
-             'osm_search_distance_unsafe': 10},
+             'osm_search_distance_unsafe': 20},
         ]
         return self.__types
 

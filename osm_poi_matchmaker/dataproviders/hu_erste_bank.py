@@ -56,7 +56,7 @@ class hu_erste_bank(DataProvider):
              'poi_url_base': 'https://www.erstebank.hu', 'poi_search_name': '(erste bank|erste)',
              'poi_search_avoid_name': AVOID_NAME, 'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
-             'osm_search_distance_unsafe': 10},
+             'osm_search_distance_unsafe': 20},
         ]
         return self.__types
 

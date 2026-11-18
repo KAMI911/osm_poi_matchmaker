@@ -62,7 +62,7 @@ class hu_unicredit_bank(DataProvider):
              'poi_url_base': 'https://www.unicreditbank.hu', 'poi_search_name': '(unicredit bank|unicredit)',
              'poi_search_avoid_name': AVOID_NAME, 'additional_ref_name': 'ref',
              'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
-             'osm_search_distance_unsafe': 10},
+             'osm_search_distance_unsafe': 20},
         ]
         return self.__types
 

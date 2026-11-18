@@ -60,7 +60,7 @@ class hu_kh_bank(DataProvider):
              'poi_search_name': '(kh bank|k&h bank|k&h|kh|kh bank atm|k&h bank atm|k&h atm|kh atm)',
              'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80,
-             'osm_search_distance_unsafe': 3},
+             'osm_search_distance_unsafe': 20},
         ]
         return self.__types
 

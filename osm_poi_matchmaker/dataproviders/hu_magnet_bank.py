@@ -62,7 +62,7 @@ class hu_magnet_bank(DataProvider):
              'poi_search_name': '(magnet bank|magnetbank|magnet bank atm|magnet atm)',
              'poi_search_avoid_name': AVOID_NAME,
              'additional_ref_name': 'ref',
-             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 10},
+             'osm_search_distance_perfect': 2000, 'osm_search_distance_safe': 80, 'osm_search_distance_unsafe': 20},
         ]
         return self.__types
 

@@ -58,7 +58,7 @@ class hu_cib_bank(DataProvider):
              'poi_url_base': 'https://www.cib.hu', 'poi_search_name': '(cib bank|cib)',
              'poi_search_avoid_name': AVOID_NAME,
              'osm_search_distance_perfect': 50, 'osm_search_distance_safe': 30,
-             'osm_search_distance_unsafe': 10}
+             'osm_search_distance_unsafe': 20}
         ]
         return data
 
