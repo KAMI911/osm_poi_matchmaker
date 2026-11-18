@@ -133,7 +133,14 @@ class hu_helyi_kozlekedes(DataProvider):
                         'poi_type': poi_type,
                         'poi_tags': poi_tags,
                         'poi_url_base': 'https://gtfs.menetbrand.com',
-                        'poi_search_name': (operator or city_name).lower()[:128],
+                        # No poi_search_name on purpose - a real stop's own
+                        # name/brand/network tag is never the operator or city
+                        # name (it's named after its location), so this filter
+                        # only ever killed every name-filtered match stage
+                        # (940-980 in poi_base.py), leaving just the ~15m
+                        # last-resort stage to find stops that already exist in
+                        # OSM without their ref tag yet - see hu_bkv.py/
+                        # hu_volanbusz.py for the same fix with live confirmation.
                         'preserve_original_name': True,
                         'do_not_export_addr_tags': True,
                         'additional_ref_name': 'gtfs:stop_id:HU-{}'.format(slug.upper())[:64],

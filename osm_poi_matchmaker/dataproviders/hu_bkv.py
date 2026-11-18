@@ -93,20 +93,29 @@ class hu_bkv(DataProvider):
         hubkvferry = {'amenity': 'ferry_terminal'}
         hubkvferry.update(self.tags)
         self.__types = [
+            # No poi_search_name here on purpose: a real-world stop node's own
+            # name/brand/network tag will never contain "bkk"/"bkv" (it's named
+            # after its location, e.g. "Deak Ferenc ter"), so a literal name
+            # filter here only ever kills every name-filtered match stage in
+            # poi_base.py (940-980), leaving only the 10m last-resort stage to
+            # find a stop that already exists in OSM without its ref tag yet -
+            # confirmed live: several stops 20-35m from their real OSM node
+            # (routine GTFS/OSM coordinate drift) were landing in "new" purely
+            # because of this, not because they're actually missing.
             {'poi_code': 'hubkvbus', 'poi_common_name': 'BKK autóbuszmegálló', 'poi_type': 'bus_stop',
-             'poi_tags': hubkvbus, 'poi_url_base': 'https://bkk.hu', 'poi_search_name': '(bkk|bkv)',
+             'poi_tags': hubkvbus, 'poi_url_base': 'https://bkk.hu',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 10, **common},
             {'poi_code': 'hubkvtram', 'poi_common_name': 'BKK villamosmegálló', 'poi_type': 'tram_stop',
-             'poi_tags': hubkvtram, 'poi_url_base': 'https://bkk.hu', 'poi_search_name': '(bkk|bkv)',
+             'poi_tags': hubkvtram, 'poi_url_base': 'https://bkk.hu',
              'osm_search_distance_perfect': 300, 'osm_search_distance_safe': 80,
              'osm_search_distance_unsafe': 10, **common},
             {'poi_code': 'hubkvrail', 'poi_common_name': 'BKK állomás', 'poi_type': 'railway_station',
-             'poi_tags': hubkvrail, 'poi_url_base': 'https://bkk.hu', 'poi_search_name': '(bkk|bkv)',
+             'poi_tags': hubkvrail, 'poi_url_base': 'https://bkk.hu',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 150,
              'osm_search_distance_unsafe': 20, **common},
             {'poi_code': 'hubkvferry', 'poi_common_name': 'BKK kikötő', 'poi_type': 'ferry_terminal',
-             'poi_tags': hubkvferry, 'poi_url_base': 'https://bkk.hu', 'poi_search_name': '(bkk|bkv)',
+             'poi_tags': hubkvferry, 'poi_url_base': 'https://bkk.hu',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 20, **common},
         ]

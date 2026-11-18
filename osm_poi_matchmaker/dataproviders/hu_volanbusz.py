@@ -43,8 +43,15 @@ class hu_volanbusz(DataProvider):
     def types(self):
         huvolantra = self.tags.copy()
         self.__types = [
+            # No poi_search_name on purpose - a real bus stop's name/brand/network
+            # tag is never "volanbusz" (it's named after its location), so this
+            # filter only ever killed every name-filtered match stage (940-980 in
+            # poi_base.py), leaving just the 10m last-resort stage to find stops
+            # that already exist in OSM without their ref tag yet. Confirmed live:
+            # several stops 5-35m from their real OSM node (ordinary GTFS/OSM
+            # coordinate drift) were landing in "new" purely because of this.
             {'poi_code': 'huvolantra', 'poi_common_name': 'Volánbusz', 'poi_type': 'bus_stop',
-             'poi_tags': huvolantra, 'poi_url_base': 'https://www.volanbusz.hu', 'poi_search_name': 'volanbusz',
+             'poi_tags': huvolantra, 'poi_url_base': 'https://www.volanbusz.hu',
              'osm_search_distance_perfect': 400, 'osm_search_distance_safe': 100,
              'osm_search_distance_unsafe': 10, 'preserve_original_name': True,
              'additional_ref_name': 'gtfs:stop_id:HU-VOLAN', 'gtfs_feed_id': 'HU-VOLAN',
